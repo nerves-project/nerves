@@ -1,0 +1,6 @@
+%{"bbmustache": {:hex, :bbmustache, "1.0.3"},
+  "erlware_commons": {:hex, :erlware_commons, "0.15.0"},
+  "exrm": {:hex, :exrm, "1.0.0-rc7"},
+  "getopt": {:hex, :getopt, "0.8.2"},
+  "providers": {:hex, :providers, "1.4.1"},
+  "relx": {:hex, :relx, "3.5.0"}}
