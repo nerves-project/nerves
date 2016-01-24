@@ -14,7 +14,7 @@ defmodule Nerves.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [applications: []]
   end
 
   # Dependencies can be Hex packages:
@@ -30,5 +30,17 @@ defmodule Nerves.Mixfile do
     [
       {:exrm, github: "bitwalker/exrm", tag: "4c2b476aa25f35961abb783ba64433fe509fff82"}
     ]
+  end
+
+  defp description do
+    """
+    Nerves - Create firmware for embedded devices like Raspberry Pi and more
+    """
+  end
+
+  defp package do
+    [maintainers: ["Frank Hunleth", "Garth Hitchens", "Justin Schneck"],
+     licenses: ["MIT"],
+     links: %{"Github" => "https://github.com/nerves-project/nerves"}]
   end
 end
