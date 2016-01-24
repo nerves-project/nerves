@@ -3,7 +3,7 @@ defmodule Nerves.Mixfile do
 
   def project do
     [app: :nerves,
-     version: "0.0.1",
+     version: "0.1.0",
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -28,7 +28,7 @@ defmodule Nerves.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:exrm, "~> 1.0.0-rc7"}
+      {:exrm, github: "bitwalker/exrm", tag: "4c2b476aa25f35961abb783ba64433fe509fff82"}
     ]
   end
 end
