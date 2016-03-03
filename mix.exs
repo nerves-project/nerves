@@ -3,18 +3,25 @@ defmodule Nerves.Mixfile do
 
   def project do
     [app: :nerves,
-     version: "0.1.0",
+     name: "Nerves",
+     source_url: "https://github.com/nerves-project/nerves",
+     homepage_url: "http://nerves-project.org/",
+     version: "0.2.0",
      elixir: "~> 1.2",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps,
+     description: description,
+     package: package,
+     docs: [logo: "resources/logo.png",
+          extras: ["README.md"]]]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: []]
+    []
   end
 
   # Dependencies can be Hex packages:
@@ -28,19 +35,21 @@ defmodule Nerves.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:exrm, github: "bitwalker/exrm", tag: "4c2b476aa25f35961abb783ba64433fe509fff82"}
+      {:exrm, "~> 1.0"},
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.11", only: :dev}
     ]
   end
 
   defp description do
     """
-    Nerves - Create firmware for embedded devices like Raspberry Pi and more
+    Nerves - Create firmware for embedded devices like Raspberry Pi, BeagleBone Black, and more
     """
   end
 
   defp package do
     [maintainers: ["Frank Hunleth", "Garth Hitchens", "Justin Schneck"],
-     licenses: ["MIT"],
+     licenses: ["Apache 2.0"],
      links: %{"Github" => "https://github.com/nerves-project/nerves"}]
   end
 end
