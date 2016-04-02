@@ -6,7 +6,7 @@
   1. Add nerves to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:nerves, "~> 0.1"}]
+          [{:nerves, "~> 0.2"}]
         end
 
   2. Ensure nerves is started before your application:
