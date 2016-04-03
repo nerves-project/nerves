@@ -5,15 +5,15 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
   require Logger
 
   def run(_args) do
-    Mix.Task.reenable "deps.loadpaths"
+    #Mix.Task.reenable "deps.loadpaths"
     try do
       Env.initialize
       Env.bootstrap
-      Env.stop
       Mix.shell.info """
       ------------------
       Nerves Environment
       ------------------
+      Target:     #{Mix.Project.config[:target]}
       Toolchain:  #{System.get_env("NERVES_TOOLCHAIN")}
       System:     #{System.get_env("NERVES_SYSTEM")}
       """
