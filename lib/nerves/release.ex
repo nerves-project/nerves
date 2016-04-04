@@ -8,7 +8,8 @@ defmodule ReleaseManager.Plugin.Nerves do
     case System.get_env("NERVES_SYSTEM") do
       nil -> config
       system ->
-        info "Modifying release for Nerves System #{Path.basename(system)}"
+
+        info "Modifying release for Nerves System #{Mix.Project.config[:target]}"
         relx_config = config.relx_config
         |> Enum.reject(fn
           {:include_erts, _} -> true

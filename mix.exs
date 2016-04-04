@@ -37,7 +37,8 @@ defmodule Nerves.Mixfile do
     [
       {:exrm, "~> 1.0"},
       {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev}
+      {:ex_doc, "~> 0.11", only: :dev},
+      {:porcelain, "~> 2.0"}
     ]
   end
 

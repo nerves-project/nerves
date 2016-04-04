@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Nerves.Precompile do
 
   def run(_args) do
     Mix.Tasks.Deps.Compile.run ["nerves_system"]
-
+    Env.initialize
     case Mix.Task.run "deps.check", ["--no-compile"] do
       :noop -> :ok
       _ -> Mix.Task.reenable "deps.check"
@@ -19,6 +19,6 @@ defmodule Mix.Tasks.Nerves.Precompile do
     end
     Mix.Tasks.Nerves.Loadpaths.run "nerves.loadpaths"
     Mix.Task.reenable "deps.precompile"
-
+    
   end
 end
