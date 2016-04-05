@@ -101,11 +101,13 @@ $ NERVES_TARGET=bbb mix deps.get
 ```
 
 **The Project Config**
+
 `archives: [nerves_bootstrap: "~> 0.1"]` - Inform Elixir that the user is required to have the `:nerves_bootstrap` archive installed.
 
 `target: @target` - Nerves required to have access to the target in later stages of firmware production. This is due to organization of configurations and artifacts on disk.
 
 **Paths**
+
 ```
 deps_path: "deps/#{@target}",
 build_path: "_build/#{@target}",
