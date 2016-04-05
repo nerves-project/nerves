@@ -4,9 +4,9 @@ Craft bulletproof firmware in the stunningly productive Elixir language
 ## Requirements
 
 64-bit host running
-Mac OS 10.10+ or Linux (We've tested on Debian / Ubuntu / Redhat / CentOS)
-Elixir ~> 1.2.4 or ~> 1.3
-[fwup](https://github.com/fhunleth/fwup) >= 0.6.1
+* Mac OS 10.10+ or Linux (We've tested on Debian / Ubuntu / Redhat / CentOS)
+* Elixir ~> 1.2.4 or ~> 1.3
+* [fwup](https://github.com/fhunleth/fwup) >= 0.6.1
 
 ## Installation
 
@@ -25,7 +25,7 @@ In addition to the archive, you will need to include the `:nerves` application i
   1. Add nerves to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:nerves, "~> 0.2"}]
+          [{:nerves, "~> 0.3"}]
         end
 
   2. Ensure nerves is started before your application:
@@ -34,7 +34,7 @@ In addition to the archive, you will need to include the `:nerves` application i
           [applications: [:nerves]]
         end
 
-## Usage
+## Project Configuration
 
 Embedding nerves into mix allows us nicely handle a variety of configurations from basic to advanced. Part of this involves handling multi-target builds. First lets talk about how to configure a mix file for Nerves.
 
@@ -177,7 +177,9 @@ Options
   * `local` - Linux only. This will compile the system locally.
   * `bakeware` - Not ready yet. This will send the serialized Nerves Env to bakeware for compilation.
 
-## Building Firmware
+## Usage
+
+### Building Firmware
 
 Now that everything is installed and configured its time to make some firmware. Here is the workflow
 
