@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
   end
 
   def shell_info do
-    if System.get_env("NERVES_DEBUG") == 1 do
+    if System.get_env("NERVES_DEBUG") == "1" do
       Mix.shell.info """
       ------------------
       Nerves Environment
