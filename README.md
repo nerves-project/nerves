@@ -92,7 +92,9 @@ Starting from the top down, lets break apart whats going on here.
 **Target**
 
 First, we expose a mechanism for passing the target string into the file. This target is a string that we use to refer to different common configurations of boards, example: rpi, rpi2, rpi3, bbb.
+
 `@target System.get_env("NERVES_TARGET") || "rpi2"`
+
 In this configuration we are saying that the user must specify the target by setting or passing the environment variable `NERVES_TARGET`. The configuration is also stating that if a target is not passed or defined that the project will choose the default target of rpi2. Since it is just required that the module attribute `@target` is set to an actual target string value, and that this is just elixir code, the user can decide to hardcode a single target here, or omit the project default target.
 
 To switch targets on the fly, the user can call any mix command with
@@ -104,7 +106,7 @@ $ NERVES_TARGET=bbb mix deps.get
 
 `archives: [nerves_bootstrap: "~> 0.1"]` - Inform Elixir that the user is required to have the `:nerves_bootstrap` archive installed.
 
-`target: @target` - Nerves required to have access to the target in later stages of firmware production. This is due to organization of configurations and artifacts on disk.
+`target: @target` - Nerves requires to have access to the target in later stages of firmware production. This is due to organization of configurations and artifacts on disk  .
 
 **Paths**
 
@@ -113,9 +115,9 @@ deps_path: "deps/#{@target}",
 build_path: "_build/#{@target}",
 config_path: "config/#{@target}/config.exs",
 ```
-In order to sanitize the compiled code we separate all paths by target. This prevents errors that could occur if deps or builds of configs are shared between targets of different architectures.
+In order to sanitize the compiled code we separate all paths by target. This prevents errors that could occur if dependencies or builds of configs are shared between targets of different architectures.
 
-`deps: deps ++ system(@target)` - Deps are also seperated by target. IN this setup, we have declatred that deps which we want to share between all targets can come in from `deps/0` and the system configuration for the target can be included from `system/1`. This is important because the Nerves system compiler will require that only 1 system configuration is present at all times.
+`deps: deps ++ system(@target)` - Dependencies are also separated by target. In this setup, we have shared dependencies from `deps/0` and system specific dependencies included from `system/1`. This is important because the Nerves system compiler will require that only 1 system configuration is present at all times.
 
 `aliases: aliases` - Aliases are Nerves way of bootstrapping the mix project lifecycle.
 The following aliases are required to be specified.
@@ -125,10 +127,10 @@ def aliases do
    "deps.loadpaths":  ["deps.loadpaths", "nerves.loadpaths"]]
 end
 ```
-These aliases hook into the mix project lifecycle at two locations, `precompile` and `loadpaths`. These hooks ensure that the first dep to be compiled is the system. The precompile task makes the assumption that `:nerves_system` has been fetched, locates it on disk, and forces it to be the first app to get compiled. Once `:nerves_system` is compiled, it initializes the `Nerves.Env`, a module responsible for globally loading package configuration metadata about Nerves deps without loading or compiling the deps.
+These aliases hook into the mix project lifecycle at two locations, `precompile` and `loadpaths`. These hooks ensure that the first dependency to be compiled is the system. The precompile task makes the assumption that `:nerves_system` has been fetched, locates it on disk, and forces it to be the first app to get compiled. Once `:nerves_system` is compiled, it initializes the `Nerves.Env`, a module responsible for globally loading package configuration metadata about Nerves dependencies without loading or compiling them.
 
 ### Nerves Package Configuration
-The package configuration file should be placed in the root of the dep source directory and called `nerves.exs`. The file should `use Mix.Config` and should contain configuration information about the package.
+The package configuration file should be placed in the root of the dependency source directory and called `nerves.exs`. The file should `use Mix.Config` and should contain configuration information about the package.
 
 For example, when describing the system configuration for a Raspberry Pi 2 Target
 ```
@@ -142,6 +144,8 @@ config :nerves_system_rpi2, :nerves_env,
     defconfig: "nerves_defconfig"
   ]
 ```
+
+Lets take a look at some of these values
 
 `type: :system` - (required) The type tells the Env what kind of package it is.
 The following are types and a common example of what they are
@@ -164,6 +168,7 @@ ext: [
 ```
 
 `build_platform: Nerves.System.Platforms.BR` - The build platform will point to a module which which uses the `Nerves.System.Provider` behaviour.
+
 `bakeware: [target: "rpi", recipe: "nerves/rpi"]` - Used to hold metadata needed for the bakeware provider. This should be information from the Bakefile if migrating.
 
 ### Env Variables
