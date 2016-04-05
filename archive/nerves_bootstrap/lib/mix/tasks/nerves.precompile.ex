@@ -2,11 +2,10 @@ defmodule Mix.Tasks.Nerves.Precompile do
   use Mix.Task
   alias Nerves.Env
 
-  require Logger
-
   def run(_args) do
     Mix.Tasks.Deps.Compile.run ["nerves_system"]
     Env.initialize
+
     case Mix.Task.run "deps.check", ["--no-compile"] do
       :noop -> :ok
       _ -> Mix.Task.reenable "deps.check"
@@ -17,8 +16,8 @@ defmodule Mix.Tasks.Nerves.Precompile do
     else
       Mix.shell.info "Nerves Env current"
     end
+
     Mix.Tasks.Nerves.Loadpaths.run "nerves.loadpaths"
     Mix.Task.reenable "deps.precompile"
-    
   end
 end

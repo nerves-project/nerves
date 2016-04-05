@@ -4,8 +4,7 @@ defmodule Mix.Tasks.Nerves.New do
 
   @nerves Path.expand("../..", __DIR__)
   @version Mix.Project.config[:version]
-  @shortdoc "Creates a new Nerves v#{@version} application"
-
+  @shortdoc "Creates a new Nerves application"
 
   def run(_) do
     

@@ -167,7 +167,7 @@ ext: [
 ]
 ```
 
-`build_platform: Nerves.System.Platforms.BR` - The build platform will point to a module which which uses the `Nerves.System.Provider` behaviour.
+`build_platform: Nerves.System.Platforms.BR` - The build platform will point to a module which which uses the `Nerves.System.Platform` behaviour.
 
 `bakeware: [target: "rpi", recipe: "nerves/rpi"]` - Used to hold metadata needed for the bakeware provider. This should be information from the Bakefile if migrating.
 

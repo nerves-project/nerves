@@ -2,22 +2,13 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
   use Mix.Task
   alias Nerves.Env
 
-  require Logger
-
   def run(_args) do
     case Code.ensure_loaded?(Nerves.Env) do
       true ->
         Env.initialize
         try do
           Env.bootstrap
-          Mix.shell.info """
-          ------------------
-          Nerves Environment
-          ------------------
-          target:     #{Mix.Project.config[:target]}
-          toolchain:  #{env("NERVES_TOOLCHAIN")}
-          system:     #{env("NERVES_SYSTEM")}
-          """
+          shell_info
         rescue
           UndefinedFunctionError ->
             Mix.shell.info "Nerves Env needs to be updated"
@@ -33,5 +24,18 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
     k
     |> System.get_env
     |> Path.relative_to_cwd
+  end
+
+  def shell_info do
+    if System.get_env("NERVES_DEBUG") == 1 do
+      Mix.shell.info """
+      ------------------
+      Nerves Environment
+      ------------------
+      target:     #{Mix.Project.config[:target]}
+      toolchain:  #{env("NERVES_TOOLCHAIN")}
+      system:     #{env("NERVES_SYSTEM")}
+      """
+    end
   end
 end
