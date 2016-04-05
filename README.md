@@ -192,6 +192,9 @@ Options
 Now that everything is installed and configured its time to make some firmware. Here is the workflow
 
 `mix deps.get` - Fetch the dependencies.
+
 `mix compile` - Bootstrap the Nerves Env and compile the App.
+
 `mix firmware` - Creates a fw file
+
 `mix firmware.burn` - Burn firmware to an inserted SD card.
