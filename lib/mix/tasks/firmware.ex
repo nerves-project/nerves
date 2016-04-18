@@ -13,6 +13,8 @@ defmodule Mix.Tasks.Firmware do
     target = config[:target]
     verbosity = opts[:verbosity] || "normal"
 
+    firmware_config = Application.get_env(:nerves, :firmware)
+
     system_path = System.get_env("NERVES_SYSTEM") || raise """
       Environment variable $NERVES_SYSTEM is not set
     """
@@ -24,7 +26,20 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run "release", ["--verbosity=#{verbosity}", "--no-confirm-missing", "--implode"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
-    "bash #{rel2fw_path} rel/#{otp_app} _images/#{target}/#{otp_app}.fw"
+    cmd = "bash #{rel2fw_path}"
+    rootfs_additions =
+      case firmware_config[:rootfs_additions] do
+        nil -> ""
+        rootfs_additions ->
+          rfs = File.cwd!
+          |> Path.join(rootfs_additions)
+          "-a " <> rfs
+      end
+    fw = "-f _images/#{target}/#{otp_app}.fw"
+    output = "rel/#{otp_app}"
+
+    [cmd, rootfs_additions, fw, output]
+    |> Enum.join(" ")
     |> shell
   end
 end
