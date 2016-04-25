@@ -37,9 +37,9 @@ defmodule Mix.Tasks.Firmware do
       end
     fw = "-f _images/#{target}/#{otp_app}.fw"
     output = "rel/#{otp_app}"
-
-    [cmd, rootfs_additions, fw, output]
-    |> Enum.join(" ")
-    |> shell
+    %{status: 0} =
+      [cmd, rootfs_additions, fw, output]
+      |> Enum.join(" ")
+      |> shell
   end
 end

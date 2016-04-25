@@ -33,6 +33,6 @@ defmodule Mix.Tasks.Firmware.Burn do
         {_, type} ->
           raise "Unable to burn firmware on your host #{inspect type}"
       end
-    shell(fwup)
+    %{status: 0} = shell(fwup)
   end
 end
