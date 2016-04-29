@@ -35,10 +35,18 @@ defmodule Mix.Tasks.Firmware do
           |> Path.join(rootfs_additions)
           "-a " <> rfs
       end
+    fwup_conf =
+      case firmware_config[:fwup_conf] do
+        nil -> ""
+        fwup_conf ->
+          fw_conf = File.cwd!
+          |> Path.join(fwup_conf)
+          "-c " <> fw_conf
+      end
     fw = "-f _images/#{target}/#{otp_app}.fw"
     output = "rel/#{otp_app}"
     %{status: 0} =
-      [cmd, rootfs_additions, fw, output]
+      [cmd, fwup_conf, rootfs_additions, fw, output]
       |> Enum.join(" ")
       |> shell
   end
