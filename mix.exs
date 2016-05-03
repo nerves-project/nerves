@@ -49,7 +49,7 @@ defmodule Nerves.Mixfile do
   end
 
   defp package do
-    [maintainers: ["Frank Hunleth", "Garth Hitchens", "Justin Schneck"],
+    [maintainers: ["Frank Hunleth", "Garth Hitchens", "Justin Schneck", "Greg Mefford"],
      licenses: ["Apache 2.0"],
      links: %{"Github" => "https://github.com/nerves-project/nerves"}]
   end
