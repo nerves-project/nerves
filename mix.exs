@@ -35,7 +35,7 @@ defmodule Nerves.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:exrm, github: "mobileoverlord/exrm", branch: "nerves"},
+      {:exrm, "~> 1.0.4"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev},
       {:porcelain, "~> 2.0"}

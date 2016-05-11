@@ -3,20 +3,23 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
   alias Nerves.Env
 
   def run(_args) do
-    case Code.ensure_loaded?(Nerves.Env) do
-      true ->
-        Env.initialize
-        try do
-          Env.bootstrap
-          shell_info
-        rescue
-          UndefinedFunctionError ->
-            Mix.shell.info "Nerves Env needs to be updated"
-          e ->
-            raise e
-        end
-      false ->
-        Mix.shell.info "Nerves Env not loaded"
+    unless System.get_env("NERVES_PRECOMPILE") == "1" do
+      case Code.ensure_compiled?(Nerves.Env) do
+        true ->
+          Env.initialize
+          try do
+            Env.bootstrap
+            Mix.shell.info "Nerves Env loaded"
+            shell_info
+          rescue
+            UndefinedFunctionError ->
+              Mix.shell.info "Nerves Env needs to be updated"
+            e ->
+              raise e
+          end
+        false ->
+          Mix.shell.info "Nerves Env not loaded"
+      end
     end
   end
 
@@ -35,6 +38,7 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
       target:     #{Mix.Project.config[:target]}
       toolchain:  #{env("NERVES_TOOLCHAIN")}
       system:     #{env("NERVES_SYSTEM")}
+      app:        #{env("NERVES_APP")}
       """
     end
   end

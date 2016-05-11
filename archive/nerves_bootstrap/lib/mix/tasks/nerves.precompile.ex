@@ -3,6 +3,8 @@ defmodule Mix.Tasks.Nerves.Precompile do
   alias Nerves.Env
 
   def run(_args) do
+    Mix.shell.info "Nerves Precompile Start"
+    System.put_env("NERVES_PRECOMPILE", "1")
     Mix.Tasks.Deps.Compile.run ["nerves_system"]
     Env.initialize
 
@@ -17,7 +19,9 @@ defmodule Mix.Tasks.Nerves.Precompile do
       Mix.shell.info "Nerves Env current"
     end
 
+    System.put_env("NERVES_PRECOMPILE", "0")
     Mix.Tasks.Nerves.Loadpaths.run "nerves.loadpaths"
     Mix.Task.reenable "deps.precompile"
+    Mix.shell.info "Nerves Precompile End"
   end
 end
