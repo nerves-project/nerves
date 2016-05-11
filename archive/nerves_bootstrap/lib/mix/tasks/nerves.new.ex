@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Nerves.New do
     * `--app` - the name of the OTP application
     * `--module` - the name of the base module in
       the generated skeleton
-    * `--target` - specify the default target to use. Defaults to rpi2
+    * `--target` - Required. specify the default target to use.
 
   ## Examples
       mix nerves.new blinky
@@ -79,7 +79,11 @@ defmodule Mix.Tasks.Nerves.New do
   end
 
   def run(app, mod, path, opts) do
-    target = opts[:target]
+    target = opts[:target] || Mix.raise """
+    You must specify a default target you would like nerves to use
+    Example:
+    mix nerves.new blinky --target rpi2
+    """
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
 
     binding = [application_name: app,
