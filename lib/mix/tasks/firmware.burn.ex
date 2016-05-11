@@ -8,11 +8,11 @@ defmodule Mix.Tasks.Firmware.Burn do
     otp_app = config[:app]
     target = config[:target]
 
-    system_path = System.get_env("NERVES_SYSTEM") || raise """
+    System.get_env("NERVES_SYSTEM") || raise """
       Environment variable $NERVES_SYSTEM is not set
     """
 
-    _toolchain_path = System.get_env("NERVES_TOOLCHAIN") || raise """
+    System.get_env("NERVES_TOOLCHAIN") || raise """
       Environment variable $NERVES_TOOLCHAIN is not set
     """
 

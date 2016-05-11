@@ -1,8 +1,10 @@
-%{"bbmustache": {:hex, :bbmustache, "1.0.3"},
+%{"bbmustache": {:hex, :bbmustache, "1.0.4"},
+  "cf": {:hex, :cf, "0.2.1"},
   "earmark": {:hex, :earmark, "0.2.1"},
-  "erlware_commons": {:hex, :erlware_commons, "0.15.0"},
+  "erlware_commons": {:hex, :erlware_commons, "0.19.0"},
   "ex_doc": {:hex, :ex_doc, "0.11.4"},
-  "exrm": {:hex, :exrm, "1.0.2"},
+  "exrm": {:hex, :exrm, "1.0.4"},
   "getopt": {:hex, :getopt, "0.8.2"},
-  "providers": {:hex, :providers, "1.4.1"},
-  "relx": {:hex, :relx, "3.5.0"}}
+  "porcelain": {:hex, :porcelain, "2.0.1"},
+  "providers": {:hex, :providers, "1.6.0"},
+  "relx": {:hex, :relx, "3.19.0"}}
