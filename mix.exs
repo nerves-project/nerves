@@ -35,9 +35,10 @@ defmodule Nerves.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:exrm, "~> 1.0"},
+      {:exrm, "~> 1.0.4"},
       {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev}
+      {:ex_doc, "~> 0.11", only: :dev},
+      {:porcelain, "~> 2.0"}
     ]
   end
 
@@ -48,7 +49,7 @@ defmodule Nerves.Mixfile do
   end
 
   defp package do
-    [maintainers: ["Frank Hunleth", "Garth Hitchens", "Justin Schneck"],
+    [maintainers: ["Frank Hunleth", "Garth Hitchens", "Justin Schneck", "Greg Mefford"],
      licenses: ["Apache 2.0"],
      links: %{"Github" => "https://github.com/nerves-project/nerves"}]
   end
