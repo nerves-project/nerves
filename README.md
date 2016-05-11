@@ -35,10 +35,28 @@ In addition to the archive, you will need to include the `:nerves` application i
         end
 
 ## Project Configuration
+You can generate a new nerves project using the project generator. You are required to pass a target tag to the generator. You can find more information about target tags for your board at  http://nerves-project.org
 
-Embedding nerves into mix allows us nicely handle a variety of configurations from basic to advanced. Part of this involves handling multi-target builds. First lets talk about how to configure a mix file for Nerves.
+`mix nerves.new my_app --target rpi2`
+
+### Building Firmware
+
+Now that everything is installed and configured its time to make some firmware. Here is the workflow
+
+`mix deps.get` - Fetch the dependencies.
+
+`mix compile` - Bootstrap the Nerves Env and compile the App.
+
+`mix firmware` - Creates a fw file
+
+`mix firmware.burn` - Burn firmware to an inserted SD card.
+
+
+## Build System Details
 
 ### Mix
+
+Embedding nerves into mix allows us nicely handle a variety of configurations from basic to advanced. Part of this involves handling multi-target builds. First lets talk about how to configure a mix file for Nerves.
 
 Nerves applications require some additional project configurations to be made for the environment to function properly. Lets take a look at some of these in this sample mix file.
 ```
@@ -137,10 +155,11 @@ For example, when describing the system configuration for a Raspberry Pi 2 Targe
 use Mix.Config
 
 config :nerves_system_rpi2, :nerves_env,
-  type: :system,
+  type:  :system,
+  mirrors: [
+    "https://github.com/nerves-project/nerves_system_rpi2/releases/download/v#{version}/nerves_system_rpi2-v#{version}.tar.gz"],
   build_platform: Nerves.System.Platforms.BR,
-  bakeware: [target: "rpi2", recipe: "nerves/rpi2"],
-  ext: [
+  build_config: [
     defconfig: "nerves_defconfig"
   ]
 ```
@@ -169,32 +188,16 @@ ext: [
 
 `build_platform: Nerves.System.Platforms.BR` - The build platform will point to a module which which uses the `Nerves.System.Platform` behaviour.
 
-`bakeware: [target: "rpi", recipe: "nerves/rpi"]` - Used to hold metadata needed for the bakeware provider. This should be information from the Bakefile if migrating.
-
 ### Env Variables
 
 You can configure which cache / compile providers the system and toolchain should use when building. The following are environment variables which you can set.
 
-`NERVES_SYSTEM_CACHE_PROVIDER` - The cache provider to use
+`NERVES_SYSTEM_CACHE` - The cache provider to use
 Options
   * `none` - Do not use a cache provider. This will force the system to compile instead of pulling from cache.
-  * `bakeware` - Use the bakeware cache provider. The provider will use the target and recipe from the package configuration in addition to the version from the `Mix.Project.config` of the package.
+  * `http` - Use the http cache provider. This provider will use the list of mirrors from the configuration.
 
-`NERVES_SYSTEM_COMPILER_PROVIDER` - The compiler provider to use
+`NERVES_SYSTEM_COMPILER` - The compiler provider to use
 Options
   * `local` - Linux only. This will compile the system locally.
-  * `bakeware` - Not ready yet. This will send the serialized Nerves Env to bakeware for compilation.
-
-## Usage
-
-### Building Firmware
-
-Now that everything is installed and configured its time to make some firmware. Here is the workflow
-
-`mix deps.get` - Fetch the dependencies.
-
-`mix compile` - Bootstrap the Nerves Env and compile the App.
-
-`mix firmware` - Creates a fw file
-
-`mix firmware.burn` - Burn firmware to an inserted SD card.
+  * `none` - Will not compile the system. You will be sad.
