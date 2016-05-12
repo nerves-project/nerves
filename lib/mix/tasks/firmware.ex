@@ -15,14 +15,14 @@ defmodule Mix.Tasks.Firmware do
 
     firmware_config = Application.get_env(:nerves, :firmware)
 
-    system_path = System.get_env("NERVES_SYSTEM") || raise """
+    System.get_env("NERVES_SYSTEM") || raise """
       Environment variable $NERVES_SYSTEM is not set
     """
 
-    _toolchain_path = System.get_env("NERVES_TOOLCHAIN") || raise """
+    System.get_env("NERVES_TOOLCHAIN") || raise """
       Environment variable $NERVES_TOOLCHAIN is not set
     """
-
+    Mix.Task.run "compile", [] # Maybe this should be in there?
     Mix.Task.run "release", ["--verbosity=#{verbosity}", "--no-confirm-missing", "--implode"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")

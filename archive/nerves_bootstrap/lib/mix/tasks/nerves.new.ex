@@ -7,14 +7,16 @@ defmodule Mix.Tasks.Nerves.New do
   @shortdoc "Creates a new Nerves application"
 
   @new [
-    {:eex,  "new/config/config.exs",        "config/config.exs"},
-    {:eex,  "new/lib/application_name.ex",  "lib/application_name.ex"},
-    {:eex,  "new/test/test_helper.exs",     "test/test_helper.exs"},
-    {:eex,  "new/rel/vm.args",              "rel/vm.args"},
-    {:text, "new/.gitignore",               ".gitignore"},
-    {:eex,  "new/mix.exs",                  "mix.exs"},
-    {:eex,  "new/README.md",                "README.md"},
-    {:keep, "new/rel",                      "rel"}
+    {:eex,  "new/config/config.exs",                "config/config.exs"},
+    {:eex,  "new/lib/application_name.ex",          "lib/application_name.ex"},
+    {:eex,  "new/test/test_helper.exs",             "test/test_helper.exs"},
+    {:eex,  "new/test/application_name_test.exs",   "test/application_name_test.exs"},
+    {:eex,  "new/rel/vm.args",                      "rel/vm.args"},
+    {:text, "new/rel/.gitignore",                   "rel/.gitignore"},
+    {:text, "new/.gitignore",                       ".gitignore"},
+    {:eex,  "new/mix.exs",                          "mix.exs"},
+    {:eex,  "new/README.md",                        "README.md"},
+    {:keep, "new/rel",                              "rel"}
   ]
 
   # Embed all defined templates
