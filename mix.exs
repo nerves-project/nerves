@@ -1,3 +1,12 @@
+defmodule Mix.Tasks.CopyImages do
+  @shortdoc "Copy the images referenced by docs, since ex_doc doesn't do this."
+  use Mix.Task
+  def run(_) do
+    File.cp_r "resources", "doc/resources"
+  end
+end
+
+
 defmodule Nerves.Mixfile do
   use Mix.Project
 
@@ -13,8 +22,7 @@ defmodule Nerves.Mixfile do
      deps: deps,
      description: description,
      package: package,
-     docs: [logo: "resources/logo.png",
-          extras: ["README.md"]]]
+     docs: docs]
   end
 
   # Configuration for the OTP application
@@ -40,6 +48,18 @@ defmodule Nerves.Mixfile do
       {:ex_doc, "~> 0.11", only: :dev},
       {:porcelain, "~> 2.0"}
     ]
+  end
+
+  defp docs do
+    [main: "getting-started",
+     logo: "resources/logo.png",
+     extras: [
+        "docs/Installation.md",
+        "docs/Getting Started.md",
+        "docs/Targets.md",
+        "docs/User Interfaces.md",
+        "docs/Advanced Configuration.md"
+    ]]
   end
 
   defp description do
