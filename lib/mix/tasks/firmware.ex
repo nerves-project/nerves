@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Firmware do
 
     firmware_config = Application.get_env(:nerves, :firmware)
 
-    System.get_env("NERVES_SYSTEM") || raise """
+    system_path = System.get_env("NERVES_SYSTEM") || raise """
       Environment variable $NERVES_SYSTEM is not set
     """
 
