@@ -57,6 +57,7 @@ defmodule Nerves.Mixfile do
         "docs/Installation.md",
         "docs/Getting Started.md",
         "docs/Targets.md",
+        "docs/Systems.md",
         "docs/User Interfaces.md",
         "docs/Advanced Configuration.md"
     ]]

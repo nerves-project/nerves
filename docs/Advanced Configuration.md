@@ -74,7 +74,7 @@ It is important to note that if you replace a config file, that you should first
 $ unsquashfs path/to/rootfs.squashfs
 ```
 
-This file is typically found in `_build/(Mix.env)/nerves/system/images/rootfs.squashfs`. It will be expanded into the current directory under `squashfs-root`
+This file is typically found in `_build/(Target)/(Mix.env)/nerves/system/images/rootfs.squashfs`. It will be expanded into the current directory under `squashfs-root`
 
 ## Overwriting Files in the Boot Partition
 
@@ -217,7 +217,7 @@ Mounting your new partition can be handled by either erlinit or by your Elixir a
 # Mount the configdata partition
 # See http://www.linuxfromscratch.org/lfs/view/6.3/chapter08/fstab.html about
 # ignoring warning the Linux kernel warning about using UTF8 with vfat.
--m /dev/mmcblk0p3:/root:vfat::;/dev/mmcblk0p4:/mnt/log:vfat::
+-m /dev/mmcblk0p3:/root:vfat::;/dev/mmcblk0p4:/mnt/log:ext4::
 ```
 
 The other option is to handle it in your Elixir code. This can be useful if you want to scan the disk for corruption and reformat / seed it. Erlinit can only attempt to mount the partition.
