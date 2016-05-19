@@ -4,15 +4,15 @@
 
 Phoenix makes an excellent companion to Nerves applications by offering an easy to use, powerful framework to create user interfaces in parallel with Nerves device code. The easiest way to handle this is to layout your application as an Umbrella. Lets get started...
 
-First generate a new umbrella app
+First generate a new umbrella app. Called nervy in this case
 ```
-$ mix new umbrella --umbrella
+$ mix new nervy --umbrella
 ```
 
 Next lets create our sub applications for nerves and for phoenix
 
 ```
-$ cd umbrella/apps
+$ cd nervy/apps
 $ mix nerves.new fw --target rpi3
 ...
 $ mix phoenix.new ui --database sqlite
@@ -31,7 +31,7 @@ end
 In order to build the ui phoenix application into the nerves firmware app, we will need to add some configuration to our firmware config.
 
 ```elixir
-# umbrella/apps/firmware/config/config.exs
+# nervy/apps/firmware/config/config.exs
 
 use Mix.Config
 
@@ -58,12 +58,12 @@ There you have it! A Phoenix web application ready for your Nerves device. By se
 When developing your UI, you can simply run the phoenix server from the UI application.
 
 ```
-# umbrella/apps/ui
+# nervy/apps/ui
 $ mix phoenix.server
 ```
 
 When its time to create your firmware
 ```
-# umbrella/apps/firmware
+# nervy/apps/firmware
 $ mix firmware
 ```
