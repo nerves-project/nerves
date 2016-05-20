@@ -5,8 +5,8 @@ defmodule Mix.Tasks.Firmware do
   @switches [verbosity: :string]
 
   def run(args) do
+    check_requirements
     {opts, _, _} = OptionParser.parse(args)
-
     Mix.shell.info "Nerves Firmware Assembler"
     config = Mix.Project.config
     otp_app = config[:app]
@@ -45,9 +45,12 @@ defmodule Mix.Tasks.Firmware do
       end
     fw = "-f _images/#{target}/#{otp_app}.fw"
     output = "rel/#{otp_app}"
-    %{status: 0} =
-      [cmd, fwup_conf, rootfs_additions, fw, output]
-      |> Enum.join(" ")
-      |> shell
+    [cmd, fwup_conf, rootfs_additions, fw, output]
+    |> Enum.join(" ")
+    |> shell
+    |> result
   end
+
+  def result(%{status: 0}), do: nil
+  def result(result), do: IO.inspect(result)
 end

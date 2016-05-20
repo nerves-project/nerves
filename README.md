@@ -8,7 +8,13 @@ Craft bulletproof firmware in the stunningly productive Elixir language
 * Elixir ~> 1.2.4 or ~> 1.3
 * [fwup](https://github.com/fhunleth/fwup) >= 0.6.1
 
-## Installation
+## Docs
+
+[Installation Docs](https://hexdocs.pm/nerves/installation.html)
+[Getting Started](https://hexdocs.pm/nerves/getting-started.html)
+[Advanced Configuration](https://hexdocs.pm/nerves/advanced-configuration.html)
+
+## Install
 
 ### Bootstrap Archive
 

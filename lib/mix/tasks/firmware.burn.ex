@@ -3,6 +3,7 @@ defmodule Mix.Tasks.Firmware.Burn do
   import Mix.Nerves.Utils
 
   def run(args) do
+    check_requirements
     Mix.shell.info "Nerves Firmware Burn"
     config = Mix.Project.config
     otp_app = config[:app]
