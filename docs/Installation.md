@@ -38,7 +38,7 @@ For MacOS these tools can be installed using Homebrew. For more information on h
 
 Once homebrew is installed, you can install these missing utilities by running the following
 ```
-$ brew install coreutils squashfs-tools
+$ brew install coreutils squashfs
 ```
 
 ## Nerves Bootstrap
