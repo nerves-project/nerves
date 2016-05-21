@@ -34,7 +34,7 @@ When finalizing firmware and creating a root filesystem for your target, Nerves 
 `gstat`
 `squashfs-tools`
 
-For MacOS these tools can be installed using Homebrew. For more information on how to install homebrew, visit the homebrew [Installation Page](http://brew.sh/)
+For MacOS, these tools can be installed using Homebrew. For more information on how to install homebrew, visit the homebrew [Installation Page](http://brew.sh/)
 
 Once homebrew is installed, you can install these missing utilities by running the following
 ```
@@ -43,13 +43,13 @@ $ brew install coreutils squashfs
 
 ## Nerves Bootstrap
 
-With Elixir, Erlang, and your host utilities installed, we can now add the nerves_bootstrap archive to your mix environment. This archive allows Nerves to bootstrap the Mix environment ensuring that your code is properly compiled using the right cross-compiler for the target. The nerves_bootstrap archive also includes a new project generator which you can use to create new nerves projects. To install the nerves_bootstrap archive:
+With Elixir, Erlang, and your host utilities installed, you can now add the `nerves_bootstrap` archive to your mix environment. This archive allows Nerves to bootstrap the Mix environment, ensuring that your code is properly compiled using the right cross-compiler for the target. The `nerves_bootstrap` archive also includes a new project generator, which you can use to create new Nerves projects. To install the `nerves_bootstrap` archive:
 
 ```
 $ mix archive.install https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez
 ```
 
-If the archive fails to install properly using this command, you can download the archive directly and then issues
+If the archive fails to install properly using this command, you can download the archive directly and then do:
 
 ```
 $ mix archive.install /path/to/nerves_bootstrap.ez
