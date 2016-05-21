@@ -7,6 +7,11 @@ defmodule Mix.Nerves.Utils do
     Porcelain.shell(cmd, in: stream, async_in: true, out: stream, err: :out)
   end
 
+  def preflight do
+    check_requirements
+    Mix.Task.run "nerves.loadpaths", []
+  end
+
   def check_requirements do
     case System.cmd("which", ["mksquashfs"]) do
       {_, 0} -> nil

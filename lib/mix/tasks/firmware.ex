@@ -5,7 +5,8 @@ defmodule Mix.Tasks.Firmware do
   @switches [verbosity: :string]
 
   def run(args) do
-    check_requirements
+    preflight
+
     {opts, _, _} = OptionParser.parse(args)
     Mix.shell.info "Nerves Firmware Assembler"
     config = Mix.Project.config

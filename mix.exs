@@ -15,8 +15,8 @@ defmodule Nerves.Mixfile do
      name: "Nerves",
      source_url: "https://github.com/nerves-project/nerves",
      homepage_url: "http://nerves-project.org/",
-     version: "0.3.1",
-     elixir: "~> 1.2",
+     version: "0.3.2-dev",
+     elixir: "~> 1.2 or ~> 1.3.0-dev",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps,
@@ -35,6 +35,7 @@ defmodule Nerves.Mixfile do
       {:exrm, "~> 1.0.4"},
       {:earmark, "~> 0.1", only: :dev},
       {:ex_doc, "~> 0.11", only: :dev},
+      {:erlware_commons, "~> 0.21.0", override: true},
       {:porcelain, "~> 2.0"}
     ]
   end

@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.3.2-dev
+* Bug Fixes
+  * Support for elixir 1.3.0-dev
+
 ## Nerves 0.3.1
 * Enhancements
   * Perform host tool checks before executing scripts
