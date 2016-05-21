@@ -34,6 +34,12 @@ defmodule Mix.Tasks.Firmware.Burn do
         {_, type} ->
           raise "Unable to burn firmware on your host #{inspect type}"
       end
-    %{status: 0} = shell(fwup)
+    shell(fwup)
+    |> result
   end
+
+  def result(%{status: 0}), do: nil
+  def result(result), do: Mix.raise """
+  Nerves encountered an error. #{inspect result}
+  """
 end

@@ -52,5 +52,7 @@ defmodule Mix.Tasks.Firmware do
   end
 
   def result(%{status: 0}), do: nil
-  def result(result), do: IO.inspect(result)
+  def result(result), do: Mix.raise """
+  Nerves encountered an error. #{inspect result}
+  """
 end
