@@ -18,19 +18,19 @@ In the following guides, support channels, and forums you may hear the following
 
 Term | Definition
 --- | ---
-host | The computer on which you are editing and compiling your code, and assembling firmware
-target | The type of system for which your firmware is built - raspberry pi, raspberry pi 2, beaglebone, etc
-toolchain | Compilers, linkers, binutils, C runtime, etc which are designed to build code for the target
-system | A lean buildroot-based linux distribution that has been customized and cross-compiled
+host | The computer on which you are editing source code, compiling, and assembling firmware
+target | The platform for which your firmware is built (for example, Raspberry Pi, Raspberry Pi 2, or Beaglebone Black)
+toolchain | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime
+system | A lean buildroot-based linux distribution that has been customized and cross-compiled for a particular target
 assemble | The process of combining system, application, and configuration into a firmware bundle
-firmware bundle | A single file that contains and assembled version of everything needed to burn firmware
-firmware image | Built from a firmware bundle, that contains partition table, partitions, bootloader, etc
+firmware bundle | A single file that contains an assembled version of everything needed to burn firmware
+firmware image | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc.
 
 ## Creating a New Nerves App
 
-Before we start using Nerves, it is important that you take a minute to read the [Installation Guide](installation.html). The installation guide will assist you in getting your machine configured for running Nerves.
+Before you start using Nerves, it is important that you take a minute to read the [Installation Guide](installation.html). It will help you get your machine configured for running Nerves.
 
-Lets create a new project. The Nerves new project generator can be called form anywhere and can take either an absolute path or a relative path. In addition, the new project generator requires that you specify the default target you which the project to use. This is helpful and allow you to omit passing the target tag on every call. Visit the [Targets Page](targets.html) for more information on which tags are used for which target boards.
+Let's create a new project. The `nerves.new` project generator can be called from anywhere and can take either an absolute path or a relative path. The new project generator requires that you specify the default target you want the project to use. This allows you to omit the `--target` option when building firmware for the default target. Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
 
 ```
 $ mix nerves.new hello_nerves --target rpi3
@@ -45,19 +45,14 @@ $ mix nerves.new hello_nerves --target rpi3
 * creating hello_nerves/README.md
 ```
 
-Nerves will generate the the files and, structure, and directories needed for our application. The next step is to cd into our hello_nerves all directory
+Nerves will generate the required files and directory structure needed for your application. The next step is to `cd` into your `hello_nerves` directory and fetch the dependencies
 
 ```
 $ cd hello_nerves
-```
-
-and fetch the dependencies
-
-```
 $ mix deps.get
 ```
 
-> It is important to note that Nerves supports the ability of multi-target. This means that the same code base can support running on a variety of different target boards. Because of this, It is very important that your mix file only includes a single nerves_system at any time. For more information check out the [Targets Page](targets.html#target-dependencies)
+> It is important to note that Nerves supports multi-target projects. This means that the same code base can support running on a variety of different target boards. Because of this, It is very important that your mix file only includes a single `nerves_system` at any time. For more information check out the [Targets Page](targets.html#target-dependencies)
 
 Once our deps are fetched, we can start to compile our project. The goal is for us to make Nerves Firmware, a bundle which contains a Nerves based linux system and our application, But first we are going to need to create the system which requires us to fetch bot the system and the toolchain. This task is done for us by the nerves_bootstrap utility in a special stage called precompile. This means, the first time you ask dependencies or your application to compile, Nerves will fetch the system and toolchain from one of our cache mirrors. Lets start the process and get a coffee...
 
