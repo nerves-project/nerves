@@ -11,7 +11,9 @@ Craft bulletproof firmware in the stunningly productive Elixir language
 ## Docs
 
 [Installation Docs](https://hexdocs.pm/nerves/installation.html)
+
 [Getting Started](https://hexdocs.pm/nerves/getting-started.html)
+
 [Advanced Configuration](https://hexdocs.pm/nerves/advanced-configuration.html)
 
 ## Install
