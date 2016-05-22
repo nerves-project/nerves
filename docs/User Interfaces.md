@@ -2,14 +2,15 @@
 
 ## Phoenix Web Interfaces
 
-Phoenix makes an excellent companion to Nerves applications by offering an easy to use, powerful framework to create user interfaces in parallel with Nerves device code. The easiest way to handle this is to layout your application as an Umbrella. Lets get started...
+Phoenix makes an excellent companion to Nerves applications by offering an easy-to-use, powerful framework to create user interfaces in parallel with Nerves device code. The easiest way to handle this is to layout your application as an Umbrella. Lets get started...
 
-First generate a new umbrella app. Called nervy in this case
+First, generate a new umbrella app, called `nervy` in this case:
+
 ```
 $ mix new nervy --umbrella
 ```
 
-Next lets create our sub applications for nerves and for phoenix
+Next, create your sub-applications for Nerves and for Phoenix:
 
 ```
 $ cd nervy/apps
@@ -19,7 +20,7 @@ $ mix phoenix.new ui --database sqlite
 ...
 ```
 
-Now add the Phoenix UI app to the firmware app as a dependency as well as nerves_networking.
+Now, add the Phoenix `ui` app and the `nerves_networking` library to the firmware app as dependencies:
 
 ```
 defp deps do
@@ -28,7 +29,7 @@ defp deps do
 end
 ```
 
-In order to build the ui phoenix application into the nerves firmware app, we will need to add some configuration to our firmware config.
+In order to build the `ui` Phoenix application into the nerves firmware app, you need to add some configuration to your firmware config:
 
 ```elixir
 # nervy/apps/firmware/config/config.exs
@@ -53,16 +54,16 @@ config :ui, Ui.Repo,
   pool_size: 20
 ```
 
-There you have it! A Phoenix web application ready for your Nerves device. By separating the Phoenix application from the Nerves application we can distribute the development between resources and continue to leverage the features we have all come to love from Phoenix like live code reloading.
+There you have it! A Phoenix web application ready for your Nerves device. By separating the Phoenix application from the Nerves application, you can distribute the development between resources and continue to leverage the features we have all come to love from Phoenix, like live code reloading.
 
-When developing your UI, you can simply run the phoenix server from the UI application.
+When developing your UI, you can simply run the phoenix server from the UI application:
 
 ```
 # nervy/apps/ui
 $ mix phoenix.server
 ```
 
-When its time to create your firmware
+When it's time to create your firmware:
 ```
 # nervy/apps/firmware
 $ mix firmware
