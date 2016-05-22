@@ -1,6 +1,6 @@
 ## Systems
 
-Nerves system dependencies are a collection of configurations to be fed into the the system build platform. Currently, Nerves Systems are all build from the Buildroot build platform. The project structure of Nerves Systems is as follows
+Nerves System dependencies are a collection of configurations to be fed into the the system build platform. Currently, Nerves Systems are all built using the Buildroot platform. The project structure of a Nerves System is as follows:
 
 ```
 # nerves_system_*
@@ -11,7 +11,7 @@ rootfs-additions
 VERSION
 ```
 
-The mix file will contain the dependencies the system has. Typically, all that is included here is the toolchain and the build platform. Here is an example of the raspberry pi 3 nerves_system
+The mix file will contain the dependencies the System has. Typically, all that is included here is the Toolchain and the build platform. Here is an example of the Raspberry Pi 3 `nerves_system` definition:
 
 ```
 defmodule NervesSystemRpi3.Mixfile do
@@ -52,11 +52,14 @@ end
 
 ```
 
-Nerves systems have a few requirements in the mix file. First, the compilers must include the `:nerves_system` compiler after the `Mix.compilers` have executed. Next, they must contain the dependency for the toolchain and the build platform. It is also important to note that when pushing this to hex, you will need to list all files in the package files so they are present when downloading.
+Nerves Systems have a few requirements in the mix file:
+1. The compilers must include the `:nerves_system` compiler after the `Mix.compilers` have executed.
+2. There must be a dependency for the toolchain and the build platform.
+3. You need to list all files in the `package` `files:` list so they are present when downloading from Hex.
 
 ## Package Configuration
 
-In addition to the mix file. nerves packages read form a special configuration file in the root of the package names `nerves.exs`. This file contains configuration information which Nerves will load before any application or dependency code is compiled. It is used to store metadata about a package. Here is an example from the rpi3 nerves.exs
+In addition to the mix file, Nerves packages read from a special `nerves.exs` configuration file in the root of the package names. This file contains configuration information that Nerves loads before any application or dependency code is compiled. It is used to store metadata about a package. Here is an example from the `nerves.exs` file for `rpi3`:
 
 ```
 use Mix.Config
@@ -80,34 +83,34 @@ config :nerves_system_rpi3, :nerves_env,
 
 ```
 
-There are a few important and required keys present in this file.
+There are a few important and required keys present in this file:
 
-**type** The type of Nerves Package. Options are: `system`, `system_compiler`, `system_platform`, `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`
+**type** The type of Nerves Package. Options are: `system`, `system_compiler`, `system_platform`, `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
 
-**mirrors** The urls of the location of cached assets. For nerves systems, we upload the finalized assets to Github releases so others can download them.
+**mirrors** The URL(s) of cached assets. For nerves systems, we upload the finalized assets to Github releases so others can download them.
 
-**build_platform** The build platform to use for the system or toolchain
+**build_platform** The build platform to use for the system or toolchain.
 
-**build_config** The collection of configuration files. This collection contains the following keys
+**build_config** The collection of configuration files. This collection contains the following keys:
 
-  **defconfig** For `Nerves.System.Platforms.BR` this is the defconfig fragment used to build the system
+  * **defconfig** For `Nerves.System.Platforms.BR`, this is the BuildRoot defconfig fragment used to build the system.
 
-  **kconfig** buildroot requires a `Config.in` kconfig file to be present in the config directory. If this is omitted, a default empty file is used.
+  * **kconfig** BuildRoot requires a `Config.in` kconfig file to be present in the config directory. If this is omitted, a default empty file is used.
 
-  **package_files** Additional files required to be present for the defconfig. Directorys listed here will be expanded and all subfiles and directories will be copied over too.
+  * **package_files** Additional files required to be present for the defconfig. Directories listed here will be expanded and all subfiles and directories will be copied over, too.
 
 ## Building Nerves Systems
 
-Nerves system dependencies are light weight, configuration based dependencies which at compile time request to either download from cache, or locally build the dependency. You can control which route nerves_system will take by setting some environment variables on your machine
+Nerves system dependencies are light-weight, configuration-based dependencies that, at compile time, request to either download from cache, or locally build the dependency. You can control which route `nerves_system` will take by setting some environment variables on your machine:
 
 `NERVES_SYSTEM_CACHE` Options are `none`, `http`
 
 `NERVES_SYSTEM_COMPILER` Options are `none`, `local`
 
-Currently, Nerves systems can only be compiled using the `local` compiler on a specially configured linux machine. For more information on what is required to set up your host linux machine you can read the nerves_system_br [Install Page](https://github.com/nerves-project/nerves_system_br/blob/master/README.md)
+Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine. For more information on what is required to set up your host Linux machine, you can read the `nerves_system_br` [Install Page](https://github.com/nerves-project/nerves_system_br/blob/master/README.md)
 
-Nerves cache and compiler adhere to the `Nerves.System.Provider` behaviour. Therefore, the system is laid out to allow additional compiler and cache providers to facilitate the requests like Vagrant or Docker. This will be helpful kin the future when you want to start a buildroot build on your Mac or Windows host machine.
+Nerves cache and compiler adhere to the `Nerves.System.Provider` behaviour. Therefore, the system is laid out to allow additional compiler and cache providers, to facilitate other options in the future like Vagrant or Docker. This will be helpful when you want to start a BuildRoot build on your Mac or Windows host machine.
 
 ## Creating or Modifying a Nerves System
 
-The easiest way to create a new nerves system is to check out [nerves_system_br](https://github.com/nerves-project/nerves_system_br) and create a configuration which contains the packages and configuration you need. Once you get this working and booting on your target you can copy the configurations and files back into a new mix project following the structure described above.
+The easiest way to create a new Nerves system is to check out [`nerves_system_br`](https://github.com/nerves-project/nerves_system_br) and create a configuration that contains the packages and configuration you need. Once you get this working and booting on your target, you can copy the configurations and files back into a new mix project following the structure described above.

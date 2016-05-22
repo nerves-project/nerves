@@ -28,19 +28,22 @@ end
 
 Targets can be set and persisted several ways.
 
-**Global Level** You can `export NERVES_TARGET=rpi3` This is useful if you only own a certain board and want to checkout and play with a variety of published nerves projects.
+**Global Level** In your shell, you can `export NERVES_TARGET=rpi3`. This is useful if you only own a certain board and want to checkout and play with a variety of published nerves projects.
 
-**Project Level** At the top of the mix file for a Nerves project the project level can specify a default target tag. `@target System.get_env("NERVES_TARGET") || "rpi3"`
+**Project Level** At the top of the mix file for a Nerves project, you can specify a default target tag:
+```
+@target System.get_env("NERVES_TARGET") || "rpi3"
+```
 
-**Run Level** You can switch targets at the issue of every mix command by passing `NERVES_TARGET=rpi3 mix compile`
+**Run Level** You can switch targets at the issue of every mix command by specifying, for example, `NERVES_TARGET=rpi3 mix compile`
 
-The order of precedence is Run Level, Project Level, Global Level
+A Run Level setting will override a Project Level setting, which will override a Global Level setting.
 
 ## Target Dependencies
 
-It is important to note that since Nerves supports the ability of supporting and changing targets in a single application code space, only one nerves_system is included at any time. Because of this, we recommend taking the following approach for including the system dependency separate from your application dependencies.
+It is important to note that, although Nerves supports multiple targets for a single application codebase, only one `nerves_system` can be included in agiven firmware. Because of this, we recommend taking the following approach for including the system dependency separately from your application dependencies.
 
-First, we tell the project config to concatenate the global app deps from the system deps
+First, tell the project configuration to concatenate the global application dependencies from the system dependencies:
 
 ```
 def project do
@@ -57,7 +60,7 @@ def project do
 end
 ```
 
-This allows us to keep the nerves_system separate form the rest of our dependencies.
+This allows you to keep the `nerves_system` separate form the rest of your dependencies:
 
 ```
 def deps do

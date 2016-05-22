@@ -2,7 +2,7 @@
 
 ## Target Specific Configuration
 
-Different target boards have different layouts for GPIO, LED's and more. Often this leads to a necessity for configurations to be specified per target. In this example we will be looking at how to configure the LED's for two different targets. First, lets start by modifying our `config.exs` to include configs for each target.
+Different target boards have different layouts for GPIO, LEDs, and more. Often, this requires that configurations be specified per-target. In this example, we will be looking at how to configure the LEDs for two different targets. First, let's start by modifying our `config.exs` to include configs for each target.
 
 ```elixir
 use Mix.Config
@@ -12,15 +12,18 @@ config :blinky, led_list: [ :red, :green ]
 import_config "#{Mix.Project.config[:target]}.exs"
 ```
 
-This will load separate Mix Configs for each target passed. Lets say we have targets `rpi` and `bbb` each of those files would look like this.
+This will load separate Mix Configs for each target passed. Let's say we have targets `rpi` and `bbb`. Each of those files would look like this.
 
-rpi
 ```elixir
-config :nerves_io_led, names: [ red: "led0", green: "led1" ]
+# rpi
+config :nerves_io_led, names: [
+  red: "led0",
+  green: "led1"
+]
 ```
 
-bbb
 ```elixir
+# bbb
 config :nerves_io_led, names: [
   led0: "beaglebone:green:usr0",
   led1: "beaglebone:green:usr1",
@@ -31,7 +34,7 @@ config :nerves_io_led, names: [
 
 ## Root Filesystem Additions
 
-Sometimes you want to ship additional files and configurations with your firmware. You can do this by providing your own directory of root file system additions. This is done by configuring the firmware assembler and telling it where to find the folder it should use as an overlay.
+Sometimes, you want to ship additional files and configurations with your firmware. You can do this by providing your own directory of root file system additions. This is done by configuring the firmware assembler and telling it where to find the folder it should use as an overlay:
 
 ```
 # config/config.exs
@@ -40,14 +43,15 @@ config :nerves, :firmware,
   rootfs_additions: "config/rootfs-additions"
 ```
 
-This declares that the contents of the folder at `config/rootfs-additions` will be merges into the root file system when `mix firmware` is called. You can also specify different rootfs additions per target as illustrated above.
+This declares that the contents of the folder at `config/rootfs-additions` will be merged into the root file system when `mix firmware` is called. You can also specify different rootfs additions per target as illustrated above.
 
 ## Overwriting Files in the Root File System
 
-Any files in the rootfs_additions will overwrite those present in the underlying system. This can be useful if you want to change the value of included files in the underlying Nerves system. Lets say for example that you want to change the behaviour of erlinit. You can include your own erlinit.config
+Any files in the `rootfs_additions` will overwrite those present in the underlying system. This can be useful if you want to change the contents of included files in the underlying Nerves system. Let's say, for example, that you want to change the behaviour of `erlinit`. You can include your own `erlinit.config`:
 
-`config/rootfs-additions/etc/erlinit.config`
 ```
+# config/rootfs-additions/etc/erlinit.config
+
 # Uncomment to hang the board rather than rebooting when Erlang exits
 #--hang-on-exit
 
@@ -68,7 +72,7 @@ Any files in the rootfs_additions will overwrite those present in the underlying
 
 ```
 
-It is important to note that if you replace a config file, that you should first obtain and modify the original file. A trick for doing this is to expand the rootfs.squashfs. You can do this using unsquashfs.
+It is important to note that if you replace a config file, the entire file is replaced, rather than merging the contents. Therefore, you should first obtain and modify the original file. A trick for doing this is to expand the `rootfs.squashfs`. You can do this using `unsquashfs`:
 
 ```
 $ unsquashfs path/to/rootfs.squashfs
@@ -78,7 +82,7 @@ This file is typically found in `_build/(Target)/(Mix.env)/nerves/system/images/
 
 ## Overwriting Files in the Boot Partition
 
-Different targets have different boot partition contents. To overwrite files in the boot partition, you will need to do this in your own fwup.conf file.
+Different targets have different boot partition contents. To overwrite files in the boot partition, you will need to do this in your own `fwup.conf` file:
 
 ```
 # config/config.exs
@@ -87,9 +91,9 @@ config :nerves, :firmware,
   fwup_conf: "config/fwup.conf"
 ```
 
-In your included fwup.conf file, you can use absolute paths, or Env variables to point to the location of included files.
+In your included `fwup.conf` file, you can use absolute paths, or environment variables to point to the location of included files.
 
-Lets say you have a Raspberry Pi and you want to change the contents of the cmdline.txt file. You can do this by editing the fwup.conf as follows
+Let's say you have a Raspberry Pi and you want to change the contents of the `cmdline.txt` file. You can do this by editing the `fwup.conf` as follows:
 
 ```
 # fwup.conf
@@ -99,11 +103,12 @@ file-resource cmdline.txt {
 }
 ```
 
-You can use `NERVES_APP` environment veriable to point to the root of your elixir app. This variable is automatically managed for you by nerves_bootstrap
+You can use the `NERVES_APP` environment variable to point to the root of your Elixir app. This variable is automatically managed for you by `nerves_bootstrap`.
 
 ## Partitions
 
-Nerves firmware uses Master Boot Record partition layout which states that you can define 4 partitions. By default, the root filesystem partition is mounted as read only. This is to prevent corruption of the rootfs due to "improper shutdowns". With embedded systems, it is expected that the power can be pulled from the device at any time. This could be problematic if you are performing a write operation on the filesystem. Because of this layout, we add a read write partition called app_data. This is mounted at `/root` and is dictated in `etc/erlinit.config`
+Nerves firmware uses Master Boot Record partition layout, which only supports 4 primary partitions. By default, the root filesystem partition is mounted as read-only. This is to prevent corruption of the root filesystem due to "improper shutdowns". With embedded systems, it is expected that the power can be pulled from the device at any time. This could be problematic if you are performing a write operation on the filesystem. Because of this, we also add a read/write partition by default, called `app_data`. This is mounted at `/root` and is dictated in `etc/erlinit.config`
+
 ```
 +----------------------------+
 | MBR                        |
@@ -117,9 +122,11 @@ Nerves firmware uses Master Boot Record partition layout which states that you c
 | p2: App Data  (FAT32)      |
 +----------------------------+
 ```
-You can enable and mount an additional read write partition by modifying the fwup.conf file. This strategy is typically used to define two locations where data can be written. Lets say you want to persist some infrequently written configuration data and some frequently written log data. It would best be handled by separate partitions so that the important infrequently written configuration data is not corrupted due to the frequent log data.
 
-First, start by defining a new space on the disk for the partition.
+You can enable and mount an additional read/write partition by modifying the `fwup.conf` file. This strategy is typically used to define two locations where data can be written. Let's say you want to persist some infrequently-written configuration data and some frequently-written log data. It would best be handled by separate partitions so that the important, infrequently-written configuration data is not corrupted due to a loss of power while writing the more frequent log data.
+
+First, start by defining a new space on the disk for the partition:
+
 ```
 # The boot partition
 define(BOOT_PART_OFFSET, 63)
@@ -143,7 +150,8 @@ define(LOG_PART_COUNT, 1048576)
 
 In this example, we are changing the app data partition to `CONFIG_PART` and adding `LOG_PART`.
 
-Next, we change the mapping to include these two new partitions.
+Next, we change the mapping to include these two new partitions:
+
 ```
 mbr mbr-a {
     partition 0 {
@@ -194,7 +202,8 @@ mbr mbr-b {
 }
 ```
 
-This layout defines our system as follows.
+This layout defines our system as follows:
+
 ```
 +----------------------------+
 | MBR                        |
@@ -209,9 +218,10 @@ This layout defines our system as follows.
 | p3: Log         (EXT4)     |
 +----------------------------+
 ```
+
 ### Mounting the Partition
 
-Mounting your new partition can be handled by either erlinit or by your Elixir application. To have erlinit mount the partition for you, you will need to supply your own erlinit.config file and edit the -m option
+Mounting your new partition can be handled by either `erlinit` or by your Elixir application. To have `erlinit` mount the partition for you, you will need to supply your own `erlinit.config` file to set the required `-m` option:
 
 ```
 # Mount the configdata partition
@@ -220,14 +230,16 @@ Mounting your new partition can be handled by either erlinit or by your Elixir a
 -m /dev/mmcblk0p3:/root:vfat::;/dev/mmcblk0p4:/mnt/log:ext4::
 ```
 
-The other option is to handle it in your Elixir code. This can be useful if you want to scan the disk for corruption and reformat / seed it. Erlinit can only attempt to mount the partition.
+The other option is to handle it in your Elixir code. This can be useful if you want to scan the disk for corruption and reformat or seed it. `Erlinit` can only attempt to mount the partition.
 
-First we can initialize it
+First, we can initialize it:
+
 ```elixir
 System.cmd("mke2fs", ["-t", "ext4", "-L", "LOGDATA", "/dev/mmcblk0p4"])
 ```
 
-Then we can mount the partition
+Then, we can mount the partition:
+
 ```elixir
 System.cmd("mount", ["-t", "ext4", "/dev/mmcblk0p4", "/mnt/log"])
 ```
