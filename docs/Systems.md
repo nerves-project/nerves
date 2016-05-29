@@ -130,7 +130,7 @@ $ mix compile
 [nerves_system][compile]
 [nerves_system][local] Checking Cache for nerves_system_rpi3-0.5.1
 nerves_system_rpi3-0.5.1 was not found in your cache.
-cache dir: /Users/jschneck/nerves/cache
+cache dir: /Users/jschneck/.nerves/cache/system
 
 Would you like to download the system to your cache? [Yn] Y
 ```
