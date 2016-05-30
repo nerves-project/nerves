@@ -1,8 +1,9 @@
 # Release Notes
 
-## Nerves 0.3.2-dev
+## Nerves 0.3.2
 * Bug Fixes
   * Support for elixir 1.3.0-dev
+  * Invoke `nerves.loadpaths` on preflight of `mix firmware` and `mix firmware.burn`. Fixes `ERROR: It looks like the system hasn't been built!`
 
 ## Nerves 0.3.1
 * Enhancements
