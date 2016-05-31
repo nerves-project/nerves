@@ -20,7 +20,7 @@ $ mix phoenix.new ui --database sqlite
 ...
 ```
 
-Now, add the Phoenix `ui` app and the `nerves_networking` library to the firmware app as dependencies:
+Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` app as dependencies:
 
 ```
 defp deps do
@@ -29,10 +29,10 @@ defp deps do
 end
 ```
 
-In order to build the `ui` Phoenix application into the nerves firmware app, you need to add some configuration to your firmware config:
+In order to build the `ui` Phoenix application into the nerves `fw` app, you need to add some configuration to your firmware config:
 
 ```elixir
-# nervy/apps/firmware/config/config.exs
+# nervy/apps/fw/config/config.exs
 
 use Mix.Config
 
@@ -65,6 +65,6 @@ $ mix phoenix.server
 
 When it's time to create your firmware:
 ```
-# nervy/apps/firmware
+# nervy/apps/fw
 $ mix firmware
 ```
