@@ -4,6 +4,7 @@ defmodule Mix.Tasks.Nerves.New do
 
   @nerves Path.expand("../../..", __DIR__)
   @version Mix.Project.config[:version]
+  @requirement Mix.Project.config[:elixir]
   @shortdoc "Creates a new Nerves application"
 
   @new [
@@ -55,7 +56,7 @@ defmodule Mix.Tasks.Nerves.New do
   end
 
   def run(argv) do
-    unless Version.match? System.version, "~> 1.2.4 or ~> 1.3" do
+    unless Version.match? System.version, @requirement do
       Mix.raise "Nerves v#{@version} requires at least Elixir v1.2.4.\n " <>
                 "You have #{System.version}. Please update accordingly"
     end
