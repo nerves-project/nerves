@@ -68,3 +68,8 @@ When it's time to create your firmware:
 # nervy/apps/fw
 $ mix firmware
 ```
+
+__Note__: You will need to have the latest version of rebar installed in order for `mix firmware` to work because we are using features that aren't included in the older releases. If you encounter an error that stating `unrecognized command line option '-flat_namespace'` then you can use the following command to install a later version of rebar which should get you past this error.
+```
+mix local.rebar
+```
