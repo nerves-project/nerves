@@ -22,6 +22,8 @@ host | The computer on which you are editing source code, compiling, and assembl
 target | The platform for which your firmware is built (for example, Raspberry Pi, Raspberry Pi 2, or Beaglebone Black)
 toolchain | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime
 system | A lean buildroot-based linux distribution that has been customized and cross-compiled for a particular target
+application | The Elixir (and any native, e.g. C) source code for your project. Note that this may entail more than one "application" in Elixir parlance.
+configuration | The settings and other target-specific files that steer the firmware building process for your particular target
 assemble | The process of combining system, application, and configuration into a firmware bundle
 firmware bundle | A single file that contains an assembled version of everything needed to burn firmware
 firmware image | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc.

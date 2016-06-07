@@ -41,6 +41,11 @@ Once homebrew is installed, you can install these missing utilities by running t
 $ brew install coreutils squashfs
 ```
 
+For Debian-based Linux systems, you can install these utilities by running:
+```
+sudo apt-get install coreutils squashfs-tools
+```
+
 ## Nerves Bootstrap
 
 With Elixir, Erlang, and your host utilities installed, you can now add the `nerves_bootstrap` archive to your mix environment. This archive allows Nerves to bootstrap the Mix environment, ensuring that your code is properly compiled using the right cross-compiler for the target. The `nerves_bootstrap` archive also includes a new project generator, which you can use to create new Nerves projects. To install the `nerves_bootstrap` archive:
