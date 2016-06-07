@@ -43,7 +43,7 @@ A Run Level setting will override a Project Level setting, which will override a
 
 It is important to note that, although Nerves supports multiple targets for a single application codebase, only one `nerves_system` can be included in a given firmware. Because of this, we recommend taking the following approach for including the system dependency separately from your application dependencies.
 
-First, tell the project configuration to concatenate the global application dependencies from the system dependencies:
+First, tell the project configuration to concatenate the global application dependencies with the system dependencies:
 
 ```
 def project do
