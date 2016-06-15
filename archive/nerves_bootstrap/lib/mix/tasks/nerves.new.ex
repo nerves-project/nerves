@@ -49,7 +49,7 @@ defmodule Mix.Tasks.Nerves.New do
       mix nerves.new blinky --module Blinky
   """
 
-  @switches [target: :string]
+  @switches [target: :string, app: :string, module: :string]
 
   def run([version]) when version in ~w(-v --version) do
     Mix.shell.info "Nerves v#{@version}"
