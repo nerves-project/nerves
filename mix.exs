@@ -1,12 +1,3 @@
-defmodule Mix.Tasks.CopyImages do
-  @shortdoc "Copy the images referenced by docs, since ex_doc doesn't do this."
-  use Mix.Task
-  def run(_) do
-    File.cp_r "resources", "doc/resources"
-  end
-end
-
-
 defmodule Nerves.Mixfile do
   use Mix.Project
 
@@ -19,11 +10,11 @@ defmodule Nerves.Mixfile do
      elixir: "~> 1.2.4 or ~> 1.3.0-dev",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps,
-     description: description,
-     package: package,
-     aliases: ["docs": ["docs", "copy_images"]],
-     docs: docs]
+     deps: deps(),
+     description: description(),
+     package: package(),
+     aliases: ["docs": ["docs", &copy_images/1]],
+     docs: docs()]
   end
 
   def application do
@@ -50,6 +41,11 @@ defmodule Nerves.Mixfile do
         "docs/User Interfaces.md",
         "docs/Advanced Configuration.md"
     ]]
+  end
+
+  # Copy the images referenced by docs, since ex_doc doesn't do this.
+  defp copy_images(_) do
+    File.cp_r "resources", "doc/resources"
   end
 
   defp description do
