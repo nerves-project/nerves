@@ -17,7 +17,7 @@ $ mix local.rebar
 
 Elixir runs on top of the Erlang VM on your host as well as on your target board. What makes Nerves special is that we replace typical linux initialization mechanisms like systemd or udev with Erlang. This puts your application in a unique and powerful position of having control over the subsystem initialization as well as your application runtime.
 
-If you followed the instructions from earlier to install elixir using the instructions found on the Elixir [Installation Page](http://elixir-lang.org/install.html), you should already have Erlang installed.
+If you followed the instructions from earlier to install Elixir using the instructions found on the Elixir [Installation Page](http://elixir-lang.org/install.html), you should already have Erlang installed.
 
 If you need to install Erlang, it is often best to install using guides and repositories provided by [Erlang Solutions](https://www.erlang-solutions.com/resources/download.html)
 
@@ -41,9 +41,14 @@ Once homebrew is installed, you can install these missing utilities by running t
 $ brew install coreutils squashfs
 ```
 
+For Debian-based Linux systems, you can install these utilities by running:
+```
+sudo apt-get install coreutils squashfs-tools
+```
+
 ## Nerves Bootstrap
 
-With Elixir, Erlang, and your host utilities installed, you can now add the `nerves_bootstrap` archive to your mix environment. This archive allows Nerves to bootstrap the Mix environment, ensuring that your code is properly compiled using the right cross-compiler for the target. The `nerves_bootstrap` archive also includes a new project generator, which you can use to create new Nerves projects. To install the `nerves_bootstrap` archive:
+With Elixir, Erlang, and your host utilities installed, you can now add the `nerves_bootstrap` archive to your Mix environment. This archive allows Nerves to bootstrap the Mix environment (i.e. fetch the System and Toolchain for your target), ensuring that your code is properly compiled using the right cross-compiler for the target. The `nerves_bootstrap` archive also includes a new project generator, which you can use to create new Nerves projects. To install the `nerves_bootstrap` archive:
 
 ```
 $ mix archive.install https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez
