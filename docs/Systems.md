@@ -1,5 +1,42 @@
 ## Systems
 
+## Using a Nerves System
+**Single Target**
+
+To use a Nerves system in project with a single target, you can directly include it as part of your application dependencies.
+
+```elixir
+# mix.exs
+
+def deps do
+  [{:nerves_system_bbb, ">=0.0.0"}]
+end
+```
+
+**Multi Target**
+
+Multi target configurations can be handled a number of ways. You can allow all `nerves_system_*` projects by interpolating `target`
+```elixir
+def deps(target) do
+  [{:"nerves_system_#{target}", ">=0.0.0"}]
+end
+```
+
+Or you could switch between different configurations of the same target.
+```elixir
+def deps(:dev = env) do
+  [{:my_custom_bbb_dev, ">=0.0.0"}]
+end
+
+def deps(:prod = env) do
+  [{:my_custom_bbb_prod, ">=0.0.0"}]
+end
+```
+
+Since its all done in Elixir, you can choose which configuration works best for you. Just be sure that there is only ever one `system` present when compiling your Nerves application.
+
+## Designing a Nerves System
+
 Nerves System dependencies are a collection of configurations to be fed into the the system build platform. Currently, Nerves Systems are all built using the Buildroot platform. The project structure of a Nerves System is as follows:
 
 ```
@@ -13,7 +50,7 @@ VERSION
 
 The mix file will contain the dependencies the System has. Typically, all that is included here is the Toolchain and the build platform. Here is an example of the Raspberry Pi 3 `nerves_system` definition:
 
-```
+```elixir
 defmodule NervesSystemRpi3.Mixfile do
   use Mix.Project
 
