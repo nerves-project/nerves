@@ -20,7 +20,7 @@ $ mix phoenix.new ui --database sqlite
 ...
 ```
 
-Now, add the Phoenix `ui` app and the `nerves_networking` library to the firmware app as dependencies:
+Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` app as dependencies:
 
 ```
 defp deps do
@@ -29,10 +29,10 @@ defp deps do
 end
 ```
 
-In order to build the `ui` Phoenix application into the nerves firmware app, you need to add some configuration to your firmware config:
+In order to build the `ui` Phoenix application into the nerves `fw` app, you need to add some configuration to your firmware config:
 
 ```elixir
-# nervy/apps/firmware/config/config.exs
+# nervy/apps/fw/config/config.exs
 
 use Mix.Config
 
@@ -65,6 +65,11 @@ $ mix phoenix.server
 
 When it's time to create your firmware:
 ```
-# nervy/apps/firmware
+# nervy/apps/fw
 $ mix firmware
+```
+
+__Note__: You will need to have the latest version of rebar installed in order for `mix firmware` to work because we are using features that aren't included in the older releases. If you encounter an error that stating `unrecognized command line option '-flat_namespace'` then you can use the following command to install a later version of rebar which should get you past this error.
+```
+mix local.rebar
 ```

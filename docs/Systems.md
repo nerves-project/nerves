@@ -103,13 +103,39 @@ There are a few important and required keys present in this file:
 
 Nerves system dependencies are light-weight, configuration-based dependencies that, at compile time, request to either download from cache, or locally build the dependency. You can control which route `nerves_system` will take by setting some environment variables on your machine:
 
-`NERVES_SYSTEM_CACHE` Options are `none`, `http`
+`NERVES_SYSTEM_CACHE` Options are `none`, `http`, `local`
 
 `NERVES_SYSTEM_COMPILER` Options are `none`, `local`
 
 Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine. For more information on what is required to set up your host Linux machine, you can read the `nerves_system_br` [Install Page](https://github.com/nerves-project/nerves_system_br/blob/master/README.md)
 
 Nerves cache and compiler adhere to the `Nerves.System.Provider` behaviour. Therefore, the system is laid out to allow additional compiler and cache providers, to facilitate other options in the future like Vagrant or Docker. This will be helpful when you want to start a BuildRoot build on your Mac or Windows host machine.
+
+### Using Local Cache Provider
+
+Nerves systems can take up a lot of space on your machine. This is because the dependency needs to be fetched for each project | target | env. To save space, you can enable the local cache.
+
+```
+$ export NERVES_SYSTEM_CACHE=local
+```
+
+With the local cache enabled, Nerves will attempt to find a cached version of the system in the cache dir. The default cache dir is located at `~/.nerves/cache/system` You can override this location by setting `NERVES_SYSTEM_CACHE_DIR` env variable.
+
+If the system your project is attempting to use is not present in the cache, mix will prompt you asking if you would like to download it.
+
+```
+$ mix compile
+...
+==> nerves_system_rpi3
+[nerves_system][compile]
+[nerves_system][local] Checking Cache for nerves_system_rpi3-0.5.1
+nerves_system_rpi3-0.5.1 was not found in your cache.
+cache dir: /Users/jschneck/.nerves/cache/system
+
+Would you like to download the system to your cache? [Yn] Y
+```
+
+This will invoke the http provider and attempt to resolve the dependency.
 
 ## Creating or Modifying a Nerves System
 

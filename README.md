@@ -1,5 +1,5 @@
 # Nerves
-Craft bulletproof firmware in the stunningly productive Elixir language
+Craft and deploy bulletproof embedded software in Elixir
 
 ## Requirements
 
