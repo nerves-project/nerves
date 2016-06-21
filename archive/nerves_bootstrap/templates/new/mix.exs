@@ -21,7 +21,7 @@ defmodule <%= application_module %>.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {<%= application_module %>, []},
-     applications: [:nerves, :logger]]
+     applications: [:logger]]
   end
 
   def deps do
