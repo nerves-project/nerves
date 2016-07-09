@@ -1,15 +1,12 @@
 defmodule Mix.Nerves.Utils do
 
-  def shell(cmd) do
+  def shell(cmd, args) do
     stream = IO.binstream(:standard_io, :line)
-    Application.put_env(:porcelain, :driver, Porcelain.Driver.Basic)
-    Application.ensure_started(:porcelain)
-    Porcelain.shell(cmd, in: stream, async_in: true, out: stream, err: :out)
+    System.cmd(cmd, args, into: stream, stderr_to_stdout: true)
   end
 
   def preflight do
     check_requirements
-    Mix.Task.run "nerves.loadpaths", []
   end
 
   def check_requirements do

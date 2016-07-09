@@ -1,5 +1,11 @@
 # Release Notes
 
+## Nerves 0.3.3
+* Bug Fixes
+  * Updated nerves.precompile / loadpaths to support Elixir 1.3.x aliases.
+* Enhancements
+  * Removed dependency on porcelain
+
 ## Nerves 0.3.2
 * Bug Fixes
   * Support for elixir 1.3.0-dev

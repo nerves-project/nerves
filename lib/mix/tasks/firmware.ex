@@ -27,33 +27,34 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run "release", ["--verbosity=#{verbosity}", "--no-confirm-missing", "--implode"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
-    cmd = "bash #{rel2fw_path}"
+    cmd = "bash"
+    args = [rel2fw_path]
     rootfs_additions =
       case firmware_config[:rootfs_additions] do
-        nil -> ""
+        nil -> []
         rootfs_additions ->
           rfs = File.cwd!
           |> Path.join(rootfs_additions)
-          "-a " <> rfs
+          ["-a", rfs]
       end
     fwup_conf =
       case firmware_config[:fwup_conf] do
-        nil -> ""
+        nil -> []
         fwup_conf ->
           fw_conf = File.cwd!
           |> Path.join(fwup_conf)
-          "-c " <> fw_conf
+          ["-c", fw_conf]
       end
-    fw = "-f _images/#{target}/#{otp_app}.fw"
-    output = "rel/#{otp_app}"
-    [cmd, fwup_conf, rootfs_additions, fw, output]
-    |> Enum.join(" ")
-    |> shell
+    fw = ["-f", "_images/#{target}/#{otp_app}.fw"]
+    output = ["rel/#{otp_app}"]
+    args = args ++ fwup_conf ++ rootfs_additions ++ fw ++ output
+
+    shell(cmd, args)
     |> result
   end
 
-  def result(%{status: 0}), do: nil
-  def result(result), do: Mix.raise """
+  def result({_ , 0}), do: nil
+  def result({result, _}), do: Mix.raise """
   Nerves encountered an error. #{inspect result}
   """
 end

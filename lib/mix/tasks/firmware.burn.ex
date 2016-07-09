@@ -23,24 +23,18 @@ defmodule Mix.Tasks.Firmware.Burn do
       raise "Firmware for target #{target} not found at #{fw} run `mix firmware` to build"
     end
 
-    fwup = "fwup -a -i #{fw} -t complete #{args}"
-    fwup =
+    args = ["-a", "-i", fw, "-t", "complete"]
+    cmd =
       case :os.type do
         {_, :darwin} ->
-          fwup
+          "fwup"
         {_, :linux} ->
            ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
            System.put_env("SUDO_ASKPASS", ask_pass)
-           "sudo #{fwup}"
+           "sudo"
         {_, type} ->
           raise "Unable to burn firmware on your host #{inspect type}"
       end
-    shell(fwup)
-    |> result
+    shell(cmd, args)
   end
-
-  def result(%{status: 0}), do: nil
-  def result(result), do: Mix.raise """
-  Nerves encountered an error. #{inspect result}
-  """
 end
