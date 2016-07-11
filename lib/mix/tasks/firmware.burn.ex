@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Firmware.Burn do
   use Mix.Task
   import Mix.Nerves.Utils
 
-  def run(args) do
+  def run(argv) do
     preflight
 
     Mix.shell.info "Nerves Firmware Burn"
@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Firmware.Burn do
       raise "Firmware for target #{target} not found at #{fw} run `mix firmware` to build"
     end
 
-    args = ["-a", "-i", fw, "-t", "complete"]
+    args = ["-a", "-i", fw, "-t", "complete"] ++ argv
     cmd =
       case :os.type do
         {_, :darwin} ->
