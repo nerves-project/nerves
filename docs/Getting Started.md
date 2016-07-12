@@ -119,6 +119,12 @@ $ mix firmware.burn -d /dev/rdisk3
 
 Now that you have your SD card burned, you can insert it into your device and boot it up. For Raspberry Pi, connect it to your HDMI display and USB keyboard and you should see it boot to the IEx Console.
 
+> Note: If you are sure there is only one SD card inserted, you can add the `-y` flag to skip the prompt making sure it is the right SD card.
+
+```
+$ mix firmware.burn -y
+```
+
 ## Nerves Examples
 
 To get up and running quickly, you can check out our collection of example projects:
