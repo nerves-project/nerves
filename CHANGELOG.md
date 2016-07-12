@@ -1,5 +1,11 @@
 # Release Notes
 
+## Nerves 0.3.4-dev
+* Bug Fixes
+  * Fixed regression with `mix firmware.burn` to allow prompts
+* Enhancements
+  * Added ability to override task in `mix firmware.burn`. You can now pass `-t` or `--task` to perform `upgrade` or anything else. Default is `complete`
+
 ## Nerves 0.3.3
 * Bug Fixes
   * Updated nerves.precompile / loadpaths to support Elixir 1.3.x aliases.
