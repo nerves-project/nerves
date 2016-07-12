@@ -4,8 +4,10 @@ defmodule Mix.Tasks.Firmware.Burn do
 
   def run(argv) do
     preflight
+    debug_info "Nerves Firmware Burn"
 
-    Mix.shell.info "Nerves Firmware Burn"
+    {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
+
     config = Mix.Project.config
     otp_app = config[:app]
     target = config[:target]

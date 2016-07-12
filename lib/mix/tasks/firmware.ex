@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Firmware do
     preflight
 
     {opts, _, _} = OptionParser.parse(args)
-    Mix.shell.info "Nerves Firmware Assembler"
+    debug_info "Nerves Firmware Assembler"
     config = Mix.Project.config
     otp_app = config[:app]
     target = config[:target]

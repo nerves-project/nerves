@@ -44,4 +44,10 @@ defmodule Mix.Nerves.Utils do
     end
   end
   def check_host_requirements(_), do: nil
+
+  def debug_info(msg) do
+    if System.get_env("NERVES_DEBUG") == "1" do
+      Mix.shell.info(msg)
+    end
+  end
 end
