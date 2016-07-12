@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves 0.3.4-dev
+## Nerves 0.3.4
 * Bug Fixes
   * Fixed regression with `mix firmware.burn` to allow prompts
 * Enhancements
