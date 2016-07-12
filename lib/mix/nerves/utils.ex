@@ -7,6 +7,7 @@ defmodule Mix.Nerves.Utils do
 
   def preflight do
     check_requirements
+    Mix.Task.run "nerves.loadpaths"
   end
 
   def check_requirements do
