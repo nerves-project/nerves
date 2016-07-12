@@ -24,14 +24,14 @@ defmodule Mix.Tasks.Firmware.Burn do
     end
 
     args = ["-a", "-i", fw, "-t", "complete"] ++ argv
-    cmd =
+    {cmd, args} =
       case :os.type do
         {_, :darwin} ->
-          "fwup"
+          {"fwup", args}
         {_, :linux} ->
            ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
            System.put_env("SUDO_ASKPASS", ask_pass)
-           "sudo"
+           {"sudo", ["fwup"] ++ args}
         {_, type} ->
           raise "Unable to burn firmware on your host #{inspect type}"
       end
