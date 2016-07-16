@@ -16,7 +16,8 @@ defmodule Mix.Tasks.Nerves.Precompile do
     end
 
     System.put_env("NERVES_PRECOMPILE", "0")
-    Mix.Task.reenable "deps.precompile"
+    Mix.Tasks.Nerves.Loadpaths.run []
+    #Mix.Task.reenable "deps.precompile"
     debug_info "Nerves Precompile End"
   end
 end
