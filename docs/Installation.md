@@ -8,7 +8,7 @@ The easiest installation route on MacOS is to use [Homebrew](brew.sh). Just run 
 
 ```
 $ brew update
-$ brew install homebrew/versions/erlang-r19
+$ brew install erlang
 $ brew install elixir
 $ brew install fwup squashfs coreutils
 ```
