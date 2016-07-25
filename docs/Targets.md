@@ -39,6 +39,24 @@ Targets can be set and persisted several ways.
 
 A Run Level setting will override a Project Level setting, which will override a Global Level setting.
 
+### Example
+
+If you started your nerves project with `mix nerves.new hello_nerves --target rpi3`, and wish to compile for the Raspberry Pi 0, you can do so with:
+
+```
+NERVES_TARGET=rpi mix compile
+NERVES_TARGET=rpi mix firmware
+NERVES_TARGET=rpi mix firmware.burn
+```
+
+These commands will successively compile the code, create the firmware, and burn it to the SD card, for the `rpi` target (which covers the Raspberry Pi 0).
+
+Note: if you want to change the target for the current shell session, you can type: `export NERVES_TARGET=rpi`. For the rest of your shell session, you won't need to type `NERVES_TARGET=rpi` before your commands. If you wish to change the target permanently, you need to edit `mix.exs`.
+
+```
+@target System.get_env("NERVES_TARGET") || "rpi3"
+```
+
 ## Target Dependencies
 
 It is important to note that, although Nerves supports multiple targets for a single application codebase, only one `nerves_system` can be included in a given firmware. Because of this, we recommend taking the following approach for including the system dependency separately from your application dependencies.

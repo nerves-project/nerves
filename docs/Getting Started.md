@@ -4,7 +4,7 @@
 
 Nerves defines an entirely new way to build embedded systems using Elixir. It is specifically designed for embedded systems, not desktop or server systems. You can think of Nerves as containing three parts:
 
-**Platform** - a customized, minimal buildroot-derived Linux that boots directly to the BEAM VM.
+**Platform** - a customized, minimal Buildroot-derived Linux that boots directly to the BEAM VM.
 
 **Framework** - ready-to-go library of Elixir modules to get you up and running quickly.
 
@@ -21,7 +21,7 @@ Term | Definition
 host | The computer on which you are editing source code, compiling, and assembling firmware
 target | The platform for which your firmware is built (for example, Raspberry Pi, Raspberry Pi 2, or Beaglebone Black)
 toolchain | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime
-system | A lean buildroot-based linux distribution that has been customized and cross-compiled for a particular target
+system | A lean Buildroot-based Linux distribution that has been customized and cross-compiled for a particular target
 assemble | The process of combining system, application, and configuration into a firmware bundle
 firmware bundle | A single file that contains an assembled version of everything needed to burn firmware
 firmware image | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc.
@@ -54,7 +54,7 @@ $ mix deps.get
 
 > It is important to note that Nerves supports multi-target projects. This means that the same code base can support running on a variety of different target boards. Because of this, It is very important that your mix file only includes a single `nerves_system` at any time. For more information check out the [Targets Page](targets.html#target-dependencies)
 
-Once the dependencies are fetched, you can start to compile your project. The goal is to make a Nerves Firmware (a bundle that contains a Nerves-based linux platform and your application). As a first step, you need to fetch both the System and Toolchain for your Target. This task is done for you by Mix using the `nerves_bootstrap` utility in a special stage called `precompile`. This means that the first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors. Lets start the process and get a coffee...
+Once the dependencies are fetched, you can start to compile your project. The goal is to make a Nerves Firmware (a bundle that contains a Nerves-based Linux platform and your application). As a first step, you need to fetch both the System and Toolchain for your Target. This task is done for you by Mix using the `nerves_bootstrap` utility in a special stage called `precompile`. This means that the first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors. Lets start the process and get a coffee...
 
 ```
 $ mix compile
@@ -118,6 +118,12 @@ $ mix firmware.burn -d /dev/rdisk3
 > Note: You can also use `-d <filename>` to specify an output file. This will allow you to create a binary image that you can burn later using `dd` or some other image copying utility.
 
 Now that you have your SD card burned, you can insert it into your device and boot it up. For Raspberry Pi, connect it to your HDMI display and USB keyboard and you should see it boot to the IEx Console.
+
+> Note: If you are sure there is only one SD card inserted, you can add the `-y` flag to skip the prompt making sure it is the right SD card.
+
+```
+$ mix firmware.burn -y
+```
 
 ## Nerves Examples
 

@@ -7,7 +7,7 @@ defmodule <%= application_module %>.Mixfile do
     [app: :<%= application_name %>,
      version: "0.0.1",
      target: @target,
-     archives: [nerves_bootstrap: "<%= bootstrap_vsn %>"],
+     archives: [nerves_bootstrap: "~> <%= bootstrap_vsn %>"],
      deps_path: "deps/#{@target}",
      build_path: "_build/#{@target}",
      build_embedded: Mix.env == :prod,
