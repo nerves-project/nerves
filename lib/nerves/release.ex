@@ -1,9 +1,7 @@
 defmodule ReleaseManager.Plugin.Nerves do
   use ReleaseManager.Plugin
 
-  @vsn1 "/buildroot/output/staging/usr/lib/erlang/lib"
-  @vsn2 "/staging/usr/lib/erlang/lib"
-  @vm_args ""
+  @system_libs "/staging/usr/lib/erlang/lib"
 
   def before_release(%Config{version: version} = config) do
     case System.get_env("NERVES_SYSTEM") do
@@ -50,6 +48,5 @@ defmodule ReleaseManager.Plugin.Nerves do
   def after_package(_),     do: nil
   def after_cleanup(_args), do: nil
 
-  defp system_libs(system),
-    do: system <> if File.dir?(system <> @vsn2), do: @vsn2, else: @vsn1
+  defp system_libs(system), do: @system_libs
 end
