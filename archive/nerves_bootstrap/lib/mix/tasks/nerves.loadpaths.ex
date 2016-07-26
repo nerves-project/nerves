@@ -12,8 +12,6 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
             Nerves.Env.bootstrap
             env_info
           rescue
-            # UndefinedFunctionError ->
-            #   Mix.shell.info "Nerves Env needs to be updated"
             e ->
               raise e
           end

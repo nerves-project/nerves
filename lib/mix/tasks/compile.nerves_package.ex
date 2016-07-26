@@ -12,12 +12,8 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
   def run(_args) do
     Nerves.Env.start
-    Logger.debug "#{__MODULE__}"
     config = Mix.Project.config
-    package =
-      config[:app]
-      |> Nerves.Env.package
-
+    package = Nerves.Env.package(config[:app])
     toolchain = Nerves.Env.toolchain
 
     if Nerves.Package.stale?(package, toolchain) do

@@ -1,6 +1,6 @@
 defmodule Nerves.Package.Artifact do
 
-  @dir Path.expand("~/.nerves/artifacts")
+  @base_dir Path.expand("~/.nerves/artifacts")
 
   def get(pkg, toolchain) do
     Nerves.Package.Provider.artifact(pkg, toolchain)
@@ -14,15 +14,18 @@ defmodule Nerves.Package.Artifact do
           arch = Nerves.Env.host_arch
           "#{host}-#{arch}"
         _ ->
-        toolchain.target_tuple
+        toolchain.config[:target_tuple]
         |> to_string
       end
     "#{pkg.app}-#{pkg.version}.#{target_tuple}"
   end
 
+  def base_dir do
+    System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
+  end
+
   def dir(pkg, toolchain) do
-    (System.get_env("NERVES_ARTIFACTS_DIR") || @dir)
-    |> IO.inspect
+    base_dir
     |> Path.join(name(pkg, toolchain))
   end
 

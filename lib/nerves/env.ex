@@ -178,7 +178,6 @@ defmodule Nerves.Env do
     |> Enum.each(fn({k, v}) -> System.put_env(k, v) end)
 
     # Bootstrap the build platform
-    system.platform.bootstrap()
   end
 
   defp toolchain_path do
