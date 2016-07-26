@@ -68,8 +68,10 @@ defmodule Nerves.Env do
   # end
 
   def system do
-    packages_by_type(:system)
-    |> List.first
+    system =
+      packages_by_type(:system)
+      |> List.first
+    toolchain || Mix.raise "Could not locate System"
   end
 
   def system_platform do
@@ -81,8 +83,11 @@ defmodule Nerves.Env do
   end
 
   def toolchain do
-    packages_by_type(:toolchain)
-    |> List.first
+    toolchain =
+      packages_by_type(:toolchain)
+      |> List.first
+    toolchain || Mix.raise "Could not locate Toolchain"
+
   end
 
   # Collect all deps containing #{dep_path}/nerves.exs

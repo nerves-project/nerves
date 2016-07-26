@@ -86,7 +86,7 @@ defmodule Mix.Tasks.Firmware do
     pkg_fs =
       pkgs
       |> Enum.reduce([], fn(pkgs) ->
-
+        nil
       end)
   end
 

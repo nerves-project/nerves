@@ -21,11 +21,13 @@ defmodule Nerves.Package.Provider do
       end
     mod.artifact(toolchain, toolchain)
   end
-  def artifact(package, toolchain) do
-    mod =
-      System.get_env("NERVES_PACKAGE_PROVIDER")
-      |> provider
-    mod.artifact(package, toolchain)
+  def artifact(pkg, toolchain) do
+    Application.ensure_started(pkg.app)
+
+    Application.get_env(pkg.app, :nerves_env)
+    |> IO.inspect
+    mod = default
+    mod.artifact(pkg, toolchain)
   end
 
   defp provider(nil), do: default()
