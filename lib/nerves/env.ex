@@ -186,15 +186,9 @@ defmodule Nerves.Env do
   end
 
   defp system_path do
-    case System.get_env("NERVES_SYSTEM_CACHE") do
-      "local" ->
-        Nerves.System.Providers.Local.system_cache_dir
-        |> Path.join("#{system.app}-#{system.config[:version]}")
-      _ ->
-        Mix.Project.build_path
-        |> Path.join("nerves/system")
-    end
-
+    system = Nerves.Env.system
+    toolchain = Nerves.Env.toolchain
+    Nerves.Package.Artifact.dir(system, toolchain)
   end
 
 end
