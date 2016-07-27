@@ -53,7 +53,7 @@ defmodule Nerves.Package.Providers.Docker do
       dir = Artifact.dir(pkg, toolchain)
       File.mkdir_p(dir)
 
-      cwd = Artifact.dir(pkg, toolchain)
+      cwd = Artifact.base_dir
       |> String.to_char_list
 
       String.to_char_list(tar_file)
