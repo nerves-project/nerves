@@ -13,6 +13,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   def run(_args) do
     Nerves.Env.start
     config = Mix.Project.config
+
     package = Nerves.Env.package(config[:app])
     toolchain = Nerves.Env.toolchain
 

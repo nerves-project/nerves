@@ -34,7 +34,7 @@ defmodule Nerves.Env do
 
   def packages_by_type(packages, type) do
     packages
-    |> Enum.filter(& &1.type == type)
+    |> Enum.filter(& &1.type === type)
   end
 
   def stale? do
@@ -71,7 +71,8 @@ defmodule Nerves.Env do
     system =
       packages_by_type(:system)
       |> List.first
-    toolchain || Mix.raise "Could not locate System"
+
+    system || Mix.raise "Could not locate System"
   end
 
   def system_platform do

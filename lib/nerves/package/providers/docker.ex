@@ -16,55 +16,57 @@ defmodule Nerves.Package.Providers.Docker do
     _ = host_check()
     _ = config_check()
 
-    platform = pkg.platform
-    if Code.ensure_loaded?(platform) do
-      build_paths = platform.build_paths(pkg)
-      platform_config = pkg.config[:platform_config][:defconfig]
-      {_, _, platform_target} = Enum.find(build_paths, fn({type, _, _}) -> type == :platform end)
-      args = [@machine, @cmd, @script,
-        Artifact.name(pkg, toolchain),
-        platform_target,
-        Path.join("/nerves/env/#{pkg.app}", platform_config),
-        "/nerves/o/#{pkg.app}",
-        "/nerves/host/artifacts"]
-      args =
-        Enum.reduce(build_paths, args, fn({_, host,target}, acc) ->
-          ["-v" | ["#{host}:#{target}" | acc]]
-        end)
-      args = ["-v" | ["nerves_cache:/nerves/cache" | args]]
-      args = ["-v" | ["#{Artifact.base_dir}:/nerves/host/artifacts" | args]]
-      args = ["run" | ["--rm" | ["-t" | args]]]
-      args_string = Enum.join(args, " ")
+    build_paths = build_paths(pkg)
+    platform_config = pkg.config[:platform_config][:defconfig]
 
-      {:ok, pid} = platform.stream.start_link(file: "build.log")
-      stream = IO.stream(pid, :line)
-      Nerves.Shell.info "Docker provider starting..."
-      case Mix.Nerves.Utils.shell("docker", args, stream) do
-        {_result, 0} ->
-          :ok
-        {_result, _} ->
-          Mix.raise """
-          Docker provider encountered an error. See build.log for more details
-          """
-      end
+    {_, _, platform_target} = Enum.find(build_paths, fn({type, _, _}) -> type == :platform end)
+    args = [@machine, @cmd, @script,
+      Artifact.name(pkg, toolchain),
+      platform_target,
+      Path.join("/nerves/env/#{pkg.app}", platform_config),
+      "/nerves/o/#{pkg.app}",
+      "/nerves/host/artifacts"]
+    args =
+      Enum.reduce(build_paths, args, fn({_, host,target}, acc) ->
+        ["-v" | ["#{host}:#{target}" | acc]]
+      end)
+    args = ["-v" | ["nerves_cache:/nerves/cache" | args]]
+    args = ["-v" | ["#{Artifact.base_dir}:/nerves/host/artifacts" | args]]
+    args = ["run" | ["--rm" | ["-t" | args]]]
+    args_string = Enum.join(args, " ")
 
-      # File in Artifact.base_dir/Artifact.name(pkg, toolchain)
-      tar_file = Path.join(Artifact.base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")
-      if File.exists?(tar_file) do
-        dir = Artifact.dir(pkg, toolchain)
-        File.mkdir_p(dir)
-
-        cwd = Artifact.dir(pkg, toolchain)
-        |> String.to_char_list
-
-        String.to_char_list(tar_file)
-        |> :erl_tar.extract([:compressed, {:cwd, cwd}])
-      else
-        Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
-      end
-    else
-      Nerves.Shell.info "#{platform} not loaded"
+    {:ok, pid} = Nerves.IO.Stream.start_link(file: "build.log")
+    stream = IO.stream(pid, :line)
+    Nerves.Shell.info "Docker provider starting..."
+    case Mix.Nerves.Utils.shell("docker", args, stream) do
+      {_result, 0} ->
+        :ok
+      {_result, _} ->
+        Mix.raise """
+        Docker provider encountered an error. See build.log for more details
+        """
     end
+
+    # File in Artifact.base_dir/Artifact.name(pkg, toolchain)
+    tar_file = Path.join(Artifact.base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")
+    if File.exists?(tar_file) do
+      dir = Artifact.dir(pkg, toolchain)
+      File.mkdir_p(dir)
+
+      cwd = Artifact.dir(pkg, toolchain)
+      |> String.to_char_list
+
+      String.to_char_list(tar_file)
+      |> :erl_tar.extract([:compressed, {:cwd, cwd}])
+    else
+      Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
+    end
+  end
+
+  defp build_paths(pkg) do
+    system_br = Nerves.Env.package(:nerves_system_br)
+    [{:platform, system_br.path, "/nerves/env/platform"},
+     {:package, pkg.path, "/nerves/env/#{pkg.app}"}]
   end
 
   defp host_check() do
@@ -98,10 +100,10 @@ defmodule Nerves.Package.Providers.Docker do
     cmd = "docker"
     args = ["images", "-f", "label=#{@label}", "-q"]
     case System.cmd(cmd, args) do
-      {<<"nerves_cache", _tail :: binary>>, 0} ->
-        true
-      _ ->
+      {"", _} ->
         false
+      {_, 0} ->
+        true
     end
   end
 
@@ -111,7 +113,7 @@ defmodule Nerves.Package.Providers.Docker do
     Nerves.Shell.info "Docker provider needs to create the image."
     if Mix.shell.yes?("Continue?") do
       case Mix.Nerves.Utils.shell(cmd, args) do
-        {_, 0} -> :noop
+        {_, 0} -> :ok
         _ -> Mix.raise "Could not create docker volume nerves_cache"
       end
     else

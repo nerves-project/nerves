@@ -25,7 +25,7 @@ defmodule Nerves.Package.Provider do
     Application.ensure_started(pkg.app)
 
     Application.get_env(pkg.app, :nerves_env)
-    |> IO.inspect
+
     mod = default
     mod.artifact(pkg, toolchain)
   end
