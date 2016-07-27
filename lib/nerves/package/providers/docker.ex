@@ -58,6 +58,8 @@ defmodule Nerves.Package.Providers.Docker do
 
       String.to_char_list(tar_file)
       |> :erl_tar.extract([:compressed, {:cwd, cwd}])
+
+      File.rm!(tar_file)
     else
       Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
     end

@@ -184,6 +184,12 @@ defmodule Nerves.Env do
     |> Enum.each(fn({k, v}) -> System.put_env(k, v) end)
 
     # Bootstrap the build platform
+    platform = Nerves.Env.system.platform ||
+      Mix.raise "You must specify a build_platform in the nerves.exs config for the system #{Nerves.Env.system.app}"
+    pkg =
+      Nerves.Env.packages_by_type(:system_platform)
+      |> List.first
+    platform.bootstrap(pkg)
   end
 
   defp toolchain_path do
