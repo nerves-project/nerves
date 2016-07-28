@@ -20,12 +20,19 @@ defmodule Nerves.Package.Artifact do
     "#{pkg.app}-#{pkg.version}.#{target_tuple}"
   end
 
-  def base_dir do
-    System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
+  def base_dir(pkg) do
+    case pkg.dep do
+      :path ->
+        pkg.path
+        |> Path.join(".nerves/artifacts")
+      _ ->
+        System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
+    end
+
   end
 
   def dir(pkg, toolchain) do
-    base_dir
+    base_dir(pkg)
     |> Path.join(name(pkg, toolchain))
   end
 

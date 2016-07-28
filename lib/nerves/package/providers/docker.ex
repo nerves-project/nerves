@@ -18,7 +18,7 @@ defmodule Nerves.Package.Providers.Docker do
 
     build_paths = build_paths(pkg)
     platform_config = pkg.config[:platform_config][:defconfig]
-
+    base_dir = Artifact.base_dir(pkg)
     {_, _, platform_target} = Enum.find(build_paths, fn({type, _, _}) -> type == :platform end)
     args = [@machine, @cmd, @script,
       Artifact.name(pkg, toolchain),
@@ -31,7 +31,7 @@ defmodule Nerves.Package.Providers.Docker do
         ["-v" | ["#{host}:#{target}" | acc]]
       end)
     args = ["-v" | ["nerves_cache:/nerves/cache" | args]]
-    args = ["-v" | ["#{Artifact.base_dir}:/nerves/host/artifacts" | args]]
+    args = ["-v" | ["#{base_dir}:/nerves/host/artifacts" | args]]
     args = ["run" | ["--rm" | ["-t" | args]]]
     args_string = Enum.join(args, " ")
 
@@ -48,12 +48,12 @@ defmodule Nerves.Package.Providers.Docker do
     end
 
     # File in Artifact.base_dir/Artifact.name(pkg, toolchain)
-    tar_file = Path.join(Artifact.base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")
+    tar_file = Path.join(base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")
     if File.exists?(tar_file) do
       dir = Artifact.dir(pkg, toolchain)
       File.mkdir_p(dir)
 
-      cwd = Artifact.base_dir
+      cwd = base_dir
       |> String.to_char_list
 
       String.to_char_list(tar_file)
