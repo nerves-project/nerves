@@ -170,7 +170,7 @@ git clone https://github.com/nerves-project/nerves_system_rpi2.git
 Once that is all set up we set up the system build.
 ```
 cd nerves_system_br
-./create-build.sh ../nerves_system_rpi2 ../nerves_system_rpi2
+./create-build.sh ../nerves_system_rpi2/nerves_defconfig ../nerves_system_rpi2
 
 ```
 From here you can just follow the onscreen instructions.
