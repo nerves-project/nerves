@@ -146,7 +146,7 @@ Nerves system dependencies are light-weight, configuration-based dependencies th
 
 Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine.
 
-### Building with BuildRoot
+### Building with Buildroot
 
 First make sure we have all the needed dependencies.
 
@@ -162,7 +162,7 @@ cd nerves_build
 git clone https://github.com/nerves-project/nerves_system_br.git
 ```
 
-Now we need to clone the system we want to build. For example the Pi2:
+Now we need to clone the system we want to build. For example, if you're targeting a Raspberry Pi 2, do the following:
 ```
 git clone https://github.com/nerves-project/nerves_system_rpi2.git
 ```
@@ -184,7 +184,7 @@ make
 If you have ever used Buildroot before, this will look familiar to you. You can now start adding packages, configuring the kernel, etc.
 to configure BuildRoot packages you can: `make menuconfig`
 to configure the Linux Kernel: `make linux-menuconfig`
-to configure Buildroot's busybox: `make busybod-menuconfig`
+to configure Buildroot's busybox: `make busybox-menuconfig`
 
 and then if you want to save these configurations, there are similar commands:
 to save buildroot config: `make savedefconfig`
