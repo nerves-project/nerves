@@ -144,7 +144,54 @@ Nerves system dependencies are light-weight, configuration-based dependencies th
 
 `NERVES_SYSTEM_COMPILER` Options are `none`, `local`
 
-Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine. For more information on what is required to set up your host Linux machine, you can read the `nerves_system_br` [Install Page](https://github.com/nerves-project/nerves_system_br/blob/master/README.md)
+Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine.
+
+### Building with BuildRoot
+
+First make sure we have all the needed dependencies.
+
+```
+sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
+```
+
+Then set up our environment.
+
+```
+mkdir nerves_build
+cd nerves_build
+git clone https://github.com/nerves-project/nerves_system_br.git
+```
+
+Now we need to clone the system we want to build. For example the Pi2:
+```
+git clone https://github.com/nerves-project/nerves_system_rpi2.git
+```
+
+Once that is all set up we set up the system build.
+```
+cd nerves_system_br
+./create-build.sh ../nerves_system_rpi2 ../nerves_system_rpi2
+
+```
+From here you can just follow the onscreen instructions.
+
+```
+cd ../NERVES_SYSTEM
+make
+```
+
+### Additional package configuration.
+If you have ever used Buildroot before, this will look familiar to you. You can now start adding packages, configuring the kernel, etc.
+to configure BuildRoot packages you can: `make menuconfig`
+to configure the Linux Kernel: `make linux-menuconfig`
+to configure Buildroot's busybox: `make busybod-menuconfig`
+
+and then if you want to save these configurations, there are similar commands:
+to save buildroot config: `make savedefconfig`
+to save linux config: `make linux-savedefconfig`
+to save busybox: `make busybox-savedefconfig`
+
+For more information I suggest you check out Buildroot's documentation: [documentation](http://free-electrons.com/~thomas/buildroot/manual/html/)
 
 Nerves cache and compiler adhere to the `Nerves.System.Provider` behaviour. Therefore, the system is laid out to allow additional compiler and cache providers, to facilitate other options in the future like Vagrant or Docker. This will be helpful when you want to start a BuildRoot build on your Mac or Windows host machine.
 
