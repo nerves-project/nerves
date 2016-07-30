@@ -103,7 +103,7 @@ defmodule Nerves.Env do
   defp load_packages do
     Mix.Project.deps_paths
     |> Map.put_new(Mix.Project.config[:app], File.cwd!)
-    |> Enum.filter(fn({_, path} = thing) ->
+    |> Enum.filter(fn({_, path}) ->
       Package.config_path(path)
       |> File.exists?
     end)

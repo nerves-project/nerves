@@ -15,7 +15,7 @@ defmodule Nerves.Package.Providers.HTTP do
     |> unpack(artifact, dest)
   end
 
-  def artifact(pkg, toolchain) do
+  def artifact(pkg, _toolchain) do
     Logger.debug "#{__MODULE__}: artifact: #{inspect pkg}"
   end
 

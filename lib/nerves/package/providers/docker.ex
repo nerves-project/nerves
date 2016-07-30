@@ -33,7 +33,6 @@ defmodule Nerves.Package.Providers.Docker do
     args = ["-v" | ["nerves_cache:/nerves/cache" | args]]
     args = ["-v" | ["#{base_dir}:/nerves/host/artifacts" | args]]
     args = ["run" | ["--rm" | ["-t" | args]]]
-    args_string = Enum.join(args, " ")
 
     {:ok, pid} = Nerves.IO.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)

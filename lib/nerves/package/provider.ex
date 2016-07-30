@@ -12,7 +12,7 @@ defmodule Nerves.Package.Provider do
     Mix.raise "Nerves was unable to locate your toolchain."
   end
 
-  def artifact(%{type: :toolchain} = pkg, toolchain) do
+  def artifact(%{type: :toolchain}, toolchain) do
     mod =
       case :os.type do
         {_, :linux} -> provider("http")
