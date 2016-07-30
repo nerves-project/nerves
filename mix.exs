@@ -8,8 +8,7 @@ defmodule Nerves.Mixfile do
      homepage_url: "http://nerves-project.org/",
      version: "0.3.4",
      elixir: "~> 1.2.4 or ~> 1.3.0",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
+     elixirc_paths: elixirc_paths(Mix.env),
      deps: deps(),
      description: description(),
      package: package(),
@@ -20,6 +19,9 @@ defmodule Nerves.Mixfile do
   def application do
     []
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 
   defp deps do
     [

@@ -130,9 +130,9 @@ There are a few important and required keys present in this file:
 
 **build_config** The collection of configuration files. This collection contains the following keys:
 
-  * **defconfig** For `Nerves.System.Platforms.BR`, this is the BuildRoot defconfig fragment used to build the system.
+  * **defconfig** For `Nerves.System.Platforms.BR`, this is the Buildroot defconfig fragment used to build the system.
 
-  * **kconfig** BuildRoot requires a `Config.in` kconfig file to be present in the config directory. If this is omitted, a default empty file is used.
+  * **kconfig** Buildroot requires a `Config.in` kconfig file to be present in the config directory. If this is omitted, a default empty file is used.
 
   * **package_files** Additional files required to be present for the defconfig. Directories listed here will be expanded and all subfiles and directories will be copied over, too.
 
@@ -144,9 +144,9 @@ Nerves system dependencies are light-weight, configuration-based dependencies th
 
 `NERVES_SYSTEM_COMPILER` Options are `none`, `local`
 
-Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine. For more information on what is required to set up your host Linux machine, you can read the `nerves_system_br` [Install Page](https://github.com/nerves-project/nerves_system_br/blob/master/README.md)
+Currently, Nerves systems can only be compiled using the `local` compiler on a specially-configured Linux machine.
 
-Nerves cache and compiler adhere to the `Nerves.System.Provider` behaviour. Therefore, the system is laid out to allow additional compiler and cache providers, to facilitate other options in the future like Vagrant or Docker. This will be helpful when you want to start a BuildRoot build on your Mac or Windows host machine.
+Nerves cache and compiler adhere to the `Nerves.System.Provider` behaviour. Therefore, the system is laid out to allow additional compiler and cache providers, to facilitate other options in the future like Vagrant or Docker. This will be helpful when you want to start a Buildroot build on your Mac or Windows host machine.
 
 ### Using Local Cache Provider
 
@@ -174,6 +174,81 @@ Would you like to download the system to your cache? [Yn] Y
 
 This will invoke the http provider and attempt to resolve the dependency.
 
-## Creating or Modifying a Nerves System
+## Creating or Modifying a Nerves System with Buildroot
 
-The easiest way to create a new Nerves system is to check out [`nerves_system_br`](https://github.com/nerves-project/nerves_system_br) and create a configuration that contains the packages and configuration you need. Once you get this working and booting on your target, you can copy the configurations and files back into a new mix project following the structure described above.
+First, make sure that you have all of the dependencies. On Debian and Ubuntu,
+run the following:
+
+```
+sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
+```
+
+Then set up a working directory. In the example below, we use the
+`nerves_build` directory, but this can be anything. The `nerves_system_br`
+project contains the scripts for interacting with Buildroot with Nerves. Go to
+the working directory and clone it:
+
+```
+mkdir nerves_build
+cd nerves_build
+git clone https://github.com/nerves-project/nerves_system_br.git
+```
+
+While you can start a system build from scratch, it is easiest to modify an
+existing one and then rename it later when you have something to share or save.
+For example, if you're targeting a Raspberry Pi 2, do the following:
+
+```
+git clone https://github.com/nerves-project/nerves_system_rpi2.git
+```
+
+Once that completes, create an output directory for the build products. The
+name of the output directory is up to you. It is also possible to have multiple
+output directories if you have several configurations that you would with
+simultaneously. For now, create an output directory for the Raspberry Pi 2
+system that we cloned above:
+
+```
+./nerves_system_br/create-build.sh nerves_system_rpi2/nerves_defconfig rpi2_out
+
+```
+
+The `create-build.sh` script will prompt you with the next steps:
+
+```
+cd rpi2_out
+make
+```
+
+If you ever update `nerves_system_br`, be sure to run the `create-build.sh`
+script again. You can point it to the same location. Until you are comfortable
+with Buildroot, it is safest to `make clean` and then `make` to rebuild
+everything after an update to `nerves_system_br`.
+
+### Additional package configuration
+
+If you have used Buildroot before, the workflow is similar. The most common task
+will be enabling C/C++ packages for Nerves or tweaking the Linux kernel. Here is
+a short overview of commands:
+
+  1. Select packages by running `make menuconfig`
+  2. Modify the Linux kernel with `make linux-menuconfig`
+  3. Enable more command line utilities, `make busybox-menuconfig`
+
+The changes are stored temporarily. To save them back in your system image, run
+one or more of the following:
+
+  1. `make savedefconfig` updates the `nerves_defconfig` in your system
+     repository. It contains the Buildroot configuration
+  2. Run `make linux-savedefconfig` and `cp build/linux-x.y.z/defconfig <your
+     system>` to save the Linux configuration. If your system doesn't contain a
+     custom Linux configuration yet, you'll need to update the Buildroot
+     configuration to point to the new Linux defconfig in your system directory.
+     The path is usually something like `$(NERVES_DEFCONFIG_DIR)/linux-x.y_defconfig`
+  3. For Busybox, the convention is to copy `build/busybox-x.y.z/.config` to a
+     file in the system repository. Like the Linux configuration, the Buildroot
+     configuration will need to be updated to point to the custom config.
+
+The Buildroot [user manual](http://nightly.buildroot.org/manual.html) can be
+very helpful especially if you need to add a package. The various Nerves system
+repositories have examples of many common use cases, so check them out as well.
