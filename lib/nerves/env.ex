@@ -21,6 +21,11 @@ defmodule Nerves.Env do
     get || raise "Nerves packages are not loaded"
   end
 
+  def package(name) when is_binary(name) do
+    name
+    |> String.to_atom
+    |> package
+  end
   def package(name) do
     packages
     |> Enum.filter(& &1.app == name)

@@ -1,13 +1,18 @@
 defmodule Nerves.Package.Providers.Docker do
-  use Nerves.Package.Provider
+  @behaviour Nerves.Package.Provider
 
   alias Nerves.Package.Artifact
 
   @version "~> 1.12 or ~> 1.12.0-rc2"
   @config "~/.nerves/provider/docker"
   @machine "nerves_system_br"
-  @cmd "/bin/sh"
-  @script "/nerves/env/platform/scripts/build-artifact.sh"
+
+  @sh "/bin/sh"
+  @bash "/bin/bash"
+
+  @artifact_script "/nerves/env/platform/scripts/build-artifact.sh"
+  @create_build "/nerves/env/platform/create-build.sh"
+
   @label "org.nerves-project.nerves_system_br=1.0"
   @dockerfile File.cwd!
               |> Path.join("template")
@@ -20,7 +25,7 @@ defmodule Nerves.Package.Providers.Docker do
     platform_config = pkg.config[:platform_config][:defconfig]
     base_dir = Artifact.base_dir(pkg)
     {_, _, platform_target} = Enum.find(build_paths, fn({type, _, _}) -> type == :platform end)
-    args = [@machine, @cmd, @script,
+    args = [@machine, @sh, @artifact_script,
       Artifact.name(pkg, toolchain),
       platform_target,
       Path.join("/nerves/env/#{pkg.app}", platform_config),
@@ -34,9 +39,9 @@ defmodule Nerves.Package.Providers.Docker do
     args = ["-v" | ["#{base_dir}:/nerves/host/artifacts" | args]]
     args = ["run" | ["--rm" | ["-t" | args]]]
 
-    {:ok, pid} = Nerves.IO.Stream.start_link(file: "build.log")
+    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)
-    Nerves.Shell.info "Docker provider starting..."
+    Nerves.Utils.Shell.info "Docker provider starting..."
     case Mix.Nerves.Utils.shell("docker", args, stream) do
       {_result, 0} ->
         :ok
@@ -62,6 +67,11 @@ defmodule Nerves.Package.Providers.Docker do
     else
       Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
     end
+  end
+
+  def shell(_pkg) do
+    #args = [@machine, @bash, @create_build]
+
   end
 
   defp build_paths(pkg) do
@@ -111,7 +121,7 @@ defmodule Nerves.Package.Providers.Docker do
   defp docker_image_create do
     cmd = "docker"
     args = ["build", "--label", @label, "--tag", "nerves_system_br:latest", @dockerfile]
-    Nerves.Shell.info "Docker provider needs to create the image."
+    Nerves.Utils.Shell.info "Docker provider needs to create the image."
     if Mix.shell.yes?("Continue?") do
       case Mix.Nerves.Utils.shell(cmd, args) do
         {_, 0} -> :ok

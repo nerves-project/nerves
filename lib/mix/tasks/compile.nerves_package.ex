@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     toolchain = Nerves.Env.toolchain
 
     if Nerves.Package.stale?(package, toolchain) do
-      Nerves.Package.Artifact.get(package, toolchain)
+      Nerves.Package.artifact(package, toolchain)
     end
   end
 

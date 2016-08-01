@@ -1,6 +1,7 @@
 defmodule Nerves.Package.Providers.HTTP do
-  use Nerves.Package.Provider
-  alias Nerves.Shell
+  @behaviour Nerves.Package.Provider
+
+  alias Nerves.Utils.Shell
   alias Nerves.Package.Artifact
   require Logger
 

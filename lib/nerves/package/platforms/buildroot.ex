@@ -1,5 +1,5 @@
 defmodule Nerves.Package.Platforms.Buildroot do
-  use Nerves.Package.Platform
+  @behaviour Nerves.Package.Platform
 
   def bootstrap() do
     :ok
