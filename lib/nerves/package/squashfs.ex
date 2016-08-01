@@ -17,7 +17,7 @@ defmodule Nerves.Package.Squashfs do
     case System.cmd("unsquashfs", [rootfs, "-d", dir]) do
       {_result, 0} ->
         GenServer.start_link(__MODULE__, [rootfs, dir, params])
-      {error, _} = reply ->
+      {error, _} ->
         {:error, error}
     end
   end
@@ -65,34 +65,33 @@ defmodule Nerves.Package.Squashfs do
     }}
   end
 
-  def handle_call(:stop, from, s) do
+  def handle_call(:stop, _from, s) do
     File.rm_rf!(s.stage)
     {:reply, :ok, s}
   end
 
-  def handle_call({:files}, from, s) do
+  def handle_call({:files}, _from, s) do
     files = Enum.reduce(s.params, [], fn
-      {"d", file, _, _, _}, acc -> acc
+      {"d", _, _, _, _}, acc -> acc
       {_, file, _, _, _}, acc -> [file | acc]
     end)
     {:reply, files, s}
   end
 
-  def handle_call({:pseudofile}, from, s) do
+  def handle_call({:pseudofile}, _from, s) do
     {:reply, params_to_pseudofile(s.params), s}
   end
 
-  def handle_call({:pseudofile_fragment, fragment}, from, s) do
+  def handle_call({:pseudofile_fragment, fragment}, _from, s) do
     fragment =
-      fragment
-      |> Enum.filter(s.params, fn
+      Enum.filter(s.params, fn
         {_, file, _, _, _} ->
           file in fragment
       end)
     {:reply, params_to_pseudofile(fragment), s}
   end
 
-  def handle_call({:fragment, fragment, path, opts}, from, s) do
+  def handle_call({:fragment, fragment, path, opts}, _from, s) do
     pseudo_fragment =
       fragment
       |> Enum.map(&path_to_paths/1)
@@ -131,37 +130,37 @@ defmodule Nerves.Package.Squashfs do
     {:reply, {:ok, path}, s}
   end
 
-  def handle_call({:mergefs, file_systems, pseudofiles, path}, from, s) do
-
-    stage_path =
-      s.stage
-      |> Path.dirname
-
-    unionfs = Path.join(union_path, "union")
-    Enum.each(fs, fn() ->
-      System.cmd("unsquashfs", ["-d", s.stage, "-f", fs])
-    end)
-
-    pseudofile = Enum.reduce(pseudofiles, "", fn(file, acc) ->
-      File.read!(file) <> acc <> "\n"
-    end)
-    pseudofile <> "\n" <> params_to_pseudofile(s.params)
-
-    pseudofile_path = Path.join(stage_path, "pseudofile")
-    File.write!(pseudofile_path, pseudofile)
-
-    System.cmd("mksquashfs", [ststage, path, "-pf", pseudofile_path, "-noappend", "-no-recovery", "-no-progress"])
-
-    #File.rm!(pseudofile_path)
-
-    {:reply, {:ok, path}, s}
-  end
+  # def handle_call({:mergefs, file_systems, pseudofiles, path}, from, s) do
+  #
+  #   stage_path =
+  #     s.stage
+  #     |> Path.dirname
+  #
+  #   unionfs = Path.join(stage_path, "union")
+  #   Enum.each(fs, fn() ->
+  #     System.cmd("unsquashfs", ["-d", s.stage, "-f", fs])
+  #   end)
+  #
+  #   pseudofile = Enum.reduce(pseudofiles, "", fn(file, acc) ->
+  #     File.read!(file) <> acc <> "\n"
+  #   end)
+  #   pseudofile <> "\n" <> params_to_pseudofile(s.params)
+  #
+  #   pseudofile_path = Path.join(stage_path, "pseudofile")
+  #   File.write!(pseudofile_path, pseudofile)
+  #
+  #   System.cmd("mksquashfs", [ststage, path, "-pf", pseudofile_path, "-noappend", "-no-recovery", "-no-progress"])
+  #
+  #   #File.rm!(pseudofile_path)
+  #
+  #   {:reply, {:ok, path}, s}
+  # end
 
   defp params_to_pseudofile(fragment) do
     Enum.map(fragment, fn
       {type, file, {major, minor}, {p0, p1, p2, p3}, {o, g}} when type in @device_types ->
         "#{file} #{type} #{p0}#{p1}#{p2}#{p3} #{o} #{g} #{major} #{minor}"
-      {type, file, attr, {p0, p1, p2, p3}, {o, g}} ->
+      {_type, file, _attr, {p0, p1, p2, p3}, {o, g}} ->
         file = if file == "", do: "/", else: file
         "#{file} m #{p0}#{p1}#{p2}#{p3} #{o} #{g}"
     end)
@@ -199,7 +198,7 @@ defmodule Nerves.Package.Squashfs do
       {nil, tail}
     end
 
-    <<modified :: binary-size(16), tail :: binary>> = tail
+    <<_modified :: binary-size(16), tail :: binary>> = tail
     <<"squashfs-root", file :: binary>> = String.strip(tail)
     file =
       if type == "l" do
