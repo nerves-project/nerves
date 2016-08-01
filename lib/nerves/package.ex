@@ -21,6 +21,11 @@ defmodule Nerves.Package do
   @artifacts_dir Path.expand("~/.nerves/artifacts")
   @required [:type, :version, :platform]
 
+  def artifact(pkg, toolchain) do
+
+    pkg.provider.artifact(pkg, toolchain)
+  end
+
   def load_config({app, path}) do
     load_nerves_config(path)
     config = Application.get_env(app, :nerves_env)

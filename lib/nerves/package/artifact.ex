@@ -2,10 +2,6 @@ defmodule Nerves.Package.Artifact do
 
   @base_dir Path.expand("~/.nerves/artifacts")
 
-  def get(pkg, toolchain) do
-    Nerves.Package.Provider.artifact(pkg, toolchain)
-  end
-
   def name(pkg, toolchain) do
     target_tuple =
       case pkg.type do
