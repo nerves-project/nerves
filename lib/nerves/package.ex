@@ -23,8 +23,8 @@ defmodule Nerves.Package do
   @required [:type, :version, :platform]
 
   def artifact(pkg, toolchain) do
-
-    pkg.provider.artifact(pkg, toolchain)
+    {mod, opts} = pkg.provider
+    mod.artifact(pkg, toolchain, opts)
   end
 
   def load_config({app, path}) do

@@ -7,7 +7,7 @@ defmodule Nerves.Package.Providers.HTTP do
 
   @artifact_url "https://s3.amazonaws.com/nerves/artifacts"
 
-  def artifact(%{type: :toolchain} = pkg, toolchain) do
+  def artifact(%{type: :toolchain} = pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
     url = "#{@artifact_url}/#{artifact}"
     dest = Artifact.dir(pkg, toolchain)

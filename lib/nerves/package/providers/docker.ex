@@ -17,7 +17,7 @@ defmodule Nerves.Package.Providers.Docker do
   @dockerfile File.cwd!
               |> Path.join("template")
 
-  def artifact(pkg, toolchain) do
+  def artifact(pkg, toolchain, _opts) do
     _ = host_check()
     _ = config_check()
 
