@@ -78,8 +78,8 @@ defmodule Nerves.Package do
 
   defp provider_mod(:toolchain) do
     case :os.type do
-      {_, :linux} -> Providers.Local
-      {_, :darwin} -> Providers.Local
+      {_, :linux} -> Providers.HTTP
+      {_, :darwin} -> Providers.HTTP
       _ -> Providers.Docker
     end
   end

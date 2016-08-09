@@ -11,8 +11,10 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   @recursive true
 
   def run(_args) do
-    Nerves.Env.start
     config = Mix.Project.config
+
+    Nerves.Env.start
+    Nerves.Env.ensure_loaded(Mix.Project.config[:app])
 
     package = Nerves.Env.package(config[:app])
     toolchain = Nerves.Env.toolchain

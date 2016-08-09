@@ -21,6 +21,7 @@ defmodule Nerves.Package.Providers.HTTP do
   end
 
   defp download(artifact, [location | locations]) do
+    shell_info "Downloading Artifact #{artifact}"
     location
     |> URI.encode
     |> String.replace("+", "%2B")

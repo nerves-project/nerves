@@ -18,7 +18,7 @@ defmodule Nerves.Package.Artifact do
 
   def base_dir(pkg) do
     case pkg.dep do
-      :path ->
+      local when local in [:path, :project] ->
         pkg.path
         |> Path.join(".nerves/artifacts")
       _ ->

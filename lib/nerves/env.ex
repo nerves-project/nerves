@@ -15,6 +15,19 @@ defmodule Nerves.Env do
     Agent.stop(__MODULE__)
   end
 
+  def ensure_loaded(app, path \\ nil) do
+    path = path || File.cwd!
+
+    Agent.update(__MODULE__, fn(packages) ->
+      case Enum.find(packages, & &1.app == app) do
+        nil ->
+          package = Package.load_config({app, path})
+          [package | packages]
+        _ -> packages
+      end
+    end)
+  end
+
   def host_arch(), do: @host_arch
 
   def packages do
@@ -41,36 +54,6 @@ defmodule Nerves.Env do
     packages
     |> Enum.filter(& &1.type === type)
   end
-
-  def stale? do
-    # system_manifest =
-    #   system_path
-    #   |> Path.join(".nerves.lock")
-    #   |> Path.expand
-    #
-    # if stale_check_manifest(system_manifest) do
-    #   [system | system_exts]
-    #   |> Enum.map(fn (%{path: path, config: config}) ->
-    #     (config[:package_files] || @default_files)
-    #     |> expand_paths(path)
-    #     |> Enum.map(& Path.join(path, &1))
-    #   end)
-    #   |> Enum.any?(& Mix.Utils.stale?(&1, [system_manifest]))
-    # else
-    #   true
-    # end
-
-  end
-
-  # def stale_check_manifest(manifest) do
-  #   case File.read(manifest) do
-  #     {:ok, file} ->
-  #       file
-  #       |> :erlang.binary_to_term
-  #       |> Keyword.equal?(Env.deps)
-  #     _ -> false
-  #   end
-  # end
 
   def system do
     system =
@@ -107,14 +90,12 @@ defmodule Nerves.Env do
   #    * toolchain              - nerves_toolchain_arm_unknown_linux_gnueabihf
   defp load_packages do
     Mix.Project.deps_paths
-    |> Map.put_new(Mix.Project.config[:app], File.cwd!)
     |> Enum.filter(fn({_, path}) ->
       Package.config_path(path)
       |> File.exists?
     end)
     |> Enum.map(&Package.load_config/1)
     |> validate_packages
-
   end
 
   defp get do
