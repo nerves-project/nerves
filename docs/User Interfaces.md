@@ -1,4 +1,4 @@
-  # User Interfaces
+# User Interfaces
 
 ## Phoenix Web Interfaces
 
@@ -57,7 +57,7 @@ children = [
 ]
 ...
 ```
- 
+
 In order to build the `ui` Phoenix application into the nerves `fw` app, you need to add some configuration to your firmware config:
 
 ```elixir
