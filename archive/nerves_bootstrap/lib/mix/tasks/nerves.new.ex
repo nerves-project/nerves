@@ -91,11 +91,14 @@ defmodule Mix.Tasks.Nerves.New do
     """
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
 
+    in_umbrella? = in_umbrella?(path)
+
     binding = [application_name: app,
                application_module: mod,
                bootstrap_vsn: @version,
                nerves_dep: nerves_dep(nerves_path),
-               default_target: target]
+               default_target: target,
+               in_umbrella: in_umbrella?]
 
     copy_from path, binding, @new
   end
@@ -177,4 +180,16 @@ defmodule Mix.Tasks.Nerves.New do
     File.write!(file, File.read!(file) <> contents)
   end
 
+  defp in_umbrella?(app_path) do
+    try do
+      umbrella = Path.expand(Path.join [app_path, "..", ".."])
+      File.exists?(Path.join(umbrella, "mix.exs")) &&
+        Mix.Project.in_project(:umbrella_check, umbrella, fn _ ->
+          path = Mix.Project.config[:apps_path]
+          path && Path.expand(path) == Path.join(umbrella, "apps")
+        end)
+    catch
+      _, _ -> false
+    end
+  end
 end

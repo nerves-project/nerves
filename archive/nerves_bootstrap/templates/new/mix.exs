@@ -8,8 +8,14 @@ defmodule <%= application_module %>.Mixfile do
      version: "0.0.1",
      target: @target,
      archives: [nerves_bootstrap: "~> <%= bootstrap_vsn %>"],
+     <%= if in_umbrella? do %>
+     deps_path: "../../deps/#{@target}",
+     build_path: "../../_build/#{@target}",
+     lockfile: "../../mix.lock",
+     <% else %>
      deps_path: "deps/#{@target}",
      build_path: "_build/#{@target}",
+     <% end %>
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases,

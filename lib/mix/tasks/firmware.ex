@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Firmware do
     System.get_env("NERVES_TOOLCHAIN") || raise """
       Environment variable $NERVES_TOOLCHAIN is not set
     """
-    Mix.Task.run "compile", [] # Maybe this should be in there?
+    Mix.Task.run "compile", []
     Mix.Task.run "release", ["--verbosity=#{verbosity}", "--no-confirm-missing", "--implode"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")

@@ -46,9 +46,9 @@ defmodule ReleaseManager.Plugin.Nerves do
     end
   end
 
-  def after_release(_),     do: nil
-  def after_package(_),     do: nil
-  def after_cleanup(_args), do: nil
+  def after_release(_), do: nil
+  def after_package(_), do: nil
+  def after_cleanup(_), do: nil
 
   defp system_libs(system),
     do: system <> if File.dir?(system <> @vsn2), do: @vsn2, else: @vsn1
