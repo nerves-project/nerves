@@ -23,16 +23,16 @@ For Elixir, please reference the Elixir [Installation Page](http://elixir-lang.o
 
 Next install the `fwup` utility. Nerves uses `fwup` to create, distribute, and install firmware images of your programs. You can install fwup using the instructions found on the [Installation Page](https://github.com/fhunleth/fwup#installing). Installing the prebuilt `.deb` or `.rpm` files is recommended.
 
+The `ssh-askpass` package is also required on Linux so that the `mix firmware.burn` step will be able to use `sudo` to gain the required permission to write directly to an SD card:
+
+```
+$ sudo apt-get install ssh-askpass
+```
+
 Finally, install `squashfs-tools` using your distribution's package manager. For
 example:
 ```
 $ sudo apt-get install squashfs-tools
-```
-
-For convenience, you may also want to install `ssh-askpass` so that `fwup` will be able to write to your SD card even if you forget to use `sudo`:
-
-```
-$ sudo apt-get install ssh-askpass
 ```
 
 Now continue to the instructions for all platforms below.
