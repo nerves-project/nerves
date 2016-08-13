@@ -29,6 +29,12 @@ example:
 $ sudo apt-get install squashfs-tools
 ```
 
+For convenience, you may also want to install `ssh-askpass` so that `fwup` will be able to write to your SD card even if you forget to use `sudo`:
+
+```
+$ sudo apt-get install ssh-askpass
+```
+
 Now continue to the instructions for all platforms below.
 
 ## All platforms
