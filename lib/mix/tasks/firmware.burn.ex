@@ -5,6 +5,34 @@ defmodule Mix.Tasks.Firmware.Burn do
   @switches [device: :string, task: :string]
   @aliases [d: :device, t: :task]
 
+  @moduledoc """
+  Writes the generated firmware image to an attached SDCard or file.
+
+  By default, this task detects attached SDCards and then invokes `fwup`
+  to overwrite the contents of the selected SDCard with the new image.
+  Data on the SDCard will be lost, so be careful.
+
+  ## Command line options
+
+    * `--device <filename>` - skip SDCard detection and write the image to
+      the specified filename. SDCard paths depend on the operating system, but
+      have a form like `/dev/sdc` or `/dev/mmcblk0`. You may also specify a
+      filename to create an image that can be used with a bulk memory programmer
+      or copied to an SDCard manually with a utility like `dd`.
+
+    * `--task <name>` - apply the specified `fwup` task. See the `fwup.conf`
+      file that was used to create the firmware image for options. By
+      convention, the `complete` task writes everything to the SDCard including
+      bootloaders and application data partitions. The `upgrade` task only
+      modifies the parts of the SDCard required to run the new software.
+
+  ## Examples
+
+  ```
+  # Upgrade the contents of the SDCard located at /dev/mmcblk0
+  mix firmware.burn --device /dev/mmcblk0 --task upgrade
+  ```
+  """
   def run(argv) do
     preflight
     debug_info "Nerves Firmware Burn"
