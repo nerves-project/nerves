@@ -37,7 +37,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
  4. Connect your USB serial cable to the desired UART pins (per the I/O pin-out for your particular hardware).
  5. On your development host, connect to the serial console.
 
-    * On Linux and Mac OS, use `screen /dev/tty<device>`.
+    * On Linux and Mac OS, use `screen /dev/tty<device>`.  You may need to specify the baud rate as well, for example: `screen /dev/tty<device> 115200`.
     * On Windows, use the `Serial` option to connect to `COM<device>`.
 
 # How do I Configure the Target Hardware to Reboot Instead of Halt on Failure?
