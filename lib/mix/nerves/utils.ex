@@ -1,8 +1,7 @@
 defmodule Mix.Nerves.Utils do
   @fwup_semver "~> 0.8"
 
-  def shell(cmd, args) do
-    stream = IO.binstream(:standard_io, :line)
+  def shell(cmd, args, stream \\ IO.binstream(:standard_io, :line)) do
     System.cmd(cmd, args, into: stream, stderr_to_stdout: true)
   end
 

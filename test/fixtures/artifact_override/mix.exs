@@ -1,14 +1,15 @@
-defmodule SimpleApp.Fixture do
+defmodule ArtifactOverride.Fixture do
   use Mix.Project
 
   @target System.get_env("NERVES_TARGET") || "rpi3"
 
   def project do
-    [app: :simple_app,
+    [app: :artifact_override,
      version: "0.1.0",
      archives: [nerves_bootstrap: "~> 0.1"],
      target: @target,
      aliases: aliases(),
+     artifacts: artifacts(),
      deps: deps()]
   end
 
@@ -17,12 +18,19 @@ defmodule SimpleApp.Fixture do
   end
 
   defp deps do
-    [{:system, path: "../system"}]
+    [{:package, path: "../package"},
+     {:system, path: "../system"}]
   end
 
   def aliases do
     ["deps.precompile": ["nerves.precompile", "deps.precompile"],
      "deps.loadpaths":  ["deps.loadpaths",    "nerves.loadpaths"]]
+  end
+
+  def artifacts do
+    [{:system, Nerves.Package.Providers.Docker},
+     {:toolchain, url: "http://foo.bar/artifact.tar.gz"},
+     {:package, path: "/path/to/artifact"}]
   end
 
 end

@@ -5,19 +5,14 @@ defmodule Mix.Tasks.Nerves.Precompile do
 
   def run(_args) do
     debug_info "Nerves Precompile Start"
+
     System.put_env("NERVES_PRECOMPILE", "1")
-    Mix.Tasks.Deps.Compile.run ["nerves_system"]
-    Env.initialize
-
-    if Env.stale? do
-      Mix.Tasks.Deps.Compile.run [Env.system.app, "--include-children"]
-    else
-      debug_info "Nerves Env current"
-    end
-
+    Mix.Tasks.Nerves.Env.run []
+    Mix.Tasks.Deps.Compile.run [to_string(Nerves.Env.system.app), "--include-children"]
+    Mix.Task.reenable "deps.compile"
     System.put_env("NERVES_PRECOMPILE", "0")
+
     Mix.Tasks.Nerves.Loadpaths.run []
-    #Mix.Task.reenable "deps.precompile"
     debug_info "Nerves Precompile End"
   end
 end

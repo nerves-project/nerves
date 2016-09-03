@@ -1,9 +1,7 @@
 defmodule ReleaseManager.Plugin.Nerves do
   use ReleaseManager.Plugin
 
-  @vsn1 "/buildroot/output/staging/usr/lib/erlang/lib"
-  @vsn2 "/staging/usr/lib/erlang/lib"
-  @vm_args ""
+  @system_libs "/staging/usr/lib/erlang/lib"
 
   def before_release(%Config{version: version} = config) do
     case System.get_env("NERVES_SYSTEM") do
@@ -37,9 +35,9 @@ defmodule ReleaseManager.Plugin.Nerves do
           {:overlay, _} -> true
           _ -> false
         end)
-
+        system_libs = String.to_char_list(Path.join(system, @system_libs))
         relx_config = [{:include_erts, false} | relx_config]
-        relx_config = [{:system_libs, String.to_char_list(system_libs(system))} | relx_config]
+        relx_config = [{:system_libs, system_libs} | relx_config]
         relx_config = [{:overlay, overlay} | relx_config]
 
         config = %{config | relx_config: relx_config}
@@ -49,7 +47,4 @@ defmodule ReleaseManager.Plugin.Nerves do
   def after_release(_),     do: nil
   def after_package(_),     do: nil
   def after_cleanup(_args), do: nil
-
-  defp system_libs(system),
-    do: system <> if File.dir?(system <> @vsn2), do: @vsn2, else: @vsn1
 end
