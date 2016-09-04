@@ -1,4 +1,6 @@
 # Nerves
+
+[![Join the chat at https://gitter.im/nerves-project/nerves](https://badges.gitter.im/nerves-project/nerves.svg)](https://gitter.im/nerves-project/nerves?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Craft and deploy bulletproof embedded software in Elixir
 
 ## Requirements
