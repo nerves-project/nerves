@@ -12,7 +12,14 @@ defmodule Mix.Nerves.Utils do
   end
 
   def check_requirements do
-    case System.cmd("which", ["mksquashfs"]) do
+    {_, type} = :os.type
+
+    which_or_where = case type do
+                        :nt -> "where"
+                        _ -> "which"
+                     end
+                     
+    case System.cmd(which_or_where, ["mksquashfs"]) do
       {_, 0} -> nil
       _ -> Mix.raise """
       Squash FS Tools are required to be installed on your system.
@@ -40,7 +47,7 @@ defmodule Mix.Nerves.Utils do
       """
     end
 
-    {_, type} = :os.type
+    
     check_host_requirements(type)
   end
 

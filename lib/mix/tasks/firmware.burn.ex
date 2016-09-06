@@ -75,6 +75,8 @@ defmodule Mix.Tasks.Firmware.Burn do
            ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
            System.put_env("SUDO_ASKPASS", ask_pass)
            {"sudo", ["fwup"] ++ args}
+        {_, :nt} ->
+           {"fwup", args}
         {_, type} ->
           raise "Unable to burn firmware on your host #{inspect type}"
       end
