@@ -42,7 +42,7 @@ defmodule Nerves.Package.Providers.Docker do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)
     Nerves.Utils.Shell.info "Docker provider starting..."
-    case Mix.Nerves.Utils.shell("docker", args, stream) do
+    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
       {_result, 0} ->
         :ok
       {_result, _} ->
