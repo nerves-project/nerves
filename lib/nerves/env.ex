@@ -164,10 +164,21 @@ defmodule Nerves.Env do
   """
 
   def bootstrap do
-    [{"NERVES_SYSTEM", System.get_env("NERVES_SYSTEM") || system_path},
-     {"NERVES_TOOLCHAIN", System.get_env("NERVES_TOOLCHAIN") || toolchain_path},
+    nerves_system_path = System.get_env("NERVES_SYSTEM") || system_path
+    nerves_toolchain_path = System.get_env("NERVES_TOOLCHAIN") || toolchain_path
+
+    [{"NERVES_SYSTEM", nerves_system_path},
+     {"NERVES_TOOLCHAIN", nerves_toolchain_path},
      {"NERVES_APP", File.cwd!}]
-    |> Enum.each(fn({k, v}) -> System.put_env(k, v) end)
+    |> Enum.each(fn({k, v}) ->
+      unless File.dir?(v) do
+        Mix.raise """
+        #{k} is set to a path which does not exist:
+        #{v}
+        """
+      end
+      System.put_env(k, v)
+    end)
 
     # Bootstrap the build platform
     platform = Nerves.Env.system.platform
