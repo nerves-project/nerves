@@ -4,7 +4,7 @@ defmodule Mix.Nerves.Utils do
   def shell(cmd, args, opts \\ []) do
     stream = opts[:stream] || IO.binstream(:standard_io, :line)
     std_err = opts[:stderr_to_stdout] || true
-    opts = Keyword.reject(opts, [:into, :stderr_to_stdout, :stream])
+    opts = Keyword.drop(opts, [:into, :stderr_to_stdout, :stream])
     System.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 

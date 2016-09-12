@@ -1,6 +1,7 @@
 defmodule Nerves.Package.Providers.Local do
   @behaviour Nerves.Package.Provider
 
+  alias Nerves.Package.Artifact
   import Mix.Nerves.Utils
 
   def artifact(pkg, toolchain, opts) do
@@ -11,12 +12,13 @@ defmodule Nerves.Package.Providers.Local do
   def artifact(:linux, pkg, toolchain, _opts) do
     System.delete_env("BINDIR")
     dest = Artifact.dir(pkg, toolchain)
+    File.rm_rf(dest)
     File.mkdir_p!(dest)
 
-    script = Path.join(Nerves.Env.dep(:nerves_system_br).path, "create-build.sh")
+    script = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("#{pkg.path}", platform_config)
-    shell "sh", [script, defconfig, dest]
+    shell(script, [defconfig, dest])
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)

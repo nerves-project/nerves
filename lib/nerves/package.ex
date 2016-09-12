@@ -3,6 +3,7 @@ defmodule Nerves.Package do
 
   alias __MODULE__
   alias Nerves.Package.{Artifact, Providers}
+  alias Nerves.Package
 
   @type t :: %__MODULE__{app: atom,
                         path: binary,
@@ -19,12 +20,15 @@ defmodule Nerves.Package do
                       config: Keyword.t}
 
   @package_config "nerves.exs"
+  @checksum "CHECKSUM"
   @artifacts_dir Path.expand("~/.nerves/artifacts")
   @required [:type, :version, :platform]
 
   def artifact(pkg, toolchain) do
     {mod, opts} = pkg.provider
     mod.artifact(pkg, toolchain, opts)
+    Path.join(Artifact.dir(pkg, toolchain), @checksum)
+    |> File.write!(checksum(pkg))
   end
 
   def load_config({app, path}) do
@@ -47,12 +51,35 @@ defmodule Nerves.Package do
       config: config}
   end
 
+  def checksum(pkg) do
+    blob =
+      pkg.config[:checksum]
+      |> expand_paths(pkg.path)
+      |> Enum.map(& File.read!/1)
+      |> Enum.map(& :crypto.hash(:sha256, &1))
+      |> Enum.join
+    :crypto.hash(:sha256, blob)
+    |> Base.encode16
+  end
+
   def config_path(path) do
     Path.join(path, @package_config)
   end
 
   def stale?(pkg, toolchain) do
-    !Artifact.exists?(pkg, toolchain)
+    if Artifact.exists?(pkg, toolchain) do
+      artifact_checksum =
+        Path.join(Artifact.dir(pkg, toolchain), @checksum)
+        |> File.read
+      case artifact_checksum do
+        {:ok, checksum} ->
+          checksum != Package.checksum(pkg)
+        _ ->
+          true
+      end
+    else
+      true
+    end
   end
 
   def shell(nil) do
@@ -123,6 +150,27 @@ defmodule Nerves.Package do
         else
           :path
         end
+    end
+  end
+
+  defp expand_paths(paths, dir) do
+    expand_dir = Path.expand(dir)
+
+    paths
+    |> Enum.map(&Path.join(dir, &1))
+    |> Enum.flat_map(&Path.wildcard/1)
+    |> Enum.flat_map(&dir_files/1)
+    |> Enum.map(&Path.expand/1)
+    |> Enum.filter(&File.regular?/1)
+    |> Enum.uniq
+    |> Enum.map(&Path.relative_to(&1, expand_dir))
+  end
+
+  defp dir_files(path) do
+    if File.dir?(path) do
+      Path.wildcard(Path.join(path, "**"))
+    else
+      [path]
     end
   end
 
