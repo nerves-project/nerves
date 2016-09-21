@@ -37,6 +37,7 @@ defmodule Nerves.Mixfile do
      extras: [
         "docs/Installation.md",
         "docs/Getting Started.md",
+        "docs/FAQ.md",
         "docs/Targets.md",
         "docs/Systems.md",
         "docs/User Interfaces.md",

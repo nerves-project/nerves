@@ -16,17 +16,46 @@ Next, create your sub-applications for Nerves and for Phoenix:
 $ cd nervy/apps
 $ mix nerves.new fw --target rpi3
 ...
-$ mix phoenix.new ui --database sqlite
+$ mix phoenix.new ui --no-ecto --no-brunch
 ...
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` app as dependencies:
 
-```
+```elixir
+# nervy/apps/fw/mix.exs
+
+...
 defp deps do
   [{:ui, in_umbrella: true},
    {:nerves_networking, github: "nerves-project/nerves_networking"}]
 end
+...
+```
+
+and remember to add them to the OTP-configuration in the `fw` app:
+
+```elixir
+# nervy/apps/fw/mix.exs
+
+...
+applications: [:logger,
+               :ui,
+               :nerves_networking]]
+...
+```
+
+And in order to start networking when the fw boots add a child worker that sets up networking. This example sets up the networking using DHCP. For more networksettings check the `nerves_networking` project.
+
+```elixir
+# nervy/apps/fw/lib/fw.ex
+
+...
+# add networking
+children = [
+  worker(Task, [fn -> Nerves.Networking.setup :eth0, [mode: "dhcp"] end], restart: :transient)
+]
+...
 ```
 
 In order to build the `ui` Phoenix application into the nerves `fw` app, you need to add some configuration to your firmware config:
@@ -46,12 +75,6 @@ config :ui, Ui.Endpoint,
   pubsub: [name: Nerves.PubSub]
 
 config :logger, level: :debug
-
-# Configure your database
-config :ui, Ui.Repo,
-  adapter: Sqlite.Ecto,
-  database: "/root/nerves.sqlite",
-  pool_size: 20
 ```
 
 There you have it! A Phoenix web application ready for your Nerves device. By separating the Phoenix application from the Nerves application, you can distribute the development between resources and continue to leverage the features we have all come to love from Phoenix, like live code reloading.
@@ -66,7 +89,11 @@ $ mix phoenix.server
 When it's time to create your firmware:
 ```
 # nervy/apps/fw
+$ mix deps.get
 $ mix firmware
+
+# and in order to burn it
+$ mix firmware.burn
 ```
 
 __Note__: You will need to have the latest version of rebar installed in order for `mix firmware` to work because we are using features that aren't included in the older releases. If you encounter an error that stating `unrecognized command line option '-flat_namespace'` then you can use the following command to install a later version of rebar which should get you past this error.

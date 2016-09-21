@@ -4,6 +4,25 @@ defmodule Mix.Tasks.Firmware do
 
   @switches [verbosity: :string]
 
+  @moduledoc """
+  Build a firmware image for the selected target platform.
+
+  This task builds the project, combines the generated OTP release with
+  a Nerves system image, and creates a `.fw` file that may be written
+  to an SDCard or sent to a device.
+
+  ## Command line options
+
+    * `--verbosity=[silent|quiet|normal|verbose]` - set the verbosity level
+
+  ## Environment variables
+
+    * `NERVES_SYSTEM` - may be set to a local directory to specify the Nerves
+      system image that is used
+
+    * `NERVES_TOOLCHAIN` - may be set to a local directory to specify the
+      Nerves toolchain (C/C++ crosscompiler) that is used
+  """
   def run(args) do
     preflight
 
@@ -23,7 +42,7 @@ defmodule Mix.Tasks.Firmware do
     System.get_env("NERVES_TOOLCHAIN") || raise """
       Environment variable $NERVES_TOOLCHAIN is not set
     """
-    Mix.Task.run "compile", [] # Maybe this should be in there?
+    Mix.Task.run "compile", []
     Mix.Task.run "release", ["--verbosity=#{verbosity}", "--no-confirm-missing", "--implode"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
