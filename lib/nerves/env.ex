@@ -1,10 +1,4 @@
 defmodule Nerves.Env do
-
-  @host_arch :erlang.system_info(:system_architecture)
-             |> to_string
-             |> String.split("-")
-             |> List.first
-
   alias Nerves.Package
 
   def start do
@@ -28,7 +22,55 @@ defmodule Nerves.Env do
     end)
   end
 
-  def host_arch(), do: @host_arch
+  def host_arch() do
+    arch =
+      :erlang.system_info(:system_architecture)
+      |> to_string
+      |> parse_arch
+
+  end
+
+  def parse_arch(arch) when is_binary(arch) do
+    arch
+    |> String.split("-")
+    |> parse_arch
+  end
+  def parse_arch(arch) when is_list(arch) do
+    arch = List.first(arch)
+    case arch do
+      <<"win", _tail :: binary>> -> "x86_64"
+      arch ->
+        if String.contains?(arch, "arm") do
+          "arm"
+        else
+          "x86_64"
+        end
+    end
+  end
+
+  def host_platform() do
+    :erlang.system_info(:system_architecture)
+    |> to_string
+    |> parse_platform
+  end
+
+  def parse_platform(platform) when is_binary(platform) do
+    platform
+    |> String.split("-")
+    |> parse_platform
+  end
+  def parse_platform(platform) when is_list(platform) do
+    case platform do
+      [<<"win", _tail :: binary>> | _] ->
+        "win"
+      [_ , _, "linux" | _] ->
+        "linux"
+      [_, _, <<"darwin", _tail :: binary>> | _] ->
+        "darwin"
+      _ ->
+        Mix.raise "Could not determine your host platform from system: #{platform}"
+    end
+  end
 
   def packages do
     get || raise "Nerves packages are not loaded"
@@ -64,7 +106,7 @@ defmodule Nerves.Env do
   end
 
   def system_platform do
-    system.config[:build_platform]
+    system.config[:platform]
   end
 
   def system_pkg do

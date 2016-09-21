@@ -6,9 +6,8 @@ defmodule Nerves.Package.Artifact do
     target_tuple =
       case pkg.type do
         :toolchain ->
-          {_, host} = :os.type
-          arch = Nerves.Env.host_arch
-          "#{host}-#{arch}"
+          Nerves.Env.host_platform <> "-" <>
+          Nerves.Env.host_arch
         _ ->
         toolchain.config[:target_tuple]
         |> to_string
