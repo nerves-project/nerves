@@ -13,7 +13,6 @@ defmodule Package.Fixture.Mixfile do
   end
 
   defp deps do
-    [{:nerves, path: "../../../"},
-     {:system_platform, path: "../system_platform"}]
+     [{:system_platform, path: "../system_platform"}]
   end
 end

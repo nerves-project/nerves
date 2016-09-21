@@ -1,9 +1,11 @@
 defmodule Mix.Nerves.Utils do
   @fwup_semver "~> 0.8"
 
-  def shell(cmd, args) do
-    stream = IO.binstream(:standard_io, :line)
-    System.cmd(cmd, args, into: stream, stderr_to_stdout: true)
+  def shell(cmd, args, opts \\ []) do
+    stream = opts[:stream] || IO.binstream(:standard_io, :line)
+    std_err = opts[:stderr_to_stdout] || true
+    opts = Keyword.drop(opts, [:into, :stderr_to_stdout, :stream])
+    System.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 
   def preflight do

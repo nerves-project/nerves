@@ -8,14 +8,10 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
     unless System.get_env("NERVES_PRECOMPILE") == "1" do
       case Code.ensure_compiled?(Nerves.Env) do
         true ->
-          Env.initialize
           try do
-            Env.bootstrap
-            debug_info "Nerves Env loaded"
+            Nerves.Env.bootstrap
             env_info
           rescue
-            UndefinedFunctionError ->
-              debug_info "Nerves Env needs to be updated"
             e ->
               raise e
           end

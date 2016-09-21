@@ -46,6 +46,7 @@ defmodule NervesTest.Case do
 
   def in_fixture(which, tmp, function) do
     dest = tmp_path(tmp)
+    |> Path.join(which)
     fixture_to_tmp(which, dest)
 
     flag = String.to_charlist(tmp_path())
@@ -88,6 +89,24 @@ defmodule NervesTest.Case do
     File.rm_rf!(dest)
     File.mkdir_p!(dest)
     File.cp_r!(src, dest)
+  end
+
+  def load_env(packages \\ []) do
+    packages =
+      packages
+      |> Enum.sort
+
+    Enum.each(packages, fn (package) ->
+      path = Path.expand("#{File.cwd!}/../#{package}")
+      fixture_to_tmp(package, path)
+    end)
+
+    File.cwd!
+    |> Path.join("mix.exs")
+    |> Code.require_file()
+
+    Nerves.Env.start
+    Nerves.Env.packages
   end
 
   def purge(modules) do
