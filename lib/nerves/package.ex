@@ -23,7 +23,7 @@ defmodule Nerves.Package do
   @checksum "CHECKSUM"
   @artifacts_dir Path.expand("~/.nerves/artifacts")
   @required [:type, :version, :platform]
-
+  
   def artifact(pkg, toolchain) do
     {mod, opts} = pkg.provider
     mod.artifact(pkg, toolchain, opts)
@@ -53,7 +53,7 @@ defmodule Nerves.Package do
 
   def checksum(pkg) do
     blob =
-      pkg.config[:checksum]
+      (pkg.config[:checksum] || [])
       |> expand_paths(pkg.path)
       |> Enum.map(& File.read!/1)
       |> Enum.map(& :crypto.hash(:sha256, &1))
