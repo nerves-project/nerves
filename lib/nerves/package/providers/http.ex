@@ -5,14 +5,12 @@ defmodule Nerves.Package.Providers.HTTP do
   alias Nerves.Package.Artifact
   require Logger
 
-  @artifact_url "https://s3.amazonaws.com/nerves/artifacts"
-
   def artifact(%{type: :toolchain} = pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
-    url = "#{@artifact_url}/#{artifact}"
+    url = pkg.config[:artifact_url]
     dest = Artifact.dir(pkg, toolchain)
 
-    download(artifact, [url])
+    download(artifact, url)
     |> unpack(artifact, dest)
   end
 
@@ -21,7 +19,12 @@ defmodule Nerves.Package.Providers.HTTP do
   end
 
   defp download(artifact, [location | locations]) do
-    shell_info "Downloading Artifact #{artifact}"
+    shell_info """
+      Downloading Artifact:
+          #{artifact}
+      Location
+          #{location}
+    """
     location
     |> URI.encode
     |> String.replace("+", "%2B")
