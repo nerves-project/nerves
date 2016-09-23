@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Nerves.New do
   use Mix.Task
   import Mix.Generator
 
-  @nerves Path.expand("../../..", __DIR__)
+  @nerves Path.expand("../../../..", __DIR__)
   @version Mix.Project.config[:version]
   @requirement Mix.Project.config[:elixir]
   @shortdoc "Creates a new Nerves application"
@@ -21,7 +21,7 @@ defmodule Mix.Tasks.Nerves.New do
   ]
 
   # Embed all defined templates
-  root = Path.expand("../../../templates", __DIR__)
+  root = Path.expand("../../../../templates", __DIR__)
 
   for {format, source, _} <- @new do
     unless format == :keep do

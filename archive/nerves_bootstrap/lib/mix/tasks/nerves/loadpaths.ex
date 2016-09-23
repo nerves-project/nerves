@@ -29,9 +29,9 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
 
   def env_info do
     debug_info """
-    ------------------
-    Nerves Environment
-    ------------------
+    ----------------------------
+    Nerves Environment Variables
+    ----------------------------
     target:     #{Mix.Project.config[:target]}
     toolchain:  #{env("NERVES_TOOLCHAIN")}
     system:     #{env("NERVES_SYSTEM")}

@@ -4,8 +4,8 @@ defmodule Nerves.Bootstrap.Mixfile do
   def project do
     [app: :nerves_bootstrap,
      version: "0.2.0",
-     elixir: "~> 1.2.4 or ~> 1.3.0",
-     aliases: aliases]
+     elixir: "~> 1.2.4 or ~> 1.3.2 or ~> 1.4.0-dev",
+     aliases: aliases()]
   end
 
   # Configuration for the OTP application
