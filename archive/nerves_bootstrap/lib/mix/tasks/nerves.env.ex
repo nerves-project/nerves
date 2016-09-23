@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Nerves.Env do
 
   def run(_args) do
     Mix.Tasks.Deps.Compile.run ["nerves", "--include-children"]
-    Mix.Task.reenable "deps.compile"
+    #Mix.Task.reenable "deps.compile"
     Nerves.Env.start()
   end
 
