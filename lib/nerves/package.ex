@@ -23,7 +23,7 @@ defmodule Nerves.Package do
   @checksum "CHECKSUM"
   @artifacts_dir Path.expand("~/.nerves/artifacts")
   @required [:type, :version, :platform]
-  
+
   def artifact(pkg, toolchain) do
     {mod, opts} = pkg.provider
     mod.artifact(pkg, toolchain, opts)
@@ -67,18 +67,45 @@ defmodule Nerves.Package do
   end
 
   def stale?(pkg, toolchain) do
-    if Artifact.exists?(pkg, toolchain) do
-      artifact_checksum =
-        Path.join(Artifact.dir(pkg, toolchain), @checksum)
-        |> File.read
-      case artifact_checksum do
-        {:ok, checksum} ->
-          checksum != Package.checksum(pkg)
-        _ ->
-          true
-      end
+    if match_env?(pkg, toolchain) do
+      false
     else
-      true
+      exists = Artifact.exists?(pkg, toolchain)
+      |> IO.inspect
+
+      checksum = match_checksum?(pkg, toolchain)
+      |> IO.inspect
+
+      !(exists and checksum)
+    end
+  end
+
+  defp match_env?(pkg, toolchain) do
+    name =
+      case pkg.type do
+        :toolchain -> "NERVES_TOOLCHAIN"
+        :system -> "NERVES_SYSTEM"
+        _ ->
+          pkg.name
+          |> Atom.to_string
+          |> String.upcase
+      end
+    name = name <> "_ARTIFACT"
+    dir = System.get_env(name)
+    
+    dir != nil and
+    File.dir?(dir)
+  end
+
+  defp match_checksum?(pkg, toolchain) do
+    artifact_checksum =
+      Path.join(Artifact.dir(pkg, toolchain), @checksum)
+      |> File.read
+    case artifact_checksum do
+      {:ok, checksum} ->
+        checksum != Package.checksum(pkg)
+      _ ->
+        true
     end
   end
 

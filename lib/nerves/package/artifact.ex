@@ -33,7 +33,7 @@ defmodule Nerves.Package.Artifact do
 
   def exists?(pkg, toolchain) do
     dir(pkg, toolchain)
-    |> File.exists?
+    |> File.dir?
   end
 
   def ext(%{type: :toolchain}), do: "tar.xz"
