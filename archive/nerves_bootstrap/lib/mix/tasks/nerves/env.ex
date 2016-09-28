@@ -1,13 +1,20 @@
 defmodule Mix.Tasks.Nerves.Env do
   use Mix.Task
-  import Mix.Nerves.Bootstrap.Utils
 
   @switches [info: :boolean]
 
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
     Mix.Tasks.Deps.Compile.run ["nerves", "--include-children"]
-    Nerves.Env.start()
+    # Env moved to :nerves, try to start it otherwise, compile
+    #  :nerves_system and call initialize
+    try do
+      Nerves.Env.start()
+    rescue
+      UndefinedFunctionError ->
+        Mix.Tasks.Deps.Compile.run ["nerves_system", "--include-children"]
+        Nerves.Env.initialize()
+    end
     if opts[:info], do: print_env()
   end
 
