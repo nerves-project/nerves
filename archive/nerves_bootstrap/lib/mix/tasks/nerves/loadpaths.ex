@@ -9,6 +9,7 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
       case Code.ensure_compiled?(Nerves.Env) do
         true ->
           try do
+            Mix.Tasks.Nerves.Env.run []
             Nerves.Env.bootstrap
             env_info
           rescue
