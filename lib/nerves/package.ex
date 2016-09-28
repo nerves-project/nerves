@@ -4,6 +4,7 @@ defmodule Nerves.Package do
   alias __MODULE__
   alias Nerves.Package.{Artifact, Providers}
   alias Nerves.Package
+  alias Nerves.Utils.Shell
 
   @type t :: %__MODULE__{app: atom,
                         path: binary,
@@ -34,8 +35,8 @@ defmodule Nerves.Package do
   def load_config({app, path}) do
     load_nerves_config(path)
     config = Application.get_env(app, :nerves_env)
-    version = config[:version] || Mix.raise "The Nerves package #{app} does not define its version"
-    type = config[:type] || Mix.raise "The Nerves package #{app} does not define a type"
+    version = config[:version] || Shell.warn "The Nerves package #{app} does not define its version"
+    type = config[:type] || Shell.warn "The Nerves package #{app} does not define a type"
     platform = config[:platform]
     provider = provider(app, type)
     config = Enum.reject(config, fn({k, _v}) -> k in @required end)
@@ -168,7 +169,7 @@ defmodule Nerves.Package do
         deps_path =
           File.cwd!
           |> Path.join(Mix.Project.config[:deps_path])
-
+          |> Path.expand
         if String.starts_with?(path, deps_path) do
           :hex
         else
