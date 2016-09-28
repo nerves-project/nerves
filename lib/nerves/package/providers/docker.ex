@@ -91,18 +91,18 @@ defmodule Nerves.Package.Providers.Docker do
           error_invalid_version(vsn)
         end
         :ok
-      _ -> error_not_installed
+      _ -> error_not_installed()
     end
   end
 
   defp config_check do
     # Check for the Cache Volume
     unless cache_volume? do
-      cache_volume_create
+      cache_volume_create()
     end
 
     unless docker_image? do
-      docker_image_create
+      docker_image_create()
     end
     :ok
   end
