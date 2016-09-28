@@ -10,7 +10,7 @@ defmodule Nerves.Package.Providers.Docker do
   @sh "/bin/sh"
   @bash "/bin/bash"
 
-  @artifact_script "/nerves/env/platform/scripts/build-artifact.sh"
+  @artifact_script "/nerves/env/platform/scripts/noninteractive-build.sh"
   @create_build "/nerves/env/platform/create-build.sh"
 
   @label "org.nerves-project.nerves_system_br=1.0"
@@ -110,9 +110,11 @@ defmodule Nerves.Package.Providers.Docker do
   defp docker_image? do
     cmd = "docker"
     args = ["images", "-f", "label=#{@label}", "-q"]
-    case System.cmd(cmd, args) do
+    case System.cmd(cmd, args, stderr_to_stdout: true) do
       {"", _} ->
         false
+      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
+        Mix.raise "Unable to connect to docker daemon"
       {_, 0} ->
         true
     end
@@ -135,9 +137,11 @@ defmodule Nerves.Package.Providers.Docker do
   defp cache_volume? do
     cmd = "docker"
     args = ["volume", "ls", "-f", "name=nerves_cache", "-q"]
-    case System.cmd(cmd, args) do
+    case System.cmd(cmd, args, stderr_to_stdout: true) do
       {<<"nerves_cache", _tail :: binary>>, 0} ->
         true
+        {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
+          Mix.raise "Unable to connect to docker daemon"
       _ ->
         false
     end
