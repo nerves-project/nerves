@@ -71,16 +71,13 @@ defmodule Nerves.Package do
       false
     else
       exists = Artifact.exists?(pkg, toolchain)
-      |> IO.inspect
-
       checksum = match_checksum?(pkg, toolchain)
-      |> IO.inspect
 
       !(exists and checksum)
     end
   end
 
-  defp match_env?(pkg, toolchain) do
+  defp match_env?(pkg, _toolchain) do
     name =
       case pkg.type do
         :toolchain -> "NERVES_TOOLCHAIN"
@@ -92,7 +89,7 @@ defmodule Nerves.Package do
       end
     name = name <> "_ARTIFACT"
     dir = System.get_env(name)
-    
+
     dir != nil and
     File.dir?(dir)
   end
@@ -103,9 +100,9 @@ defmodule Nerves.Package do
       |> File.read
     case artifact_checksum do
       {:ok, checksum} ->
-        checksum != Package.checksum(pkg)
+        checksum == Package.checksum(pkg)
       _ ->
-        true
+        false
     end
   end
 
