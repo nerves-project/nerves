@@ -29,6 +29,27 @@ defmodule Nerves.Package.Artifact do
   def dir(pkg, toolchain) do
     base_dir(pkg)
     |> Path.join(name(pkg, toolchain))
+    |> protocol_vsn(pkg)
+  end
+
+  defp protocol_vsn(dir, pkg) do
+    if File.dir?(dir) do
+      dir
+    else
+      build_path =
+        File.cwd!
+        |> Path.join(Mix.Project.config[:build_path])
+        |> Path.join(to_string(Mix.env))
+        |> Path.join("nerves")
+        |> Path.expand
+        case pkg.type do
+        :toolchain ->
+          Path.join(build_path, "toolchain")
+        :system ->
+          Path.join(build_path, "system")
+        type -> Mix.raise "Cannot determine artifact path for #{type}"
+      end
+    end
   end
 
   def exists?(pkg, toolchain) do
