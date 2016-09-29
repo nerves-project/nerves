@@ -4,7 +4,7 @@ This is a collection of questions that often come up as people are getting start
 If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves-examples) and got stuck, hopefully one of the following answers will help.
 If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/master/docs).
 
-# How Do I Connect to the Target using a Serial Cable Instead of Using the HDMI Screen?
+### How Do I Connect to the Target using a Serial Cable Instead of Using the HDMI Screen?
 
 By default, the `iex` console is displayed on the screen attached to the HDMI port, which tends to be easier for new people because they can simply connect their target device to a monitor or TV.
 For troubleshooting start-up issues and for more advanced development workflows, it's often desirable to connect from your development host to the target using a serial port, for example using the popular [FTDI Cable](https://www.sparkfun.com/products/9717).
@@ -40,7 +40,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
     * On Linux and Mac OS, use `screen /dev/tty<device>`.  You may need to specify the baud rate as well, for example: `screen /dev/tty<device> 115200`.
     * On Windows, use the `Serial` option to connect to `COM<device>`.
 
-# How do I Configure the Target Hardware to Reboot Instead of Halt on Failure?
+### How do I Configure the Target Hardware to Reboot Instead of Halt on Failure?
 
 Similar to the previous question, we have chosen to have the device default to halting on certain kinds of failures that cause the Erlang VM to crash.
 This allows you to more easily read the error and diagnose the problem during development.
@@ -56,7 +56,7 @@ To have the device restart instead of hang on failure, make a copy of the `erlin
 #--hang-on-exit
 ```
 
-# How do I Use the Platform-Specific Hardware Features of My Target?
+### How do I Use the Platform-Specific Hardware Features of My Target?
 
 Some target hardware has particular features that can be used from your application, but they're not covered in the general Nerves documentation.
 In general, platform-specific features will be documented in the target's system documentation.
@@ -64,7 +64,7 @@ You may also find what you need by looking at the [community-maintained lisf of 
 
 If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
 
-# Is Hardware Platform X Supported by Nerves? If Not, How Do I Work on Adding Support?
+### Is Hardware Platform X Supported by Nerves? If Not, How Do I Work on Adding Support?
 
 The currently-supported target hardware platforms are listed here: https://hexdocs.pm/nerves/targets.html.
 
