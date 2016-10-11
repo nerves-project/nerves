@@ -10,8 +10,8 @@ defmodule Nerves.Package.Providers.Docker do
   @sh "/bin/sh"
   @bash "/bin/bash"
 
-  @artifact_script "/nerves/env/platform/scripts/noninteractive-build.sh"
-  @create_build "/nerves/env/platform/create-build.sh"
+  @artifact_script_nerves "scripts/docker/nerves_system_br/noninteractive-build.sh"
+  @artifact_script_docker "/nerves/noninteractive-build.sh"
 
   @label "org.nerves-project.nerves_system_br=1.0"
   @dockerfile File.cwd!
@@ -25,7 +25,11 @@ defmodule Nerves.Package.Providers.Docker do
     platform_config = pkg.config[:platform_config][:defconfig]
     base_dir = Artifact.base_dir(pkg)
     {_, _, platform_target} = Enum.find(build_paths, fn({type, _, _}) -> type == :platform end)
-    args = [@machine, @sh, @artifact_script,
+
+    {_ , path} = Enum.find(Mix.Project.deps_paths(), fn({k, _v}) -> k == :nerves end)
+    build_script = Path.join(path, @artifact_script_nerves)
+
+    args = [@machine, @sh, @artifact_script_docker,
       Artifact.name(pkg, toolchain),
       platform_target,
       Path.join("/nerves/env/#{pkg.app}", platform_config),
@@ -37,6 +41,7 @@ defmodule Nerves.Package.Providers.Docker do
       end)
     args = ["-v" | ["nerves_cache:/nerves/cache" | args]]
     args = ["-v" | ["#{base_dir}:/nerves/host/artifacts" | args]]
+    args = ["-v" | ["#{build_script}:#{@artifact_script_docker}" | args]]
     args = ["run" | ["--rm" | ["-t" | args]]]
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
@@ -70,7 +75,6 @@ defmodule Nerves.Package.Providers.Docker do
   end
 
   def shell(_pkg) do
-    #args = [@machine, @bash, @create_build]
 
   end
 
