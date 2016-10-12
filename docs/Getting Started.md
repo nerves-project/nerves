@@ -127,11 +127,11 @@ $ mix firmware.burn -y
 
 ## Nerves Examples
 
-To get up and running quickly, you can check out our collection of example projects:
+To get up and running quickly, you can check out our collection of example projects. Be sure to set your `NERVES_TARGET` environment variable appropriately as the examples use this to determine the target when building firmware. Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
 ```
 $ git clone https://github.com/nerves-project/nerves-examples
 $ cd nerves-examples/blinky
-$ mix deps.get && mix firmware
+$ NERVES_TARGET=rpi3 mix do deps.get, firmware
 ```
 
 The example projects contain an app called Blinky, known as "The Hello World of Hardware". If you are ever curious about project structuring or can't get something running, it is advised to check out Blinky and run it on your target.
