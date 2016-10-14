@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Firmware do
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
   def run(args) do
-    preflight
+    preflight()
 
     {opts, _, _} = OptionParser.parse(args)
     debug_info "Nerves Firmware Assembler"

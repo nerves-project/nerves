@@ -2,7 +2,7 @@ defmodule Nerves.Env do
   alias Nerves.Package
 
   def start do
-    Agent.start_link fn -> load_packages end, name: __MODULE__
+    Agent.start_link fn -> load_packages() end, name: __MODULE__
   end
 
   def stop do
@@ -23,11 +23,9 @@ defmodule Nerves.Env do
   end
 
   def host_arch() do
-    arch =
-      :erlang.system_info(:system_architecture)
-      |> to_string
-      |> parse_arch
-
+    :erlang.system_info(:system_architecture)
+    |> to_string
+    |> parse_arch
   end
 
   def parse_arch(arch) when is_binary(arch) do
@@ -73,7 +71,7 @@ defmodule Nerves.Env do
   end
 
   def packages do
-    get || raise "Nerves packages are not loaded"
+    get() || raise "Nerves packages are not loaded"
   end
 
   def package(name) when is_binary(name) do
@@ -82,13 +80,13 @@ defmodule Nerves.Env do
     |> package
   end
   def package(name) do
-    packages
+    packages()
     |> Enum.filter(& &1.app == name)
     |> List.first
   end
 
   def packages_by_type(type) do
-    packages
+    packages()
     |> packages_by_type(type)
   end
 
@@ -106,7 +104,7 @@ defmodule Nerves.Env do
   end
 
   def system_platform do
-    system.config[:platform]
+    system().config[:platform]
   end
 
   def system_pkg do
@@ -206,8 +204,8 @@ defmodule Nerves.Env do
   """
 
   def bootstrap do
-    nerves_system_path = System.get_env("NERVES_SYSTEM") || system_path
-    nerves_toolchain_path = System.get_env("NERVES_TOOLCHAIN") || toolchain_path
+    nerves_system_path = System.get_env("NERVES_SYSTEM") || system_path()
+    nerves_toolchain_path = System.get_env("NERVES_TOOLCHAIN") || toolchain_path()
 
     [{"NERVES_SYSTEM", nerves_system_path},
      {"NERVES_TOOLCHAIN", nerves_toolchain_path},

@@ -9,7 +9,7 @@ defmodule Mix.Nerves.Utils do
   end
 
   def preflight do
-    check_requirements
+    check_requirements()
     Mix.Task.run "nerves.loadpaths"
   end
 
@@ -20,7 +20,7 @@ defmodule Mix.Nerves.Utils do
                         :nt -> "where"
                         _ -> "which"
                      end
-                     
+
     case System.cmd(which_or_where, ["mksquashfs"]) do
       {_, 0} -> nil
       _ -> Mix.raise """
@@ -49,7 +49,7 @@ defmodule Mix.Nerves.Utils do
       """
     end
 
-    
+
     check_host_requirements(type)
   end
 

@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Firmware.Burn do
   ```
   """
   def run(argv) do
-    preflight
+    preflight()
     debug_info "Nerves Firmware Burn"
 
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)

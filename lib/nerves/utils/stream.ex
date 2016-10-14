@@ -14,7 +14,7 @@ defmodule Nerves.Utils.Stream do
     end
     {:ok, %{
       file: opts[:file],
-      timer: Process.send_after(self, :keep_alive, @timer)
+      timer: Process.send_after(self(), :keep_alive, @timer)
     }}
   end
 
@@ -49,7 +49,7 @@ defmodule Nerves.Utils.Stream do
 
   defp reset_timer(s) do
     Process.cancel_timer(s.timer)
-    %{s | timer: Process.send_after(self, :keep_alive, @timer)}
+    %{s | timer: Process.send_after(self(), :keep_alive, @timer)}
   end
 
   def reply(from, reply_as, reply) do

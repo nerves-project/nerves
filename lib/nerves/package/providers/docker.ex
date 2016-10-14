@@ -101,11 +101,11 @@ defmodule Nerves.Package.Providers.Docker do
 
   defp config_check do
     # Check for the Cache Volume
-    unless cache_volume? do
+    unless cache_volume?() do
       cache_volume_create()
     end
 
-    unless docker_image? do
+    unless docker_image?() do
       docker_image_create()
     end
     :ok
