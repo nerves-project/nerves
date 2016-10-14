@@ -29,7 +29,7 @@ defmodule Nerves.Package.Artifact do
   def dir(pkg, toolchain) do
     base_dir(pkg)
     |> Path.join(name(pkg, toolchain))
-    |> protocol_vsn(pkg)
+    #|> protocol_vsn(pkg)
   end
 
   defp protocol_vsn(dir, pkg) do
