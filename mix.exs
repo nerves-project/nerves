@@ -26,8 +26,8 @@ defmodule Nerves.Mixfile do
   defp deps do
     [
       {:exrm, "~> 1.0.6"},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev}
+      {:earmark, "~> 1.0", only: :dev},
+      {:ex_doc, "~> 0.14", only: :dev}
     ]
   end
 
