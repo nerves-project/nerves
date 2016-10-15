@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     if Nerves.Package.stale?(package, toolchain) do
       Nerves.Package.artifact(package, toolchain)
     end
+    Nerves.Env.stop
   end
 
 end
