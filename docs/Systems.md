@@ -176,17 +176,21 @@ This will invoke the http provider and attempt to resolve the dependency.
 
 ## Creating or Modifying a Nerves System with Buildroot
 
-First, make sure that you have all of the dependencies. On Debian and Ubuntu,
-run the following:
+For some applications, the pre-built Nerves Systems won't meet your needs.
+For example, you may want to include one or more additional Linux packages or run on hardware that isn't in the list of [Nerves-supported Targets](https://hexdocs.pm/nerves/targets.html) yet.
+In order to build a customized system, you'll need to either use Linux (e.g. in a virtual machine or container).
+
+First, make sure that you have all of the dependencies.
+On Debian and Ubuntu, run the following:
 
 ```
 sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
 ```
 
-Then set up a working directory. In the example below, we use the
-`nerves_build` directory, but this can be anything. The `nerves_system_br`
-project contains the scripts for interacting with Buildroot with Nerves. Go to
-the working directory and clone it:
+Then, set up a working directory.
+In the example below, we use the `nerves_build` directory, but this can be anything.
+The `nerves_system_br` project contains the base scripts and configuration for using Buildroot with Nerves.
+Go to the working directory and clone the repository:
 
 ```
 mkdir nerves_build
@@ -194,19 +198,16 @@ cd nerves_build
 git clone https://github.com/nerves-project/nerves_system_br.git
 ```
 
-While you can start a system build from scratch, it is easiest to modify an
-existing one and then rename it later when you have something to share or save.
+While you can start a System build from scratch, it is easiest to modify an existing one and then rename it later when you have something to share or save.
 For example, if you're targeting a Raspberry Pi 2, do the following:
 
 ```
 git clone https://github.com/nerves-project/nerves_system_rpi2.git
 ```
 
-Once that completes, create an output directory for the build products. The
-name of the output directory is up to you. It is also possible to have multiple
-output directories if you have several configurations that you would with
-simultaneously. For now, create an output directory for the Raspberry Pi 2
-system that we cloned above:
+Once that completes, create an output directory for the build products.
+The name of the output directory is up to you, but we will just call it `rpi2_out` in this example.
+It is also possible to have multiple output directories if you have several configurations that you would like to work with simultaneously.
 
 ```
 ./nerves_system_br/create-build.sh nerves_system_rpi2/nerves_defconfig rpi2_out
@@ -220,35 +221,84 @@ cd rpi2_out
 make
 ```
 
-If you ever update `nerves_system_br`, be sure to run the `create-build.sh`
-script again. You can point it to the same location. Until you are comfortable
-with Buildroot, it is safest to `make clean` and then `make` to rebuild
-everything after an update to `nerves_system_br`.
+This process will take quite a while (about 30 minutes).
+When it finishes, you will have confirmed that you can successfully build the standard `rpi2` System.
+The next section will describe how to make changes and re-build the System.
 
-### Additional package configuration
+If you ever update `nerves_system_br`, be sure to run the `create-build.sh` script again.
+You can point it to the same location and it will update properly.
+It is best to `make clean` and then `make` to rebuild everything after updating `nerves_system_br`.
 
-If you have used Buildroot before, the workflow is similar. The most common task
-will be enabling C/C++ packages for Nerves or tweaking the Linux kernel. Here is
-a short overview of commands:
+### Additional Package Configuration
 
-  1. Select packages by running `make menuconfig`
-  2. Modify the Linux kernel with `make linux-menuconfig`
-  3. Enable more command line utilities, `make busybox-menuconfig`
+The workflow for customizing a Nerves System is the standard Buildroot procedure using `make menuconfig`.
+The packages are divided into three categories:
 
-The changes are stored temporarily. To save them back in your system image, run
-one or more of the following:
+  1. Select base packages by running `make menuconfig`
+  2. Modify the Linux kernel and kernel modules with `make linux-menuconfig`
+  3. Enable more command line utilities using `make busybox-menuconfig`
 
-  1. `make savedefconfig` updates the `nerves_defconfig` in your system
-     repository. It contains the Buildroot configuration
-  2. Run `make linux-savedefconfig` and `cp build/linux-x.y.z/defconfig <your
-     system>` to save the Linux configuration. If your system doesn't contain a
-     custom Linux configuration yet, you'll need to update the Buildroot
-     configuration to point to the new Linux defconfig in your system directory.
-     The path is usually something like `$(NERVES_DEFCONFIG_DIR)/linux-x.y_defconfig`
-  3. For Busybox, the convention is to copy `build/busybox-x.y.z/.config` to a
-     file in the system repository. Like the Linux configuration, the Buildroot
-     configuration will need to be updated to point to the custom config.
+If you followed the steps in the previous section, make sure you have changed directory to `rpi2_out` first.
 
-The Buildroot [user manual](http://nightly.buildroot.org/manual.html) can be
-very helpful especially if you need to add a package. The various Nerves system
-repositories have examples of many common use cases, so check them out as well.
+When you quit from the `menuconfig` interface, the changes are stored temporarily.
+To save them back in your System, follow the appropriate steps below:
+
+  1. Run `make savedefconfig` after `make menuconfig` to update the `nerves_defconfig` in your System.
+  2. Run `make linux-savedefconfig` and `cp build/linux-x.y.z/defconfig <your system>` after `make linux-menuconfig`.
+     If your system doesn't contain a custom Linux configuration yet, you'll need to update the
+     Buildroot configuration to point to the new Linux defconfig in your system directory.
+     The path is usually something like `$(NERVES_DEFCONFIG_DIR)/linux-x.y_defconfig`.
+  3. For Busybox, the convention is to copy `build/busybox-x.y.z/.config` to a file in the System repository.
+     Like the Linux configuration, the Buildroot configuration will need to be updated to point to the
+     custom config.
+
+The Buildroot [user manual](http://nightly.buildroot.org/manual.html) can be very helpful especially if you need to add a package.
+The various Nerves System repositories have examples of many common use cases, so check them out as well.
+
+### How to Use Your New System
+
+By default, Nerves downloads pre-built Systems from the Internet and caches them on your hard drive.
+To force a local build and not cache (so you can re-build it), set the following environment variables:
+
+```
+NERVES_SYSTEM_CACHE=none
+NERVES_SYSTEM_COMPILER=local
+```
+
+To use your new System in your firmware build, specify it with the `NERVES_SYSTEM` environment variable.
+Assuming you followed the steps in the previous section, you can do this:
+
+```
+cd rpi2_out
+export NERVES_SYSTEM=$PWD
+```
+
+Then, when you do the `mix firmware` step from your project directory, your custom System will be used.
+Make sure you still specify the matching `NERVES_TARGET` (`rpi2` in this example) in your project's `mix.exs` configuration, since it won't be automatically detected for a custom System like this.
+
+Once you're happy with your System, you can package it by changing to the `rpi2_out` directory and running:
+
+```
+make system
+```
+
+This will create a `<system>.tar.gz` file that can be hosted on a web server and referenced from a Hex package just like the official Nerves Systems are.
+
+### Supporting New Target Hardware
+
+If you're trying to support a new Target, there may be quite a bit more work involved, depending on how mature the support for that hardware is in the Buildroot community.
+If you're not familiar with [Buildroot](https://buildroot.org/), you should learn about that first, using the excellent training materials on their website.
+
+If you can find an existing Buildroot configuration for your intended hardware and you want to get it working with Nerves:
+
+1.  Follow their procedure and confirm your target boots (independent of Nerves).
+
+2.  Figure out how to get everything working with the version of Buildroot Nerves uses. See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/master/create-build.sh).
+
+  * Look for packages and board configs can need to be copied into your System.
+  * Look for patches to existing packages that are needed.
+
+3. Create a defconfig that mimics the one from step 1, and get `nerves_system_br` to build it.
+
+> NOTE: You probably want to disable any userland packages that may be included by default to avoid distraction.
+
