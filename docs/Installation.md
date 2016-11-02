@@ -45,8 +45,7 @@ It is important to update the versions of `hex` and `rebar` used by Elixir. This
 $ mix local.hex
 $ mix local.rebar
 ```
-If you have your own version of `rebar` in the path, be sure that it is
-uptodate.
+If you have your own version of `rebar` in the path, be sure that it is up to date.
 
 You can now add the `nerves_bootstrap` archive to your mix environment. This archive allows Nerves to bootstrap the Mix environment, ensuring that your code is properly compiled using the right cross-compiler for the target. The `nerves_bootstrap` archive also includes a new project generator, which you can use to create new Nerves projects. To install the `nerves_bootstrap` archive:
 

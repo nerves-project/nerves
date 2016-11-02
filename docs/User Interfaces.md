@@ -45,7 +45,7 @@ applications: [:logger,
 ...
 ```
 
-And in order to start networking when the fw boots add a child worker that sets up networking. This example sets up the networking using DHCP. For more networksettings check the `nerves_networking` project.
+And in order to start networking when the fw boots add a child worker that sets up networking. This example sets up the networking using DHCP. For more network settings check the `nerves_networking` project.
 
 ```elixir
 # nervy/apps/fw/lib/fw.ex

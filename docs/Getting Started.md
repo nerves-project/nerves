@@ -88,7 +88,7 @@ system:     _build/rpi3/dev/nerves/system
 app:        /Users/nerves/hello_nerves
 ```
 
-You'll notice that subsequent calls to `compile` will not fetch or build the system because they're alredy cached on you host computer.
+You'll notice that subsequent calls to `compile` will not fetch or build the system because they're already cached on your host computer.
 
 ## Making Firmware
 
