@@ -35,8 +35,10 @@ defmodule Nerves.Package do
   def load_config({app, path}) do
     load_nerves_config(path)
     config = Application.get_env(app, :nerves_env)
-    version = config[:version] || Shell.warn "The Nerves package #{app} does not define its version"
-    type = config[:type] || Shell.warn "The Nerves package #{app} does not define a type"
+    version = config[:version]
+    unless version, do: Shell.warn "The Nerves package #{app} does not define its version"
+    type = config[:type]
+    unless type, do: Shell.warn "The Nerves package #{app} does not define a type"
     platform = config[:platform]
     provider = provider(app, type)
     config = Enum.reject(config, fn({k, _v}) -> k in @required end)

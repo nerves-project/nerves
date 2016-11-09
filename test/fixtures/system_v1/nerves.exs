@@ -5,14 +5,9 @@ version =
   |> File.read!
   |> String.strip
 
-config :system, :nerves_env,
+config :system_v1, :nerves_env,
   type: :system,
-  version: version,
   platform: SystemPlatform.Fixture,
   platform_config: [
-    defconfig: "nerves_defconfig",
-  ],
-  checksum: [
-    "nerves_defconfig",
-    "linux_defconfig"
+    defconfig: "nerves_defconfig"
   ]

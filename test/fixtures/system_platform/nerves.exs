@@ -8,9 +8,7 @@ version =
 config :system_platform, :nerves_env,
   type: :system_platform,
   version: version,
-  platform_config: [
-    package_files: [
-      "env.exs",
-      "lib"
-    ]
+  checksum: [
+    "env.exs",
+    "lib"
   ]

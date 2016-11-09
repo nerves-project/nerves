@@ -29,17 +29,16 @@ defmodule Nerves.Package.Artifact do
   def dir(pkg, toolchain) do
     base_dir(pkg)
     |> Path.join(name(pkg, toolchain))
-    #|> protocol_vsn(pkg)
+    |> protocol_vsn(pkg)
   end
 
   defp protocol_vsn(dir, pkg) do
-    if File.dir?(dir) do
+    if pkg.version do
       dir
     else
       build_path =
         File.cwd!
-        |> Path.join(Mix.Project.config[:build_path])
-        |> Path.join(to_string(Mix.env))
+        |> Path.join(Mix.Project.build_path)
         |> Path.join("nerves")
         |> Path.expand
         case pkg.type do
