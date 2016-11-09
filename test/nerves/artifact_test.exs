@@ -29,8 +29,7 @@ defmodule Nerves.ArtifactTest do
       toolchain = Env.package(:toolchain_v1)
       artifact_dir = Artifact.dir(system, toolchain)
       v1_system_path =
-        File.cwd!
-        |> Path.join(Mix.Project.build_path)
+        Mix.Project.build_path
         |> Path.join("nerves/system")
       assert artifact_dir == v1_system_path
     end
@@ -46,7 +45,7 @@ defmodule Nerves.ArtifactTest do
       toolchain = Env.package(:toolchain)
       target_tuple = toolchain.config[:target_tuple]
       artifact_dir = Artifact.dir(system, toolchain)
-      
+
       assert String.ends_with?(artifact_dir, "#{system.app}-#{system.version}.#{target_tuple}")
     end
   end
