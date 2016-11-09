@@ -63,3 +63,5 @@ Now that everything is installed and configured its time to make some firmware. 
 `mix firmware` - Creates a fw file
 
 `mix firmware.burn` - Burn firmware to an inserted SD card.
+
+Copyright (C) 2015-2016 by the Nerves Project developers <nerves@nerves-project.org>
