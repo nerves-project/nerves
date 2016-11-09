@@ -1,5 +1,5 @@
 defmodule Nerves.Package do
-  defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, config: []]
+  defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, compiler: nil, config: []]
 
   alias __MODULE__
   alias Nerves.Package.{Artifact, Providers}
@@ -17,6 +17,7 @@ defmodule Nerves.Package do
                               :git,
                     platform: atom,
                     provider: atom,
+                    compiler: atom,
                      version: Version.t,
                       config: Keyword.t}
 
@@ -41,6 +42,7 @@ defmodule Nerves.Package do
     unless type, do: Shell.warn "The Nerves package #{app} does not define a type"
     platform = config[:platform]
     provider = provider(app, type)
+    compiler = config[:compiler]
     config = Enum.reject(config, fn({k, _v}) -> k in @required end)
 
     %Package{
@@ -51,6 +53,7 @@ defmodule Nerves.Package do
       dep: dep_type(app),
       path: path,
       version: version,
+      compiler: compiler,
       config: config}
   end
 

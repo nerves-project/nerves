@@ -8,6 +8,7 @@ version =
 config :system, :nerves_env,
   type: :system,
   version: version,
+  compiler: :nerves_package,
   platform: SystemPlatform.Fixture,
   platform_config: [
     defconfig: "nerves_defconfig",

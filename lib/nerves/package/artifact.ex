@@ -33,7 +33,7 @@ defmodule Nerves.Package.Artifact do
   end
 
   defp protocol_vsn(dir, pkg) do
-    if pkg.version do
+    if pkg.compiler == :nerves_package do
       dir
     else
       build_path =
