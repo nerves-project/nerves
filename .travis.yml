@@ -1,0 +1,10 @@
+
+language: elixir
+otp_release: 19.0
+elixir: 1.3.4
+
+sudo: false
+before_script:
+  - mix deps.get --only test
+script:
+  - mix test
