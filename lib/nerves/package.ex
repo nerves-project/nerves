@@ -93,7 +93,7 @@ defmodule Nerves.Package do
           |> Atom.to_string
           |> String.upcase
       end
-    name = name <> "_ARTIFACT"
+    #name = name <> "_ARTIFACT"
     dir = System.get_env(name)
 
     dir != nil and
