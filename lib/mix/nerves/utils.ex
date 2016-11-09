@@ -30,25 +30,27 @@ defmodule Mix.Nerves.Utils do
       """
     end
 
-    case System.cmd("fwup", ["--version"]) do
-      {vsn, 0} ->
-        vsn = String.strip(vsn)
-        {:ok, req} = Version.parse_requirement(@fwup_semver)
-        unless Version.match?(vsn, req) do
-          Mix.raise """
-          fwup #{@fwup_semver} is required for Nerves.
-          You are running #{vsn}.
-          Please see https://hexdocs.pm/nerves/installation.html#fwup
-          for installation instructions
-          """
-        end
-      _ -> Mix.raise """
-      fwup is required to create and burn firmware.
-      Please see https://hexdocs.pm/nerves/installation.html#fwup
-      for installation instructions
-      """
+    {:ok, req} = Version.parse_requirement(@fwup_semver)
+    vsn =
+    with {_, 0} <- System.cmd(which_or_where, ["fwup"]),
+         {vsn, 0} <- System.cmd("fwup", ["--version"]),
+         true <- Version.match?(vsn, req) do
+    else
+      false ->
+        {vsn, 0} = System.cmd("fwup", ["--version"])
+        Mix.raise """
+        fwup #{@fwup_semver} is required for Nerves.
+        You are running #{vsn}.
+        Please see https://hexdocs.pm/nerves/installation.html#fwup
+        for installation instructions
+        """
+      {_, _} ->
+        Mix.raise """
+        fwup is required to create and burn firmware.
+        Please see https://hexdocs.pm/nerves/installation.html#fwup
+        for installation instructions
+        """
     end
-
 
     check_host_requirements(type)
   end
