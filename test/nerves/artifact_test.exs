@@ -35,4 +35,19 @@ defmodule Nerves.ArtifactTest do
       assert artifact_dir == v1_system_path
     end
   end
+
+  test "Resolve artifact path" do
+    in_fixture "simple_app", fn ->
+      packages =
+        ~w(system toolchain)
+
+      _ = load_env(packages)
+      system = Env.package(:system)
+      toolchain = Env.package(:toolchain)
+      target_tuple = toolchain.config[:target_tuple]
+      artifact_dir = Artifact.dir(system, toolchain)
+      
+      assert String.ends_with?(artifact_dir, "#{system.app}-#{system.version}.#{target_tuple}")
+    end
+  end
 end

@@ -8,6 +8,7 @@ version =
 config :toolchain, :nerves_env,
   type: :toolchain,
   version: version,
+  target_tuple: :x86_64_unknown_linux_musl,
   platform: Nerves.Toolchain.CTNG,
   platform_config: [
     defconfig: [
