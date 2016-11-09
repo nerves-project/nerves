@@ -37,8 +37,7 @@ defmodule Nerves.Package.Artifact do
       dir
     else
       build_path =
-        File.cwd!
-        |> Path.join(Mix.Project.build_path)
+        Mix.Project.build_path
         |> Path.join("nerves")
         |> Path.expand
         case pkg.type do
