@@ -1,5 +1,12 @@
 # Release Notes
 
+## Nerves 0.4.0-rc.0
+* Enhancements
+  * Consolidated compilers into `nerves_package`.
+  * Removed dependency for `nerves_system`
+  * Removed dependency for `nerves_toolchain`
+  * Added Docker provider for building custom systems on machines other than linux
+
 ## Nerves 0.3.4
 * Bug Fixes
   * Fixed regression with `mix firmware.burn` to allow prompts
