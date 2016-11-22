@@ -5,7 +5,7 @@ defmodule <%= application_module %>.Mixfile do
 
   def project do
     [app: :<%= application_name %>,
-     version: "0.0.1",
+     version: "0.1.0",
      target: @target,
      archives: [nerves_bootstrap: "~> <%= bootstrap_vsn %>"],
      <%= if in_umbrella do %>
@@ -19,8 +19,8 @@ defmodule <%= application_module %>.Mixfile do
      <% end %>
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     aliases: aliases,
-     deps: deps ++ system(@target)]
+     aliases: aliases(),
+     deps: deps() ++ system(@target)]
   end
 
   # Configuration for the OTP application.
