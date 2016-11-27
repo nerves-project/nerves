@@ -18,6 +18,14 @@ defmodule Nerves.Package.Providers.HTTP do
     Logger.debug "#{__MODULE__}: artifact: #{inspect pkg}"
   end
 
+  # def shell(_pkg, _opts) do
+  #   :ok
+  # end
+  #
+  # def clean(_pkg, _opts) do
+  #   :ok
+  # end
+
   defp download(artifact, [location | locations]) do
     shell_info """
       Downloading Artifact:

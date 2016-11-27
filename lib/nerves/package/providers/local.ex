@@ -32,4 +32,12 @@ defmodule Nerves.Package.Providers.Local do
     Please use the Docker provider to build this package artifact
     """}
   end
+
+  # def shell(_pkg, _opts) do
+  #   :ok
+  # end
+  #
+  # def clean(_pkg, _opts) do
+  #   :ok
+  # end
 end
