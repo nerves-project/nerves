@@ -43,7 +43,7 @@ defmodule Mix.Tasks.Firmware do
       Environment variable $NERVES_TOOLCHAIN is not set
     """
     Mix.Task.run "compile", []
-    Mix.Task.run "release", ["--verbosity=#{verbosity}", "--no-confirm-missing", "--implode"]
+    Mix.Task.run "release", ["--verbosity=#{verbosity}"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
@@ -65,7 +65,10 @@ defmodule Mix.Tasks.Firmware do
           ["-c", fw_conf]
       end
     fw = ["-f", "_images/#{target}/#{otp_app}.fw"]
-    output = ["rel/#{otp_app}"]
+    release_path =
+      Mix.Project.build_path()
+      |> Path.join("rel/#{otp_app}")
+    output = [release_path]
     args = args ++ fwup_conf ++ rootfs_additions ++ fw ++ output
 
     shell(cmd, args)
