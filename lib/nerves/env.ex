@@ -99,7 +99,7 @@ defmodule Nerves.Env do
   end
 
   def packages do
-    get() || raise "Nerves packages are not loaded"
+    get() || Mix.raise "Nerves packages are not loaded"
   end
 
   def package(name) when is_binary(name) do
@@ -184,7 +184,7 @@ defmodule Nerves.Env do
 
   defp validate_one(packages, type) when length(packages) > 1 do
     packages = Enum.map(packages, &(Map.get(&1, :app)))
-    raise """
+    Mix.raise """
     Your mix project cannot contain more than one #{type} for the target.
     Your dependancies for the target contian the following #{type}s:
     #{Enum.join(packages, ~s/ /)}
