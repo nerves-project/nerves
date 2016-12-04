@@ -1,4 +1,68 @@
 defmodule Nerves.Package.Providers.Docker do
+  @moduledoc """
+  Produce an artifact for a package using Docker.
+
+  The Nerves Docker artifact provider will use docker to create the artifact
+  for the package. The output in Mix will be limited to the headlines from the
+  process and the full build log can be found in the file `build.log` located
+  root of the package path.
+
+  ## Images
+
+  Docker containers will be created based off the image that is loaded.
+  By default, containers will use the default image
+  `nervesproject/nerves_system_br:0.8.0`. Sometimes additional host tools
+  are required to build a package. Therefore, packages can provide their own
+  images by specifying it in the package config under `:provider_config`.
+  the file is specified as a tuple `{"path/to/Dockerfile", tag_name}`.
+
+  Example:
+
+    provider_config: [
+      docker: {"Dockerfile", "my_system:0.1.0"}
+    ]
+
+  ## Containers
+
+  Containers are created for each package / checksum combination and they are
+  prefixed with a unique id. This allows the provider to build two similar
+  packages for different applications at the same time without fighting
+  over the same container. When the build has finished the container is
+  stopped, but not removed. This allows you to manually start and attach
+  to the container for debugging purposes.
+
+  ## Volumes and Cache
+
+  Nerves will mount several volumes to the container for use in building
+  the artifact.
+
+  Mounted from the host:
+
+    * `/nerves/env/<package.name>` - The package being built.
+    * `/nerves/env/platform` - The package platform package.
+    * `/nerves/host/artifacts` - The host artifact dir.
+
+  Nerves will also create and mount docker volume which is used to cache
+  downloaded assets the build platform requires for producing the artifact.
+  This is mounted at `/nerves/cache`. This volume can significally reduce build
+  times but has potential for corruption. If you suspect that your build is
+  failing due to a faulty downloaded and cached data, you can manually mount
+  the offending container and remove the file from this volume or delete the
+  entire cache volume.
+
+  Due to issues with building in host mounted volumes, the working directory
+  is set to `/nerves/build` and is not mounted from the host.
+
+  ## Cleanup
+
+  Perodically, you may want to destroy all unused containers to clean up.
+  Please refer to the Docker documentation for more information on how to
+  do this.
+
+  When the provider is finished, the artifact is decompressed on the host at
+  the packages defined artifact dir.
+  """
+
   @behaviour Nerves.Package.Provider
 
   alias Nerves.Package.Artifact
@@ -10,14 +74,15 @@ defmodule Nerves.Package.Providers.Docker do
   @sh "/bin/sh"
   @bash "/bin/bash"
 
-  @artifact_script_nerves "scripts/docker/nerves_system_br/noninteractive-build.sh"
-  @artifact_script_docker "/nerves/noninteractive-build.sh"
-
   @label "org.nerves-project.nerves_system_br=1.0"
   @dockerfile File.cwd!
               |> Path.join("template/Dockerfile")
   @working_dir "/nerves/build"
 
+  @doc """
+  Create an artifact for the package
+  """
+  @spec artifact(Nerves.Package.t, Nerves.Package.t, term) :: :ok
   def artifact(pkg, toolchain, _opts) do
     container = preflight(pkg)
     artifact_name = Artifact.name(pkg, toolchain)

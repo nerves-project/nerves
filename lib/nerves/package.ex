@@ -1,4 +1,64 @@
 defmodule Nerves.Package do
+  @moduledoc """
+  Defines a Nerves package struct and helper functions.
+
+  A Nerves package is an application which defines a Nerves package
+  configuration file at the root of the application path. The configuration
+  file is `nerves.exs` and uses Mix.Config to list configuration values.
+
+  ## Example Configuration
+
+    use Mix.Config
+
+    version =
+      Path.join(__DIR__, "VERSION")
+      |> File.read!
+      |> String.strip
+
+    pkg =
+
+    config pkg, :nerves_env,
+      type: :system,
+      version: version,
+      compiler: :nerves_package,
+      artifact_url: [
+        "https://github.com/nerves-project/\#{pkg}/releases/download/v\#{version}/\#{pkg}-v\#{version}.tar.gz",
+      ],
+      platform: Nerves.System.BR,
+      platform_config: [
+        defconfig: "nerves_defconfig",
+      ],
+      checksum: [
+        "linux",
+        "rootfs-additions",
+        "uboot",
+        "bbb-busybox.config",
+        "fwup.conf",
+        "nerves_defconfig",
+        "nerves.exs",
+        "post-createfs.sh",
+        "uboot-script.cmd",
+        "VERSION"
+      ]
+
+  ## Keys
+
+  ** Required **
+
+    * `:type` - The Nerves package type. Can be any one of the following
+      * `:system` - A Nerves system.
+      * `:system_platform` - A set of build tools for a Nerves system.
+      * `:toolchain` - A Nerves toolchain
+      * `:toolchain_platform` - A set of build tools for a Nerves toolchain.
+    * `:version` - The package version
+
+  ** Optional **
+
+    * `:compiler` - The Mix.Project compiler for the package. Example: `:nerves_package`
+    * `:platform` - The application which is the packages build platform.
+    * `:checksum` - A list of files and top level folders to expand paths for use when calculating the checksum of the package source.
+  """
+
   defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, compiler: nil, config: []]
 
   alias __MODULE__
@@ -26,6 +86,11 @@ defmodule Nerves.Package do
   @artifacts_dir Path.expand("~/.nerves/artifacts")
   @required [:type, :version, :platform]
 
+  @doc """
+  Builds the package and produces an artifact. See Nerves.Package.Artifact
+  for more information.
+  """
+  @spec artifact(Nerves.Package.t, Nerves.Package.t) :: :ok
   def artifact(pkg, toolchain) do
     {mod, opts} = pkg.provider
     mod.artifact(pkg, toolchain, opts)
@@ -33,6 +98,10 @@ defmodule Nerves.Package do
     |> File.write!(checksum(pkg))
   end
 
+  @doc """
+  Loads the package config and parses it into a %Package{}
+  """
+  @spec load_config({app :: atom, path :: String.t}) :: Nerves.Package.t
   def load_config({app, path}) do
     load_nerves_config(path)
     config = Application.get_env(app, :nerves_env)
@@ -57,6 +126,11 @@ defmodule Nerves.Package do
       config: config}
   end
 
+  @doc """
+  Produce a base16 encoded checksum for the package from the list of files
+  and expanded folders listed in the checksum config key.
+  """
+  @spec checksum(Nerves.Package.t) :: String.t
   def checksum(pkg) do
     blob =
       (pkg.config[:checksum] || [])
@@ -68,10 +142,10 @@ defmodule Nerves.Package do
     |> Base.encode16
   end
 
-  def config_path(path) do
-    Path.join(path, @package_config)
-  end
-
+  @doc """
+  Determines if the artifact for a package is stale and needs to be rebuilt.
+  """
+  @spec stale?(Nerves.Package.t, Nerves.Package.t) :: boolean
   def stale?(pkg, toolchain) do
     if match_env?(pkg, toolchain) do
       false
@@ -81,6 +155,31 @@ defmodule Nerves.Package do
 
       !(exists and checksum)
     end
+  end
+
+  @doc """
+  Starts an interactive shell with the working directory set
+  to the package path
+  """
+  @spec shell(Nerves.Package.t) :: :ok
+  def shell(nil) do
+    Mix.raise "Package is not loaded in your Nerves Environment."
+  end
+
+  def shell(%{platform: nil, app: app}) do
+    Mix.raise "Cannot start shell for #{app}"
+  end
+
+  def shell(pkg) do
+    pkg.provider.shell(pkg)
+  end
+
+  @doc """
+  Takes the path to the package and returns the path to its package config.
+  """
+  @spec config_path(String.t) :: String.t
+  def config_path(path) do
+    Path.join(path, @package_config)
   end
 
   defp match_env?(pkg, _toolchain) do
@@ -110,18 +209,6 @@ defmodule Nerves.Package do
       _ ->
         false
     end
-  end
-
-  def shell(nil) do
-    Mix.raise "Package is not loaded in your Nerves Environment."
-  end
-
-  def shell(%{platform: nil, app: app}) do
-    Mix.raise "Cannot start shell for #{app}"
-  end
-
-  def shell(pkg) do
-    pkg.provider.shell(pkg)
   end
 
   defp provider(app, type) do
