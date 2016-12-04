@@ -25,7 +25,7 @@ defmodule Nerves.Mixfile do
 
   defp deps do
     [
-      {:distillery, "~> 0.10"},
+      {:distillery, github: "bitwalker/distillery"},
       {:earmark, "~> 1.0", only: :dev},
       {:ex_doc, "~> 0.14", only: :dev}
     ]
