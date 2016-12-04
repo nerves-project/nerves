@@ -46,7 +46,7 @@ defmodule Nerves.Package.Providers.Docker do
   downloaded assets the build platform requires for producing the artifact.
   This is mounted at `/nerves/cache`. This volume can significally reduce build
   times but has potential for corruption. If you suspect that your build is
-  failing due to a faulty downloaded and cached data, you can manually mount
+  failing due to a faulty downloaded cached data, you can manually mount
   the offending container and remove the file from this volume or delete the
   entire cache volume.
 

@@ -7,7 +7,7 @@ defmodule Nerves.Package do
   file is `nerves.exs` and uses Mix.Config to list configuration values.
 
   ## Example Configuration
-
+  ```
     use Mix.Config
 
     version =
@@ -40,6 +40,7 @@ defmodule Nerves.Package do
         "uboot-script.cmd",
         "VERSION"
       ]
+  ```
 
   ## Keys
 
@@ -99,7 +100,7 @@ defmodule Nerves.Package do
   end
 
   @doc """
-  Loads the package config and parses it into a %Package{}
+  Loads the package config and parses it into a `%Package{}`
   """
   @spec load_config({app :: atom, path :: String.t}) :: Nerves.Package.t
   def load_config({app, path}) do
