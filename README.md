@@ -7,7 +7,7 @@ Craft and deploy bulletproof embedded software in Elixir
 
 64-bit host running
 * Mac OS 10.10+ or Linux (We've tested on Debian / Ubuntu / Redhat / CentOS)
-* Elixir ~> 1.2.4 or ~> 1.3
+* Elixir ~> 1.2.4 or ~> 1.3.2
 * [fwup](https://github.com/fhunleth/fwup) >= 0.8.0
 
 ## Docs
