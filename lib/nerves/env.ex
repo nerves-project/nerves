@@ -1,66 +1,81 @@
 defmodule Nerves.Env do
+  @moduledoc """
+  Contains package info for Nerves dependencies
+
+  The Nerves Env is used to load information from dependencies that
+  contain a nerves.exs config file in the root of the dependency
+  path. Nerves loads this config because it needs access to information
+  about Nerves compile time dependencies before any code is compiled.
+  """
+
   alias Nerves.Package
 
-  # Pre 0.4.0 Legacy
-  def initialize, do: start()
-  def stale? do
-    system_manifest =
-      system_path()
-      |> Path.join(".nerves.lock")
-      |> Path.expand
-
-    if stale_check_manifest(system_manifest) do
-      false
-    else
-      true
-    end
-  end
-
-  def stale_check_manifest(manifest) do
-    case File.read(manifest) do
-      {:ok, file} ->
-        file
-        |> :erlang.binary_to_term
-        |> Keyword.equal?(packages())
-      _ -> false
-    end
-  end
-  def deps, do: packages()
-  def deps_by_type(type), do: packages_by_type(type)
-  ## End Pre 0.4.0 Legacy
-
+  @doc """
+  Starts the Nerves environment agent and loads package information.
+  If the Nerves.Env is already started, the function returns
+  `{:error, {:already_started, pid}}` with the pid of that process
+  """
+  @spec start() :: Agent.on_start
   def start do
     Agent.start_link fn -> load_packages() end, name: __MODULE__
   end
 
+  @doc """
+  Stop the Nerves environment agent.
+  """
+  @spec stop() :: :ok
   def stop do
     Agent.stop(__MODULE__)
   end
 
+  @doc """
+  Ensures that an application which contins a Nerves package config has
+  been loaded into the environment agent.
+
+  ## Options
+    * `app` - The atom of the app to load
+    * `path` - Optional path for the app
+  """
+  @spec ensure_loaded(app :: atom, path :: String.t) ::
+    {:ok, Nerves.Package.t} | {:error, term}
   def ensure_loaded(app, path \\ nil) do
     path = path || File.cwd!
-
-    Agent.update(__MODULE__, fn(packages) ->
-      case Enum.find(packages, & &1.app == app) do
-        nil ->
-          package = Package.load_config({app, path})
-          [package | packages]
-        _ -> packages
-      end
-    end)
+    packages = Agent.get(__MODULE__, &(&1))
+    case Enum.find(packages, & &1.app == app) do
+      nil ->
+        case Package.load_config({app, path}) do
+          {:ok, package} ->
+            Agent.update(__MODULE__, fn(packages) ->
+              [package | packages]
+            end)
+            {:ok, package}
+          error -> error
+        end
+      package -> {:ok, :package}
+    end
   end
 
+  @doc """
+  Returns the archetecture for the host system.
+
+  ## Example return values
+    "x86_64"
+    "arm"
+  """
+  @spec host_arch() :: String.t
   def host_arch() do
     :erlang.system_info(:system_architecture)
     |> to_string
     |> parse_arch
   end
 
+  @doc false
   def parse_arch(arch) when is_binary(arch) do
     arch
     |> String.split("-")
     |> parse_arch
   end
+  @doc false
   def parse_arch(arch) when is_list(arch) do
     arch = List.first(arch)
     case arch do
@@ -74,17 +89,27 @@ defmodule Nerves.Env do
     end
   end
 
+  @doc """
+  Returns the platform for the host system.
+
+  ## Example return values
+    "win"
+    "linux"
+    "darwin"
+  """
+  @spec host_platform() :: String.t
   def host_platform() do
     :erlang.system_info(:system_architecture)
     |> to_string
     |> parse_platform
   end
-
+  @doc false
   def parse_platform(platform) when is_binary(platform) do
     platform
     |> String.split("-")
     |> parse_platform
   end
+  @doc false
   def parse_platform(platform) when is_list(platform) do
     case platform do
       [<<"win", _tail :: binary>> | _] ->
@@ -98,139 +123,85 @@ defmodule Nerves.Env do
     end
   end
 
+  @doc """
+  Lists all Nerves packages loaded in the Nerves environment.
+  """
+  @spec packages() :: [Nerves.Package.t]
   def packages do
-    get() || Mix.raise "Nerves packages are not loaded"
+    Agent.get(__MODULE__, &(&1)) || Mix.raise "Nerves packages are not loaded"
   end
 
-  def package(name) when is_binary(name) do
-    name
-    |> String.to_atom
-    |> package
-  end
+  @doc """
+  Gets a package by app name.
+  """
+  @spec package(name :: atom) ::
+    Nerves.Package.t | nil
   def package(name) do
-    packages()
-    |> Enum.filter(& &1.app == name)
-    |> List.first
+      packages()
+      |> Enum.filter(& &1.app == name)
+      |> List.first
   end
 
-  def packages_by_type(type) do
-    packages()
-    |> packages_by_type(type)
-  end
-
-  def packages_by_type(packages, type) do
-    packages
+  @doc """
+  Lists packages by package type.
+  """
+  @spec packages_by_type(type :: String.t) ::
+    [Nerves.Package.t]
+  def packages_by_type(type, packages \\ nil) do
+    (packages || packages())
     |> Enum.filter(& &1.type === type)
   end
 
+  @doc """
+  Helper function for returning the system type package
+  """
+  @spec system() ::
+    Nerves.Package.t
   def system do
     system =
       packages_by_type(:system)
       |> List.first
-
     system || Mix.raise "Could not locate System"
   end
 
+  @doc """
+  Helper function for returning the system_platform type package
+  """
+  @spec system_platform() ::
+    Nerves.Package.t
   def system_platform do
-    system().config[:platform]
+    system().platform
   end
 
-  def system_pkg do
-    packages_by_type(:system_pkg)
-  end
-
+  @doc """
+  Helper function for returning the toolchain type package
+  """
+  @spec toolchain() ::
+    Nerves.Package.t
   def toolchain do
     toolchain =
       packages_by_type(:toolchain)
       |> List.first
     toolchain || Mix.raise "Could not locate Toolchain"
-
   end
-
-  # Collect all deps containing #{dep_path}/nerves.exs
-  # Each Nerves Dep
-  #  * Load the nerves.exs
-  #  * Determine the project type
-  #    Type                     Example
-  #    * system_build_platform  - nerves_system_br
-  #    * system                 - nerves_system_bbb
-  #    * system_pkg             - nerves_pkg_alsa_utils
-  #    * toolchain              - nerves_toolchain_arm_unknown_linux_gnueabihf
-  defp load_packages do
-    Mix.Project.deps_paths
-    |> Enum.filter(fn({_, path}) ->
-      Package.config_path(path)
-      |> File.exists?
-    end)
-    |> Enum.map(&Package.load_config/1)
-    |> validate_packages
-  end
-
-  defp get do
-    Agent.get(__MODULE__, &(&1))
-  end
-
-  # We need to validate that the nerves deps present for the target satisfy
-  #  certain conditions
-  #  There should only be 1 system and 1 toolchain present.
-  #  Otherwise, raose
-  defp validate_packages(packages) do
-    for type <- [:system, :toolchain] do
-      packages_by_type(packages, type)
-      |> validate_one(type)
-    end
-    packages
-  end
-
-  defp validate_one(packages, type) when length(packages) > 1 do
-    packages = Enum.map(packages, &(Map.get(&1, :app)))
-    Mix.raise """
-    Your mix project cannot contain more than one #{type} for the target.
-    Your dependancies for the target contian the following #{type}s:
-    #{Enum.join(packages, ~s/ /)}
-    """
-  end
-  defp validate_one(packages, _type), do: packages
-
-
 
   @doc """
-  # Export environment variables used by Elixir, Erlang, C/C++ and other tools
-  # so that they use Nerves toolchain parameters and not the host's.
-  #
-  # This list is built up partially by adding environment variables from project
-  # as issues are identified since there's not a fixed convention for how these
-  # are used. The Rebar project source code for compiling C ports was very helpful
-  # initially.
-
-  NERVES_SYSTEM
-  NERVES_ROOT
-  NERVES_TOOLCHAIN
-  NERVES_SDK_IMAGES
-  NERVES_SDK_SYSROOT
-
-  CROSSCOMPILE
-  REBAR_PLT_DIR=$NERVES_SDK_SYSROOT/usr/lib/erlang
-  CC=$CROSSCOMPILE-gcc
-  CXX=$CROSSCOMPILE-g++
-  CFLAGS="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -pipe -Os"
-  CXXFLAGS="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64  -pipe -Os"
-  LDFLAGS=""
-  STRIP=$CROSSCOMPILE-strip
-  ERL_CFLAGS="-I$ERTS_DIR/include -I$ERL_INTERFACE_DIR/include"
-  ERL_LDFLAGS="-L$ERTS_DIR/lib -L$ERL_INTERFACE_DIR/lib -lerts -lerl_interface -lei"
-  REBAR_TARGET_ARCH=$(basename $CROSSCOMPILE)
-
-  # Rebar naming
-  ERL_EI_LIBDIR="$ERL_INTERFACE_DIR/lib"
-  ERL_EI_INCLUDE_DIR="$ERL_INTERFACE_DIR/include"
-
-  # erlang.mk naming
-  ERTS_INCLUDE_DIR="$ERTS_DIR/include"
-  ERL_INTERFACE_LIB_DIR="$ERL_INTERFACE_DIR/lib"
-  ERL_INTERFACE_INCLUDE_DIR="$ERL_INTERFACE_DIR/include"
+  Helper function for returning the toolchain_platform type package
   """
+  @spec toolchain_platform() ::
+    Nerves.Package.t
+  def toolchain_platform do
+    toolchain().platform
+  end
 
+  @doc """
+  Export environment variables used by Elixir, Erlang, C/C++ and other tools
+  so that they use Nerves toolchain parameters and not the host's.
+
+  For a comprehensive list of environment variables, see the documentation
+  for the package defining system_platform.
+  """
+  @spec bootstrap() :: :ok
   def bootstrap do
     nerves_system_path = System.get_env("NERVES_SYSTEM") || system_path()
     nerves_toolchain_path = System.get_env("NERVES_TOOLCHAIN") || toolchain_path()
@@ -259,15 +230,80 @@ defmodule Nerves.Env do
     platform.bootstrap(pkg)
   end
 
+  @doc false
+  defp load_packages do
+    Mix.Project.deps_paths
+    |> Enum.filter(fn({_, path}) ->
+      Package.config_path(path)
+      |> File.exists?
+    end)
+    |> Enum.map(&Package.load_config/1)
+    |> validate_packages
+  end
+
+  @doc false
+  defp validate_packages(packages) do
+    for type <- [:system, :toolchain] do
+      packages_by_type(type, packages)
+      |> validate_one(type)
+    end
+    packages
+  end
+
+  @doc false
+  defp validate_one(packages, type) when length(packages) > 1 do
+    packages = Enum.map(packages, &(Map.get(&1, :app)))
+    Mix.raise """
+    Your mix project cannot contain more than one #{type} for the target.
+    Your dependancies for the target contian the following #{type}s:
+    #{Enum.join(packages, ~s/ /)}
+    """
+  end
+  @doc false
+  defp validate_one(packages, _type), do: packages
+
+  @doc false
   defp toolchain_path do
     toolchain = Nerves.Env.toolchain
     Nerves.Package.Artifact.dir(toolchain, toolchain)
   end
-
+  @doc false
   defp system_path do
     system = Nerves.Env.system
     toolchain = Nerves.Env.toolchain
     Nerves.Package.Artifact.dir(system, toolchain)
   end
+
+  # Pre 0.4.0 Legacy
+  @doc false
+  def initialize, do: start()
+  @doc false
+  def stale? do
+    system_manifest =
+      system_path()
+      |> Path.join(".nerves.lock")
+      |> Path.expand
+
+    if stale_check_manifest(system_manifest) do
+      false
+    else
+      true
+    end
+  end
+  @doc false
+  def stale_check_manifest(manifest) do
+    case File.read(manifest) do
+      {:ok, file} ->
+        file
+        |> :erlang.binary_to_term
+        |> Keyword.equal?(packages())
+      _ -> false
+    end
+  end
+  @doc false
+  def deps, do: packages()
+  @doc false
+  def deps_by_type(type), do: packages_by_type(type)
+  ## End Pre 0.4.0 Legacy
 
 end
