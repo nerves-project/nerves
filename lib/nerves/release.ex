@@ -11,23 +11,25 @@ defmodule ReleaseManager.Plugin.Nerves do
 
         relx_config = config.relx_config
 
-        vm_args_file = 'releases/#{version}/vm.args'
+        vm_args_file = '#{File.cwd!}/rel/vm.args'
         vm_args =
           relx_config[:overlay]
+          |> IO.inspect
           |> Enum.find(fn(
-            {_, _, ^vm_args_file}) -> true
+            {_, ^vm_args_file, _}) -> true
             _ -> false
           end)
+
         overlay =
-        case vm_args do
-          nil ->
-            default_vm_args =
-              Mix.Project.deps_paths[:nerves]
-              |> Path.join("template/_iex.vm.args")
-              |> String.to_char_list
-            [{:copy, default_vm_args, vm_args_file} | relx_config[:overlay]]
-          _ -> relx_config[:overlay]
-        end
+          case vm_args do
+            nil ->
+              default_vm_args =
+                Mix.Project.deps_paths[:nerves]
+                |> Path.join("template/_iex.vm.args")
+                |> String.to_char_list
+              [{:copy, default_vm_args, vm_args_file} | relx_config[:overlay]]
+            _ -> relx_config[:overlay]
+          end
         relx_config
         |> Enum.reject(fn
           {:include_erts, _} -> true
