@@ -1,11 +1,18 @@
 defmodule Nerves.Package.Providers.HTTP do
+  @moduledoc """
+  Downloads an artifact from a remote http location.
+  """
+
   @behaviour Nerves.Package.Provider
 
   alias Nerves.Utils.Shell
   alias Nerves.Package.Artifact
   require Logger
 
-  def artifact(%{type: :toolchain} = pkg, toolchain, _opts) do
+  @doc """
+  Download the artifact from an http location
+  """
+  def artifact(pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
     url = pkg.config[:artifact_url]
     dest = Artifact.dir(pkg, toolchain)
@@ -29,9 +36,9 @@ defmodule Nerves.Package.Providers.HTTP do
   defp download(artifact, [location | locations]) do
     shell_info """
       Downloading Artifact:
-          #{artifact}
-      Location
-          #{location}
+      #{artifact}
+      From Location:
+      #{location}
     """
     location
     |> URI.encode

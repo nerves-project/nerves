@@ -1,15 +1,25 @@
 defmodule Nerves.Package.Providers.Local do
+  @moduledoc """
+  Builds an artifact locally.
+
+  This provider will only function on certain Linux host configurations
+  """
+
   @behaviour Nerves.Package.Provider
 
   alias Nerves.Package.Artifact
   import Mix.Nerves.Utils
 
+  @doc """
+  Builds an artifact locally.
+  """
+  @spec artifact(Nerves.Package.t, Nerves.Package.t, term) :: :ok
   def artifact(pkg, toolchain, opts) do
     {_, type} = :os.type
-    artifact(type, pkg, toolchain, opts)
+    build(type, pkg, toolchain, opts)
   end
 
-  def artifact(:linux, pkg, toolchain, _opts) do
+  defp build(:linux, pkg, toolchain, _opts) do
     System.delete_env("BINDIR")
     dest = Artifact.dir(pkg, toolchain)
     File.rm_rf(dest)
@@ -26,7 +36,7 @@ defmodule Nerves.Package.Providers.Local do
     shell "make", [], [cd: dest, stream: stream]
   end
 
-  def artifact(type , _pkg, _toolchain, _opts) do
+  defp build(type , _pkg, _toolchain, _opts) do
     {:error, """
     Local provider is not available for host system: #{type}
     Please use the Docker provider to build this package artifact
