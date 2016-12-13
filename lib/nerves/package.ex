@@ -84,7 +84,6 @@ defmodule Nerves.Package do
 
   @package_config "nerves.exs"
   @checksum "CHECKSUM"
-  @artifacts_dir Path.expand("~/.nerves/artifacts")
   @required [:type, :version, :platform]
 
   @doc """

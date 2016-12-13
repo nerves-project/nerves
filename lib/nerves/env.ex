@@ -51,7 +51,7 @@ defmodule Nerves.Env do
             {:ok, package}
           error -> error
         end
-      package -> {:ok, :package}
+      package -> {:ok, package}
     end
   end
 

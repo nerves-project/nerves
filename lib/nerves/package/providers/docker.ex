@@ -68,13 +68,8 @@ defmodule Nerves.Package.Providers.Docker do
   alias Nerves.Package.Artifact
 
   @version "~> 1.12 or ~> 1.12.0-rc2"
-  @config "~/.nerves/provider/docker"
   @tag "nervesproject/nerves_system_br:0.8.0"
 
-  @sh "/bin/sh"
-  @bash "/bin/bash"
-
-  @label "org.nerves-project.nerves_system_br=1.0"
   @dockerfile File.cwd!
               |> Path.join("template/Dockerfile")
   @working_dir "/nerves/build"
