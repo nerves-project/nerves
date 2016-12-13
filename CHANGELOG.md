@@ -1,5 +1,15 @@
 # Release Notes
 
+## Nerves 0.4.0
+* Enhancements
+  * Improved test suite
+  * Added documentation for modules
+  * Consolidated the Nerves Environment to the Nerves package
+
+## Nerves Bootstrap 0.2.0
+* Enhancements
+  * support for package compiler
+
 ## Nerves 0.4.0-rc.0
 * Enhancements
   * Consolidated compilers into `nerves_package`.
