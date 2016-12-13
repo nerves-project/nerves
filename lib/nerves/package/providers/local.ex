@@ -34,6 +34,7 @@ defmodule Nerves.Package.Providers.Local do
     stream = IO.stream(pid, :line)
 
     shell "make", [], [cd: dest, stream: stream]
+    :ok
   end
 
   defp build(type , _pkg, _toolchain, _opts) do

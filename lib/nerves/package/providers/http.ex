@@ -77,7 +77,7 @@ defmodule Nerves.Package.Providers.HTTP do
     File.rm!(tar_file)
     File.cp_r(source, destination)
     File.rm_rf!(tmp_path)
-    {:ok, destination}
+    :ok
   end
 
   defp shell_info(text) do

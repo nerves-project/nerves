@@ -90,7 +90,7 @@ defmodule Nerves.Package.Providers.Docker do
     :ok = create_build(pkg, container, stream)
     :ok = make(container, stream)
     :ok = make_artifact(artifact_name, container, stream)
-    :ok = copy_artifact(pkg, toolchain, container, stream)
+    {:ok, dir} = copy_artifact(pkg, toolchain, container, stream)
 
     container_stop(container)
   end
@@ -230,6 +230,7 @@ defmodule Nerves.Package.Providers.Docker do
       |> :erl_tar.extract([:compressed, {:cwd, cwd}])
 
       File.rm!(tar_file)
+      {:ok, dir}
     else
       Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
     end
@@ -385,7 +386,7 @@ defmodule Nerves.Package.Providers.Docker do
     cmd = "docker"
     args = ["stop", name]
     case System.cmd(cmd, args) do
-      {_, 0} -> :noop
+      {_, 0} -> :ok
       {error, _} -> Mix.raise """
         Could not stop Docker container #{name}
         Reason: #{error}

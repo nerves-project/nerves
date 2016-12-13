@@ -93,9 +93,10 @@ defmodule Nerves.Package do
   @spec artifact(Nerves.Package.t, Nerves.Package.t) :: :ok
   def artifact(pkg, toolchain) do
     {mod, opts} = pkg.provider
-    mod.artifact(pkg, toolchain, opts)
-    Path.join(Artifact.dir(pkg, toolchain), @checksum)
-    |> File.write!(checksum(pkg))
+    if mod.artifact(pkg, toolchain, opts) == :ok do
+      Path.join(Artifact.dir(pkg, toolchain), @checksum)
+      |> File.write!(checksum(pkg))
+    end
   end
 
   @doc """
