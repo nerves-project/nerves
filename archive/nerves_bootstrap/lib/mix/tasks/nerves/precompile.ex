@@ -1,6 +1,5 @@
 defmodule Mix.Tasks.Nerves.Precompile do
   use Mix.Task
-  alias Nerves.Env
   import Mix.Nerves.Bootstrap.Utils
 
   def run(_args) do

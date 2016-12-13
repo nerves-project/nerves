@@ -1,8 +1,6 @@
 defmodule Mix.Tasks.Nerves.Loadpaths do
   use Mix.Task
-
   import Mix.Nerves.Bootstrap.Utils
-  alias Nerves.Env
 
   def run(_args) do
     unless System.get_env("NERVES_PRECOMPILE") == "1" do
@@ -11,7 +9,7 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
           try do
             Mix.Tasks.Nerves.Env.run []
             Nerves.Env.bootstrap
-            env_info
+            env_info()
           rescue
             e ->
               raise e
