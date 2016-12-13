@@ -90,7 +90,7 @@ defmodule Nerves.Package.Providers.Docker do
     :ok = create_build(pkg, container, stream)
     :ok = make(container, stream)
     :ok = make_artifact(artifact_name, container, stream)
-    {:ok, dir} = copy_artifact(pkg, toolchain, container, stream)
+    :ok = copy_artifact(pkg, toolchain, container, stream)
 
     container_stop(container)
   end
@@ -230,7 +230,7 @@ defmodule Nerves.Package.Providers.Docker do
       |> :erl_tar.extract([:compressed, {:cwd, cwd}])
 
       File.rm!(tar_file)
-      {:ok, dir}
+      :ok
     else
       Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
     end
