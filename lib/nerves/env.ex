@@ -44,12 +44,13 @@ defmodule Nerves.Env do
     case Enum.find(packages, & &1.app == app) do
       nil ->
         case Package.load_config({app, path}) do
-          {:ok, package} ->
+          %Package{} = package ->
             Agent.update(__MODULE__, fn(packages) ->
               [package | packages]
             end)
             {:ok, package}
-          error -> error
+          error ->
+            error
         end
       package -> {:ok, package}
     end
