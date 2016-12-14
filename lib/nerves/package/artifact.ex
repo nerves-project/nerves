@@ -52,7 +52,7 @@ defmodule Nerves.Package.Artifact do
   @spec dir(Nerves.Package.t, Nerves.Package.t) :: String.t
   def dir(pkg, toolchain) do
     if env_var?(pkg) do
-      System.get_env(env_var(pkg))
+      System.get_env(env_var(pkg)) |> Path.expand
     else
       base_dir(pkg)
       |> Path.join(name(pkg, toolchain))
