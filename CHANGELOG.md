@@ -6,19 +6,11 @@
   * Fixed issue where remote artifacts would not be globally cached
   * Fixed issue with package compiler where it would always force systems to be built
 
-## Nerves Bootstrap 0.2.1-dev
-* Enhancements
-  * support for package compiler
-
 ## Nerves 0.4.0
 * Enhancements
   * Improved test suite
   * Added documentation for modules
   * Consolidated the Nerves Environment to the Nerves package
-
-## Nerves Bootstrap 0.2.0
-* Enhancements
-  * support for package compiler
 
 ## Nerves 0.4.0-rc.0
 * Enhancements

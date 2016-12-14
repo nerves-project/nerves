@@ -1,5 +1,12 @@
 # nerves_bootstrap
 
+## v0.2.1-dev
+* Bug Fixes
+  * update nerves dep in new project generator to 0.4.0
+* Enhancements
+  * Additional debug output when setting `NERVES_DEBUG=1`
+  * Ability to output information about the loaded Nerves env via `mix nerves.env --info`
+
 ## v0.2.0
   * Enhancements
     * Support for nerves_package compiler
