@@ -1,5 +1,15 @@
 # Release Notes
 
+## Nerves 0.4.1-dev
+* Bug Fixes
+  * Do not stop the Nerves.Env at the end of the package compiler. This would cause the packages to resolve the wrong dep type.
+  * Fixed issue where remote artifacts would not be globally cached
+  * Fixed issue with package compiler where it would always force systems to be built
+
+## Nerves Bootstrap 0.2.1-dev
+* Enhancements
+  * support for package compiler
+
 ## Nerves 0.4.0
 * Enhancements
   * Improved test suite
