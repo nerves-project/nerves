@@ -204,8 +204,8 @@ defmodule Nerves.Env do
   """
   @spec bootstrap() :: :ok
   def bootstrap do
-    nerves_system_path = System.get_env("NERVES_SYSTEM") || system_path()
-    nerves_toolchain_path = System.get_env("NERVES_TOOLCHAIN") || toolchain_path()
+    nerves_system_path = system_path()
+    nerves_toolchain_path = toolchain_path()
 
     [{"NERVES_SYSTEM", nerves_system_path},
      {"NERVES_TOOLCHAIN", nerves_toolchain_path},

@@ -51,9 +51,13 @@ defmodule Nerves.Package.Artifact do
   """
   @spec dir(Nerves.Package.t, Nerves.Package.t) :: String.t
   def dir(pkg, toolchain) do
-    base_dir(pkg)
-    |> Path.join(name(pkg, toolchain))
-    |> protocol_vsn(pkg)
+    if env_var?(pkg) do
+      System.get_env(env_var(pkg))
+    else
+      base_dir(pkg)
+      |> Path.join(name(pkg, toolchain))
+      |> protocol_vsn(pkg)
+    end
   end
 
   @doc """
@@ -63,6 +67,31 @@ defmodule Nerves.Package.Artifact do
   def exists?(pkg, toolchain) do
     dir(pkg, toolchain)
     |> File.dir?
+  end
+
+  @doc """
+  Check to see if the artifact path is being set from the system env
+  """
+  @spec env_var?(Nerves.Package.t) :: boolean
+  def env_var?(pkg) do
+    name = env_var(pkg)
+    dir = System.get_env(name)
+    dir != nil and File.dir?(dir)
+  end
+
+  @doc """
+  Determine the environment variable which would be set to override the path
+  """
+  @spec env_var(Nerves.Package.t) :: String.t
+  def env_var(pkg) do
+    case pkg.type do
+      :toolchain -> "NERVES_TOOLCHAIN"
+      :system -> "NERVES_SYSTEM"
+      _ ->
+        pkg.name
+        |> Atom.to_string
+        |> String.upcase
+    end
   end
 
   @doc """

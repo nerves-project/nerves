@@ -49,4 +49,31 @@ defmodule Nerves.ArtifactTest do
       assert String.ends_with?(artifact_dir, "#{system.app}-#{system.version}.#{target_tuple}")
     end
   end
+
+  test "Override System and Toolchain path" do
+    in_fixture "simple_app", fn ->
+      packages =
+        ~w(system toolchain)
+
+      system_path =
+        File.cwd!
+        |> Path.join("tmp/system")
+
+      toolchain_path =
+        File.cwd!
+        |> Path.join("tmp/toolchain")
+
+      File.mkdir_p!(system_path)
+      File.mkdir_p!(toolchain_path)
+
+      System.put_env("NERVES_SYSTEM", system_path)
+      System.put_env("NERVES_TOOLCHAIN", toolchain_path)
+
+
+      _ = load_env(packages)
+
+      assert Artifact.dir(Env.system, Env.toolchain) == system_path
+      assert Artifact.dir(Env.toolchain, Env.toolchain) == toolchain_path
+    end
+  end
 end

@@ -159,7 +159,7 @@ defmodule Nerves.Package do
   """
   @spec stale?(Nerves.Package.t, Nerves.Package.t) :: boolean
   def stale?(pkg, toolchain) do
-    if match_env?(pkg, toolchain) do
+    if Artifact.env_var?(pkg) do
       false
     else
       exists = Artifact.exists?(pkg, toolchain)
@@ -192,23 +192,6 @@ defmodule Nerves.Package do
   @spec config_path(String.t) :: String.t
   def config_path(path) do
     Path.join(path, @package_config)
-  end
-
-  defp match_env?(pkg, _toolchain) do
-    name =
-      case pkg.type do
-        :toolchain -> "NERVES_TOOLCHAIN"
-        :system -> "NERVES_SYSTEM"
-        _ ->
-          pkg.name
-          |> Atom.to_string
-          |> String.upcase
-      end
-    #name = name <> "_ARTIFACT"
-    dir = System.get_env(name)
-
-    dir != nil and
-    File.dir?(dir)
   end
 
   defp match_checksum?(pkg, toolchain) do

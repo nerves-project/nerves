@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.4.2-dev
+* Bug Fixes
+  * Fixed issue where artifact paths could not be set by system env var
+
 ## Nerves 0.4.1
 * Bug Fixes
   * Do not stop the Nerves.Env at the end of the package compiler. This would cause the packages to resolve the wrong dep type.
