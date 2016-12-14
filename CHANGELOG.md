@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves 0.4.1-dev
+## Nerves 0.4.1
 * Bug Fixes
   * Do not stop the Nerves.Env at the end of the package compiler. This would cause the packages to resolve the wrong dep type.
   * Fixed issue where remote artifacts would not be globally cached

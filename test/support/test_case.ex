@@ -72,7 +72,7 @@ defmodule NervesTest.Case do
   end
 
   def fixture_path(extension) do
-    Path.join fixture_path, extension
+    Path.join(fixture_path(), extension)
   end
 
   def tmp_path do
@@ -80,7 +80,7 @@ defmodule NervesTest.Case do
   end
 
   def tmp_path(extension) do
-    Path.join tmp_path, to_string(extension)
+    Path.join(tmp_path(), to_string(extension))
   end
 
   def fixture_to_tmp(fixture, dest) do
