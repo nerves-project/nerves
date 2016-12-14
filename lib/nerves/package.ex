@@ -92,8 +92,19 @@ defmodule Nerves.Package do
   """
   @spec artifact(Nerves.Package.t, Nerves.Package.t) :: :ok
   def artifact(pkg, toolchain) do
-    {mod, opts} = pkg.provider
-    if mod.artifact(pkg, toolchain, opts) == :ok do
+    ret =
+      case pkg.provider do
+        {mod, opts} -> mod.artifact(pkg, toolchain, opts)
+        providers when is_list(providers) ->
+          Enum.reduce(providers, nil, fn ({mod, opts}, ret) ->
+            if ret != :ok do
+              mod.artifact(pkg, toolchain, opts)
+            else
+              ret
+            end
+          end)
+      end
+    if ret == :ok do
       Path.join(Artifact.dir(pkg, toolchain), @checksum)
       |> File.write!(checksum(pkg))
     end
@@ -216,7 +227,7 @@ defmodule Nerves.Package do
     config = Mix.Project.config[:artifacts] || []
 
     case Keyword.get(config, app) do
-      nil -> {provider_mod(type), []}
+      nil -> [{Providers.HTTP, []}, {provider_mod(type), []}]
       opts -> provider_opts(opts)
     end
   end
@@ -254,7 +265,7 @@ defmodule Nerves.Package do
   end
 
   defp dep_type(pkg) do
-    deps_paths = Mix.Project.deps_paths
+    deps_paths = Mix.Project.deps_paths()
     case Map.get(deps_paths, pkg) do
       nil ->
         :project
@@ -262,7 +273,6 @@ defmodule Nerves.Package do
         deps_path =
           File.cwd!
           |> Path.join(Mix.Project.config[:deps_path])
-          |> Path.expand
         if String.starts_with?(path, deps_path) do
           :hex
         else

@@ -62,7 +62,10 @@ defmodule Nerves.Package.Providers.HTTP do
 
   defp unpack({:error, _} = error, _, _), do: error
   defp unpack({:ok, tar}, artifact, destination) do
-    shell_info "Unpacking #{artifact}"
+    shell_info """
+      Unpacking #{artifact}
+      To #{destination}
+    """
     tmp_path = Path.join(destination, ".tmp")
     File.mkdir_p!(tmp_path)
     tar_file = Path.join(tmp_path, artifact)

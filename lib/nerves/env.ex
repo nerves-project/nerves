@@ -17,7 +17,7 @@ defmodule Nerves.Env do
   """
   @spec start() :: Agent.on_start
   def start do
-    Agent.start_link fn -> load_packages() end, name: __MODULE__
+    Agent.start_link(fn -> load_packages() end, name: __MODULE__)
   end
 
   @doc """

@@ -35,13 +35,24 @@ defmodule Mix.Tasks.Firmware do
 
     firmware_config = Application.get_env(:nerves, :firmware)
 
-    system_path = System.get_env("NERVES_SYSTEM") || raise """
+    system_path = System.get_env("NERVES_SYSTEM") || Mix.raise """
       Environment variable $NERVES_SYSTEM is not set
     """
 
-    System.get_env("NERVES_TOOLCHAIN") || raise """
+    System.get_env("NERVES_TOOLCHAIN") || Mix.raise """
       Environment variable $NERVES_TOOLCHAIN is not set
     """
+
+    rel_config =
+      File.cwd!
+      |> Path.join("rel/config.exs")
+
+    unless File.exists?(rel_config) do
+      Mix.raise """
+        You are missing a release config file. Run  nerves.release.init task first
+      """
+    end
+
     Mix.Task.run "compile", []
     Mix.Task.run "release", ["--verbosity=#{verbosity}"]
 
