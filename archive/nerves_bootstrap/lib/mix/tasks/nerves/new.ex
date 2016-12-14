@@ -134,7 +134,7 @@ defmodule Mix.Tasks.Nerves.New do
     end
   end
 
-  defp nerves_dep("deps/nerves"), do: ~s[{:nerves, "~> 0.3.0"}]
+  defp nerves_dep("deps/nerves"), do: ~s[{:nerves, "~> 0.4.0"}]
   defp nerves_dep(path), do: ~s[{:nerves, path: #{inspect path}, override: true}]
 
   defp nerves_path(path, true) do
