@@ -1,5 +1,5 @@
 defmodule Nerves.Mix.Tasks.ShellTest do
-  use NervesTest.Case
+  use NervesTest.Case, async: false
 
   setup do
     %{fixture: "simple_app"}

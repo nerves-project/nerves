@@ -1,5 +1,5 @@
 defmodule Nerves.EnvTest do
-  use NervesTest.Case
+  use NervesTest.Case, async: false
   alias Nerves.Env
 
   test "populate Nerves env" do

@@ -1,5 +1,5 @@
 defmodule Nerves.ArtifactTest do
-  use NervesTest.Case
+  use NervesTest.Case, async: false
 
   alias Nerves.Package.Providers, as: P
   alias Nerves.Package.Artifact
@@ -45,8 +45,8 @@ defmodule Nerves.ArtifactTest do
       toolchain = Env.package(:toolchain)
       target_tuple = toolchain.config[:target_tuple]
       artifact_dir = Artifact.dir(system, toolchain)
-
-      assert String.ends_with?(artifact_dir, "#{system.app}-#{system.version}.#{target_tuple}")
+      artifact_file = "#{system.app}-#{system.version}.#{target_tuple}"
+      assert String.ends_with?(artifact_dir, artifact_file)
     end
   end
 
@@ -74,6 +74,9 @@ defmodule Nerves.ArtifactTest do
 
       assert Artifact.dir(Env.system, Env.toolchain) == system_path
       assert Artifact.dir(Env.toolchain, Env.toolchain) == toolchain_path
+
+      System.delete_env("NERVES_SYSTEM")
+      System.delete_env("NERVES_TOOLCHAIN")
     end
   end
 end
