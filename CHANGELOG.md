@@ -3,6 +3,7 @@
 ## Nerves 0.4.2-dev
 * Bug Fixes
   * Fixed issue where artifact paths could not be set by system env var
+  * Mix Task `nerves.release.init` was failing due to missing template. Include priv in hex package files.
 
 ## Nerves 0.4.1
 * Bug Fixes
