@@ -38,12 +38,11 @@ defmodule Mix.Tasks.Nerves.Env do
   end
 
   defp print_pkg(pkg) do
-    {provider, _} = pkg.provider
     Mix.shell.info """
     Pkg:      #{pkg.app}
     Vsn:      #{pkg.version}
     Type:     #{pkg.type}
-    Provider: #{provider}
+    Provider: #{inspect pkg.provider}
     """
   end
 
