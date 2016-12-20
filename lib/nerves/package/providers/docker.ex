@@ -115,7 +115,7 @@ defmodule Nerves.Package.Providers.Docker do
       if File.exists?(id_file) do
         File.read!(id_file)
       else
-        id = :crypto.strong_rand_bytes(16) |> Base.encode64 |> binary_part(0, 16)
+        id = :crypto.strong_rand_bytes(16) |> Base.url_encode64 |> binary_part(0, 16)
         Path.dirname(id_file)
         |> File.mkdir_p!
         File.write!(id_file, id)
