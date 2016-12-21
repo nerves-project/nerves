@@ -35,7 +35,7 @@ defmodule Nerves.Utils.HTTPClient do
       {'Content-Type', 'application/octet-stream'}
     ]
 
-    http_opts = [timeout: @timeout, autoredirect: true]
+    http_opts = [timeout: @timeout, autoredirect: true] ++ Nerves.Utils.Proxy.config(url)
     opts = [stream: :self, receiver: self(), sync: false]
     :httpc.request(:get, {url, headers}, http_opts, opts, :nerves)
     {:noreply, %{s | url: url, caller: from}}
