@@ -53,8 +53,9 @@ defmodule Mix.Tasks.Firmware do
       """
     end
 
+    Nerves.Utils.Shell.info "Building OTP Release..."
     Mix.Task.run "compile", []
-    Mix.Task.run "release", ["--verbosity=#{verbosity}"]
+    Mix.Task.run "release", ["--silent"]
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
