@@ -40,11 +40,17 @@ defmodule Nerves.Package.Providers.HTTP do
       From Location:
       #{location}
     """
-    location
-    |> URI.encode
-    |> String.replace("+", "%2B")
-    |> Mix.Utils.read_path()
-    |> result(artifact, locations)
+    {:ok, pid} = Nerves.Utils.HTTPClient.start_link()
+
+    location =
+      location
+      |> URI.encode
+      |> String.replace("+", "%2B")
+
+    result = Nerves.Utils.HTTPClient.get(pid, location)
+    Nerves.Utils.HTTPClient.stop(pid)
+    
+    result(result, artifact, locations)
   end
 
   defp result({:ok, body}, name, _) do
