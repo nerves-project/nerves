@@ -1,6 +1,14 @@
 # Release Notes
 
 ## Nerves 0.4.3-dev
+* Enhancements
+  * Mix will display a progress bar, percentage, and total / expected bytes when downloading artifacts.
+  * Added task `mix firmware.image my_app.img` for producing images for use with applications like dd
+  * Silenced output from distillery which would contain misleading information for the nerves project
+
+* Bug Fixes
+  * Docker provider could potentially produce application id's that were invalid
+
 
 ## Nerves 0.4.2
 * Bug Fixes
