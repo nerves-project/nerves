@@ -2,18 +2,12 @@ defmodule Mix.Tasks.Firmware do
   use Mix.Task
   import Mix.Nerves.Utils
 
-  @switches [verbosity: :string]
-
   @moduledoc """
   Build a firmware image for the selected target platform.
 
   This task builds the project, combines the generated OTP release with
   a Nerves system image, and creates a `.fw` file that may be written
   to an SDCard or sent to a device.
-
-  ## Command line options
-
-    * `--verbosity=[silent|quiet|normal|verbose]` - set the verbosity level
 
   ## Environment variables
 
@@ -23,10 +17,9 @@ defmodule Mix.Tasks.Firmware do
     * `NERVES_TOOLCHAIN` - may be set to a local directory to specify the
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
-  def run(args) do
+  def run(_args) do
     preflight()
 
-    {opts, _, _} = OptionParser.parse(args, switches: @switches)
     debug_info "Nerves Firmware Assembler"
     config = Mix.Project.config
     otp_app = config[:app]
