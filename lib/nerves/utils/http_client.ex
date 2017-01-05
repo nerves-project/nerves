@@ -77,6 +77,11 @@ defmodule Nerves.Utils.HTTPClient do
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
 
+  def handle_info({:http, {error, _headers}}, s) do
+    GenServer.reply(s.caller, {:error, error})
+    {:noreply, s}
+  end
+
   def put_progress(size, max) do
     fraction = (size / max)
     completed = trunc(fraction * @progress_steps)
