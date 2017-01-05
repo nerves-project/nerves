@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves 0.4.3-dev
+## Nerves 0.4.3
 * Enhancements
   * Mix will display a progress bar, percentage, and total / expected bytes when downloading artifacts.
   * Added task `mix firmware.image my_app.img` for producing images for use with applications like dd
