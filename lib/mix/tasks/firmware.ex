@@ -31,7 +31,6 @@ defmodule Mix.Tasks.Firmware do
     config = Mix.Project.config
     otp_app = config[:app]
     target = config[:target]
-    verbosity = opts[:verbosity] || "normal"
 
     firmware_config = Application.get_env(:nerves, :firmware)
 
