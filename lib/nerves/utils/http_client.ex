@@ -30,14 +30,14 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def handle_call({:get, url}, from, s) do
-    url = String.to_char_list(url)
+
     headers = [
       {'Content-Type', 'application/octet-stream'}
     ]
 
     http_opts = [timeout: @timeout, autoredirect: true] ++ Nerves.Utils.Proxy.config(url)
     opts = [stream: :self, receiver: self(), sync: false]
-    :httpc.request(:get, {url, headers}, http_opts, opts, :nerves)
+    :httpc.request(:get, {String.to_char_list(url), headers}, http_opts, opts, :nerves)
     {:noreply, %{s | url: url, caller: from}}
   end
 
