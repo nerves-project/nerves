@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.4.4
+* Bug Fixes
+  * return an `{:error, message}` response from the http provider when a resource is not found
+
 ## Nerves 0.4.3
 * Enhancements
   * Mix will display a progress bar, percentage, and total / expected bytes when downloading artifacts.
