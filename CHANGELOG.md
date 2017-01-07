@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Nerves 0.4.6-dev
+* Bug Fixes
+  * fix artifact http download manager to take as long as it needs unless idle for more than 2 minutes.
 
 ## Nerves 0.4.5
 * Bug Fixes
