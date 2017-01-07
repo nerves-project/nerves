@@ -1,7 +1,6 @@
 defmodule Nerves.Utils.HTTPClient do
   use GenServer
 
-  @timeout 300_000
   @progress_steps 50
 
   def start_link() do
@@ -15,7 +14,7 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def get(pid, url) do
-    GenServer.call(pid, {:get, url}, @timeout)
+    GenServer.call(pid, {:get, url}, :infinity)
   end
 
   def init([]) do
@@ -35,7 +34,7 @@ defmodule Nerves.Utils.HTTPClient do
       {'Content-Type', 'application/octet-stream'}
     ]
 
-    http_opts = [timeout: @timeout, autoredirect: true] ++ Nerves.Utils.Proxy.config(url)
+    http_opts = [timeout: :infinity, autoredirect: true] ++ Nerves.Utils.Proxy.config(url)
     opts = [stream: :self, receiver: self(), sync: false]
     :httpc.request(:get, {String.to_char_list(url), headers}, http_opts, opts, :nerves)
     {:noreply, %{s | url: url, caller: from}}
@@ -96,7 +95,7 @@ defmodule Nerves.Utils.HTTPClient do
       max_sessions: 8,
       max_keep_alive_length: 4,
       max_pipeline_length: 4,
-      keep_alive_timeout: @timeout,
+      keep_alive_timeout: 120_000,
       pipeline_timeout: 60_000
     ]
     :httpc.set_options(opts, :nerves)
