@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.4.5
+* Bug Fixes
+  * catch exits from mix release.clean when calling mix firmware
+
 ## Nerves 0.4.4
 * Bug Fixes
   * return an `{:error, message}` response from the http provider when a resource is not found
