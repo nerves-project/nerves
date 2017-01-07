@@ -1,5 +1,7 @@
 # Release Notes
 
+## Nerves 0.4.6-dev
+
 ## Nerves 0.4.5
 * Bug Fixes
   * catch exits from mix release.clean when calling mix firmware
