@@ -1,7 +1,7 @@
 defmodule Nerves.Utils.HTTPClient do
   use GenServer
 
-  @timeout 120_000
+  @timeout 300_000
   @progress_steps 50
 
   def start_link() do
@@ -96,7 +96,7 @@ defmodule Nerves.Utils.HTTPClient do
       max_sessions: 8,
       max_keep_alive_length: 4,
       max_pipeline_length: 4,
-      keep_alive_timeout: 120_000,
+      keep_alive_timeout: @timeout,
       pipeline_timeout: 60_000
     ]
     :httpc.set_options(opts, :nerves)
