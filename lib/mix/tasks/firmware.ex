@@ -19,13 +19,7 @@ defmodule Mix.Tasks.Firmware do
   """
   def run(_args) do
     preflight()
-
     debug_info "Nerves Firmware Assembler"
-    config = Mix.Project.config
-    otp_app = config[:app]
-    target = config[:target]
-
-    firmware_config = Application.get_env(:nerves, :firmware)
 
     system_path = System.get_env("NERVES_SYSTEM") || Mix.raise """
       Environment variable $NERVES_SYSTEM is not set
@@ -46,10 +40,37 @@ defmodule Mix.Tasks.Firmware do
     end
 
     Mix.Task.run "compile", []
-    Nerves.Utils.Shell.info "Building OTP Release..."
-    Mix.Task.run "release.clean", ["--implode", "--no-confirm"]
-    Mix.Task.run "release", ["--silent"]
 
+    Nerves.Utils.Shell.info "Building OTP Release..."
+
+    clean_release()
+    build_release()
+    build_firmware(system_path)
+  end
+
+  def result({_ , 0}), do: nil
+  def result({result, _}), do: Mix.raise """
+  Nerves encountered an error. #{inspect result}
+  """
+
+  defp clean_release do
+    try do
+      Mix.Task.run "release.clean", ["--implode", "--no-confirm", "--silent"]
+    catch
+      :exit, _ -> :noop
+    end
+  end
+
+  defp build_release do
+    Mix.Task.run "release", ["--silent"]
+  end
+
+  defp build_firmware(system_path) do
+    config = Mix.Project.config
+    otp_app = config[:app]
+    target = config[:target]
+
+    firmware_config = Application.get_env(:nerves, :firmware)
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
     args = [rel2fw_path]
@@ -79,10 +100,4 @@ defmodule Mix.Tasks.Firmware do
     shell(cmd, args)
     |> result
   end
-
-  def result({_ , 0}), do: nil
-  def result({result, _}), do: Mix.raise """
-  Nerves encountered an error. #{inspect result}
-  """
-
 end
