@@ -35,10 +35,11 @@ defmodule Nerves.Package.Providers.HTTP do
 
   defp download(artifact, [location | locations]) do
     shell_info """
+
       Downloading Artifact:
-      #{artifact}
+        #{artifact}
       From Location:
-      #{location}
+        #{location}
     """
     {:ok, pid} = Nerves.Utils.HTTPClient.start_link()
 
@@ -49,7 +50,7 @@ defmodule Nerves.Package.Providers.HTTP do
 
     result = Nerves.Utils.HTTPClient.get(pid, location)
     Nerves.Utils.HTTPClient.stop(pid)
-    
+
     result(result, artifact, locations)
   end
 
@@ -69,8 +70,11 @@ defmodule Nerves.Package.Providers.HTTP do
   defp unpack({:error, _} = error, _, _), do: error
   defp unpack({:ok, tar}, artifact, destination) do
     shell_info """
-      Unpacking #{artifact}
-      To #{destination}
+
+      Unpacking Artifact:
+        #{artifact}
+      To Destination:
+        #{destination}
     """
     tmp_path = Path.join(destination, ".tmp")
     File.mkdir_p!(tmp_path)
