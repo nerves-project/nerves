@@ -1,5 +1,9 @@
 # nerves_bootstrap
 
+## v0.2.2
+* Enhancements
+  * Added `mix local.nerves` for updating the bootstrap archive
+
 ## v0.2.1
 * Bug Fixes
   * update nerves dep in new project generator to 0.4.0
