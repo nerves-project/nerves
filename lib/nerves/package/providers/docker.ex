@@ -92,6 +92,7 @@ defmodule Nerves.Package.Providers.Docker do
     :ok = make_artifact(artifact_name, container, stream)
     :ok = copy_artifact(pkg, toolchain, container, stream)
 
+    _ = Nerves.Utils.Stream.stop(pid)
     container_stop(container)
   end
 

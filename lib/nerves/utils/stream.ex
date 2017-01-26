@@ -7,6 +7,10 @@ defmodule Nerves.Utils.Stream do
     GenServer.start_link(__MODULE__, opts)
   end
 
+  def stop(pid) do
+    GenServer.stop(pid)
+  end
+
   def init(opts) do
     file = opts[:file]
     if file != nil do
@@ -31,21 +35,25 @@ defmodule Nerves.Utils.Stream do
     {:noreply, reset_timer(s)}
   end
 
-  def stdout(<<"\e[7m>>>", tail :: binary>>, _message, s) do
+  def stdout(<<">>>", tail :: binary>>, _message, s),
+    do: trim_write(">>>", tail, s)
+
+  def stdout(_, _, s), do: s
+
+  defp trim_write(trim, bin, s) do
     IO.write "\n"
 
-    [tail | _] =
-      tail
-      |> String.split("\e[7m")
+    [bin | _] =
+      bin
+      |> String.split(trim)
 
-    "\e[7m" <> tail
+    trim <> bin
+    |> String.split("\n")
+    |> List.first
     |> String.strip
     |> IO.write
     reset_timer(s)
   end
-  def stdout(_, _, s), do: s
-
-
 
   defp reset_timer(s) do
     Process.cancel_timer(s.timer)
