@@ -85,16 +85,21 @@ defmodule Nerves.Package.Providers.HTTP do
     tar_file = Path.join(tmp_path, artifact)
     File.write(tar_file, tar)
 
-    System.cmd("tar", ["xf", artifact], cd: tmp_path)
+    {_, status} = System.cmd("tar", ["xf", artifact], cd: tmp_path)
     source =
       File.ls!(tmp_path)
       |> Enum.map(& Path.join(tmp_path, &1))
       |> Enum.find(&File.dir?/1)
 
     File.rm!(tar_file)
-    File.cp_r(source, destination)
     File.rm_rf!(tmp_path)
-    :ok
+    case status do
+      0 -> File.cp_r(source, destination)
+           File.rm_rf!(tmp_path)
+           :ok
+      _ -> File.rm_rf!(tmp_path)
+           :error
+    end
   end
 
   defp shell_info(text) do

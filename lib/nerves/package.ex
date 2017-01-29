@@ -104,9 +104,11 @@ defmodule Nerves.Package do
             end
           end)
       end
-    if ret == :ok do
-      Path.join(Artifact.dir(pkg, toolchain), @checksum)
-      |> File.write!(checksum(pkg))
+
+    case ret do
+      :ok -> Path.join(Artifact.dir(pkg, toolchain), @checksum)
+             |> File.write!(checksum(pkg))
+        _ -> :error
     end
   end
 

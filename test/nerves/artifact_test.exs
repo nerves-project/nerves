@@ -79,4 +79,22 @@ defmodule Nerves.ArtifactTest do
       System.delete_env("NERVES_TOOLCHAIN")
     end
   end
+
+  @tag :skip
+  test "tar file error detection" do
+      pkg =
+      %Nerves.Package{app: :nerves_system_rpi3,
+                      compiler: :nerves_package,
+                      config: [compiler: :nerves_package,
+                               artifact_url: ["https://github.com/nerves-project/nerves_system_rpi3/releases/download/v0.10.0/nerves_system_rpi3-v0.10.0.fw"],
+                               platform_config: [defconfig: "nerves_defconfig"],
+                               checksum: []],
+                      dep: :hex,
+                      path: "",
+                      provider: [{Nerves.Package.Providers.HTTP, []}],
+                      type: :system,
+                      version: "0.10.0"}
+
+      assert  :error  == Nerves.Package.artifact(pkg, %Nerves.Package{})
+  end
 end
