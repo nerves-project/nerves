@@ -1,5 +1,7 @@
 # Release Notes
 
+## Nerves 0.5.0-dev
+
 ## Nerves 0.4.7
 * Bug Fixes
   * [Providers.Local] Fix return error on non zero exit status code
