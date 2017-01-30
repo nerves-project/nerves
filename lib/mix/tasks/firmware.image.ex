@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Firmware.Image do
       Environment variable $NERVES_TOOLCHAIN is not set
     """
 
-    fw = Path.join(File.cwd!, "#{images_path}/#{otp_app}.fw")
+    fw = "#{images_path}/#{otp_app}.fw"
     unless File.exists?(fw) do
       Mix.raise "Firmware for target #{target} not found at #{fw} run `mix firmware` to build"
     end
