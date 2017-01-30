@@ -33,8 +33,10 @@ defmodule Nerves.Package.Providers.Local do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)
 
-    shell "make", [], [cd: dest, stream: stream]
-    :ok
+    case shell("make", [], [cd: dest, stream: stream]) do
+      {_, 0} -> :ok
+      {error, _} -> {:error, error}
+    end
   end
 
   defp build(type , _pkg, _toolchain, _opts) do
