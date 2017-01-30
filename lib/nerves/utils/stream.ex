@@ -36,11 +36,13 @@ defmodule Nerves.Utils.Stream do
   end
 
   def stdout(<<">>>", tail :: binary>>, _message, s),
-    do: trim_write(">>>", tail, s)
+    do: trim_write(">>>", "\n", tail, s)
+  def stdout(<<"\e[7m>>>", tail :: binary>>, _message, s),
+    do: trim_write(">>>", "\e[7m", tail, s)
 
   def stdout(_, _, s), do: s
 
-  defp trim_write(trim, bin, s) do
+  defp trim_write(trim, split, bin, s) do
     IO.write "\n"
 
     [bin | _] =
@@ -48,7 +50,7 @@ defmodule Nerves.Utils.Stream do
       |> String.split(trim)
 
     trim <> bin
-    |> String.split("\n")
+    |> String.split(split)
     |> List.first
     |> String.strip
     |> IO.write
