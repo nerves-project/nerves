@@ -19,6 +19,9 @@ defmodule Mix.Tasks.Firmware.Image do
     config = Mix.Project.config
     otp_app = config[:app]
     target = config[:target]
+    images_path =
+      (config[:images_path] || Path.join([Mix.Project.build_path, "nerves", "images"]))
+      |> Path.expand
 
     System.get_env("NERVES_SYSTEM") || raise """
       Environment variable $NERVES_SYSTEM is not set
@@ -28,7 +31,7 @@ defmodule Mix.Tasks.Firmware.Image do
       Environment variable $NERVES_TOOLCHAIN is not set
     """
 
-    fw = Path.join(File.cwd!, "_images/#{target}/#{otp_app}.fw")
+    fw = Path.join(File.cwd!, "#{images_path}/#{otp_app}.fw")
     unless File.exists?(fw) do
       Mix.raise "Firmware for target #{target} not found at #{fw} run `mix firmware` to build"
     end

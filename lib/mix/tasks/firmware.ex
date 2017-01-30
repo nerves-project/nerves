@@ -68,7 +68,13 @@ defmodule Mix.Tasks.Firmware do
   defp build_firmware(system_path) do
     config = Mix.Project.config
     otp_app = config[:app]
-    target = config[:target]
+    images_path =
+      (config[:images_path] || Path.join([Mix.Project.build_path, "nerves", "images"]))
+      |> Path.expand
+
+    unless File.exists?(images_path) do
+      File.mkdir_p(images_path)
+    end
 
     firmware_config = Application.get_env(:nerves, :firmware)
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
@@ -90,7 +96,7 @@ defmodule Mix.Tasks.Firmware do
           |> Path.join(fwup_conf)
           ["-c", fw_conf]
       end
-    fw = ["-f", "_images/#{target}/#{otp_app}.fw"]
+    fw = ["-f", Path.join(File.cwd!, "#{images_path}/#{otp_app}.fw")]
     release_path =
       Mix.Project.build_path()
       |> Path.join("rel/#{otp_app}")
