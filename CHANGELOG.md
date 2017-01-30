@@ -1,6 +1,9 @@
 # Release Notes
 
 ## Nerves 0.5.0-dev
+* Enhancements
+  * Added ability to specify the images_path in the Mix.Project config.
+  * Changed default images_path to `#{build_path}/nerves/images`
 
 ## Nerves 0.4.7
 * Bug Fixes
