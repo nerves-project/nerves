@@ -1,5 +1,10 @@
 # Release Notes
 
+## Nerves 0.4.7
+* Bug Fixes
+  * [Providers.Local] Fix return error on non zero exit status code
+  * Fixed IO stream split to handle ANSI code case regression
+
 ## Nerves 0.4.6
 * Bug Fixes
   * fix artifact http download manager to take as long as it needs unless idle for more than 2 minutes.
