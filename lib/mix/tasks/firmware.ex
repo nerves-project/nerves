@@ -96,7 +96,7 @@ defmodule Mix.Tasks.Firmware do
           |> Path.join(fwup_conf)
           ["-c", fw_conf]
       end
-    fw = ["-f", Path.join(File.cwd!, "#{images_path}/#{otp_app}.fw")]
+    fw = ["-f", "#{images_path}/#{otp_app}.fw"]
     release_path =
       Mix.Project.build_path()
       |> Path.join("rel/#{otp_app}")
