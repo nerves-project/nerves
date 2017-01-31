@@ -1,5 +1,9 @@
 # nerves_bootstrap
 
+## v0.2.3-dev
+* Bug Fixes
+  * removed rel/.gitignore from new project generator
+
 ## v0.2.2
 * Enhancements
   * Added `mix local.nerves` for updating the bootstrap archive
