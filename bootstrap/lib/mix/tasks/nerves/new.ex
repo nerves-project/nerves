@@ -3,15 +3,16 @@ defmodule Mix.Tasks.Nerves.New do
   import Mix.Generator
 
   @nerves Path.expand("../../../..", __DIR__)
-  @version Mix.Project.config[:version]
+  @version "0.2"
   @requirement Mix.Project.config[:elixir]
   @shortdoc "Creates a new Nerves application"
 
   @new [
     {:eex,  "new/config/config.exs",                "config/config.exs"},
-    {:eex,  "new/lib/application_name.ex",          "lib/application_name.ex"},
+    {:eex,  "new/lib/app_name.ex",                  "lib/app_name.ex"},
+    {:eex,  "new/lib/app_name/application.ex",      "lib/app_name/application.ex"},
     {:eex,  "new/test/test_helper.exs",             "test/test_helper.exs"},
-    {:eex,  "new/test/application_name_test.exs",   "test/application_name_test.exs"},
+    {:eex,  "new/test/app_name_test.exs",           "test/app_name_test.exs"},
     {:eex,  "new/rel/vm.args",                      "rel/vm.args"},
     {:text, "new/.gitignore",                       ".gitignore"},
     {:eex,  "new/mix.exs",                          "mix.exs"},
@@ -40,7 +41,6 @@ defmodule Mix.Tasks.Nerves.New do
     * `--app` - the name of the OTP application
     * `--module` - the name of the base module in
       the generated skeleton
-    * `--target` - Required. specify the default target to use.
 
   ## Examples
       mix nerves.new blinky
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Nerves.New do
       mix nerves.new blinky --module Blinky
   """
 
-  @switches [target: :string, app: :string, module: :string]
+  @switches [app: :string, module: :string]
 
   def run([version]) when version in ~w(-v --version) do
     Mix.shell.info "Nerves v#{@version}"
@@ -56,7 +56,7 @@ defmodule Mix.Tasks.Nerves.New do
 
   def run(argv) do
     unless Version.match? System.version, @requirement do
-      Mix.raise "Nerves v#{@version} requires at least Elixir v1.2.4.\n " <>
+      Mix.raise "Nerves v#{@version} requires at least Elixir #{@requirement}.\n " <>
                 "You have #{System.version}. Please update accordingly"
     end
 
@@ -83,20 +83,13 @@ defmodule Mix.Tasks.Nerves.New do
   end
 
   def run(app, mod, path, opts) do
-    target = opts[:target] || Mix.raise """
-    You must specify a default target you would like nerves to use
-    Example:
-    mix nerves.new blinky --target rpi2
-    """
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
-
     in_umbrella? = in_umbrella?(path)
-
-    binding = [application_name: app,
-               application_module: mod,
+    binding = [app_name: app,
+               app_module: mod,
                bootstrap_vsn: @version,
+               elixir_req: @requirement,
                nerves_dep: nerves_dep(nerves_path),
-               default_target: target,
                in_umbrella: in_umbrella?]
 
     copy_from path, binding, @new
@@ -155,10 +148,10 @@ defmodule Mix.Tasks.Nerves.New do
   end
 
   defp copy_from(target_dir, binding, mapping) when is_list(mapping) do
-    application_name = Keyword.fetch!(binding, :application_name)
+    app_name = Keyword.fetch!(binding, :app_name)
     for {format, source, target_path} <- mapping do
       target = Path.join(target_dir,
-                         String.replace(target_path, "application_name", application_name))
+                         String.replace(target_path, "app_name", app_name))
 
       case format do
         :keep ->

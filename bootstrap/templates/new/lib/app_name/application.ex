@@ -1,4 +1,4 @@
-defmodule <%= application_module %> do
+defmodule <%= app_module %>.Application do
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -8,13 +8,12 @@ defmodule <%= application_module %> do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # worker(<%= application_module %>.Worker, [arg1, arg2, arg3]),
+      # worker(<%= app_module %>.Worker, [arg1, arg2, arg3]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: <%= application_module %>.Supervisor]
+    opts = [strategy: :one_for_one, name: <%= app_module %>.Supervisor]
     Supervisor.start_link(children, opts)
   end
-
 end
