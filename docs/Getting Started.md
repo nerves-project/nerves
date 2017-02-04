@@ -45,10 +45,18 @@ $ mix nerves.new hello_nerves --target rpi3
 * creating hello_nerves/README.md
 ```
 
-Nerves will generate the required files and directory structure needed for your application. The next step is to `cd` into your `hello_nerves` directory and fetch the dependencies
+Nerves will generate the required files and directory structure needed for your application.
+You will need to generate a release configuration as follows.
+The defaults will work to get you started, but you will probably want to come back later and modify some of them for your project.
 
 ```
 $ cd hello_nerves
+$ mix nerves.release.init
+```
+
+Next, fetch the dependencies.
+
+```
 $ mix deps.get
 ```
 
