@@ -34,7 +34,7 @@ defmodule <%= app_module %>.Mixfile do
     [extra_applications: [:logger]]
   end
   def application(_target) do
-    [mod: {<%= app_module %>, []},
+    [mod: {<%= app_module %>.Application, []},
      extra_applications: [:logger]]
   end
 
