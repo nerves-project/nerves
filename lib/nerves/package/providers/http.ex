@@ -33,7 +33,7 @@ defmodule Nerves.Package.Providers.HTTP do
   #   :ok
   # end
 
-  defp download(artifact, []) do
+  defp download(_artifact, []) do
     shell_info "No Available Locations"
     {:error, :nocache}
   end
