@@ -258,6 +258,7 @@ defmodule Nerves.Package do
         deps_path =
           File.cwd!
           |> Path.join(Mix.Project.config[:deps_path])
+          |> Path.expand
         if String.starts_with?(path, deps_path) do
           :hex
         else
