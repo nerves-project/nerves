@@ -33,6 +33,7 @@ defmodule Nerves.Package.Providers.HTTP do
   #   :ok
   # end
 
+
   defp download(artifact, [location | locations]) do
     shell_info """
 
@@ -52,6 +53,11 @@ defmodule Nerves.Package.Providers.HTTP do
     Nerves.Utils.HTTPClient.stop(pid)
 
     result(result, artifact, locations)
+  end
+
+  defp download(_artifact, _) do
+    shell_info "No Available Locations"
+    {:error, :nocache}
   end
 
   defp result({:ok, body}, name, _) do
@@ -81,16 +87,24 @@ defmodule Nerves.Package.Providers.HTTP do
     tar_file = Path.join(tmp_path, artifact)
     File.write(tar_file, tar)
 
-    System.cmd("tar", ["xf", artifact], cd: tmp_path)
+    {_, status} = System.cmd("tar", ["xf", artifact], cd: tmp_path)
+
     source =
       File.ls!(tmp_path)
       |> Enum.map(& Path.join(tmp_path, &1))
       |> Enum.find(&File.dir?/1)
 
+
     File.rm!(tar_file)
-    File.cp_r(source, destination)
+    ret =
+      case status do
+        0 ->
+          File.cp_r(source, destination)
+          :ok
+        _ -> :error
+      end
     File.rm_rf!(tmp_path)
-    :ok
+    ret
   end
 
   defp shell_info(text) do

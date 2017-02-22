@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Nerves 0.5.0-dev
+* Bug Fixes
+  * `:nocache` the HTTP provider if the download list is empty
 * Enhancements
   * Added ability to specify the images_path in the Mix.Project config.
   * Changed default images_path to `#{build_path}/nerves/images`

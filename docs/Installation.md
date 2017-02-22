@@ -58,3 +58,9 @@ If the archive fails to install properly using this command, you can download th
 ```
 $ mix archive.install /path/to/nerves_bootstrap.ez
 ```
+
+Once installed, you can upgrade `nerves_bootstrap` by doing:
+
+```
+mix local.nerves
+```
