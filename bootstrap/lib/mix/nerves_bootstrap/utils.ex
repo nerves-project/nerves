@@ -10,9 +10,9 @@ defmodule Mix.Nerves.Bootstrap.Utils do
   end
 
   def shell_info(text, loc \\ "Nerves Bootstrap"),
-    do: Mix.shell.info([IO.ANSI.light_white_background, IO.ANSI.black, "|#{loc}| #{text}", IO.ANSI.reset])
+    do: Mix.shell.info([IO.ANSI.inverse, "|#{loc}| #{text}", IO.ANSI.reset])
 
   def shell_warn(text, loc \\ "Nerves Bootstrap"),
-    do: Mix.shell.info([IO.ANSI.light_white_background, IO.ANSI.red, "|#{loc}| #{text}", IO.ANSI.reset])
+    do: Mix.shell.error([IO.ANSI.inverse, IO.ANSI.red, "|#{loc}| #{text}", IO.ANSI.reset])
 
 end
