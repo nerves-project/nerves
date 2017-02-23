@@ -1,6 +1,7 @@
 language: erlang
 otp_release:
   - 19.2
+sudo: false
 
 env:
   - ELIXIR_VERSION=1.4.2
@@ -9,8 +10,8 @@ before_install:
     - wget https://github.com/elixir-lang/elixir/releases/download/v$ELIXIR_VERSION/Precompiled.zip
     - unzip -d elixir Precompiled.zip
 
-sudo: false
 before_script:
+  - export PATH=`pwd`/elixir/bin:$PATH
   - mix local.hex --force
   - cd bootstrap && mix install && cd -
   - mix deps.get --only test
