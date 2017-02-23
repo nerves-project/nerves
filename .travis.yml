@@ -1,10 +1,11 @@
 
 language: elixir
-otp_release: 19.0
-elixir: 1.3.4
+otp_release: 19.2
+elixir: 1.4.2
 
 sudo: false
 before_script:
+  - cd bootstrap && mix install && cd -
   - mix deps.get --only test
 script:
   - mix test
