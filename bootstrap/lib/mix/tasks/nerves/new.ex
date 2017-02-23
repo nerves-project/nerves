@@ -93,6 +93,69 @@ defmodule Mix.Tasks.Nerves.New do
                in_umbrella: in_umbrella?]
 
     copy_from path, binding, @new
+    # Parallel installs
+    install? = Mix.shell.yes?("\nFetch and install dependencies?")
+    File.cd!(path, fn ->
+      install_mix(install?)
+      install_release_config()
+      print_mix_info(path)
+    end)
+  end
+
+  defp install_mix(install?) do
+    maybe_cmd "mix deps.get", true, install? && Code.ensure_loaded?(Hex)
+  end
+
+  defp install_release_config() do
+    maybe_cmd "mix nerves.release.init", true, true
+  end
+
+  defp maybe_cmd(cmd, should_run?, can_run?) do
+    cond do
+      should_run? && can_run? ->
+        cmd(cmd)
+        true
+      should_run? ->
+        false
+      true ->
+        true
+    end
+  end
+
+  defp cmd(cmd) do
+    Mix.shell.info [:green, "* running ", :reset, cmd]
+    case Mix.shell.cmd(cmd, [quiet: true]) do
+      0 ->
+        true
+      _ ->
+        Mix.shell.error [:red, "* error ", :reset, "command failed to execute, " <>
+          "please run the following command again after installation: \"#{cmd}\""]
+        false
+    end
+  end
+
+  defp print_mix_info(path) do
+
+    Mix.shell.info """
+    All set!
+      $ cd #{path}
+
+    Next, pick a deployent target.
+      For example: `rpi3` for Raspberry Pi 3
+      More info on targets: https://hexdocs.pm/nerves/targets.html#content
+
+    To set the target you can either
+      $ export MIX_TARGET=rpi3
+    Or prefix your commands
+      $ MIX_TARGET=rpi3 mix firmware
+
+    Finally, Create firmware
+      $ mix deps.get
+      $ mix firmware
+
+    You can also run your app inside IEx (Interactive Elixir) as:
+      $ iex -S mix
+    """
   end
 
   defp switch_to_string({name, nil}), do: name
