@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     package = Nerves.Env.package(config[:app])
     toolchain = Nerves.Env.toolchain
 
-    if Nerves.Package.stale?(package, toolchain) do
+    if Nerves.Env.enabled? and Nerves.Package.stale?(package, toolchain) do
       Nerves.Package.artifact(package, toolchain)
     end
 

@@ -29,6 +29,46 @@ defmodule Nerves.Env do
   end
 
   @doc """
+  Check if the env compilers are disabled
+  """
+  @spec enabled?() :: boolean
+  def enabled?() do
+    System.get_env("NERVES_ENV_DISABLED") == nil
+  end
+
+  @doc """
+  Enable the Nerves Env compilers
+  """
+  @spec enable() :: :ok
+  def enable() do
+    System.delete_env("NERVES_ENV_DISABLED")
+  end
+
+  @doc """
+  Disable the Nerves Env compilers
+  """
+  @spec disable() :: :ok
+  def disable() do
+    System.put_env("NERVES_ENV_DISABLED", "1")
+  end
+
+  @doc """
+  Re evaluates the mix file under a different target.
+
+  This allows you to start in one target, like host, but then
+  switch to a different target.
+  """
+  @spec change_target(String.t) :: :no_return
+  def change_target(target) do
+    unless System.get_env("NERVES_TARGET_CHANGE") do
+      System.put_env("MIX_TARGET", target)
+      System.put_env("NERVES_TARGET_CHANGE", "1")
+      :init.restart
+      :timer.sleep(:infinity)
+    end
+  end
+
+  @doc """
   Ensures that an application which contins a Nerves package config has
   been loaded into the environment agent.
 
@@ -162,7 +202,7 @@ defmodule Nerves.Env do
     system =
       packages_by_type(:system)
       |> List.first
-    system || Mix.raise "Could not locate System"
+    system
   end
 
   @doc """
@@ -183,7 +223,7 @@ defmodule Nerves.Env do
     toolchain =
       packages_by_type(:toolchain)
       |> List.first
-    toolchain || Mix.raise "Could not locate Toolchain"
+    toolchain
   end
 
   @doc """
@@ -204,6 +244,7 @@ defmodule Nerves.Env do
   """
   @spec bootstrap() :: :ok
   def bootstrap do
+
     nerves_system_path = system_path()
     nerves_toolchain_path = toolchain_path()
 
@@ -211,24 +252,29 @@ defmodule Nerves.Env do
      {"NERVES_TOOLCHAIN", nerves_toolchain_path},
      {"NERVES_APP", File.cwd!}]
     |> Enum.each(fn({k, v}) ->
-      unless File.dir?(v) do
-        Mix.raise """
-        #{k} is set to a path which does not exist:
-        #{v}
-        """
+      cond do
+        v == nil -> Nerves.Utils.Shell.info "#{k} is unset"
+        File.dir?(v) != true ->
+          Nerves.Utils.Shell.info """
+          #{k} is set to a path which does not exist:
+          #{v}
+          """
+          System.put_env(k, v)
+        true -> System.put_env(k, v)
       end
-      System.put_env(k, v)
     end)
 
-    # Bootstrap the build platform
-    platform = Nerves.Env.system.platform
-    # Pre 0.4.0 Legacy
-    platform = platform || Nerves.Env.system.config[:build_platform]
-    ## end re 0.4.0 Legacy
-    pkg =
-      Nerves.Env.packages_by_type(:system_platform)
-      |> List.first
-    platform.bootstrap(pkg)
+    if nerves_system_path != nil and File.dir?(nerves_system_path) do
+      # Bootstrap the build platform
+      platform = Nerves.Env.system.platform
+      # Pre 0.4.0 Legacy
+      platform = platform || Nerves.Env.system.config[:build_platform]
+      ## end re 0.4.0 Legacy
+      pkg =
+        Nerves.Env.packages_by_type(:system_platform)
+        |> List.first
+      platform.bootstrap(pkg)
+    end
   end
 
   @doc false
@@ -265,14 +311,20 @@ defmodule Nerves.Env do
 
   @doc false
   defp toolchain_path do
-    toolchain = Nerves.Env.toolchain
-    Nerves.Package.Artifact.dir(toolchain, toolchain)
+    case Nerves.Env.toolchain do
+      nil -> nil
+      toolchain ->
+        Nerves.Package.Artifact.dir(toolchain, toolchain)
+    end
   end
   @doc false
   defp system_path do
-    system = Nerves.Env.system
-    toolchain = Nerves.Env.toolchain
-    Nerves.Package.Artifact.dir(system, toolchain)
+    case Nerves.Env.system do
+      nil -> nil
+      system ->
+        toolchain = Nerves.Env.toolchain
+        Nerves.Package.Artifact.dir(system, toolchain)
+    end
   end
 
   # Pre 0.4.0 Legacy

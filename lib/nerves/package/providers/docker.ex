@@ -65,6 +65,7 @@ defmodule Nerves.Package.Providers.Docker do
 
   @behaviour Nerves.Package.Provider
 
+  alias Nerves.Utils.Shell
   alias Nerves.Package.Artifact
 
   @version "~> 1.12 or ~> 1.12.0-rc2"
@@ -89,9 +90,11 @@ defmodule Nerves.Package.Providers.Docker do
 
     :ok = create_build(pkg, container, stream)
     :ok = make(container, stream)
+    IO.write("\n")
     :ok = make_artifact(artifact_name, container, stream)
+    IO.write("\n")
     :ok = copy_artifact(pkg, toolchain, container, stream)
-
+    IO.write("\n")
     _ = Nerves.Utils.Stream.stop(pid)
     container_stop(container)
   end
@@ -135,7 +138,7 @@ defmodule Nerves.Package.Providers.Docker do
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
 
-    Nerves.Utils.Shell.info "Starting Docker Build...(this may take a while)"
+    shell_info "Starting Build... (this may take a while)"
     args = [
       "exec",
       "-i",
@@ -149,7 +152,7 @@ defmodule Nerves.Package.Providers.Docker do
         :ok
       {_result, _} ->
         Mix.raise """
-        Docker provider encountered an error.
+        Nerves Docker provider encountered an error.
         See build.log for more details.
         """
     end
@@ -168,14 +171,14 @@ defmodule Nerves.Package.Providers.Docker do
         :ok
       {_result, _} ->
         Mix.raise """
-        Docker provider encountered an error.
+        Nerves Docker provider encountered an error.
         See build.log for more details.
         """
     end
   end
 
   defp make_artifact(name, container, stream) do
-    Nerves.Utils.Shell.info "Compressing artifact"
+    shell_info "Compressing artifact"
     args = [
       "exec",
       "-i",
@@ -189,14 +192,14 @@ defmodule Nerves.Package.Providers.Docker do
         :ok
       {_result, _} ->
         Mix.raise """
-        Docker provider encountered an error.
+        Nerves Docker provider encountered an error.
         See build.log for more details.
         """
     end
   end
 
   defp copy_artifact(pkg, toolchain, container, stream) do
-    Nerves.Utils.Shell.info "Copying artifact to host"
+    shell_info "Copying artifact to host"
     name = Artifact.name(pkg, toolchain)
 
     args = [
@@ -212,7 +215,7 @@ defmodule Nerves.Package.Providers.Docker do
         :ok
       {_result, _} ->
         Mix.raise """
-        Docker provider encountered an error.
+        Nerves Docker provider encountered an error.
         See build.log for more details.
         """
     end
@@ -233,7 +236,7 @@ defmodule Nerves.Package.Providers.Docker do
       File.rm!(tar_file)
       :ok
     else
-      Mix.raise "Docker provider expected artifact to exist at #{tar_file}"
+      Mix.raise "Nerves Docker provider expected artifact to exist at #{tar_file}"
     end
   end
 
@@ -297,7 +300,7 @@ defmodule Nerves.Package.Providers.Docker do
   end
 
   defp container_create(pkg, name, tag) do
-    Nerves.Utils.Shell.info "Creating Docker container #{name}"
+    shell_info "Creating Docker container #{name}"
     build_paths = build_paths(pkg)
     base_dir = Artifact.base_dir(pkg)
 
@@ -314,9 +317,9 @@ defmodule Nerves.Package.Providers.Docker do
     args = ["create", "-it", "--name", name , "-w", @working_dir | args]
     case System.cmd(cmd, args, stderr_to_stdout: true) do
       {error, code} when code != 0 ->
-        Mix.raise "Docker provider encountered error: #{error}"
+        Mix.raise "Nerves Docker provider encountered error: #{error}"
       {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-        Mix.raise "Unable to connect to docker daemon"
+        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
       _ -> :ok
     end
   end
@@ -328,7 +331,7 @@ defmodule Nerves.Package.Providers.Docker do
       {"", _} ->
         false
       {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-        Mix.raise "Unable to connect to docker daemon"
+        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
       {_, 0} ->
         true
     end
@@ -338,14 +341,14 @@ defmodule Nerves.Package.Providers.Docker do
     cmd = "docker"
     path = Path.dirname(dockerfile)
     args = ["build", "--tag", "#{tag}", path]
-    Nerves.Utils.Shell.info "Docker provider needs to create the image."
-    if Mix.shell.yes?("Continue?") do
+    shell_info "Create Image"
+    if Mix.shell.yes?("The Nerves Docker provider needs to create the image.\nProceed? ") do
       case Mix.Nerves.Utils.shell(cmd, args) do
         {_, 0} -> :ok
-        _ -> Mix.raise "Could not create docker volume nerves_cache"
+        _ -> Mix.raise "Nerves Docker provider could not create docker volume nerves_cache"
       end
     else
-      Mix.raise "Unable to use docker provider without image"
+      Mix.raise "Unable to use Nerves Docker provider without image"
     end
   end
 
@@ -356,7 +359,7 @@ defmodule Nerves.Package.Providers.Docker do
       {<<"nerves_cache", _tail :: binary>>, 0} ->
         true
         {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-          Mix.raise "Unable to connect to docker daemon"
+          Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
       _ ->
         false
     end
@@ -367,7 +370,7 @@ defmodule Nerves.Package.Providers.Docker do
     args = ["volume", "create", "--name", "nerves_cache"]
     case System.cmd(cmd, args) do
       {_, 0} -> :noop
-      _ -> Mix.raise "Could not create docker volume nerves_cache"
+      _ -> Mix.raise "Nerves Docker provider could not create docker volume nerves_cache"
     end
   end
 
@@ -377,7 +380,7 @@ defmodule Nerves.Package.Providers.Docker do
     case System.cmd(cmd, args) do
       {_, 0} -> :noop
       {error, _} -> Mix.raise """
-        Could not start Docker container #{name}
+        The Nerves Docker provider could not start Docker container #{name}
         Reason: #{error}
         """
     end
@@ -389,7 +392,7 @@ defmodule Nerves.Package.Providers.Docker do
     case System.cmd(cmd, args) do
       {_, 0} -> :ok
       {error, _} -> Mix.raise """
-        Could not stop Docker container #{name}
+        The Nerves Docker provider could not stop Docker container #{name}
         Reason: #{error}
         """
     end
@@ -407,5 +410,13 @@ defmodule Nerves.Package.Providers.Docker do
     Your version of docker: #{vsn}
     does not meet the requirements: #{@version}
     """
+  end
+
+  defp shell_info(header, text \\ "") do
+    Shell.info(header, "Nerves.Package.Providers.Docker")
+    unless text == "" do
+      IO.write("\n")
+      Mix.shell.info(text)
+    end
   end
 end

@@ -24,7 +24,7 @@ defmodule Nerves.Package.Providers.HTTP do
   def artifact(pkg, _toolchain) do
     Logger.debug "#{__MODULE__}: artifact: #{inspect pkg}"
   end
-
+  
   # def shell(_pkg, _opts) do
   #   :ok
   # end
@@ -35,10 +35,7 @@ defmodule Nerves.Package.Providers.HTTP do
 
 
   defp download(artifact, [location | locations]) do
-    shell_info """
-
-      Downloading Artifact:
-        #{artifact}
+    shell_info "Downloading Artifact #{artifact}", """
       From Location:
         #{location}
     """
@@ -75,10 +72,7 @@ defmodule Nerves.Package.Providers.HTTP do
 
   defp unpack({:error, _} = error, _, _), do: error
   defp unpack({:ok, tar}, artifact, destination) do
-    shell_info """
-
-      Unpacking Artifact:
-        #{artifact}
+    shell_info "Unpacking #{artifact}", """
       To Destination:
         #{destination}
     """
@@ -107,7 +101,11 @@ defmodule Nerves.Package.Providers.HTTP do
     ret
   end
 
-  defp shell_info(text) do
-    Shell.info(text, "Nerves.Package.Providers.HTTP")
+  defp shell_info(header, text \\ "") do
+    Shell.info(header, "Nerves.Package.Providers.HTTP")
+    unless text == "" do
+      IO.write("\n")
+      Mix.shell.info(text)
+    end
   end
 end
