@@ -1,6 +1,8 @@
 # nerves_bootstrap
 
 ## v0.2.3-dev
+* Enhancements
+  * new project generator structure defaults to Host target env
 * Bug Fixes
   * removed rel/.gitignore from new project generator
 
