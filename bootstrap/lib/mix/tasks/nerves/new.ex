@@ -140,7 +140,7 @@ defmodule Mix.Tasks.Nerves.New do
     All set!
       $ cd #{path}
 
-    Next, pick a deployent target.
+    Next, pick a deployment target.
       For example: `rpi3` for Raspberry Pi 3
       More info on targets: https://hexdocs.pm/nerves/targets.html#content
 
