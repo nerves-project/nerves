@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Nerves.New do
       mix nerves.new blinky --module Blinky
   """
 
-  @switches [app: :string, module: :string]
+  @switches [app: :string, module: :string, target: :string]
 
   def run([version]) when version in ~w(-v --version) do
     Mix.shell.info "Nerves v#{@version}"
@@ -85,6 +85,18 @@ defmodule Mix.Tasks.Nerves.New do
   def run(app, mod, path, opts) do
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
     in_umbrella? = in_umbrella?(path)
+
+    if target = opts[:target] do
+      Mix.shell.info [:yellow, """
+      Usage of --target has been deprecated.
+      Nerves projects default to "host" target.
+      to use your target either export to your env
+        $ export MIX_TARGET=#{target}
+      or prefix any mix commands to execute un that target
+        $ MIX_TARGET=#{target} mix deps.get
+      """, :reset]
+    end
+
     binding = [app_name: app,
                app_module: mod,
                bootstrap_vsn: @version,
