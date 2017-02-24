@@ -1,4 +1,4 @@
-defmodule Nerves.Host.Server do
+defmodule Nerves.Shell.Server do
   @moduledoc """
   The server is responsible for reading input and sending it to the evaluator.
   """
@@ -14,7 +14,7 @@ defmodule Nerves.Host.Server do
       {:DOWN, ^ref, :process, ^pid, :normal} ->
         run(opts)
       {:DOWN, ^ref, :process, ^pid, other} ->
-        IO.puts "#{__MODULE__} failed to start due to reason: #{inspect other}"
+        IO.puts("#{__MODULE__} failed to start due to reason: #{inspect other}")
     end
   end
 
@@ -54,6 +54,7 @@ defmodule Nerves.Host.Server do
         send(evaluator, {:eval, self(), command, state})
         wait_eval(state, evaluator, evaluator_ref)
       {:input, ^input, {:error, :interrupted}} ->
+        IO.puts("Interrupted")
         loop(state, evaluator, evaluator_ref)
       {:input, ^input, :eof} ->
         exit_loop(evaluator, evaluator_ref)
@@ -68,7 +69,7 @@ defmodule Nerves.Host.Server do
         loop(new_state, evaluator, evaluator_ref)
       {:EXIT, _pid, :interrupt} ->
         # User did ^G while the evaluator was busy or stuck
-        IO.puts "** (EXIT) interrupted"
+        IO.puts("** (EXIT) interrupted")
         Process.delete(:evaluator)
         Process.exit(evaluator, :kill)
         Process.demonitor(evaluator_ref, [:flush])
@@ -80,7 +81,7 @@ defmodule Nerves.Host.Server do
   def start_evaluator(opts) do
     self_pid = self()
     self_leader = Process.group_leader
-    evaluator = opts[:evaluator] || :proc_lib.start(Nerves.Host.Evaluator, :init, [:ack, self_pid, self_leader, opts])
+    evaluator = opts[:evaluator] || :proc_lib.start(Nerves.Shell.Evaluator, :init, [:ack, self_pid, self_leader, opts])
     evaluator
   end
 end

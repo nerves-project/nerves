@@ -1,4 +1,4 @@
-defmodule Nerves.Host.Evaluator do
+defmodule Nerves.Shell.Evaluator do
   @moduledoc """
   The evaluator is responsible for managing the shell port and executing commands against it.
   """
@@ -24,7 +24,7 @@ defmodule Nerves.Host.Evaluator do
     port = state.port
     receive do
       {^port, {:data, data}} ->
-        IO.puts("\n#{data}")
+        IO.puts("#{data}")
         loop(server, state)
       {^port, {:exit_status, status}} ->
         IO.puts("Interactive shell port exited with status #{status}")

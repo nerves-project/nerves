@@ -1,14 +1,14 @@
-defmodule Nerves.Host do
+defmodule Nerves.Shell do
   @moduledoc """
   Entry point for a primitive host shell available through Erlang's job control mode.
   """
 
-  alias Nerves.Host.Server
+  alias Nerves.Shell.Server
 
   @doc """
   This is the callback invoked by Erlang's shell when someone presses Ctrl+G and adds 's Elixir.Nerves.Host'.
   """
-  def start(opts \\ [], mfa \\ {Nerves.Host, :dont_display_result, []}) do
+  def start(opts \\ [], mfa \\ {Nerves.Shell, :dont_display_result, []}) do
     spawn(fn ->
       # The shell should not start until the system is up and running.
       case :init.notify_when_started(self()) do
