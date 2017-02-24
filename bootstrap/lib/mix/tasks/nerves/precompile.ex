@@ -1,9 +1,9 @@
 defmodule Mix.Tasks.Nerves.Precompile do
   use Mix.Task
-  import Mix.Nerves.Bootstrap.Utils
+  import Mix.Nerves.IO
 
   def run(_args) do
-    debug_info "Nerves Precompile Start"
+    debug_info "Precompile Start"
 
     System.put_env("NERVES_PRECOMPILE", "1")
     Mix.Tasks.Nerves.Env.run []
@@ -12,6 +12,6 @@ defmodule Mix.Tasks.Nerves.Precompile do
     System.put_env("NERVES_PRECOMPILE", "0")
 
     Mix.Tasks.Nerves.Loadpaths.run []
-    debug_info "Nerves Precompile End"
+    debug_info "Precompile End"
   end
 end

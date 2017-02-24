@@ -65,7 +65,6 @@ defmodule Nerves.Package do
   alias __MODULE__
   alias Nerves.Package.{Artifact, Providers}
   alias Nerves.Package
-  alias Nerves.Utils.Shell
 
   @type t :: %__MODULE__{app: atom,
                         path: binary,
@@ -120,9 +119,9 @@ defmodule Nerves.Package do
     load_nerves_config(path)
     config = Application.get_env(app, :nerves_env)
     version = config[:version]
-    unless version, do: Shell.warn "The Nerves package #{app} does not define its version"
+    unless version, do: Mix.shell.error "The Nerves package #{app} does not define its version"
     type = config[:type]
-    unless type, do: Shell.warn "The Nerves package #{app} does not define a type"
+    unless type, do: Mix.shell.error "The Nerves package #{app} does not define a type"
     platform = config[:platform]
     provider = provider(app, type)
     compiler = config[:compiler]

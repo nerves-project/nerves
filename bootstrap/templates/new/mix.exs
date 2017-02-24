@@ -27,7 +27,7 @@ defmodule <%= app_module %>.Mixfile do
   def application, do: application(@target)
 
   # Specify target specific application configurations
-  # It is common that the applicaiton start function will start and supervise
+  # It is common that the application start function will start and supervise
   # applications which could cause the host to fail. Because of this, we only
   # invoke <%= app_module %>.start/2 when running on a target.
   def application("host") do

@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Firmware do
 
     Mix.Task.run "compile", []
 
-    Nerves.Utils.Shell.info "Building OTP Release..."
+    Mix.Nerves.IO.shell_info "Building OTP Release..."
 
     clean_release()
     build_release()

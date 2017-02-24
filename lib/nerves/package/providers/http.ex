@@ -5,7 +5,6 @@ defmodule Nerves.Package.Providers.HTTP do
 
   @behaviour Nerves.Package.Provider
 
-  alias Nerves.Utils.Shell
   alias Nerves.Package.Artifact
   require Logger
 
@@ -35,10 +34,7 @@ defmodule Nerves.Package.Providers.HTTP do
 
 
   defp download(artifact, [location | locations]) do
-    shell_info """
-
-      Downloading Artifact:
-        #{artifact}
+    shell_info "Downloading Artifact #{artifact}", """
       From Location:
         #{location}
     """
@@ -75,10 +71,7 @@ defmodule Nerves.Package.Providers.HTTP do
 
   defp unpack({:error, _} = error, _, _), do: error
   defp unpack({:ok, tar}, artifact, destination) do
-    shell_info """
-
-      Unpacking Artifact:
-        #{artifact}
+    shell_info "Unpacking #{artifact}", """
       To Destination:
         #{destination}
     """
@@ -107,7 +100,7 @@ defmodule Nerves.Package.Providers.HTTP do
     ret
   end
 
-  defp shell_info(text) do
-    Shell.info(text, "Nerves.Package.Providers.HTTP")
+  defp shell_info(header, text \\ "") do
+    Mix.Nerves.IO.shell_info(header, text, __MODULE__)
   end
 end
