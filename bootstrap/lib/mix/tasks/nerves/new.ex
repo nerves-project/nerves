@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Nerves.New do
       mix nerves.new blinky --module Blinky
   """
 
-  @switches [app: :string, module: :string]
+  @switches [app: :string, module: :string, target: :string]
 
   def run([version]) when version in ~w(-v --version) do
     Mix.shell.info "Nerves v#{@version}"
@@ -85,6 +85,18 @@ defmodule Mix.Tasks.Nerves.New do
   def run(app, mod, path, opts) do
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
     in_umbrella? = in_umbrella?(path)
+
+    if target = opts[:target] do
+      Mix.shell.info [:yellow, """
+      Usage of --target has been deprecated.
+      Nerves projects default to "host" target.
+      to use your target either export to your env
+        $ export MIX_TARGET=#{target}
+      or prefix any mix commands to execute un that target
+        $ MIX_TARGET=#{target} mix deps.get
+      """, :reset]
+    end
+
     binding = [app_name: app,
                app_module: mod,
                bootstrap_vsn: @version,
@@ -93,6 +105,56 @@ defmodule Mix.Tasks.Nerves.New do
                in_umbrella: in_umbrella?]
 
     copy_from path, binding, @new
+    # Parallel installs
+    install? = Mix.shell.yes?("\nFetch and install dependencies?")
+    File.cd!(path, fn ->
+      extra =
+        if install? && Code.ensure_loaded?(Hex) do
+          cmd("mix deps.get")
+          cmd("mix nerves.release.init")
+          []
+        else
+          ["  $ mix deps.get", "  $ mix release.init"]
+        end
+
+      print_mix_info(path, extra)
+    end)
+  end
+
+  defp cmd(cmd) do
+    Mix.shell.info [:green, "* running ", :reset, cmd]
+    case Mix.shell.cmd(cmd, [quiet: true]) do
+      0 ->
+        true
+      _ ->
+        Mix.shell.error [:red, "* error ", :reset, "command failed to execute, " <>
+          "please run the following command again after installation: \"#{cmd}\""]
+        false
+    end
+  end
+
+  defp print_mix_info(path, extra) do
+    command = ["$ cd #{path}"] ++ extra
+    Mix.shell.info """
+    All set!
+      #{Enum.join(command, "\n")}
+
+    Next, pick a deployment target.
+      For example: `rpi3` for Raspberry Pi 3
+      More info on targets: https://hexdocs.pm/nerves/targets.html#content
+
+    To set the target you can either
+      $ export MIX_TARGET=rpi3
+    Or prefix your commands
+      $ MIX_TARGET=rpi3 mix firmware
+
+    Finally, Create firmware
+      $ mix deps.get
+      $ mix firmware
+
+    You can also run your app inside IEx (Interactive Elixir) as:
+      $ iex -S mix
+    """
   end
 
   defp switch_to_string({name, nil}), do: name
