@@ -108,30 +108,17 @@ defmodule Mix.Tasks.Nerves.New do
     # Parallel installs
     install? = Mix.shell.yes?("\nFetch and install dependencies?")
     File.cd!(path, fn ->
-      install_mix(install?)
-      install_release_config()
-      print_mix_info(path)
+      extra =
+        if install? && Code.ensure_loaded?(Hex) do
+          cmd("mix deps.get")
+          cmd("mix nerves.release.init")
+          []
+        else
+          ["  $ mix deps.get", "  $ mix release.init"]
+        end
+
+      print_mix_info(path, extra)
     end)
-  end
-
-  defp install_mix(install?) do
-    maybe_cmd "mix deps.get", true, install? && Code.ensure_loaded?(Hex)
-  end
-
-  defp install_release_config() do
-    maybe_cmd "mix nerves.release.init", true, true
-  end
-
-  defp maybe_cmd(cmd, should_run?, can_run?) do
-    cond do
-      should_run? && can_run? ->
-        cmd(cmd)
-        true
-      should_run? ->
-        false
-      true ->
-        true
-    end
   end
 
   defp cmd(cmd) do
@@ -146,11 +133,11 @@ defmodule Mix.Tasks.Nerves.New do
     end
   end
 
-  defp print_mix_info(path) do
-
+  defp print_mix_info(path, extra) do
+    command = ["$ cd #{path}"] ++ extra
     Mix.shell.info """
     All set!
-      $ cd #{path}
+      #{Enum.join(command, "\n")}
 
     Next, pick a deployment target.
       For example: `rpi3` for Raspberry Pi 3
