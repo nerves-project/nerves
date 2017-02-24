@@ -1,6 +1,6 @@
 # nerves_bootstrap
 
-## v0.2.3-dev
+## v0.3.0-dev
 * Enhancements
   * new project generator structure defaults to Host target env
 * Bug Fixes
