@@ -90,9 +90,9 @@ defmodule Mix.Tasks.Nerves.New do
       Mix.shell.info [:yellow, """
       Usage of --target has been deprecated.
       Nerves projects default to "host" target.
-      to use your target either export to your env
+      To use your target, either export to your environment
         $ export MIX_TARGET=#{target}
-      or prefix any mix commands to execute un that target
+      or prefix any mix commands to execute for that target
         $ MIX_TARGET=#{target} mix deps.get
       """, :reset]
     end
