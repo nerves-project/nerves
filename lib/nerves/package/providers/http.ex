@@ -5,7 +5,6 @@ defmodule Nerves.Package.Providers.HTTP do
 
   @behaviour Nerves.Package.Provider
 
-  alias Nerves.Utils.Shell
   alias Nerves.Package.Artifact
   require Logger
 
@@ -24,7 +23,7 @@ defmodule Nerves.Package.Providers.HTTP do
   def artifact(pkg, _toolchain) do
     Logger.debug "#{__MODULE__}: artifact: #{inspect pkg}"
   end
-  
+
   # def shell(_pkg, _opts) do
   #   :ok
   # end
@@ -102,10 +101,6 @@ defmodule Nerves.Package.Providers.HTTP do
   end
 
   defp shell_info(header, text \\ "") do
-    Shell.info(header, "Nerves.Package.Providers.HTTP")
-    unless text == "" do
-      IO.write("\n")
-      Mix.shell.info(text)
-    end
+    Mix.Nerves.IO.shell_info(header, text, __MODULE__)
   end
 end

@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Nerves.Precompile do
   use Mix.Task
-  import Mix.Nerves.Bootstrap.Utils
+  import Mix.Nerves.IO
 
   def run(_args) do
     debug_info "Precompile Start"

@@ -65,7 +65,6 @@ defmodule Nerves.Package.Providers.Docker do
 
   @behaviour Nerves.Package.Provider
 
-  alias Nerves.Utils.Shell
   alias Nerves.Package.Artifact
 
   @version "~> 1.12 or ~> 1.12.0-rc2"
@@ -90,11 +89,11 @@ defmodule Nerves.Package.Providers.Docker do
 
     :ok = create_build(pkg, container, stream)
     :ok = make(container, stream)
-    IO.write("\n")
+    Mix.shell.info("\n")
     :ok = make_artifact(artifact_name, container, stream)
-    IO.write("\n")
+    Mix.shell.info("\n")
     :ok = copy_artifact(pkg, toolchain, container, stream)
-    IO.write("\n")
+    Mix.shell.info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
     container_stop(container)
   end
@@ -413,10 +412,6 @@ defmodule Nerves.Package.Providers.Docker do
   end
 
   defp shell_info(header, text \\ "") do
-    Shell.info(header, "Nerves.Package.Providers.Docker")
-    unless text == "" do
-      IO.write("\n")
-      Mix.shell.info(text)
-    end
+    Mix.Nerves.IO.shell_info(header, text, __MODULE__)
   end
 end

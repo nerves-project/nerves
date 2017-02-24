@@ -253,9 +253,9 @@ defmodule Nerves.Env do
      {"NERVES_APP", File.cwd!}]
     |> Enum.each(fn({k, v}) ->
       cond do
-        v == nil -> Nerves.Utils.Shell.info "#{k} is unset"
+        v == nil -> Mix.shell.info "#{k} is unset"
         File.dir?(v) != true ->
-          Nerves.Utils.Shell.info """
+          Mix.shell.info """
           #{k} is set to a path which does not exist:
           #{v}
           """

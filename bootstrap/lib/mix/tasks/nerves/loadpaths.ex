@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Nerves.Loadpaths do
   use Mix.Task
-  import Mix.Nerves.Bootstrap.Utils
+  import Mix.Nerves.IO
 
   def run(_args) do
     unless System.get_env("NERVES_PRECOMPILE") == "1" do

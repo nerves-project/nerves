@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Nerves.Env do
   use Mix.Task
-  import Mix.Nerves.Bootstrap.Utils
+  import Mix.Nerves.IO
 
   @switches [info: :boolean]
 
