@@ -1,6 +1,10 @@
 # Installation
 
-Nerves requires a number of programs on your system to work. These include Erlang, Elixir, and a few other tools for packaging your programs into firmware images. Nerves is actively used on MacOS and various Linux distributions. For Windows users, some people have had success with Linux in VM and the Windows 10 Bash Shell. If you are experiencing issues with any of the tooling, it is important to reference this list to ensure that your system is fully configured to run the Nerves tooling.
+Nerves requires a number of programs on your system to work.
+These include Erlang, Elixir, and a few tools for packaging firmware images.
+Nerves is actively used on MacOS and various Linux distributions.
+For Windows users, some people have had success running Linux in a virtual machine or using the Windows Subsystem for Linux available in Windows 10.
+If you have issues with any of the tooling after following the steps below, we recommend you reach out to us in [the #nerves channel on the Elixir Slack](https://elixir-slackin.herokuapp.com/).
 
 ## MacOS
 
@@ -17,11 +21,15 @@ Now skip to the instructions for all platforms below.
 
 ## Linux
 
-We've found quite a bit of variation between Linux distributions. Nerves requires Erlang versions `>= 19.0` and Elixir versions `>= 1.2.4`.
-If you need to install Erlang, see the prebuilt versions and guides provided by [Erlang Solutions](https://www.erlang-solutions.com/resources/download.html)
+We've found quite a bit of variation between Linux distributions.
+Nerves requires Erlang versions `>= 19.0` and Elixir versions `>= 1.2.4`.
+If you need to install Erlang, see the prebuilt versions and guides provided by [Erlang Solutions](https://www.erlang-solutions.com/resources/download.html).
 For Elixir, please reference the Elixir [Installation Page](http://elixir-lang.org/install.html).
 
-Next install the `fwup` utility. Nerves uses `fwup` to create, distribute, and install firmware images of your programs. You can install fwup using the instructions found on the [Installation Page](https://github.com/fhunleth/fwup#installing). Installing the prebuilt `.deb` or `.rpm` files is recommended.
+Next, install the `fwup` utility.
+Nerves uses `fwup` to create, distribute, and install firmware images of your programs.
+You can install `fwup` using the instructions found on the [Installation Page](https://github.com/fhunleth/fwup#installing).
+Installing the pre-built `.deb` or `.rpm` files is recommended.
 
 The `ssh-askpass` package is also required on Linux so that the `mix firmware.burn` step will be able to use `sudo` to gain the required permission to write directly to an SD card:
 
@@ -29,8 +37,9 @@ The `ssh-askpass` package is also required on Linux so that the `mix firmware.bu
 $ sudo apt-get install ssh-askpass
 ```
 
-Finally, install `squashfs-tools` using your distribution's package manager. For
-example:
+Finally, install `squashfs-tools` using your distribution's package manager.
+For example:
+
 ```
 $ sudo apt-get install squashfs-tools
 ```
@@ -39,27 +48,31 @@ Now continue to the instructions for all platforms below.
 
 ## All platforms
 
-It is important to update the versions of `hex` and `rebar` used by Elixir. This is critical even if you didn't need to install Elixir:
+It is important to update the versions of `hex` and `rebar` used by Elixir, **even if you already had Elixir installed**.
 
 ```
 $ mix local.hex
 $ mix local.rebar
 ```
-If you have your own version of `rebar` in the path, be sure that it is up to date.
 
-You can now add the `nerves_bootstrap` archive to your mix environment. This archive allows Nerves to bootstrap the Mix environment, ensuring that your code is properly compiled using the right cross-compiler for the target. The `nerves_bootstrap` archive also includes a new project generator, which you can use to create new Nerves projects. To install the `nerves_bootstrap` archive:
+If you have your own version of `rebar` in your path, be sure that it is up-to-date.
+
+You can now add the `nerves_bootstrap` archive to your Mix environment.
+This archive allows Nerves to bootstrap the Mix environment, ensuring that your code is properly compiled using the right cross-compiler for the target.
+The `nerves_bootstrap` archive also includes a project generator, which you can use to create new Nerves projects.
+To install the `nerves_bootstrap` archive:
 
 ```
 $ mix archive.install https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez
 ```
 
-If the archive fails to install properly using this command, you can download the archive directly and then do:
+If the archive fails to install properly using this command, or you need to perform an offline installation, you can download the `.ez` file and install it like this:
 
 ```
 $ mix archive.install /path/to/nerves_bootstrap.ez
 ```
 
-Once installed, you can upgrade `nerves_bootstrap` by doing:
+Once installed, you can later upgrade `nerves_bootstrap` by doing:
 
 ```
 mix local.nerves
