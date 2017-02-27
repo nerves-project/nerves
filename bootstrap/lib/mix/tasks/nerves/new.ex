@@ -83,6 +83,8 @@ defmodule Mix.Tasks.Nerves.New do
   end
 
   def run(app, mod, path, opts) do
+    System.delete_env("MIX_TARGET")
+
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
     in_umbrella? = in_umbrella?(path)
 
