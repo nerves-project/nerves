@@ -2,7 +2,11 @@ defmodule <%= app_module %>.Mixfile do
   use Mix.Project
 
   @target System.get_env("MIX_TARGET") || "host"
-
+  Mix.shell.info([:green, """
+  Env
+    MIX_TARGET:   #{@target}
+    MIX_ENV:      #{Mix.env}
+  """, :reset])
   def project do
     [app: :<%= app_name %>,
      version: "0.1.0",
