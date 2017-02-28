@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.4.8
+* Bug Fixes
+  * removed `--silent` from `mix release.clean` for compatibility with `:distillery ~> 1.2.0`
+
 ## Nerves 0.4.7
 * Bug Fixes
   * [Providers.Local] Fix return error on non zero exit status code
