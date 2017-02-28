@@ -3,7 +3,11 @@ defmodule Mix.Tasks.Nerves.New do
   import Mix.Generator
 
   @nerves Path.expand("../../../..", __DIR__)
-  @version "0.2"
+
+  @nerves_vsn "0.4.0"
+  @bootstrap_vsn "0.2"
+  @runtime_vsn "0.1"
+
   @requirement Mix.Project.config[:elixir]
   @shortdoc "Creates a new Nerves application"
 
@@ -51,12 +55,12 @@ defmodule Mix.Tasks.Nerves.New do
   @switches [app: :string, module: :string, target: :string]
 
   def run([version]) when version in ~w(-v --version) do
-    Mix.shell.info "Nerves v#{@version}"
+    Mix.shell.info "Nerves v#{@bootstrap_vsn}"
   end
 
   def run(argv) do
     unless Version.match? System.version, @requirement do
-      Mix.raise "Nerves v#{@version} requires at least Elixir #{@requirement}.\n " <>
+      Mix.raise "Nerves v#{@bootstrap_vsn} requires at least Elixir #{@requirement}.\n " <>
                 "You have #{System.version}. Please update accordingly"
     end
 
@@ -101,7 +105,8 @@ defmodule Mix.Tasks.Nerves.New do
 
     binding = [app_name: app,
                app_module: mod,
-               bootstrap_vsn: @version,
+               bootstrap_vsn: @bootstrap_vsn,
+               runtime_vsn: @runtime_vsn,
                elixir_req: @requirement,
                nerves_dep: nerves_dep(nerves_path),
                in_umbrella: in_umbrella?]
@@ -190,8 +195,8 @@ defmodule Mix.Tasks.Nerves.New do
     end
   end
 
-  defp nerves_dep("deps/nerves"), do: ~s[{:nerves, "~> 0.4.0"}]
-  defp nerves_dep(path), do: ~s[{:nerves, path: #{inspect path}, override: true}]
+  defp nerves_dep("deps/nerves"), do: ~s[{:nerves, "~> #{@nerves_vsn}", runtime: false}]
+  defp nerves_dep(path), do: ~s[{:nerves, path: #{inspect path}, runtime: false, override: true}]
 
   defp nerves_path(path, true) do
     absolute = Path.expand(path)
