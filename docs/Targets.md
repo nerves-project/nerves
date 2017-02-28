@@ -19,3 +19,23 @@ Intel Galileo 2 | [nerves_system_galileo](https://github.com/nerves-project/nerv
 Lego EV3 | [nerves_system_ev3](https://github.com/nerves-project/nerves_system_ev3) | `ev3`
 QEmu Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | `qemu_arm`
 
+## Supporting New Target Hardware
+
+If you're trying to support a new Target, there may be quite a bit more work involved, depending on how mature the support for that hardware is in the Buildroot community.
+If you're not familiar with [Buildroot](https://buildroot.org/), you should learn about that first, using the excellent training materials on their website.
+
+If you can find an existing Buildroot configuration for your intended hardware and you want to get it working with Nerves, you will need to make a custom System as follows:
+
+1.  Follow their procedure and confirm your target boots (independent of Nerves).
+
+2.  Figure out how to get everything working with the version of Buildroot Nerves uses.
+    See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/master/create-build.sh).
+
+  * Look for packages and board configs can need to be copied into your System.
+  * Look for patches to existing packages that are needed.
+
+3. Create a defconfig that mimics the one from step 1, and get `nerves_system_br` to build it.
+   See the section in the [System](systems.html) documentation about customizing Nerves Systems.
+
+> NOTE: You probably want to disable any userland packages that may be included by default to avoid distraction.
+

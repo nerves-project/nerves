@@ -233,21 +233,3 @@ make system
 
 This will create a `<system>.tar.gz` file that can be hosted on a web server and referenced from a Hex package just like the official Nerves Systems are.
 
-### Supporting New Target Hardware
-
-If you're trying to support a new Target, there may be quite a bit more work involved, depending on how mature the support for that hardware is in the Buildroot community.
-If you're not familiar with [Buildroot](https://buildroot.org/), you should learn about that first, using the excellent training materials on their website.
-
-If you can find an existing Buildroot configuration for your intended hardware and you want to get it working with Nerves:
-
-1.  Follow their procedure and confirm your target boots (independent of Nerves).
-
-2.  Figure out how to get everything working with the version of Buildroot Nerves uses. See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/master/create-build.sh).
-
-  * Look for packages and board configs can need to be copied into your System.
-  * Look for patches to existing packages that are needed.
-
-3. Create a defconfig that mimics the one from step 1, and get `nerves_system_br` to build it.
-
-> NOTE: You probably want to disable any userland packages that may be included by default to avoid distraction.
-
