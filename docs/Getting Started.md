@@ -49,7 +49,7 @@ After downloading the required dependencies, Nerves will generate a default rele
 If you chose not to fetch dependencies during project generation, you will need to do that yourself.
 
 As described by the project generator, the next step is to change to the project directory, choose a target, and fetch the target-specific dependencies.
-Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
+Visit the [Targets Page](targets.html) for more information on what target name to use for each of the boards that Nerves supports.
 
 The target is chosen using a shell environment variable, so if you use the `export` command, it will remain in effect as long as you leave that window open.
 Alternatively, you can prefix each command with the environment variable.
@@ -71,7 +71,7 @@ $ MIX_TARGET=rpi3 mix deps.get
 
 ## Building and Deploying Firmware
 
-Once the dependencies are fetched, you can build a Nerves Firmware (a bundle that contains a Nerves-based Linux platform and your application, packaged as an OTP release).
+Once the dependencies are fetched, you can build a Nerves Firmware (a bundle that contains a minimal Linux platform and your application, packaged as an OTP release).
 The first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors.
 These Artifacts are cached locally in `~/.nerves/artifacts` so they can be shared across projects.
 
@@ -79,18 +79,16 @@ These Artifacts are cached locally in `~/.nerves/artifacts` so they can be share
 $ mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
 ```
 
-This will result in a `hello_nerves.fw` firmware bundle file, which is a compressed package of everything that will end up on your target SD card along with some metadata.
+This will result in a `hello_nerves.fw` firmware bundle file.
 To create a bootable SD card, use the following command:
 
 ``` bash
 $ mix firmware.burn # -OR- # MIX_TARGET=rpi3 mix firmware.burn
 ```
 
-This command will attempt to automatically discover the SD card inserted in your host machine.
-There may be situations where this command does not discover your SD card.
-This may occur if you have more than one SD card inserted into the machine, or you have disk images mounted at the same time.
-If this happens, you can specify which device to write to by passing the `-d <device>` argument to the command.
-This command wraps `fwup`, so any extra arguments passed to it will be forwarded along to `fwup`.
+This command will attempt to automatically discover the SD card inserted in your host.
+This may fail to correctly detect your SD card, for example, if you have more than one SD card inserted or you have disk images mounted.
+If this happens, you can specify the intended device by passing the `-d <device>` argument to the command.
 
 ``` bash
 # For example:
@@ -100,14 +98,17 @@ $ mix firmware.burn -d /dev/rdisk3
 > NOTE: You can also use `-d <filename>` to specify an output file that is a raw image of the SD card.
 This binary image can be burned to an SD card using `fwup`, `dd`, `Win32DiskImager`, or some other image copying utility.
 
-Now that you have your SD card burned, you can insert it into your device and boot it up.
-For Raspberry Pi, connect it to an HDMI display and USB keyboard and you should see it boot to the IEx Console.
-
-If you are sure there is only one SD card inserted, you can also add the `-y` flag to skip the confirmation that it is the correct SD card.
+The `mix firmware.burn` task uses the `fwup` tool internally; any extra arguments passed to it will be forwarded along to `fwup`.
+For example, if you are sure there is only one SD card inserted, you can also add the `-y` flag to skip the confirmation that it is the correct device.
 
 ``` bash
 $ mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
 ```
+
+You can read about the other supported options in the [`fwup` documentation](https://github.com/fhunleth/fwup#invoking).
+
+Now that you have your SD card burned, you can insert it into your device and boot it up.
+For Raspberry Pi, be sure to connect it to an HDMI display and USB keyboard so you can see it boot to the IEx console.
 
 ## Nerves Examples
 
@@ -117,7 +118,7 @@ Visit the [Targets Page](targets.html) for more information on what target name 
 
 The `nerves-examples` repository contains several example projects to get you started.
 The simplest example is Blinky, known as the "Hello World" of hardware because all it does is blink an LED indefinitely.
-If you are ever curious about project structuring or can't get something running, check out Blinky and run it on your target.
+If you are ever curious about project structuring or can't get something running, check out Blinky and run it on your target to confirm that it works in the simplest case.
 
 ``` bash
 $ git clone https://github.com/nerves-project/nerves-examples
