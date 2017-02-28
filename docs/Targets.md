@@ -17,6 +17,7 @@ Alix | [nerves_system_alix](https://github.com/nerves-project/nerves_system_alix
 AG150 | [nerves_system_ag150](https://github.com/nerves-project/nerves_system_ag150) | `ag150`
 Intel Galileo 2 | [nerves_system_galileo](https://github.com/nerves-project/nerves_system_galileo) | `galileo`
 Lego EV3 | [nerves_system_ev3](https://github.com/nerves-project/nerves_system_ev3) | `ev3`
+Linkit Smart 7688 (and Duo) | [nerves_system_linkit](https://github.com/nerves-project/nerves_system_linkit) | `linkit`
 QEmu Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | `qemu_arm`
 
 ## Supporting New Target Hardware
