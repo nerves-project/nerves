@@ -55,7 +55,7 @@ defmodule Mix.Tasks.Firmware do
 
   defp clean_release do
     try do
-      Mix.Task.run "release.clean", ["--implode", "--no-confirm", "--silent"]
+      Mix.Task.run "release.clean", ["--implode", "--no-confirm"]
     catch
       :exit, _ -> :noop
     end
