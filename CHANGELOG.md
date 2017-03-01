@@ -7,6 +7,10 @@
   * Added ability to specify the images_path in the Mix.Project config.
   * Changed default images_path to `#{build_path}/nerves/images`
 
+## Nerves 0.4.8
+* Bug Fixes
+  * removed `--silent` from `mix release.clean` for compatibility with `:distillery ~> 1.2.0`
+
 ## Nerves 0.4.7
 * Bug Fixes
   * [Providers.Local] Fix return error on non zero exit status code
