@@ -18,7 +18,11 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
  2. Place it in your project folder under `rootfs-additions/etc/erlinit.config`.
  2. Modify the `-c` console setting to match the value shown in the `UART` row of the hardware description table (`rpi3` example shown):
 
-    ```
+    ```bash
+    # rootfs-additions/etc/erlinit.config
+
+    ...
+
     # Specify the UART port that the shell should use.
     #-c tty1
     -c ttyS0
@@ -26,8 +30,9 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
 
  3. Configure your project to replace this file in your firmware.
 
-    ```
-    # config.exs
+    ```elixir
+    # config/config.exs
+
     use Mix.Config
 
     config :nerves, :firmware,
@@ -37,10 +42,11 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
  4. Connect your USB serial cable to the desired UART pins (per the I/O pin-out for your particular hardware).
  5. On your development host, connect to the serial console.
 
-    * On Linux and Mac OS, use `screen /dev/tty<device>`.  You may need to specify the baud rate as well, for example: `screen /dev/tty<device> 115200`.
+    * On Linux and Mac OS, use `screen /dev/tty<device>`.
+      You may need to specify the baud rate as well, for example: `screen /dev/tty<device> 115200`.
     * On Windows, use the `Serial` option to connect to `COM<device>`.
 
-### How do I Configure the Target Hardware to Reboot Instead of Halt on Failure?
+### How do I Configure What Happens on Failure?
 
 Similar to the previous question, we have chosen to have the device default to halting on certain kinds of failures that cause the Erlang VM to crash.
 This allows you to more easily read the error and diagnose the problem during development.
@@ -51,9 +57,16 @@ That way, in the unlikely event that your application crashes, the entire device
 This setting is also configured using the `erlinit.config` file described above.
 To have the device restart instead of hang on failure, make a copy of the `erlinit.config` file and make sure the `--hang-on-exit` option is commented out.
 
-```
+```bash
 # Uncomment to hang the board rather than rebooting when Erlang exits
 #--hang-on-exit
+```
+
+You can also have the device drop into a shell when the Erlang VM crashes, allowing you to troubleshoot at the Linux OS level.
+
+```bash
+# Optionally run a program if the Erlang VM exits
+#--run-on-exit /bin/sh
 ```
 
 ### How do I Use the Platform-Specific Hardware Features of My Target?
@@ -63,22 +76,4 @@ In general, platform-specific features will be documented in the target's system
 You may also find what you need by looking at the [community-maintained lisf of libraries](http://nerves-project.org/libraries/) that work well with Nerves.
 
 If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
-
-### Is Hardware Platform X Supported by Nerves? If Not, How Do I Work on Adding Support?
-
-The currently-supported target hardware platforms are listed here: https://hexdocs.pm/nerves/targets.html.
-
-In order for Nerves to work, the target hardware needs to be capable of running a full Linux kernel along with the Erlang VM.
-This requires around 32 MB of storage and RAM, ruling out most microcontroller-based platforms like Arduino.
-Microcontrollers can, however, be used alongside a Nerves-based target as a way to achieve real-time control of I/O pins, which is required for some protocols.
-
-If your intended target isn't in the supported targets list but it meets the basic requirements, here's how to get it working:
-
- 1. If the target board is already supported by [the BuildRoot project](https://buildroot.org/), you're already most of the way there.
-    If not, your first step is to figure out what packages and patches are needed to boot your board.
-    Normally, this requires some interaction with the board vendor unless it's very similar to another supported board.
-    The Free Electrons group has some [great learning materials](http://free-electrons.com/training/buildroot/) that we recommend if you want to get started with BuildRoot.
- 2. Mention in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/) that you're planning to work on this.
-    Someone else may have already started working on it, saving you some effort.
- 3. Follow the steps in our documentation about [creating a Nerves System](https://github.com/nerves-project/nerves/blob/master/docs/Systems.md#creating-or-modifying-a-nerves-system-with-buildroot).
 
