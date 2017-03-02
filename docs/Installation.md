@@ -8,14 +8,17 @@ If you have issues with any of the tooling after following the steps below, we r
 
 ## MacOS
 
-The easiest installation route on MacOS is to use [Homebrew](brew.sh). Just run the following:
+The easiest installation route on MacOS is to use [Homebrew](brew.sh).
+Just run the following:
 
-```
+```bash
 $ brew update
 $ brew install erlang
 $ brew install elixir
 $ brew install fwup squashfs coreutils
 ```
+
+Optionally, if you want to build custom Nerves Systems, you'll also need to install [Docker for Mac](https://www.docker.com/products/overview#/install_the_platform).
 
 Now skip to the instructions for all platforms below.
 
@@ -33,14 +36,14 @@ Installing the pre-built `.deb` or `.rpm` files is recommended.
 
 The `ssh-askpass` package is also required on Linux so that the `mix firmware.burn` step will be able to use `sudo` to gain the required permission to write directly to an SD card:
 
-```
+```bash
 $ sudo apt-get install ssh-askpass
 ```
 
 Finally, install `squashfs-tools` using your distribution's package manager.
 For example:
 
-```
+```bash
 $ sudo apt-get install squashfs-tools
 ```
 
@@ -50,7 +53,7 @@ Now continue to the instructions for all platforms below.
 
 It is important to update the versions of `hex` and `rebar` used by Elixir, **even if you already had Elixir installed**.
 
-```
+```bash
 $ mix local.hex
 $ mix local.rebar
 ```
@@ -62,18 +65,18 @@ This archive allows Nerves to bootstrap the Mix environment, ensuring that your 
 The `nerves_bootstrap` archive also includes a project generator, which you can use to create new Nerves projects.
 To install the `nerves_bootstrap` archive:
 
-```
+```bash
 $ mix archive.install https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez
 ```
 
 If the archive fails to install properly using this command, or you need to perform an offline installation, you can download the `.ez` file and install it like this:
 
-```
+```bash
 $ mix archive.install /path/to/nerves_bootstrap.ez
 ```
 
 Once installed, you can later upgrade `nerves_bootstrap` by doing:
 
-```
+```bash
 mix local.nerves
 ```
