@@ -151,6 +151,7 @@ This makes it easier to merge in upstream changes from the official Systems.
 ```bash
 # After creating an empty custom_rpi3 repository in your GitHub account
 
+$ cd custom_rpi3
 $ git remote rename origin upstream
 $ git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
 $ git push origin master
@@ -214,7 +215,7 @@ end
 Now that the custom System directory is prepared, you just need to point to it from your project's `mix.exs`.
 
 ```elixir
-# mix.exs
+# your_project/mix.exs
 
 # Specify target specific dependencies
 def deps("host"), do: []
@@ -231,6 +232,7 @@ end
 Set your `MIX_TARGET` to refer to your custom system and build your firmware.
 
 ```bash
+$ cd /path/to/your/nerves/project
 $ export MIX_TARGET=custom_rpi3
 $ mix deps.get
 $ mix firmware
