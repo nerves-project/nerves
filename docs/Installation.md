@@ -47,6 +47,17 @@ For example:
 $ sudo apt-get install squashfs-tools
 ```
 
+Optionally, if you want to build custom Nerves Systems, you need a few more build tools.
+Because Linux can build natively rather than inside a container, you need to have all of the dependencies installed on your host.
+On Debian and Ubuntu, run the following:
+
+```bash
+sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
+```
+
+> For other host Linux distributions, you will need to install equivalent packages, but we don't have the exact list documented.
+> If you'd like to help out, [send us an improvement to this page](https://github.com/nerves-project/nerves/blob/master/docs/Systems.md) and let us know what worked for you!
+
 Now continue to the instructions for all platforms below.
 
 ## All platforms
