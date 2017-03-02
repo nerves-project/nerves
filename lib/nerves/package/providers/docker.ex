@@ -224,6 +224,7 @@ defmodule Nerves.Package.Providers.Docker do
 
     if File.exists?(tar_file) do
       dir = Artifact.dir(pkg, toolchain)
+      File.rm_rf(dir)
       File.mkdir_p(dir)
 
       cwd = base_dir
