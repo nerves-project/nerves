@@ -100,7 +100,24 @@ You'll notice that subsequent calls to `compile` will not fetch or build the sys
 
 ## Making Firmware
 
-Now that you have a compiled Nerves application, you can produce firmware. Nerves firmware is the product of turning your application into an OTP release, adding it to the system image, and laying out a partition scheme. You can create the firmware bundle with the following command:
+Now that you have a compiled Nerves application, you can produce firmware. Nerves firmware is the product of turning your application into an OTP release, adding it to the system image, and laying out a partition scheme.
+ 
+### Generating a release config file
+
+You must generate a _release config file_ before generating a firmware bundle.
+
+```
+$ mix nerves.release.init
+
+An example config file has been placed in rel/config.exs, review it,
+make edits as needed/desired, and then run `mix release` to build the release
+```
+
+For now, we'll use the generated config file as-is.
+
+### Create the firmware bundle
+
+You can create the firmware bundle with the following command:
 
 ```
 $ mix firmware
