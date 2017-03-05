@@ -74,6 +74,25 @@ $ MIX_TARGET=rpi3 mix deps.get
 Once the dependencies are fetched, you can build a Nerves Firmware (a bundle that contains a minimal Linux platform and your application, packaged as an OTP release).
 The first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors.
 These artifacts are cached locally in `~/.nerves/artifacts` so they can be shared across projects.
+ 
+### Generating a release config file
+
+You must generate a _release config file_ before generating a firmware bundle.
+Normally, it will be created for you by the `mix nerves.new` task, but if not, you will get a warning like this:
+
+```bash
+** (Mix)   You are missing a release config file. Run  nerves.release.init task first
+```
+
+You can generate the file using this Mix task:
+
+```bash
+$ mix nerves.release.init
+```
+
+### Create the firmware bundle
+
+You can create the firmware bundle with the following command:
 
 ``` bash
 $ mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
