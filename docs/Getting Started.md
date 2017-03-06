@@ -2,7 +2,9 @@
 
 ## Introduction
 
-Nerves defines an entirely new way to build embedded systems using Elixir. It is specifically designed for embedded systems, not desktop or server systems. You can think of Nerves as containing three parts:
+Nerves defines an entirely new way to build embedded systems using Elixir.
+It is specifically designed for embedded systems, not desktop or server systems.
+You can think of Nerves as containing three parts:
 
 **Platform** - a customized, minimal Buildroot-derived Linux that boots directly to the BEAM VM.
 
@@ -14,7 +16,7 @@ Taken together, the Nerves platform, framework, and tooling provide a highly spe
 
 ## Common Terms
 
-In the following guides, support channels, and forums you may hear the following terms being used.
+In the following guides, support channels, and forums, you may hear the following terms being used.
 
 Term | Definition
 --- | ---
@@ -28,118 +30,119 @@ firmware image | Built from a firmware bundle and contains the partition table, 
 
 ## Creating a New Nerves App
 
-Before you start using Nerves, it is important that you take a minute to read the [Installation Guide](installation.html). It will help you get your machine configured for running Nerves.
+Before you start using Nerves, it is important that you take a minute to read the [Installation Guide](installation.html).
+It will help you get your machine configured for running Nerves.
 
-Let's create a new project. The `nerves.new` project generator can be called from anywhere and can take either an absolute path or a relative path. The new project generator requires that you specify the default target you want the project to use. This allows you to omit the `--target` option when building firmware for the default target. Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
+Let's create a new project.
+The `nerves.new` project generator can be called from anywhere and can take either an absolute path or a relative path.
 
-```
-$ mix nerves.new hello_nerves --target rpi3
-* creating hello_nerves/config/config.exs
-* creating hello_nerves/lib/my_app.ex
-* creating hello_nerves/test/test_helper.exs
-* creating hello_nerves/test/my_app_test.exs
-* creating hello_nerves/rel/vm.args
-* creating hello_nerves/rel/.gitignore
-* creating hello_nerves/.gitignore
-* creating hello_nerves/mix.exs
-* creating hello_nerves/README.md
+> NOTE: If you've used Nerves in the past, you may have noticed that you no longer need to specify a `--target` option when creating a new project.
+> Since Nerves Bootstrap 0.3.0, the default target is `host` unless you specify a different target in your environment.
+> This allows for more seamless interaction with tools on your host without cross-compilers getting in the way until you're ready to build firmware for a particular target.
+
+``` bash
+$ mix nerves.new hello_nerves
 ```
 
-Nerves will generate the required files and directory structure needed for your application.
-You will need to generate a release configuration as follows.
-The defaults will work to get you started, but you will probably want to come back later and modify some of them for your project.
+Nerves will generate the required files and directory structure for your application.
+After downloading the required dependencies, Nerves will generate a default release configuration file using the `mix nerves.release.init` task.
+If you chose not to fetch dependencies during project generation, you will need to do that yourself.
 
-```
+As described by the project generator, the next step is to change to the project directory, choose a target, and fetch the target-specific dependencies.
+Visit the [Targets Page](targets.html) for more information on what target name to use for each of the boards that Nerves supports.
+
+The target is chosen using a shell environment variable, so if you use the `export` command, it will remain in effect as long as you leave that window open.
+Alternatively, you can prefix each command with the environment variable.
+We find that it's easiest to have two shell windows open: one remaining defaulted to the `host` target and one with the desired `MIX_TARGET` variable set.
+This allows you quick access to use host-based tooling in the former and deploy updated firmware from the latter, all without having to modify the `MIX_TARGET` variable in your shell.
+
+``` bash
 $ cd hello_nerves
-$ mix nerves.release.init
-```
-
-Next, fetch the dependencies.
-
-```
+$ export MIX_TARGET=rpi3
 $ mix deps.get
 ```
 
-> It is important to note that Nerves supports multi-target projects. This means that the same code base can support running on a variety of different target boards. Because of this, It is very important that your mix file only includes a single `nerves_system` at any time. For more information check out the [Targets Page](targets.html#target-dependencies)
+**OR**
 
-Once the dependencies are fetched, you can start to compile your project. The goal is to make a Nerves Firmware (a bundle that contains a Nerves-based Linux platform and your application). As a first step, you need to fetch both the System and Toolchain for your Target. This task is done for you by Mix using the `nerves_bootstrap` utility in a special stage called `precompile`. This means that the first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors. Lets start the process and get a coffee...
-
-```
-$ mix compile
-Nerves Precompile Start
-...
-Compile Nerves toolchain
-Downloading from Github Cache
-Unpacking toolchain to build dir
-...
-Generated nerves_system_rpi3 app
-[nerves_system][compile]
-[nerves_system][http] Downloading system from cache
-[nerves_system][http] System Downloaded
-[nerves_system][http] Unpacking System
-...
-Nerves Env loaded
-Nerves Precompile End
+``` bash
+$ cd hello_nerves
+$ MIX_TARGET=rpi3 mix deps.get
 ```
 
-At this point, the Nerves System and Toolchain have been pulled down to your host machine and your Mix environment has been bootstrapped to use them when you build a firmware. You can verify that Nerves is ready with the correct System and Toolchain by getting it to print out the locations of these new assets.
+## Building and Deploying Firmware
 
-```
-$ NERVES_DEBUG=1 mix compile
-Nerves Env loaded
-------------------
-Nerves Environment
-------------------
-target:     rpi3
-toolchain:  _build/rpi3/dev/nerves/toolchain
-system:     _build/rpi3/dev/nerves/system
-app:        /Users/nerves/hello_nerves
-```
+Once the dependencies are fetched, you can build a Nerves Firmware (a bundle that contains a minimal Linux platform and your application, packaged as an OTP release).
+The first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors.
+These artifacts are cached locally in `~/.nerves/artifacts` so they can be shared across projects.
+ 
+### Generating a release config file
 
-You'll notice that subsequent calls to `compile` will not fetch or build the system because they're already cached on your host computer.
+You must generate a _release config file_ before generating a firmware bundle.
+Normally, it will be created for you by the `mix nerves.new` task, but if not, you will get a warning like this:
 
-## Making Firmware
-
-Now that you have a compiled Nerves application, you can produce firmware. Nerves firmware is the product of turning your application into an OTP release, adding it to the system image, and laying out a partition scheme. You can create the firmware bundle with the following command:
-
-```
-$ mix firmware
-Nerves Env loaded
-Nerves Firmware Assembler
-...
-Building _images/rpi3/hello_nerves.fw...
+```bash
+** (Mix)   You are missing a release config file. Run  nerves.release.init task first
 ```
 
-This will eventually output a firmware bundle file `_images/rpi3/hello_nerves.fw`. This file is an archive-formatted bundle and metadata about your firmware release. To create a bootable SD card, you can use the following command:
+You can generate the file using this Mix task:
 
-```
-$ mix firmware.burn
-Burn rpi3-0.0.1 to SD card at /dev/rdisk3, Proceed? [Y/n]
+```bash
+$ mix nerves.release.init
 ```
 
-This command will attempt to automatically discover the SD card inserted in your host machine. There may be situations where this command does not discover your SD card. This may occur if you have more than one SD card inserted into the machine, or you have disk images mounted at the same time. If this happens, you can specify which device to write to by passing the `-d <device>` argument to the command. This command wraps `fwup`, so any extra arguments passed to it will be forwarded along to `fwup`.
+### Create the firmware bundle
 
+You can create the firmware bundle with the following command:
+
+``` bash
+$ mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
 ```
+
+This will result in a `hello_nerves.fw` firmware bundle file.
+To create a bootable SD card, use the following command:
+
+``` bash
+$ mix firmware.burn # -OR- # MIX_TARGET=rpi3 mix firmware.burn
+```
+
+This command will attempt to automatically discover the SD card inserted in your host.
+This may fail to correctly detect your SD card, for example, if you have more than one SD card inserted or you have disk images mounted.
+If this happens, you can specify the intended device by passing the `-d <device>` argument to the command.
+
+``` bash
+# For example:
 $ mix firmware.burn -d /dev/rdisk3
 ```
 
-> Note: You can also use `-d <filename>` to specify an output file. This will allow you to create a binary image that you can burn later using `dd` or some other image copying utility.
+> NOTE: You can also use `-d <filename>` to specify an output file that is a raw image of the SD card.
+This binary image can be burned to an SD card using `fwup`, `dd`, `Win32DiskImager`, or some other image copying utility.
 
-Now that you have your SD card burned, you can insert it into your device and boot it up. For Raspberry Pi, connect it to your HDMI display and USB keyboard and you should see it boot to the IEx Console.
+The `mix firmware.burn` task uses the `fwup` tool internally; any extra arguments passed to it will be forwarded along to `fwup`.
+For example, if you are sure there is only one SD card inserted, you can also add the `-y` flag to skip the confirmation that it is the correct device.
 
-> Note: If you are sure there is only one SD card inserted, you can add the `-y` flag to skip the prompt making sure it is the right SD card.
-
+``` bash
+$ mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
 ```
-$ mix firmware.burn -y
-```
+
+You can read about the other supported options in the [`fwup` documentation](https://github.com/fhunleth/fwup#invoking).
+
+Now that you have your SD card burned, you can insert it into your device and boot it up.
+For Raspberry Pi, be sure to connect it to an HDMI display and USB keyboard so you can see it boot to the IEx console.
 
 ## Nerves Examples
 
-To get up and running quickly, you can check out our collection of example projects. Be sure to set your `NERVES_TARGET` environment variable appropriately as the examples use this to determine the target when building firmware. Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
-```
+To get up and running quickly, you can check out our [collection of example projects](https://github.com/nerves-project/nerves-examples).
+Be sure to set your `MIX_TARGET` environment variable appropriately for the target hardware you have.
+Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
+
+The `nerves-examples` repository contains several example projects to get you started.
+The simplest example is Blinky, known as the "Hello World" of hardware because all it does is blink an LED indefinitely.
+If you are ever curious about project structuring or can't get something running, check out Blinky and run it on your target to confirm that it works in the simplest case.
+
+``` bash
 $ git clone https://github.com/nerves-project/nerves-examples
+$ export MIX_TARGET=rpi3
 $ cd nerves-examples/blinky
-$ NERVES_TARGET=rpi3 mix do deps.get, firmware
+$ mix do deps.get, firmware, firmware.burn
 ```
 
-The example projects contain an app called Blinky, known as "The Hello World of Hardware". If you are ever curious about project structuring or can't get something running, it is advised to check out Blinky and run it on your target.

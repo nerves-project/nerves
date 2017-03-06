@@ -1,91 +1,42 @@
 # Targets
 
-Nerves provides support for a set of common targets. Each target is referenced with a unique tag name. These tags are used when instructing Nerves which target you would like to compile for. It is important to note that a single tag name may offer support for more than one target board.
+Nerves provides support for a set of common Targets.
+Each Target is referenced with a unique tag name.
+These tags are used when choosing which System and Toolchain to compile with.
+It is important to note that a single tag may offer support for more than one board.
 
 ## Supported Targets and Systems
 
 Target | System | Tag
 --- | --- | ---
-Raspberry Pi A+, B, B+ and Zero | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | rpi
-Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | rpi2
-Raspberry Pi 3 | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | rpi3
-BeagleBone Black | [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) | bbb
-Alix | [nerves_system_alix](https://github.com/nerves-project/nerves_system_alix) | alix
-AG150 | [nerves_system_ag150](https://github.com/nerves-project/nerves_system_ag150) | ag150
-Intel Galileo 2 | [nerves_system_galileo](https://github.com/nerves-project/nerves_system_galileo) | galileo
-Lego EV3 | [nerves_system_ev3](https://github.com/nerves-project/nerves_system_ev3) | ev3
-QEmu Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | qemu_arm
+Raspberry Pi A+, B, B+ and Zero | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | `rpi`
+Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
+Raspberry Pi 3 | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
+BeagleBone Black | [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) | `bbb`
+Alix | [nerves_system_alix](https://github.com/nerves-project/nerves_system_alix) | `alix`
+AG150 | [nerves_system_ag150](https://github.com/nerves-project/nerves_system_ag150) | `ag150`
+Intel Galileo 2 | [nerves_system_galileo](https://github.com/nerves-project/nerves_system_galileo) | `galileo`
+Lego EV3 | [nerves_system_ev3](https://github.com/nerves-project/nerves_system_ev3) | `ev3`
+Linkit Smart 7688 (and Duo) | [nerves_system_linkit](https://github.com/nerves-project/nerves_system_linkit) | `linkit`
+QEmu Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | `qemu_arm`
 
-## Changing Targets
+## Supporting New Target Hardware
 
-Nerves projects are configured to allow you to switch between targets by changing the value for the environment variable `NERVES_TARGET`. We configure our project to include the correct system for the target you choose by interpolating it into a string atom for the system reference.
+If you're trying to support a new Target, there may be quite a bit more work involved, depending on how mature the support for that hardware is in the Buildroot community.
+If you're not familiar with [Buildroot](https://buildroot.org/), you should learn about that first, using the excellent training materials on their website.
 
-```
-def system(target) do
-  [{:"nerves_system_#{target}", ">= 0.0.0"}]
-end
-```
+If you can find an existing Buildroot configuration for your intended hardware and you want to get it working with Nerves, you will need to make a custom System as follows:
 
-Targets can be set and persisted several ways.
+1.  Follow their procedure and confirm your target boots (independent of Nerves).
 
-**Global Level** In your shell, you can `export NERVES_TARGET=rpi3`. This is useful if you only own a certain board and want to checkout and play with a variety of published nerves projects.
+2.  Figure out how to get everything working with the version of Buildroot Nerves uses.
+    See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/master/create-build.sh).
 
-**Project Level** At the top of the mix file for a Nerves project, you can specify a default target tag:
-```
-@target System.get_env("NERVES_TARGET") || "rpi3"
-```
+  * Look for packages and board configs can need to be copied into your System.
+  * Look for patches to existing packages that are needed.
 
-**Run Level** You can switch targets at the issue of every mix command by specifying, for example, `NERVES_TARGET=rpi3 mix compile`
+3. Create a defconfig that mimics the one from step 1, and get `nerves_system_br` to build it.
+   See the section in the [System](systems.html) documentation about customizing Nerves Systems.
 
-A Run Level setting will override a Project Level setting, which will override a Global Level setting.
+> NOTE: You probably want to disable any userland packages that may be included by default to avoid distraction.
 
-### Example
-
-If you started your nerves project with `mix nerves.new hello_nerves --target rpi3`, and wish to compile for the Raspberry Pi 0, you can do so with:
-
-```
-NERVES_TARGET=rpi mix compile
-NERVES_TARGET=rpi mix firmware
-NERVES_TARGET=rpi mix firmware.burn
-```
-
-These commands will successively compile the code, create the firmware, and burn it to the SD card, for the `rpi` target (which covers the Raspberry Pi 0).
-
-Note: if you want to change the target for the current shell session, you can type: `export NERVES_TARGET=rpi`. For the rest of your shell session, you won't need to type `NERVES_TARGET=rpi` before your commands. If you wish to change the target permanently, you need to edit `mix.exs`.
-
-```
-@target System.get_env("NERVES_TARGET") || "rpi3"
-```
-
-## Target Dependencies
-
-It is important to note that, although Nerves supports multiple targets for a single application codebase, only one `nerves_system` can be included in a given firmware. Because of this, we recommend taking the following approach for including the system dependency separately from your application dependencies.
-
-First, tell the project configuration to concatenate the global application dependencies from the system dependencies:
-
-```
-def project do
-  [app: :hello_nerves,
-   version: "0.0.1",
-   target: @target,
-   archives: [nerves_bootstrap: "0.1.2"],
-   deps_path: "deps/#{@target}",
-   build_path: "_build/#{@target}",
-   build_embedded: Mix.env == :prod,
-   start_permanent: Mix.env == :prod,
-   aliases: aliases,
-   deps: deps ++ system(@target)]
-end
-```
-
-This allows you to keep the `nerves_system` separate form the rest of your dependencies:
-
-```
-def deps do
-  [{:nerves, "~> 0.3.0"}]
-end
-
-def system(target) do
-  [{:"nerves_system_#{target}", ">= 0.0.0"}]
-end
-```

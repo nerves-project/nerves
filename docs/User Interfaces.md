@@ -2,22 +2,21 @@
 
 ## Phoenix Web Interfaces
 
-Phoenix makes an excellent companion to Nerves applications by offering an easy-to-use, powerful framework to create user interfaces in parallel with Nerves device code. The easiest way to handle this is to layout your application as an Umbrella. Lets get started...
+Phoenix makes an excellent companion to Nerves applications by offering an easy-to-use, powerful framework to create user interfaces in parallel with Nerves device code.
+The easiest way to handle this is to lay out your application as an Umbrella.
 
 First, generate a new umbrella app, called `nervy` in this case:
 
-```
+```bash
 $ mix new nervy --umbrella
 ```
 
 Next, create your sub-applications for Nerves and for Phoenix:
 
-```
+```bash
 $ cd nervy/apps
-$ mix nerves.new fw --target rpi3
-...
+$ mix nerves.new fw
 $ mix phoenix.new ui --no-ecto --no-brunch
-...
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` app as dependencies:
@@ -28,24 +27,14 @@ Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` ap
 ...
 defp deps do
   [{:ui, in_umbrella: true},
-   {:nerves_networking, github: "nerves-project/nerves_networking"}]
+   {:nerves_networking, "~> 0.6.0"}]
 end
 ...
 ```
 
-and remember to add them to the OTP-configuration in the `fw` app:
-
-```elixir
-# nervy/apps/fw/mix.exs
-
-...
-applications: [:logger,
-               :ui,
-               :nerves_networking]]
-...
-```
-
-And in order to start networking when the fw boots add a child worker that sets up networking. This example sets up the networking using DHCP. For more network settings check the `nerves_networking` project.
+In order to start networking when `fw` boots, add a worker that sets up networking.
+This example sets up the networking using DHCP.
+For more network settings, check the [`nerves_networking` project](https://github.com/nerves-project/nerves_networking).
 
 ```elixir
 # nervy/apps/fw/lib/fw.ex
@@ -77,26 +66,24 @@ config :ui, Ui.Endpoint,
 config :logger, level: :debug
 ```
 
-There you have it! A Phoenix web application ready for your Nerves device. By separating the Phoenix application from the Nerves application, you can distribute the development between resources and continue to leverage the features we have all come to love from Phoenix, like live code reloading.
+There you have it!
+A Phoenix web application ready to run on your Nerves device.
+By separating the Phoenix application from the Nerves application, you could easily distribute the development between team members and continue to leverage the features we have all come to love from Phoenix, like live code reloading.
 
 When developing your UI, you can simply run the phoenix server from the UI application:
 
-```
-# nervy/apps/ui
+```bash
+$ cd nervy/apps/ui
 $ mix phoenix.server
 ```
 
 When it's time to create your firmware:
-```
-# nervy/apps/fw
+
+```bash
+$ cd nervy/apps/fw
+$ export MIX_TARGET=rpi3
 $ mix deps.get
 $ mix firmware
-
-# and in order to burn it
 $ mix firmware.burn
 ```
 
-__Note__: You will need to have the latest version of rebar installed in order for `mix firmware` to work because we are using features that aren't included in the older releases. If you encounter an error that stating `unrecognized command line option '-flat_namespace'` then you can use the following command to install a later version of rebar which should get you past this error.
-```
-mix local.rebar
-```
