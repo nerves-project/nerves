@@ -25,7 +25,7 @@ Now skip to the instructions for all platforms below.
 ## Linux
 
 We've found quite a bit of variation between Linux distributions.
-Nerves requires Erlang versions `>= 19.0` and Elixir versions `>= 1.2.4`.
+Nerves requires Erlang versions `>= 19.0` and Elixir versions `>= 1.4.0`.
 If you need to install Erlang, see the prebuilt versions and guides provided by [Erlang Solutions](https://www.erlang-solutions.com/resources/download.html).
 For Elixir, please reference the Elixir [Installation Page](http://elixir-lang.org/install.html).
 

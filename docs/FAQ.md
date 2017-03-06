@@ -6,7 +6,7 @@ If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](htt
 
 ## Using a USB Serial Console
 
-By default, the `iex` console is displayed on the screen attached to the HDMI port, which tends to be easier for new people because they can simply connect their target device to a monitor or TV.
+By default on the Raspberry Pi family of targets, the `iex` console is displayed on the screen attached to the HDMI port, which tends to be easier for new people because they can simply connect their target device to a monitor or TV.
 For troubleshooting start-up issues and for more advanced development workflows, it's often desirable to connect from your development host to the target using a serial port, for example using the popular [FTDI Cable](https://www.sparkfun.com/products/9717).
 This allows you to interact with the console of the target device using a terminal emulator (like `screen`) on your development host.
 

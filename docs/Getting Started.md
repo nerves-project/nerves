@@ -73,7 +73,7 @@ $ MIX_TARGET=rpi3 mix deps.get
 
 Once the dependencies are fetched, you can build a Nerves Firmware (a bundle that contains a minimal Linux platform and your application, packaged as an OTP release).
 The first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors.
-These Artifacts are cached locally in `~/.nerves/artifacts` so they can be shared across projects.
+These artifacts are cached locally in `~/.nerves/artifacts` so they can be shared across projects.
 
 ``` bash
 $ mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
