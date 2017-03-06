@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Nerves.New do
 
   @nerves Path.expand("../../../..", __DIR__)
 
-  @nerves_vsn "0.4.0"
+  @nerves_vsn "0.5.0"
   @bootstrap_vsn "0.3.0"
   @runtime_vsn "0.1.0"
 
