@@ -1,8 +1,12 @@
 # nerves_bootstrap
 
-## v0.3.0-dev
+## v0.3.0
 * Enhancements
-  * new project generator structure defaults to Host target env
+  * nerves.new
+    * defaults to Host target env
+    * includes nerves_runtime
+    * prompt to install deps and run nerves.release.init
+    * unset MIX_TARGET when generating a new project
 * Bug Fixes
   * removed rel/.gitignore from new project generator
 

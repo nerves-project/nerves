@@ -1,11 +1,19 @@
 # Release Notes
 
-## Nerves 0.5.0-dev
+## Nerves 0.5.0
 * Bug Fixes
   * `:nocache` the HTTP provider if the download list is empty
+  * return an error when tar is unsuccessful at decompressing an artifact
+  * return `:error` for any error in downloading artifacts
+  * clean up temp files after downloading artifacts
+  * expand path before comparing for dep type: Fixes path deps in umbrella
+  * clean up artifact dir before copying new artifact
 * Enhancements
-  * Added ability to specify the images_path in the Mix.Project config.
-  * Changed default images_path to `#{build_path}/nerves/images`
+  * changed console output for higher visibility Nerves compiler messages
+  * added ability to specify the images_path in the Mix.Project config
+  * changed default images_path to `#{build_path}/nerves/images`
+  * updated docs to reflect changes made to project structure
+  * added `mix nerves.info` task. Can be used to gain information about the Nerves env
 
 ## Nerves 0.4.8
 * Bug Fixes
