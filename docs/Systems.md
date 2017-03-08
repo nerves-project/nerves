@@ -256,7 +256,7 @@ The packages are divided into three categories:
   2. Modify the Linux kernel and kernel modules with `make linux-menuconfig`
   3. Enable more command line utilities using `make busybox-menuconfig`
 
-If you followed the steps in the previous section, make sure you have changed directory to `rpi2_out` first.
+If you followed the steps in the previous section, make sure you have changed directory to `custom_rpi3` first.
 
 When you quit from the `menuconfig` interface, the changes are stored temporarily.
 To save them back in your System, follow the appropriate steps below:
