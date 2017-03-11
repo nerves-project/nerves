@@ -61,11 +61,27 @@ config :ui, Ui.Endpoint,
   root: Path.dirname(__DIR__),
   server: true,
   render_errors: [accepts: ~w(html json)],
-  pubsub: [name: Nerves.PubSub]
   pubsub: [name: Nerves.PubSub],
   code_reload: false
 
 config :logger, level: :debug
+```
+
+By default,
+the main config loads the application configs in an unordered way: `import_config "../apps/*/config/config.exs`.   This can cause problems if the  `ui` config is applied last: we loose the overrides we just added in the previous step.  You need to force the order in which the config files get imported:
+
+```elixir
+# nervy/config/config.exs
+
+use Mix.Config
+
+# By default, the umbrella project as well as each child
+# application will require this configuration file, ensuring
+# they all use the same configuration. While one could
+# configure all applications here, we prefer to delegate
+# back to each application for organization purposes.
+import_config "../apps/ui/config/config.exs"
+import_config "../apps/fw/config/config.exs"
 ```
 
 There you have it!
@@ -88,4 +104,3 @@ $ mix deps.get
 $ mix firmware
 $ mix firmware.burn
 ```
-
