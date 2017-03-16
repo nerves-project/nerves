@@ -34,7 +34,7 @@ defmodule Nerves.Utils.HTTPClient do
       {'Content-Type', 'application/octet-stream'}
     ]
 
-    http_opts = [timeout: :infinity, autoredirect: true] ++ Nerves.Utils.Proxy.config(url)
+    http_opts = [timeout: :infinity, autoredirect: false] ++ Nerves.Utils.Proxy.config(url)
     opts = [stream: :self, receiver: self(), sync: false]
     :httpc.request(:get, {String.to_char_list(url), headers}, http_opts, opts, :nerves)
     {:noreply, %{s | url: url, caller: from}}
@@ -76,6 +76,14 @@ defmodule Nerves.Utils.HTTPClient do
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
 
+  def handle_info({:http, {_ref, {{_, status_code, _}, headers, _body}}}, s) do
+    case Enum.find(headers, fn({key,_}) -> key == 'location' end) do
+      {'location', next_url} ->
+        handle_call({:get, List.to_string(next_url)}, s.caller, %{s | buffer: "", buffer_size: 0})
+      _ ->
+        GenServer.reply(s.caller, {:error, status_code})
+    end
+  end
   def handle_info({:http, {error, _headers}}, s) do
     GenServer.reply(s.caller, {:error, error})
     {:noreply, s}
