@@ -3,7 +3,7 @@ defmodule <%= app_module %>.Mixfile do
 
   @target System.get_env("MIX_TARGET") || "host"
   Mix.shell.info([:green, """
-  Env
+  Mix environment
     MIX_TARGET:   #{@target}
     MIX_ENV:      #{Mix.env}
   """, :reset])
