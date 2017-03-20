@@ -37,7 +37,7 @@ This example sets up the networking using DHCP.
 For more network settings, check the [`nerves_networking` project](https://github.com/nerves-project/nerves_networking).
 
 ```elixir
-# nervy/apps/fw/lib/fw.ex
+# nervy/apps/fw/lib/fw/application.ex
 
 ...
 # add networking
@@ -86,4 +86,3 @@ $ mix deps.get
 $ mix firmware
 $ mix firmware.burn
 ```
-
