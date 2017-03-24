@@ -29,6 +29,11 @@ $ mix firmware      # Cross-compile dependencies and create a .fw file
 $ mix firmware.burn # Burn firmware to an inserted SD card
 ```
 
+**Note:** The `mix firmware.burn` target relies on the presence of `ssh-askpass`. Some
+users may need to export the `SUDO_ASKPASS` environment variable to point to their askpass
+binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
+
+
 ## Docs
 
 [Installation Docs](https://hexdocs.pm/nerves/installation.html)
