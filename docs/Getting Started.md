@@ -90,8 +90,10 @@ You can generate the file using this Mix task:
 $ mix nerves.release.init
 ```
 
-> NOTE: `mix nerves.release.init` generates a **nerves specific release config file**. There also exists the standard `mix release.init` generator which is most likely not what you want. 
-> If you experience errors like `init terminating in do_boot (cannot expand $ERTS_LIB_DIR in bootfile)` you most likely used the standard config generator. Try regenerating your release config using `mix nerves.release.init`.
+> NOTE: `mix nerves.release.init` generates a **Nerves-specific release config file**.
+> There also exists a standard `mix release.init` generator, which is most likely not what you want.
+> If you experience errors like `init terminating in do_boot (cannot expand $ERTS_LIB_DIR in bootfile)`, you most likely used the standard config generator.
+> Try re-generating your release config using `mix nerves.release.init`.
 
 ### Create the firmware bundle
 
