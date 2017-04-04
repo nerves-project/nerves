@@ -1,7 +1,7 @@
 defmodule SimpleAppV1.Fixture do
   use Mix.Project
 
-  @target System.get_env("NERVES_TARGET") || "rpi3"
+  @target System.get_env("MIX_TARGET") || "rpi3"
 
   def project do
     [app: :simple_app_v1,
