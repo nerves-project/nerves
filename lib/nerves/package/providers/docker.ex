@@ -137,7 +137,7 @@ defmodule Nerves.Package.Providers.Docker do
   defp create_docker_id(bytes) do
     case bytes |> Base.url_encode64 |> binary_part(0, 16) do
       "-" <> id ->
-        Mix.shell.info("Generated id has leading - ==> replace it by n\n")
+        # Mix.shell.info("Generated id has leading - ==> replace it by n\n")
         "n" <> id
       id -> id
     end
