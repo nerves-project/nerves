@@ -118,7 +118,7 @@ defmodule Nerves.Package.Providers.Docker do
       if File.exists?(id_file) do
         File.read!(id_file)
       else
-        id = :crypto.strong_rand_bytes(16) |> Base.url_encode64 |> binary_part(0, 16)
+        id = :crypto.strong_rand_bytes(16) |> create_docker_id()
         Path.dirname(id_file)
         |> File.mkdir_p!
         File.write!(id_file, id)
@@ -131,6 +131,16 @@ defmodule Nerves.Package.Providers.Docker do
     _ = config_check(pkg, name)
 
     name
+  end
+
+  # Prevent a leading `-` and replace it by a `n` for nerves
+  defp create_docker_id(bytes) do
+    case bytes |> Base.url_encode64 |> binary_part(0, 16) do
+      "-" <> id ->
+        Mix.shell.info("Generated id has leading - ==> replace it by n\n")
+        "n" <> id
+      id -> id
+    end
   end
 
   defp create_build(pkg, container, stream) do
