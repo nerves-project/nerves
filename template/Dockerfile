@@ -13,9 +13,11 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-RUN locale-gen en_US.UTF-8
 RUN dpkg --add-architecture i386
 RUN DEBIAN_FRONTEND=noninteractive apt-get update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y locales
+RUN localedef -i en_US -f UTF-8 en_US.UTF-8
+
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   git \
   g++ \
