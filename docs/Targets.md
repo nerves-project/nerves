@@ -10,7 +10,7 @@ It is important to note that a single tag may offer support for more than one bo
 Target | System | Tag
 --- | --- | ---
 Raspberry Pi A+, B, B+ | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | `rpi`
-Raspberry Pi Zero, Zero W | [nerves_system_rpi0](https://github.com/nerves-project/nerves_system_rpi0) | `rpi0`
+Raspberry Pi Zero and Zero W | [nerves_system_rpi0](https://github.com/nerves-project/nerves_system_rpi0) | `rpi0`
 Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
 Raspberry Pi 3 | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
 BeagleBone Black | [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) | `bbb`
