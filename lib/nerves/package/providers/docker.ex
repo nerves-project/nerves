@@ -68,7 +68,7 @@ defmodule Nerves.Package.Providers.Docker do
   alias Nerves.Package.Artifact
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or ~> 17.0"
-  @tag "nervesproject/nerves_system_br:0.8.0"
+  @tag "nervesproject/nerves_system_br:latest"
 
   @dockerfile File.cwd!
               |> Path.join("template/Dockerfile")
