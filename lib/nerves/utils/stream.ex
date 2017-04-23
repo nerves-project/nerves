@@ -52,7 +52,7 @@ defmodule Nerves.Utils.Stream do
     trim <> bin
     |> String.split(split)
     |> List.first
-    |> String.strip
+    |> String.trim
     |> IO.write
     reset_timer(s)
   end

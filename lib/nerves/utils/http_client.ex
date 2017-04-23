@@ -64,7 +64,7 @@ defmodule Nerves.Utils.HTTPClient do
       |> to_string
       |> String.split(";")
       |> List.last
-      |> String.strip
+      |> String.trim
       |> String.trim("filename=")
     {:noreply, %{s | content_length: content_length, filename: filename}}
   end

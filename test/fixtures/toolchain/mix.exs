@@ -3,7 +3,7 @@ defmodule Toolchain.Fixture.Mixfile do
 
   @version Path.join(__DIR__, "VERSION")
            |> File.read!
-           |> String.strip
+           |> String.trim
 
   def project do
     [app: :toolchain,
