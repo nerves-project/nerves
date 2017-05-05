@@ -228,9 +228,9 @@ defmodule Nerves.Package.Providers.Docker do
       File.mkdir_p(dir)
 
       cwd = base_dir
-      |> String.to_char_list
+      |> String.to_charlist
 
-      String.to_char_list(tar_file)
+      String.to_charlist(tar_file)
       |> :erl_tar.extract([:compressed, {:cwd, cwd}])
 
       File.rm!(tar_file)

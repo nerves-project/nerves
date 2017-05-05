@@ -92,7 +92,7 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise "Could not auto detect your SD card"
     end
     result
-    |> String.strip
+    |> String.trim
     |> String.split("\n")
     |> Enum.map(&String.split(&1, ","))
   end
@@ -116,7 +116,7 @@ defmodule Mix.Tasks.Firmware.Burn do
           end)
           |> Enum.reverse
         choice = Mix.shell.prompt("Discovered devices:\n#{Enum.join(choices, "\n")}\nWhich device do you want to burn to?")
-        |> String.strip
+        |> String.trim
         idx =
           case Integer.parse(choice) do
             {idx, _} -> idx

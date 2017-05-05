@@ -13,7 +13,7 @@ defmodule Nerves.Package do
     version =
       Path.join(__DIR__, "VERSION")
       |> File.read!
-      |> String.strip
+      |> String.trim
 
     pkg =
 

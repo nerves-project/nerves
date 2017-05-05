@@ -16,7 +16,7 @@ defmodule Nerves.Utils.Proxy do
     uri = URI.parse(proxy)
 
     if uri.host && uri.port do
-      host = String.to_char_list(uri.host)
+      host = String.to_charlist(uri.host)
       :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
     end
 
@@ -42,8 +42,8 @@ defmodule Nerves.Utils.Proxy do
   defp auth(%URI{userinfo: auth}) do
     destructure [user, pass], String.split(auth, ":", parts: 2)
 
-    user = String.to_char_list(user)
-    pass = String.to_char_list(pass || "")
+    user = String.to_charlist(user)
+    pass = String.to_charlist(pass || "")
 
     [proxy_auth: {user, pass}]
   end

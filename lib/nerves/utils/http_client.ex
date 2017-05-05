@@ -42,7 +42,7 @@ defmodule Nerves.Utils.HTTPClient do
 
     http_opts = [timeout: :infinity, autoredirect: false] ++ Nerves.Utils.Proxy.config(url)
     opts = [stream: :self, receiver: self(), sync: false]
-    :httpc.request(:get, {String.to_char_list(url), headers}, http_opts, opts, :nerves)
+    :httpc.request(:get, {String.to_charlist(url), headers}, http_opts, opts, :nerves)
     {:noreply, %{s | url: url, caller: from}}
   end
 
@@ -64,7 +64,7 @@ defmodule Nerves.Utils.HTTPClient do
       |> to_string
       |> String.split(";")
       |> List.last
-      |> String.strip
+      |> String.trim
       |> String.trim("filename=")
     {:noreply, %{s | content_length: content_length, filename: filename}}
   end

@@ -185,12 +185,12 @@ defmodule Nerves.Package.Squashfs do
     permissions = parse_permissions(permissions)
     [own, tail] = String.split(tail, " ", parts: 2)
     own = parse_own(own)
-    tail = String.strip(tail)
+    tail = String.trim(tail)
 
     {attr, tail} =
     if type in @device_types do
       [major, tail] = String.split(tail, ",", parts: 2)
-      tail = String.strip(tail)
+      tail = String.trim(tail)
       [minor, tail] = String.split(tail, " ", parts: 2)
       {{major, minor}, tail}
     else
@@ -199,11 +199,11 @@ defmodule Nerves.Package.Squashfs do
     end
 
     <<_modified :: binary-size(16), tail :: binary>> = tail
-    <<"squashfs-root", file :: binary>> = String.strip(tail)
+    <<"squashfs-root", file :: binary>> = String.trim(tail)
     file =
       if type == "l" do
         [file, _] = String.split(file, "->")
-        String.strip(file)
+        String.trim(file)
       else
         file
       end
