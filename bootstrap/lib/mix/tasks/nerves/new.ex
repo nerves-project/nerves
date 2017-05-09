@@ -37,18 +37,25 @@ defmodule Mix.Tasks.Nerves.New do
   @moduledoc """
   Creates a new Nerves project.
   It expects the path of the project as argument.
+
       mix nerves.new PATH [--module MODULE] [--app APP]
+
   A project at the given PATH will be created. The
   application name and module name will be retrieved
   from the path, unless `--module` or `--app` is given.
-  ## Options
-    * `--app` - the name of the OTP application
-    * `--module` - the name of the base module in
-      the generated skeleton
+
+  An `--app` option can be given in order to name the OTP
+  application for the project.
+
+  A `--module` option can be given in order to name the
+  modules in the generated code skeleton.
 
   ## Examples
+
       mix nerves.new blinky
+
   Is equivalent to:
+
       mix nerves.new blinky --module Blinky
   """
 
