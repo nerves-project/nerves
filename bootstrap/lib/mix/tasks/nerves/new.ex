@@ -37,18 +37,25 @@ defmodule Mix.Tasks.Nerves.New do
   @moduledoc """
   Creates a new Nerves project.
   It expects the path of the project as argument.
+
       mix nerves.new PATH [--module MODULE] [--app APP]
+
   A project at the given PATH will be created. The
   application name and module name will be retrieved
   from the path, unless `--module` or `--app` is given.
-  ## Options
-    * `--app` - the name of the OTP application
-    * `--module` - the name of the base module in
-      the generated skeleton
+
+  An `--app` option can be given in order to name the OTP
+  application for the project.
+
+  A `--module` option can be given in order to name the
+  modules in the generated code skeleton.
 
   ## Examples
+
       mix nerves.new blinky
+
   Is equivalent to:
+
       mix nerves.new blinky --module Blinky
   """
 
@@ -143,24 +150,31 @@ defmodule Mix.Tasks.Nerves.New do
   defp print_mix_info(path, extra) do
     command = ["$ cd #{path}"] ++ extra
     Mix.shell.info """
-    All set!
-      #{Enum.join(command, "\n")}
+    Your Nerves project was created successfully.
 
-    Next, pick a deployment target.
-      For example: `rpi3` for Raspberry Pi 3
-      More info on targets: https://hexdocs.pm/nerves/targets.html#content
+    You should now pick a target. See https://hexdocs.pm/nerves/targets.html#content
+    for supported targets. If your target is on the list, set `MIX_TARGET`
+    to its tag name:
 
-    To set the target you can either
+    For example, for the Raspberry Pi 3 you can either
       $ export MIX_TARGET=rpi3
-    Or prefix your commands
+    Or prefix `mix` commands like the following:
       $ MIX_TARGET=rpi3 mix firmware
 
-    Finally, Create firmware
+    If you will be using a custom system, update the `mix.exs`
+    dependencies to point to desired system's package.
+
+    Now download the dependencies and build a firmware archive:
+      #{Enum.join(command, "\n")}
       $ mix deps.get
       $ mix firmware
 
-    You can also run your app inside IEx (Interactive Elixir) as:
-      $ iex -S mix
+    If your target boots up using an SDCard (like the Raspberry Pi 3),
+    then insert an SDCard into a reader on your computer and run:
+      $ mix firmware.burn
+
+    Plug the SDCard into the target and power it up. See target documentation
+    above for more information and other targets.
     """
   end
 
