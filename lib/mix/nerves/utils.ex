@@ -33,6 +33,7 @@ defmodule Mix.Nerves.Utils do
     {:ok, req} = Version.parse_requirement(@fwup_semver)
     with {_, 0} <- System.cmd(which_or_where, ["fwup"]),
          {vsn, 0} <- System.cmd("fwup", ["--version"]),
+         vsn = String.trim(vsn),
          true <- Version.match?(vsn, req) do
     else
       false ->
