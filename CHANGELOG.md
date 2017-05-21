@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.5.2
+* BugFixes
+  * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
+
 ## Nerves 0.5.1
 * BugFixes
   * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
