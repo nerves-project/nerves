@@ -1,5 +1,9 @@
 # nerves_bootstrap
 
+## v0.3.1
+  * Bug Fixes
+    * Added support for OTP 20: Fixes issue with RegEx producing false positives.
+
 ## v0.3.0
 * Enhancements
   * nerves.new

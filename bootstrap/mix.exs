@@ -3,7 +3,7 @@ defmodule Nerves.Bootstrap.Mixfile do
 
   def project do
     [app: :nerves_bootstrap,
-     version: "0.3.0",
+     version: "0.3.1",
      elixir: "~> 1.4.0",
      aliases: aliases(),
      xref: [exclude: [Nerves.Env]]]
