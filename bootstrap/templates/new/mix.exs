@@ -63,7 +63,7 @@ defmodule <%= app_module %>.Mixfile do
   def deps("host"), do: []
   def deps(target) do
     [{:nerves_runtime, "~> <%= runtime_vsn %>"},
-     {:"nerves_system_#{target}", "~> 0.10", runtime: false}]
+     {:"nerves_system_#{target}", "~> 0.10"}]
   end
 
   # We do not invoke the Nerves Env when running on the Host
