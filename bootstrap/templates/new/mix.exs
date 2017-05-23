@@ -18,9 +18,10 @@ defmodule <%= app_module %>.Mixfile do
      deps_path: "../../deps/#{@target}",
      build_path: "../../_build/#{@target}",
      config_path: "../../config/config.exs",
-     lockfile: "../../mix.lock",<% else %>
+     lockfile: "../../mix.lock.#{@target}",<% else %>
      deps_path: "deps/#{@target}",
-     build_path: "_build/#{@target}",<% end %>
+     build_path: "_build/#{@target}",
+     lockfile: "mix.lock.#{@target}",<% end %>
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(@target),
