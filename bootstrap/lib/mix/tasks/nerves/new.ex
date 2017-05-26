@@ -86,9 +86,15 @@ defmodule Mix.Tasks.Nerves.New do
 
       mix nerves.new blinky --target rpi3 --target rpi0
 
+
+  # Network options
+
+  `--cookie` - Specify the cookie to set for the vm.args.
+    Defaults to a randomly generated string
+
   """
 
-  @switches [app: :string, module: :string, target: :keep]
+  @switches [app: :string, module: :string, target: :keep, cookie: :string]
 
   def run([version]) when version in ~w(-v --version) do
     Mix.shell.info "Nerves v#{@bootstrap_vsn}"
@@ -144,7 +150,7 @@ defmodule Mix.Tasks.Nerves.New do
     end)
 
     targets = if targets == [], do: @targets, else: targets
-
+    cookie = opts[:cookie] || random_string(64)
     binding = [app_name: app,
                app_module: mod,
                bootstrap_vsn: @bootstrap_vsn,
@@ -152,7 +158,8 @@ defmodule Mix.Tasks.Nerves.New do
                elixir_req: @requirement,
                nerves_dep: nerves_dep(nerves_path),
                in_umbrella: in_umbrella?,
-               targets: targets]
+               targets: targets,
+               cookie: cookie]
 
     copy_from path, binding, @new
     # Parallel installs
@@ -310,5 +317,9 @@ defmodule Mix.Tasks.Nerves.New do
     catch
       _, _ -> false
     end
+  end
+
+  defp random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.encode64 |> binary_part(0, length)
   end
 end

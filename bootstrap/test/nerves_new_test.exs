@@ -48,13 +48,31 @@ defmodule Nerves.BootstrapTest do
   test "new project multiple target", context do
     in_tmp context.test, fn ->
       Mix.Tasks.Nerves.New.run([@app_name, "--target", "rpi", "--target", "rpi3"])
-      
+
       assert_file "#{@app_name}/README.md"
       assert_file "#{@app_name}/mix.exs", fn file ->
         assert file =~ "app: :#{@app_name}"
         assert file =~ "def system(\"rpi\"), do: {:nerves_system_rpi, \">= 0.0.0\""
         assert file =~ "def system(\"rpi3\"), do: {:nerves_system_rpi3, \">= 0.0.0\""
         refute file =~ "def system(\"rpi0\"), do: {:nerves_system_rpi0, \">= 0.0.0\""
+      end
+    end
+  end
+
+  test "new project defined cookie set", context do
+    in_tmp context.test, fn ->
+      Mix.Tasks.Nerves.New.run([@app_name, "--cookie", "12345"])
+      assert_file "#{@app_name}/rel/vm.args", fn file ->
+        assert file =~ "-setcookie 12345"
+      end
+    end
+  end
+
+  test "new project default cookie set", context do
+    in_tmp context.test, fn ->
+      Mix.Tasks.Nerves.New.run([@app_name])
+      assert_file "#{@app_name}/rel/vm.args", fn file ->
+        assert file =~ ~r/.*-setcookie [a-zA-Z0-9+\/]{64}\n|\r|\n\r/s
       end
     end
   end
