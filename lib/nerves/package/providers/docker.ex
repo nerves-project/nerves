@@ -108,7 +108,7 @@ defmodule Nerves.Package.Providers.Docker do
   # end
 
   defp preflight(pkg) do
-    checksum = Nerves.Package.checksum(pkg)
+    #checksum = Nerves.Package.checksum(pkg)
 
     id_file =
       Mix.Project.build_path
@@ -125,7 +125,7 @@ defmodule Nerves.Package.Providers.Docker do
         id
       end
 
-    name = "#{id}-#{pkg.app}-#{checksum}"
+    name = "#{id}-#{pkg.app}"
 
     _ = host_check()
     _ = config_check(pkg, name)
