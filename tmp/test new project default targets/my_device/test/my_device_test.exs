@@ -1,6 +1,6 @@
-defmodule Nerves.BootstrapTest do
+defmodule MyDeviceTest do
   use ExUnit.Case
-  doctest Nerves.Env
+  doctest MyDevice
 
   test "the truth" do
     assert 1 + 1 == 2

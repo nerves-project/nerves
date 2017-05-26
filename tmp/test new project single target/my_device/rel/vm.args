@@ -1,0 +1,9 @@
+## Add custom options here
+
+## Start the Elixir shell
+-noshell
+-user Elixir.IEx.CLI
+-extra --no-halt
+
+## Options added here are interpreted as plain arguments and
+## can be retrieved using :init.get_plain_arguments().

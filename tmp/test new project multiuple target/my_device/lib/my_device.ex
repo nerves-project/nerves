@@ -1,0 +1,3 @@
+defmodule MyDevice do
+  
+end

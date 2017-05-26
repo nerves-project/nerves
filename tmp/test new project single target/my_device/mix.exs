@@ -1,4 +1,4 @@
-defmodule <%= app_module %>.Mixfile do
+defmodule MyDevice.Mixfile do
   use Mix.Project
 
   @target System.get_env("MIX_TARGET") || "host"
@@ -10,18 +10,14 @@ defmodule <%= app_module %>.Mixfile do
   """, :reset])
 
   def project do
-    [app: :<%= app_name %>,
+    [app: :my_device,
      version: "0.1.0",
-     elixir: "<%= elixir_req %>",
+     elixir: "~> 1.4.0",
      target: @target,
-     archives: [nerves_bootstrap: "~> <%= bootstrap_vsn %>"],<%= if in_umbrella do %>
-     deps_path: "../../deps/#{@target}",
-     build_path: "../../_build/#{@target}",
-     config_path: "../../config/config.exs",
-     lockfile: "../../mix.lock.#{@target}",<% else %>
+     archives: [nerves_bootstrap: "~> 0.3.0"],
      deps_path: "deps/#{@target}",
      build_path: "_build/#{@target}",
-     lockfile: "mix.lock.#{@target}",<% end %>
+     lockfile: "mix.lock.#{@target}",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      aliases: aliases(@target),
@@ -36,12 +32,12 @@ defmodule <%= app_module %>.Mixfile do
   # Specify target specific application configurations
   # It is common that the application start function will start and supervise
   # applications which could cause the host to fail. Because of this, we only
-  # invoke <%= app_module %>.start/2 when running on a target.
+  # invoke MyDevice.start/2 when running on a target.
   def application("host") do
     [extra_applications: [:logger]]
   end
   def application(_target) do
-    [mod: {<%= app_module %>.Application, []},
+    [mod: {MyDevice.Application, []},
      extra_applications: [:logger]]
   end
 
@@ -55,7 +51,7 @@ defmodule <%= app_module %>.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   def deps do
-    [<%= nerves_dep %>] ++
+    [{:nerves, "~> 0.5.0", runtime: false}] ++
     deps(@target)
   end
 
@@ -63,12 +59,12 @@ defmodule <%= app_module %>.Mixfile do
   def deps("host"), do: []
   def deps(target) do
     [ system(target),
-      {:nerves_runtime, "~> <%= runtime_vsn %>"}
+      {:nerves_runtime, "~> 0.1.0"}
     ]
   end
 
-  <%= for target <- targets do %>
-  def system("<%= target %>"), do: {:<%= String.to_atom("nerves_system_#{target}") %>, ">= 0.0.0", runtime: false}<% end %>
+  
+  def system("rpi"), do: {:nerves_system_rpi, ">= 0.0.0", runtime: false}
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 
   # We do not invoke the Nerves Env when running on the Host
