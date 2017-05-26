@@ -17,3 +17,5 @@ before_script:
   - mix deps.get --only test
 script:
   - mix test
+  - cd bootstrap
+  - mix test

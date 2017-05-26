@@ -1,3 +1,0 @@
-defmodule MyDevice do
-  
-end
