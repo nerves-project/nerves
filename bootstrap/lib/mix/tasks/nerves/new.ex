@@ -11,6 +11,17 @@ defmodule Mix.Tasks.Nerves.New do
   @requirement Mix.Project.config[:elixir]
   @shortdoc "Creates a new Nerves application"
 
+  @targets [
+    "rpi",
+    "rpi0",
+    "rpi2",
+    "rpi3",
+    "bbb",
+    "linkit",
+    "ev3",
+    "qemu_arm"
+  ]
+
   @new [
     {:eex,  "new/config/config.exs",                "config/config.exs"},
     {:eex,  "new/lib/app_name.ex",                  "lib/app_name.ex"},
@@ -38,7 +49,7 @@ defmodule Mix.Tasks.Nerves.New do
   Creates a new Nerves project.
   It expects the path of the project as argument.
 
-      mix nerves.new PATH [--module MODULE] [--app APP]
+      mix nerves.new PATH [--module MODULE] [--app APP] [--target TARGET]
 
   A project at the given PATH will be created. The
   application name and module name will be retrieved
@@ -57,9 +68,27 @@ defmodule Mix.Tasks.Nerves.New do
   Is equivalent to:
 
       mix nerves.new blinky --module Blinky
+
+  `--target` is optional. If unspecified, the project will be generated to
+  support all official Nerves systems. Passing `--target` limits the generated
+  project to a single system, or multiple systems.
+
+  For a list of supported targets visit
+  https://hexdocs.pm/nerves/targets.html#supported-targets-and-systems
+
+  ## Examples
+
+  Generate a project that only supports Raspberry Pi 3
+
+      mix nerves.new blinky --target rpi3
+
+  Generate a project that supports Raspberry Pi 3 and Raspberry Pi Zero
+
+      mix nerves.new blinky --target rpi3 --target rpi0
+
   """
 
-  @switches [app: :string, module: :string, target: :string]
+  @switches [app: :string, module: :string, target: :keep]
 
   def run([version]) when version in ~w(-v --version) do
     Mix.shell.info "Nerves v#{@bootstrap_vsn}"
@@ -99,16 +128,22 @@ defmodule Mix.Tasks.Nerves.New do
     nerves_path = nerves_path(path, Keyword.get(opts, :dev, false))
     in_umbrella? = in_umbrella?(path)
 
-    if target = opts[:target] do
-      Mix.shell.info [:yellow, """
-      Usage of --target has been deprecated.
-      Nerves projects default to "host" target.
-      To use your target, either export to your environment
-        $ export MIX_TARGET=#{target}
-      or prefix any mix commands to execute for that target
-        $ MIX_TARGET=#{target} mix deps.get
-      """, :reset]
-    end
+    targets =
+      (opts || [])
+      |> Keyword.get_values(:target)
+
+    Enum.each(targets, fn(target) ->
+      unless target in @targets do
+        targets = Enum.join(@targets, "\n")
+        Mix.raise """
+        Unknown target #{inspect target}
+        Supported targets
+        #{targets}
+        """
+      end
+    end)
+
+    targets = if targets == [], do: @targets, else: targets
 
     binding = [app_name: app,
                app_module: mod,
@@ -116,7 +151,8 @@ defmodule Mix.Tasks.Nerves.New do
                runtime_vsn: @runtime_vsn,
                elixir_req: @requirement,
                nerves_dep: nerves_dep(nerves_path),
-               in_umbrella: in_umbrella?]
+               in_umbrella: in_umbrella?,
+               targets: targets]
 
     copy_from path, binding, @new
     # Parallel installs
