@@ -8,7 +8,7 @@ defmodule Nerves.BootstrapTest do
 
   setup do
     # The shell asks to install deps.
-    # We will politely say not.
+    # We will politely say not to.
     send self(), {:mix_shell_input, :yes?, false}
     :ok
   end
@@ -45,7 +45,7 @@ defmodule Nerves.BootstrapTest do
     end
   end
 
-  test "new project multiuple target", context do
+  test "new project multiple target", context do
     in_tmp context.test, fn ->
       Mix.Tasks.Nerves.New.run([@app_name, "--target", "rpi", "--target", "rpi3"])
       

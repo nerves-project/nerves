@@ -49,7 +49,7 @@ defmodule Mix.Tasks.Nerves.New do
   Creates a new Nerves project.
   It expects the path of the project as argument.
 
-      mix nerves.new PATH [--module MODULE] [--app APP]
+      mix nerves.new PATH [--module MODULE] [--app APP] [--target TARGET]
 
   A project at the given PATH will be created. The
   application name and module name will be retrieved
@@ -68,6 +68,24 @@ defmodule Mix.Tasks.Nerves.New do
   Is equivalent to:
 
       mix nerves.new blinky --module Blinky
+
+  `--target` is optional. If unspecified, the project will be generated to
+  support all official Nerves systems. Passing `--target` limits the generated
+  project to a single system, or multiple systems.
+
+  For a list of supported targets visit
+  https://hexdocs.pm/nerves/targets.html#supported-targets-and-systems
+
+  ## Examples
+
+  Generate a project that only supports Raspberry Pi 3
+
+      mix nerves.new blinky --target rpi3
+
+  Generate a project that supports Raspberry Pi 3 and Raspberry Pi Zero
+
+      mix nerves.new blinky --target rpi3 --target rpi0
+
   """
 
   @switches [app: :string, module: :string, target: :keep]
