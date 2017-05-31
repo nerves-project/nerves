@@ -7,7 +7,7 @@ defmodule Nerves.Mixfile do
      source_url: "https://github.com/nerves-project/nerves",
      homepage_url: "http://nerves-project.org/",
      version: "0.5.2",
-     archives: [nerves_bootstrap: "~> 0.3.0"],
+     archives: [nerves_bootstrap: "~> 0.3"],
      elixir: "~> 1.4.0",
      elixirc_paths: elixirc_paths(Mix.env),
      deps: deps(),
