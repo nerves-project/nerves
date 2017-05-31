@@ -1,5 +1,15 @@
 # nerves_bootstrap
 
+## v0.4.0-dev
+  * Enhancements
+    * nerves.new
+      * lock files are split by target
+      * Target dependencies are explicitly broken out in mix.exs through passing
+        `--target` to the generator. Defaults to declaring all officially supported
+        Nerves Targets.
+      * A default cookie is generated and placed in the vm.args. the cookie can
+        be set by passing `--cookie`  
+
 ## v0.3.1
   * Bug Fixes
     * Added support for OTP 20: Fixes issue with RegEx producing false positives.
