@@ -255,11 +255,11 @@ defmodule Nerves.Env do
       cond do
         v == nil -> Mix.shell.info "#{k} is unset"
         File.dir?(v) != true ->
-          Mix.shell.info """
+          Mix.shell.error """
           #{k} is set to a path which does not exist:
           #{v}
           """
-          System.put_env(k, v)
+          exit({:shutdown, 1})
         true -> System.put_env(k, v)
       end
     end)
