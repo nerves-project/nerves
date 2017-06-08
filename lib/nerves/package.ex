@@ -119,9 +119,18 @@ defmodule Nerves.Package do
     load_nerves_config(path)
     config = Application.get_env(app, :nerves_env)
     version = config[:version]
-    unless version, do: Mix.shell.error "The Nerves package #{app} does not define its version"
+    unless version do
+      Mix.shell.error "The Nerves package #{app} does not define a version.\n\n" <>
+                      "Verify that the key exists in '#{config_path(path)}'\n" <>
+                      "and that the package name is correct."
+      exit({:shutdown, 1})
+    end
     type = config[:type]
-    unless type, do: Mix.shell.error "The Nerves package #{app} does not define a type"
+    unless type do
+      Mix.shell.error "The Nerves package #{app} does not define a type.\n\n" <>
+                      "Verify that the key exists in '#{config_path(path)}'.\n"
+      exit({:shutdown, 1})
+    end
     platform = config[:platform]
     provider = provider(app, type)
     compiler = config[:compiler]
