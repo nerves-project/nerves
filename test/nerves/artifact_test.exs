@@ -19,22 +19,6 @@ defmodule Nerves.ArtifactTest do
     end
   end
 
-  test "Resolve v1 artifact path" do
-    in_fixture "simple_app_v1", fn ->
-      packages =
-        ~w(system_v1 toolchain_v1)
-
-      _ = load_env(packages)
-      system = Env.package(:system_v1)
-      toolchain = Env.package(:toolchain_v1)
-      artifact_dir = Artifact.dir(system, toolchain)
-      v1_system_path =
-        Mix.Project.build_path
-        |> Path.join("nerves/system")
-      assert artifact_dir == v1_system_path
-    end
-  end
-
   test "Resolve artifact path" do
     in_fixture "simple_app", fn ->
       packages =
