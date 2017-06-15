@@ -52,7 +52,7 @@ Because Linux can build natively rather than inside a container, you need to hav
 On Debian and Ubuntu, run the following:
 
 ```bash
-sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
+$ sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
 ```
 
 > For other host Linux distributions, you will need to install equivalent packages, but we don't have the exact list documented.
@@ -89,5 +89,5 @@ $ mix archive.install /path/to/nerves_bootstrap.ez
 Once installed, you can later upgrade `nerves_bootstrap` by doing:
 
 ```bash
-mix local.nerves
+$ mix local.nerves
 ```
