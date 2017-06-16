@@ -73,7 +73,8 @@ defmodule Nerves.Env do
   """
   @spec clean(Nerves.Package.t) :: :ok | {:error, term}
   def clean(pkg \\ nil) do
-    ([pkg] || packages)
+    packages = if pkg, do: [pkg], else: packages()
+    packages
     |> Enum.each(&Package.clean/1)
   end
 
