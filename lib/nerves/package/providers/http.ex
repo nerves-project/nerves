@@ -24,6 +24,10 @@ defmodule Nerves.Package.Providers.HTTP do
     Logger.debug "#{__MODULE__}: artifact: #{inspect pkg}"
   end
 
+  def clean(_pkg) do
+    :ok
+  end
+
   # def shell(_pkg, _opts) do
   #   :ok
   # end

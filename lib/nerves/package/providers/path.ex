@@ -5,4 +5,8 @@ defmodule Nerves.Package.Providers.Path do
     # Verify the artifact is at the location passed
     :ok
   end
+
+  def clean(_pkg) do
+    :ok
+  end
 end

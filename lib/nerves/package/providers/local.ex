@@ -19,6 +19,10 @@ defmodule Nerves.Package.Providers.Local do
     build(type, pkg, toolchain, opts)
   end
 
+  def clean(_pkg) do
+    :ok
+  end
+
   defp build(:linux, pkg, toolchain, _opts) do
     System.delete_env("BINDIR")
     dest = Artifact.dir(pkg, toolchain)

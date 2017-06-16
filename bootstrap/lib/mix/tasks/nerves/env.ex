@@ -12,15 +12,7 @@ defmodule Mix.Tasks.Nerves.Env do
     end
     # Env moved to :nerves, try to start it otherwise, compile
     #  :nerves_system and call initialize
-    try do
-      Nerves.Env.start()
-    rescue
-      UndefinedFunctionError ->
-        unless Code.ensure_compiled?(Nerves.Env) do
-          Mix.Tasks.Deps.Compile.run ["nerves_system", "--include-children"]
-        end
-        Nerves.Env.initialize()
-    end
+    Nerves.Env.start()
     debug_info "Env End"
     if opts[:info], do: print_env()
   end
