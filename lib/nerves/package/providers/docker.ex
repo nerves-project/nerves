@@ -99,10 +99,8 @@ defmodule Nerves.Package.Providers.Docker do
   end
 
   def clean(pkg) do
-    IO.puts "Docker Clean"
     container_name(pkg)
     |> container_delete
-    |> IO.inspect
   end
 
   defp preflight(pkg) do
@@ -115,7 +113,7 @@ defmodule Nerves.Package.Providers.Docker do
 
   defp container_name(pkg) do
     if id = container_id() do
-      name = "#{pkg.app}-#{id}"
+      "#{pkg.app}-#{id}"
     end
   end
 
@@ -123,7 +121,7 @@ defmodule Nerves.Package.Providers.Docker do
     id_file = container_id_file()
 
     if File.exists?(id_file) do
-      id = File.read!(id_file)
+      File.read!(id_file)
     end
   end
 
@@ -398,6 +396,15 @@ defmodule Nerves.Package.Providers.Docker do
     args = ["stop", name]
     case System.cmd(cmd, args) do
       {_, 0} -> :ok
+      {<<"Error response from daemon: ", response :: binary>>, _} ->
+        if response =~ "No such container" do
+          :ok
+        else
+          Mix.raise """
+          Nerves Docker provider could not stop container #{name}
+          Reason: #{response}
+          """
+        end
       {error, _} -> Mix.raise """
         The Nerves Docker provider could not stop Docker container #{name}
         Reason: #{error}
@@ -413,6 +420,16 @@ defmodule Nerves.Package.Providers.Docker do
     case System.cmd(cmd, args, stderr_to_stdout: true) do
       {_, 0} ->
         :ok
+      {<<"Error response from daemon: ", response :: binary>>, _} ->
+        if response =~ "No such container" do
+          :ok
+        else
+          Mix.raise """
+          Nerves Docker provider encountered an error.
+          Could not remove container #{name}
+          Reason #{response}
+          """
+        end
       {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
         Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
       _ ->
