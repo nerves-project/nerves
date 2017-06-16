@@ -169,7 +169,7 @@ defmodule Nerves.Package do
   """
   @spec clean(Nerves.Package.t) :: :ok | {:error, term}
   def clean(pkg) do
-    IO.inspect pkg
+    Mix.shell.info("Cleaning Nerves Package #{pkg.app}")
     Enum.each(pkg.provider, fn({provider, _}) -> provider.clean(pkg) end)
   end
 
