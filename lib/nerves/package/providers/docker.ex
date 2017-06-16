@@ -101,6 +101,8 @@ defmodule Nerves.Package.Providers.Docker do
   def clean(pkg) do
     container_name(pkg)
     |> container_delete
+    Artifact.base_dir(pkg)
+    |> File.rm_rf
   end
 
   defp preflight(pkg) do
@@ -394,9 +396,10 @@ defmodule Nerves.Package.Providers.Docker do
   defp container_stop(name) do
     cmd = "docker"
     args = ["stop", name]
-    case System.cmd(cmd, args) do
+    case System.cmd(cmd, args, stderr_to_stdout: true) do
       {_, 0} -> :ok
       {<<"Error response from daemon: ", response :: binary>>, _} ->
+
         if response =~ "No such container" do
           :ok
         else
