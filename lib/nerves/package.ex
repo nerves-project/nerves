@@ -169,6 +169,7 @@ defmodule Nerves.Package do
   """
   @spec clean(Nerves.Package.t) :: :ok | {:error, term}
   def clean(pkg) do
+    IO.inspect pkg
     Enum.each(pkg.provider, fn({provider, _}) -> provider.clean(pkg) end)
   end
 
@@ -228,24 +229,30 @@ defmodule Nerves.Package do
     config = Mix.Project.config[:artifacts] || []
 
     case Keyword.get(config, app) do
-      nil -> [{Providers.HTTP, []}, {provider_mod(type), []}]
+      nil -> provider_mod(type)
       opts -> provider_opts(opts)
     end
   end
 
+  defp provider_mod(:system_platform), do: []
+  defp provider_mod(:toolchain_platform), do: []
   defp provider_mod(:toolchain) do
-    case :os.type do
-      {_, :linux} -> Providers.HTTP
-      {_, :darwin} -> Providers.HTTP
-      _ -> Providers.Docker
-    end
+    mod =
+      case :os.type do
+        {_, :linux} -> Providers.HTTP
+        {_, :darwin} -> Providers.HTTP
+        _ -> Providers.Docker
+      end
+    [{Providers.HTTP, []}, {mod, []}]
   end
 
   defp provider_mod(_) do
-    case :os.type do
-      {_, :linux} -> Providers.Local
-      _ -> Providers.Docker
-    end
+    mod =
+      case :os.type do
+        {_, :linux} -> Providers.Local
+        _ -> Providers.Docker
+      end
+    [{Providers.HTTP, []}, {mod, []}]
   end
 
   defp provider_opts(mod) when is_atom(mod), do: {mod, []}
