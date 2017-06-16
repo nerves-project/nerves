@@ -69,6 +69,15 @@ defmodule Nerves.Env do
   end
 
   @doc """
+  Cleans the artifacts for the package providers of a package or all packages
+  """
+  @spec clean(Nerves.Package.t) :: :ok | {:error, term}
+  def clean(pkg \\ nil) do
+    ([pkg] || packages)
+    |> Enum.each(&Package.clean/1)
+  end
+
+  @doc """
   Ensures that an application which contins a Nerves package config has
   been loaded into the environment agent.
 

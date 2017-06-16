@@ -165,6 +165,14 @@ defmodule Nerves.Package do
   end
 
   @doc """
+  Cleans the artifacts for the package providers of all packages
+  """
+  @spec clean(Nerves.Package.t) :: :ok | {:error, term}
+  def clean(pkg) do
+    Enum.each(pkg.provider, fn({provider, _}) -> provider.clean(pkg) end)
+  end
+
+  @doc """
   Determines if the artifact for a package is stale and needs to be rebuilt.
   """
   @spec stale?(Nerves.Package.t, Nerves.Package.t) :: boolean

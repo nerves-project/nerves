@@ -98,39 +98,46 @@ defmodule Nerves.Package.Providers.Docker do
     container_stop(container)
   end
 
-  # def shell(pkg, _opts) do
-  #   _container = preflight(pkg)
-  #   :ok
-  # end
-  #
-  # def clean(_pkg, _opts) do
-  #   :ok
-  # end
+  def clean(pkg) do
+    IO.puts "Docker Clean"
+    container_name(pkg)
+    |> container_delete
+    |> IO.inspect
+  end
 
   defp preflight(pkg) do
-    #checksum = Nerves.Package.checksum(pkg)
-
-    id_file =
-      Mix.Project.build_path
-      |> Path.join("nerves/.docker_id")
-
-    id =
-      if File.exists?(id_file) do
-        File.read!(id_file)
-      else
-        id = Nerves.Utils.random_alpha_num(16)
-        Path.dirname(id_file)
-        |> File.mkdir_p!
-        File.write!(id_file, id)
-        id
-      end
-
-    name = "#{id}-#{pkg.app}"
-
+    container_id() || create_container_id()
+    name = container_name(pkg)
     _ = host_check()
     _ = config_check(pkg, name)
-
     name
+  end
+
+  defp container_name(pkg) do
+    if id = container_id() do
+      name = "#{pkg.app}-#{id}"
+    end
+  end
+
+  defp container_id() do
+    id_file = container_id_file()
+
+    if File.exists?(id_file) do
+      id = File.read!(id_file)
+    end
+  end
+
+  defp container_id_file() do
+    Mix.Project.build_path
+    |> Path.join("nerves/.docker_id")
+  end
+
+  defp create_container_id() do
+    id_file = container_id_file()
+    id = Nerves.Utils.random_alpha_num(16)
+    Path.dirname(id_file)
+    |> File.mkdir_p!
+    File.write!(id_file, id)
   end
 
   defp create_build(pkg, container, stream) do
@@ -394,6 +401,24 @@ defmodule Nerves.Package.Providers.Docker do
       {error, _} -> Mix.raise """
         The Nerves Docker provider could not stop Docker container #{name}
         Reason: #{error}
+        """
+    end
+  end
+
+  defp container_delete(nil), do: :noop
+  defp container_delete(name) do
+    container_stop(name)
+    cmd = "docker"
+    args = ["rm", name]
+    case System.cmd(cmd, args, stderr_to_stdout: true) do
+      {_, 0} ->
+        :ok
+      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
+        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
+      _ ->
+        Mix.raise """
+        Nerves Docker provider encountered an error.
+        Could not remove container #{name}
         """
     end
   end
