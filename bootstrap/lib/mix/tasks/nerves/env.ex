@@ -10,8 +10,6 @@ defmodule Mix.Tasks.Nerves.Env do
     unless Code.ensure_compiled?(Nerves.Env) do
       Mix.Tasks.Deps.Compile.run ["nerves", "--include-children"]
     end
-    # Env moved to :nerves, try to start it otherwise, compile
-    #  :nerves_system and call initialize
     Nerves.Env.start()
     debug_info "Env End"
     if opts[:info], do: print_env()
