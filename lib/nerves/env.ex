@@ -69,7 +69,8 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Cleans the artifacts for the package providers of a package or all packages
+  Cleans the artifacts for the package providers of specified package.
+  If no package is provided, it will call clean on all packages.
   """
   @spec clean(Nerves.Package.t) :: :ok | {:error, term}
   def clean(pkg \\ nil) do

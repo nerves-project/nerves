@@ -7,9 +7,9 @@ defmodule Nerves.Package.Provider do
   """
 
   @callback artifact(package :: Nerves.Package.t, toolchain :: atom, opts :: term) ::
-    :ok | {:error, error :: term}
+    :ok | {:error, reason :: term}
 
   @callback clean(package :: Nerves.Package.t) ::
-    :ok | {:error, error :: term}
+    :ok | {:error, reason :: term}
 
 end
