@@ -112,7 +112,7 @@ defmodule Mix.Tasks.Firmware do
     # Assuming the fwup.conf file respects these variable like the official
     # systems do, this will set the .fw metadata to what's in the mix.exs.
     [{"NERVES_FW_VERSION", config[:version]},
-     {"NERVES_FW_PRODUCT", config[:name]},
+     {"NERVES_FW_PRODUCT", config[:name] || to_string(config[:app])},
      {"NERVES_FW_DESCRIPTION", config[:description]},
      {"NERVES_FW_AUTHOR", config[:author]},
     ]
