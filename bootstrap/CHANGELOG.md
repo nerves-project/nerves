@@ -1,6 +1,6 @@
 # nerves_bootstrap
 
-## v0.4.0-dev
+## v0.4.0
   * Enhancements
     * nerves.new
       * lock files are split by target

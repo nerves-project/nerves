@@ -1,5 +1,13 @@
 # Release Notes
 
+## Nerves 0.6.0
+* Bug Fixes
+  * Require Nerves Packages to have a version
+* Enhancements
+  * Propagate Mix.Project.config settings into the firmware metadata
+  * Removed checksum from docker container name. Docker provider now only builds changes
+  * Added Nerves.Env.clean for cleaning package providers
+
 ## Nerves 0.5.2
 * BugFixes
   * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
