@@ -69,21 +69,11 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Cleans the artifacts for the package providers of specified package.
-  If no package is provided, it will call clean on all packages.
+  Cleans the artifacts for the package providers of all specified packages.
   """
-  @spec clean(Nerves.Package.t) :: :ok | {:error, term}
-  def clean(pkg \\ nil) do
-    packages =
-      if pkg do
-        pkg = String.to_atom(pkg)
-        if pkg = package(pkg), do: [pkg], else: []
-      else
-        packages()
-      end
-
-    packages
-    |> Enum.each(&Package.clean/1)
+  @spec clean([Nerves.Package.t]) :: :ok | {:error, term}
+  def clean(pkgs) do
+    Enum.each(pkgs, &Package.clean/1)
   end
 
   @doc """
