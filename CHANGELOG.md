@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.6.1
+* Bug Fixes
+  * Docker Provider: Fix version parsing issue when major, minor, or patch contains leading zeros.
+
 ## Nerves 0.6.0
 * Bug Fixes
   * Require Nerves Packages to have a version

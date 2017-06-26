@@ -257,9 +257,8 @@ defmodule Nerves.Package.Providers.Docker do
     case System.cmd("docker", ["--version"]) do
       {result, 0} ->
         <<"Docker version ", vsn :: binary>> = result
-        [vsn | _] = String.split(vsn, ",", parts: 2)
         {:ok, requirement} = Version.parse_requirement(@version)
-        {:ok, vsn} = Version.parse(vsn)
+        {:ok, vsn} = strip_vsn(vsn)
         unless Version.match?(vsn, requirement) do
           error_invalid_version(vsn)
         end
@@ -455,6 +454,28 @@ defmodule Nerves.Package.Providers.Docker do
     Your version of docker: #{vsn}
     does not meet the requirements: #{@version}
     """
+  end
+
+  defp strip_vsn(vsn) do
+    [vsn | _] = String.split(vsn, ",", parts: 2)
+    [major, minor, patch] =
+      String.split(vsn, ".")
+    [patch, pre] =
+      case String.split(patch, "-", parts: 2) do
+        [patch] -> [patch, nil]
+        v -> v
+      end
+    [major, minor, patch] =
+      Enum.map([major, minor, patch], &strip_int/1)
+    vsn =
+      "#{major}.#{minor}.#{patch}" <>
+        if pre, do: "-#{pre}", else: ""
+    Version.parse(vsn)
+  end
+
+  defp strip_int(int) do
+    {int, _} = Integer.parse(int)
+    int
   end
 
   defp shell_info(header, text \\ "") do
