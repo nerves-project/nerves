@@ -258,7 +258,7 @@ defmodule Nerves.Package.Providers.Docker do
       {result, 0} ->
         <<"Docker version ", vsn :: binary>> = result
         {:ok, requirement} = Version.parse_requirement(@version)
-        {:ok, vsn} = strip_vsn(vsn)
+        {:ok, vsn} = parse_docker_version(vsn)
         unless Version.match?(vsn, requirement) do
           error_invalid_version(vsn)
         end
@@ -456,26 +456,10 @@ defmodule Nerves.Package.Providers.Docker do
     """
   end
 
-  defp strip_vsn(vsn) do
+  def parse_docker_version(vsn) do
     [vsn | _] = String.split(vsn, ",", parts: 2)
-    [major, minor, patch] =
-      String.split(vsn, ".")
-    [patch, pre] =
-      case String.split(patch, "-", parts: 2) do
-        [patch] -> [patch, nil]
-        v -> v
-      end
-    [major, minor, patch] =
-      Enum.map([major, minor, patch], &strip_int/1)
-    vsn =
-      "#{major}.#{minor}.#{patch}" <>
-        if pre, do: "-#{pre}", else: ""
-    Version.parse(vsn)
-  end
-
-  defp strip_int(int) do
-    {int, _} = Integer.parse(int)
-    int
+    Regex.replace(~r/(\.|^)0+(?=\d)/, vsn, "\\1")
+    |> Version.parse
   end
 
   defp shell_info(header, text \\ "") do
