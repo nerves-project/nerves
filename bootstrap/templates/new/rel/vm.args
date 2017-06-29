@@ -7,6 +7,10 @@
 # -name <%= app_name %>@0.0.0.0
 -setcookie <%= cookie %>
 
+## Use Ctrl-C to interrupt the current shell rather than invoking the emulator's
+## break handler and possibly exiting the VM.
++Bc
+
 ## Start the Elixir shell
 
 -noshell
