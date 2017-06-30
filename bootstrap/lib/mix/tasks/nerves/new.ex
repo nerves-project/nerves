@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Nerves.New do
 
   @nerves_vsn "0.6.0"
   @bootstrap_vsn "0.4.0"
-  @runtime_vsn "0.3.0"
+  @runtime_vsn "0.4"
 
   @requirement Mix.Project.config[:elixir]
   @shortdoc "Creates a new Nerves application"

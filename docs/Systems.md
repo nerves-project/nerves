@@ -221,12 +221,12 @@ Now that the custom System directory is prepared, you just need to point to it f
 def deps("host"), do: []
 # =vvv= Add this section for your custom System
 def deps("custom_rpi3") do
-  [{:nerves_runtime, "~> 0.1.0"},
+  [{:nerves_runtime, "~> 0.4"},
    {:custom_rpi3, path: "/path/to/your/custom_rpi3"}]
 end
 # =^^^=
 def deps(target) do
-  [{:nerves_runtime, "~> 0.1.0"},
+  [{:nerves_runtime, "~> 0.4"},
    {:"nerves_system_#{target}", ">= 0.11.0", runtime: false}]
 end
 ```
