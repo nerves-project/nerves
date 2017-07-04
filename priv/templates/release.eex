@@ -33,6 +33,7 @@ release :<%= Keyword.get(release, :release_name) %> do
     "    #{app}: :#{start_type}"
     end) |> Enum.join(",\n") %>
   ]
+  plugin Bootloader.Plugin
   if System.get_env("NERVES_SYSTEM") do
     set dev_mode: false
     set include_src: false
@@ -43,6 +44,7 @@ release :<%= Keyword.get(release, :release_name) %> do
 end<% else %>
 release :<%= Keyword.get(release, :release_name) %> do
   set version: current_version(:<%= Keyword.get(release, :release_name)%>)
+  plugin Bootloader.Plugin
   if System.get_env("NERVES_SYSTEM") do
     set dev_mode: false
     set include_src: false

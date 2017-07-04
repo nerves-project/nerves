@@ -63,6 +63,7 @@ defmodule <%= app_module %>.Mixfile do
   def deps("host"), do: []
   def deps(target) do
     [ system(target),
+      {:bootloader, "~> <%= bootloader_vsn %>"},
       {:nerves_runtime, "~> <%= runtime_vsn %>"}
     ]
   end
