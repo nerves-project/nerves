@@ -18,3 +18,7 @@ use Mix.Config
 # Uncomment to use target specific configurations
 
 # import_config "#{Mix.Project.config[:target]}.exs"
+
+config :bootloader,
+  init: [:nerves_runtime],
+  app: :<%= app_name %>
