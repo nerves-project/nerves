@@ -7,7 +7,17 @@ defmodule Mix.Tasks.Nerves.Precompile do
 
     System.put_env("NERVES_PRECOMPILE", "1")
     Mix.Tasks.Nerves.Env.run []
-    Mix.Tasks.Deps.Compile.run [to_string(Nerves.Env.system.app), "--include-children"]
+    parent = Mix.Project.config[:app]
+    Nerves.Env.ensure_loaded parent
+    system_app = Nerves.Env.system.app
+    {m, f, a} =
+      if parent == system_app do
+        {Mix.Tasks.Compile, :run, [["--no-deps-check"]]}
+      else
+        system_app_name = to_string(system_app)
+        {Mix.Tasks.Deps.Compile, :run, [[system_app_name, "--include-children"]]}
+      end
+    apply(m, f, a)
     Mix.Task.reenable "deps.compile"
     System.put_env("NERVES_PRECOMPILE", "0")
 
