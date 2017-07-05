@@ -5,11 +5,11 @@ defmodule Mix.Tasks.Nerves.Clean do
   @shortdoc "Clean artifacts for a Nerves package"
 
   @moduledoc """
-  Cleans the build artifacts and fetch sources from given dependencies
+  Cleans the build artifacts and fetches sources for given dependencies
 
   Since this is a destructive action, cleaning of dependencies
-  only occurs when passing arguments/options:
-    * `dep1 dep2` - the names of Nerves dependencies to be cleaned separated by a space
+  only occurs when one of the following are specified:
+    * `dep1 dep2` - the names of Nerves dependencies to be cleaned, separated by spaces
     * `--all` - cleans all Nerves dependencies
   """
 
@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Nerves.Clean do
             Nerves.Env.packages
           else
             Mix.raise """
-            You must specify the Nerves dependencies to clean seperated by spaces
+            You must specify the Nerves dependencies to clean, seperated by spaces
             Example:
               mix nerves.clean nerves_system_rpi3
             Or by passing --all
