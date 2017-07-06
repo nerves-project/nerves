@@ -88,16 +88,12 @@ defmodule Nerves.Env do
     {:ok, Nerves.Package.t} | {:error, term}
   def ensure_loaded(app, path \\ nil) do
     path = path || File.cwd!
-    config? =
-      Package.config_path(path)
-      |> File.exists?
-    if config? do
+    if File.exists?(Package.config_path(path)) do
       packages = Agent.get(__MODULE__, &(&1))
       case Enum.find(packages, & &1.app == app) do
         nil ->
           case Package.load_config({app, path}) do
             %Package{} = package ->
-              IO.inspect package
               Agent.update(__MODULE__, fn(packages) ->
                 [package | packages]
               end)
