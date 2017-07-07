@@ -1,14 +1,22 @@
 # nerves_bootstrap
 
+## v0.5.0
+* Enhancements
+  * Pass +Bc in vm.args to avoid accidental CTRL+C
+  * Update deps and loosen version requirements
+  * Include `bootloader` in new projects
+* Bug Fixes
+  * Choose the right compiler when parent project is a Nerves system package
+
 ## v0.4.0
-  * Enhancements
-    * nerves.new
-      * lock files are split by target
-      * Target dependencies are explicitly broken out in mix.exs through passing
-        `--target` to the generator. Defaults to declaring all officially supported
-        Nerves Targets.
-      * A default cookie is generated and placed in the vm.args. the cookie can
-        be set by passing `--cookie`  
+* Enhancements
+  * nerves.new
+    * lock files are split by target
+    * Target dependencies are explicitly broken out in mix.exs through passing
+      `--target` to the generator. Defaults to declaring all officially supported
+      Nerves Targets.
+    * A default cookie is generated and placed in the vm.args. the cookie can
+      be set by passing `--cookie`  
 
 ## v0.3.1
   * Bug Fixes
