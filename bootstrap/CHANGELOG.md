@@ -1,5 +1,9 @@
 # nerves_bootstrap
 
+## v0.5.1
+* Bug Fixes
+  * System dependencies were not being built in order when system is the parent project
+
 ## v0.5.0
 * Enhancements
   * Pass +Bc in vm.args to avoid accidental CTRL+C
