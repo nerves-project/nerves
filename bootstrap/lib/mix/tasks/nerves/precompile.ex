@@ -7,8 +7,6 @@ defmodule Mix.Tasks.Nerves.Precompile do
 
     System.put_env("NERVES_PRECOMPILE", "1")
     Mix.Tasks.Nerves.Env.run []
-    parent = Mix.Project.config[:app]
-    Nerves.Env.ensure_loaded parent
     system_app = Nerves.Env.system.app
     {m, f, a} =
       if parent == system_app do
