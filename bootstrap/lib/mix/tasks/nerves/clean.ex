@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Nerves.Clean do
   @shortdoc "Clean artifacts for a Nerves package"
 
   @moduledoc """
-  Cleans the build artifacts and fetches sources for given dependencies
+  Cleans the build artifacts and fetched sources for given dependencies
 
   Since this is a destructive action, cleaning of dependencies
   only occurs when one of the following are specified:
