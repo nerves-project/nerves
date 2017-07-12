@@ -10,4 +10,4 @@ For best results, print in landscape mode without page scaling @ 600dpi.
 
 ## Editing via Overleaf
 
-Alternatively, you can signup for Overleaf, a free web application for editing LaTeX documents with built-in preview.  Paste the source from `cheatsheet.tex` into a new document while in "Source" mode.  You will need to attach `nerves-logo.eps` to your project by clicking "PROJECT" and attaching the EPS file.
+Alternatively, you can signup for [Overleaf](https://www.overleaf.com), a free web application for editing LaTeX documents with built-in preview.  Paste the source from `cheatsheet.tex` into a new document while in "Source" mode.  You will need to attach `nerves-logo.eps` to your project by clicking "PROJECT" in the top menu and attaching the EPS file.  To render a PDF file, click on the "PDF" button in the same menu.
