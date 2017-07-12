@@ -23,7 +23,6 @@ pdfkeywords={Nerves, Elixir}
 \renewcommand{\familydefault}{\sfdefault} % Use sans-serif font for doc
 \renewcommand{\dots}{\ \dotfill{}\ } % Fills in the right amount of dots
 \newcommand{\command}[2]{#1~\dotfill{}~\texttt{#2}\\} % Custom command for adding a shortcut
-\newcommand{\sectiontitle}[1]{\paragraph{#1} \ \\} % Custom command for subsection titles
 
 %----------------------------------------------------------------------------------------
 
@@ -46,7 +45,7 @@ pdfkeywords={Nerves, Elixir}
 }
 
 %----------------------------------------------------------------------------------------
-%	FIRST COLUMN SPECIFICATION
+%	FIRST COLUMN
 %----------------------------------------------------------------------------------------
 
 \put(10,193){ % Divide the page
@@ -81,30 +80,28 @@ pdfkeywords={Nerves, Elixir}
 \textbf{firmware image}\ \textbullet\ Built from a firmware bundle and contains the partition table, partitions, bootloader, etc.
 
 \subsection*{Installation}
-\url{https://hexdocs.pm/nerves/installation.html} \\
+\url{https://hexdocs.pm/nerves/installation.html}
 
-\textbf{MacOS} \\
-\texttt{\$ brew update} \\
-\texttt{\$ brew install~erlang~elixir~fwup~squashfs coreutils} \\
+\subsubsection*{MacOS}
+\texttt{\$ brew update}
+\par\texttt{\$ brew install~erlang~elixir~fwup~squashfs coreutils}
 
-\textbf{Linux (Debian/Ubuntu)} \\
-\texttt{\$ sudo apt-get install ssh-askpass squashfs-tools} \\
+\subsubsection*{Linux (Debian/Ubuntu)}
+\texttt{\$ sudo apt-get install ssh-askpass squashfs-tools}
 
-\textbf{All platforms} \\
-\texttt{\$ mix local.hex} \\
-\texttt{\$ mix local.rebar} \\
-\texttt{\$ mix archive.install \url{https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez}}
+\subsubsection*{All platforms}
+\texttt{\$ mix local.hex}
+\par\texttt{\$ mix local.rebar}
+\par\texttt{\$ mix archive.install \url{https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez}}
 
-\vspace{2mm}
-
-\textbf{Updating}
-\par\texttt{\$ mix local.nerves}
+\subsubsection*{Updating}
+\texttt{\$ mix local.nerves}
 
 \end{minipage} % End the first column of text
 } % End the first division of the page
 
 %----------------------------------------------------------------------------------------
-%	SECOND COLUMN SPECIFICATION
+%	SECOND COLUMN
 %----------------------------------------------------------------------------------------
 
 \put(100,193){ % Divide the page
@@ -130,32 +127,31 @@ Linkit Smart & nerves\_system\_linkit & linkit \\
 
 \subsection*{Nerves basics}
 
-\textbf{Create a new project} \\
-\texttt{\$ mix nerves.new hello\_nerves}
+\subsubsection*{Create a new project}
+\par\texttt{\$ mix nerves.new hello\_nerves}
+\par\texttt{\$ cd hello\_nerves}
+\par\texttt{\$ export MIX\_TARGET=<mix target>}
+\par\texttt{\$ mix deps.get}
+\par\texttt{\$ mix firmware}
 
-\texttt{\$ cd hello\_nerves} \\
-\texttt{\$ export MIX\_TARGET=<mix target>} \\
-\texttt{\$ mix deps.get} \\
-\texttt{\$ mix firmware} \\
+\subsubsection*{Burn a MicroSD card}
+\texttt{\$ mix firmware.burn}
 
-\textbf{Burn a MicroSD card} \\
-\texttt{\$ mix firmware.burn} \\
-
-\textbf{Update using nerves\_firmware\_http} \\
+\subsubsection*{Update using nerves\_firmware\_http}
 \texttt{\$ mix firmware.push hostname [--target <mix target>]}
 
 \subsection*{Connecting to the target}
 Most Nerves systems provide an IEx prompt over a serial port or UART.
 TTY emulators like screen and picocom can access it. Check the
-system for baud rate (normally 115200). \\
+system for baud rate (normally 115200).
 
-\textbf{screen} \\
-\texttt{\$ screen /dev/tty<device> 115200} \\
-Exit screen with CTRL+a, CTRL+\textbackslash \\
+\subsubsection*{screen}
+\texttt{\$ screen /dev/tty<device> 115200}
+\par Exit screen with CTRL+a, CTRL+\textbackslash
 
-\textbf{picocom} \\
-\texttt{\$ picocom -b 115200 /dev/tty<device>} \\
-Exit picocom with CTRL+a, CTRL+x
+\subsubsection*{picocom}
+\texttt{\$ picocom -b 115200 /dev/tty<device>}
+\par Exit picocom with CTRL+a, CTRL+x
 
 %----------------------------------------------------------------------------------------
 
@@ -163,16 +159,14 @@ Exit picocom with CTRL+a, CTRL+x
 } % End the second division of the page
 
 %----------------------------------------------------------------------------------------
-%	THIRD COLUMN SPECIFICATION
+%	THIRD COLUMN
 %----------------------------------------------------------------------------------------
 
 \put(190,193){ % Divide the page
 \begin{minipage}[t]{75mm} % Create a box to house text
 
 \subsection*{Tutorial projects}
-\vspace{2mm}
 \subsubsection*{Pi Camera}
-
 \texttt{\$ git clone \url{https://fhunleth@bitbucket.org/fhunleth/nerves\_cam.git}}
 
 \subsection*{Useful IEx commands}
@@ -187,8 +181,8 @@ Exit picocom with CTRL+a, CTRL+x
 \vspace{\baselineskip}
 
 \footnotesize{
-\copyright 2017 Nerves Project developers\\
-Released under the Apache License 2.0.
+\copyright 2017 Nerves Project developers
+\par Released under the Apache License 2.0.
 }
 
 %----------------------------------------------------------------------------------------
@@ -200,3 +194,4 @@ Released under the Apache License 2.0.
 %----------------------------------------------------------------------------------------
 
 \end{document}
+
