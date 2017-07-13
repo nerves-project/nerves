@@ -6,3 +6,8 @@ erl_crash.dump
 *.ez
 /doc
 /tmp
+docs/cheatsheet/*
+!docs/cheatsheet/*.tex
+!docs/cheatsheet/*.eps
+!docs/cheatsheet/Makefile
+!docs/cheatsheet/README.md
