@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves 0.6.2-dev
+* Bug Fixes
+  * Attempt to include the parent project when loading Nerves packages
+
 ## Nerves 0.6.1
 * Bug Fixes
   * Docker Provider: Fix version parsing issue when major, minor, or patch contains leading zeros.
