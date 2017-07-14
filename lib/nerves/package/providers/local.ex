@@ -1,6 +1,6 @@
 defmodule Nerves.Package.Providers.Local do
   @moduledoc """
-  Builds an artifact locally.
+  Builds an artifact locally.
 
   This provider will only function on certain Linux host configurations
   """
@@ -11,7 +11,7 @@ defmodule Nerves.Package.Providers.Local do
   import Mix.Nerves.Utils
 
   @doc """
-  Builds an artifact locally.
+  Builds an artifact locally.
   """
   @spec artifact(Nerves.Package.t, Nerves.Package.t, term) :: :ok
   def artifact(pkg, toolchain, opts) do
@@ -19,15 +19,15 @@ defmodule Nerves.Package.Providers.Local do
     build(type, pkg, toolchain, opts)
   end
 
-  def clean(_pkg) do
-    :ok
+  def clean(pkg) do
+    dest = Artifact.dir(pkg, Nerves.Env.toolchain)
+    File.rm_rf(dest)
+    File.mkdir_p!(dest)
   end
 
   defp build(:linux, pkg, toolchain, _opts) do
     System.delete_env("BINDIR")
     dest = Artifact.dir(pkg, toolchain)
-    File.rm_rf(dest)
-    File.mkdir_p!(dest)
 
     script = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
     platform_config = pkg.config[:platform_config][:defconfig]
