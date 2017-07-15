@@ -75,9 +75,14 @@ defmodule Mix.Tasks.Firmware.Burn do
         {_, :darwin} ->
           {"fwup", args}
         {_, :linux} ->
-           ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
-           System.put_env("SUDO_ASKPASS", ask_pass)
-           {"sudo", ["fwup"] ++ args}
+          case File.stat(dev) do
+            {:ok, %File.Stat{access: :read_write}} ->
+              {"fwup", args}
+            ugh ->
+              ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
+              System.put_env("SUDO_ASKPASS", ask_pass)
+              {"sudo", ["fwup"] ++ args}
+          end
         {_, :nt} ->
            {"fwup", args}
         {_, type} ->
