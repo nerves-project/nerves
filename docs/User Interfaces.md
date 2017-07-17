@@ -62,7 +62,7 @@ config :ui, Ui.Endpoint,
   server: true,
   render_errors: [accepts: ~w(html json)],
   pubsub: [name: Nerves.PubSub],
-  code_reload: false
+  code_reloader: false
 
 config :logger, level: :debug
 ```
