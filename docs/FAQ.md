@@ -15,11 +15,11 @@ You can figure out what the correct value is by referring to the hardware descri
 For example, for the Raspberry Pi 3 target, you can find the [hardware description README here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/README.md) and the [default `erlinit.config` here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/rootfs-additions/etc/erlinit.config).
 
  1. Download the default `erlinit.config` file from the system repository for your target.
- 2. Place it in your project folder under `rootfs-additions/etc/erlinit.config`.
+ 2. Place it in your project folder under `config/rootfs_additions/etc/erlinit.config`.
  2. Modify the `-c` console setting to match the value shown in the `UART` row of the hardware description table (`rpi3` example shown):
 
     ```bash
-    # rootfs-additions/etc/erlinit.config
+    # config/rootfs_additions/etc/erlinit.config
 
     ...
 
@@ -36,7 +36,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
     use Mix.Config
 
     config :nerves, :firmware,
-      rootfs_additions: "rootfs-additions"
+      rootfs_additions: "config/rootfs_additions"
     ```
 
  4. Connect your USB serial cable to the desired UART pins (per the I/O pin-out for your particular hardware).
