@@ -52,7 +52,7 @@ Because Linux can build natively rather than inside a container, you need to hav
 On Debian and Ubuntu, run the following:
 
 ```bash
-sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake
+sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake python
 ```
 
 > For other host Linux distributions, you will need to install equivalent packages, but we don't have the exact list documented.
