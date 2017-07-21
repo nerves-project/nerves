@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Compile.NervesPackage do
   use Mix.Task
+  import Mix.Nerves.IO
 
   require Logger
 
@@ -11,6 +12,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   @recursive true
 
   def run(_args) do
+    debug_info "Compile.NervesPackage start"
     config = Mix.Project.config
 
     Nerves.Env.start
@@ -23,6 +25,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
       Nerves.Package.artifact(package, toolchain)
     end
 
+    debug_info "Compile.NervesPackage end"
   end
 
 end
