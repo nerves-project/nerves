@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Nerves.Info do
   use Mix.Task
+  import Mix.Nerves.IO
 
   @shortdoc "Prints Nerves information"
 
@@ -11,6 +12,7 @@ defmodule Mix.Tasks.Nerves.Info do
   @switches [target: :string]
 
   def run(argv) do
+    debug_info "Info Start"
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
     Nerves.Env.disable
     if target = opts[:target] do
@@ -21,5 +23,6 @@ defmodule Mix.Tasks.Nerves.Info do
     Mix.shell.info "Nerves Bootstrap: #{Nerves.Bootstrap.version}"
     Mix.shell.info "Elixir:           #{Nerves.elixir_version}"
     Nerves.Env.enable
+    debug_info "Info End"
   end
 end

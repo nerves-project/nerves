@@ -1,5 +1,21 @@
 # nerves_bootstrap
 
+## v0.6.0-dev
+* Enhancements
+  * New `nerves.system.shell` Mix task, which provides a consistent way to
+    configure a Buildroot-based Nerves system on both OSX and Linux. This
+    replaces the `nerves.shell` Mix task that was provided by the `nerves`
+    dependency, which had not been fully implemented.
+  * Add an optional `--disabled` flag to the `nerves.env` Mix task, which allows
+    the Nerves environment to be compiled and loaded in a disabled state so that
+    it doesn't try to actually cross-compile all the dependencies at load time.
+    This is primarily used so that Mix tasks like `nerves.system.shell` can run
+    on the host without having to wait for dependencies to compile when they
+    won't even be used.
+  * Related to the previous change, the `nerves.precompile` task does not try to
+    compile the toolchain and system when `Nerves.Env` is loaded in a disabled
+    state.
+
 ## v0.5.1
 * Bug Fixes
   * System dependencies were not being built in order when system is the parent project

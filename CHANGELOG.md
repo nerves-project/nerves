@@ -1,8 +1,14 @@
 # Release Notes
 
-## Nerves 0.6.2-dev
+## Nerves 0.7.0-dev
 * Bug Fixes
   * Attempt to include the parent project when loading Nerves packages
+* Enhancements
+  * Added support for the new `nerves.system.shell` task, provided by
+    `nerves_bootstrap`, to `Nerves.Package.Providers.Docker` and
+    `Nerves.Package.Providers.Local`, which provides a consistent way to
+    configure a Buildroot-based Nerves system on both OSX and Linux. This
+    replaces the `nerves.shell` Mix task, which had not been fully implemented.
 
 ## Nerves 0.6.1
 * Bug Fixes

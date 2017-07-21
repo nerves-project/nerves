@@ -25,6 +25,15 @@ defmodule Nerves.Package.Providers.Local do
     File.mkdir_p!(dest)
   end
 
+  @doc """
+  Connect to a system configuration sub-shell
+  """
+  @spec system_shell(Nerves.Package.t) :: :ok
+  def system_shell(_pkg) do
+    # TODO
+    Mix.raise("Sorry, this isn't implemented yet for Linux")
+  end
+
   defp build(:linux, pkg, toolchain, _opts) do
     System.delete_env("BINDIR")
     dest = Artifact.dir(pkg, toolchain)
