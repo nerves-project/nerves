@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
             env_info()
           rescue
             e ->
-              raise e
+              reraise e, System.stacktrace()
           end
         false ->
           debug_info "Env not loaded"
