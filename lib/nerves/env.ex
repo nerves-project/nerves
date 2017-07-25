@@ -77,7 +77,7 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Ensures that an application which contins a Nerves package config has
+  Ensures that an application which contains a Nerves package config has
   been loaded into the environment agent.
 
   ## Options
@@ -104,12 +104,12 @@ defmodule Nerves.Env do
         package -> {:ok, package}
       end
     else
-      {:error, "Nerves package config for #{inspect app} was not fount at #{path}"}
+      {:error, "Nerves package config for #{inspect app} was not found at #{path}"}
     end
   end
 
   @doc """
-  Returns the archetecture for the host system.
+  Returns the architecture for the host system.
 
   ## Example return values
     "x86_64"
