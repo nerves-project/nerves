@@ -325,16 +325,20 @@ defmodule Nerves.Package.Providers.Docker do
   end
 
   defp host_check() do
-    case System.cmd("docker", ["--version"]) do
-      {result, 0} ->
-        <<"Docker version ", vsn :: binary>> = result
-        {:ok, requirement} = Version.parse_requirement(@version)
-        {:ok, vsn} = parse_docker_version(vsn)
-        unless Version.match?(vsn, requirement) do
-          error_invalid_version(vsn)
-        end
-        :ok
-      _ -> error_not_installed()
+    try do
+      case System.cmd("docker", ["--version"]) do
+        {result, 0} ->
+          <<"Docker version ", vsn :: binary>> = result
+          {:ok, requirement} = Version.parse_requirement(@version)
+          {:ok, vsn} = parse_docker_version(vsn)
+          unless Version.match?(vsn, requirement) do
+            error_invalid_version(vsn)
+          end
+          :ok
+        _ -> error_not_installed()
+      end
+    rescue
+      e in ErlangError -> error_not_installed()
     end
   end
 
