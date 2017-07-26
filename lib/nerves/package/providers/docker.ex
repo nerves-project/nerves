@@ -113,64 +113,17 @@ defmodule Nerves.Package.Providers.Docker do
     container_name = preflight(pkg)
     container_ensure_started(container_name)
 
-    # We need to get raw binary access to the stdout file descriptor
-    # so we can directly pass through control characters output by the command
-    stdout_port = Port.open({:fd, 0, 1}, [:binary, :eof, :stream, :out])
-
-    # We use the tty_sl driver for input because it handles tty geometry and
-    # streaming mode.
-    stdin_port = Port.open({:spawn, "tty_sl -c -e"}, [:binary, :eof, :stream, :in])
-
-    # We run the command through the script command to emulate a pty
-    cmd_port = Port.open({:spawn, "script -q /dev/null docker attach #{container_name}"}, [:binary, :eof, :stream, :stderr_to_stdout])
-
-    # Tell the script command about the terminal dimensions
-    {w, h} = get_tty_geometry(stdin_port)
-    Port.command(cmd_port, "stty rows #{h} cols #{w}\r")
-
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
 
-    create_build_cmd = [
-      "/nerves/env/platform/create-build.sh",
-      defconfig,
-      @working_dir,
-    ] |> Enum.join(" ")
+    initial_input = [
+      "echo Creating build directory...\n",
+      "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null",
+      "echo Cleaning up...\n",
+      "make clean >/dev/null",
+    ]
 
-    Port.command(cmd_port, "#{create_build_cmd}\r")
-
-    system_shell_loop(stdin_port, stdout_port, cmd_port)
-  end
-
-  defp system_shell_loop(stdin_port, stdout_port, cmd_port) do
-    receive do
-      # Route input from stdin to the command port
-      {^stdin_port, {:data, data}} ->
-        Port.command(cmd_port, data)
-        system_shell_loop(stdin_port, stdout_port, cmd_port)
-
-      # Route output from the command port to stdout
-      {^cmd_port, {:data, data}} ->
-        Port.command(stdout_port, data)
-        system_shell_loop(stdin_port, stdout_port, cmd_port)
-
-      # If any of the ports get closed, break out of the loop
-      {_port, :eof} ->
-        :ok
-
-      # Ignore other messages
-      _message ->
-        system_shell_loop(stdin_port, stdout_port, cmd_port)
-    end
-  end
-
-  @ctrl_op_get_winsize 100
-
-  defp get_tty_geometry(tty_port) do
-    geometry = :erlang.port_control(tty_port, @ctrl_op_get_winsize, [])
-    |> :erlang.list_to_binary()
-    <<w::native-integer-size(32), h::native-integer-size(32)>> = geometry
-    {w, h}
+    Mix.Nerves.Shell.open("docker attach #{container_name}", initial_input)
   end
 
   defp preflight(pkg) do
@@ -338,7 +291,7 @@ defmodule Nerves.Package.Providers.Docker do
         _ -> error_not_installed()
       end
     rescue
-      e in ErlangError -> error_not_installed()
+      ErlangError -> error_not_installed()
     end
   end
 

@@ -29,9 +29,24 @@ defmodule Nerves.Package.Providers.Local do
   Connect to a system configuration sub-shell
   """
   @spec system_shell(Nerves.Package.t) :: :ok
-  def system_shell(_pkg) do
-    # TODO
-    Mix.raise("Sorry, this isn't implemented yet for Linux")
+  def system_shell(pkg) do
+    dest = Artifact.dir(pkg, Nerves.Env.toolchain)
+
+    shell = System.get_env("SHELL") || "/bin/bash"
+
+    script = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
+    platform_config = pkg.config[:platform_config][:defconfig]
+    defconfig = Path.join("#{pkg.path}", platform_config)
+
+    initial_input = [
+      "echo Creating build directory...\n",
+      "#{script} #{defconfig} #{dest} >/dev/null",
+      "cd #{dest}",
+      "echo Cleaning up...\n",
+      "make clean >/dev/null",
+    ]
+
+    Mix.Nerves.Shell.open(shell, initial_input)
   end
 
   defp build(:linux, pkg, toolchain, _opts) do
@@ -59,11 +74,4 @@ defmodule Nerves.Package.Providers.Local do
     """}
   end
 
-  # def shell(_pkg, _opts) do
-  #   :ok
-  # end
-  #
-  # def clean(_pkg, _opts) do
-  #   :ok
-  # end
 end
