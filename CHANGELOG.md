@@ -4,12 +4,16 @@
 * Bug Fixes
   * Try to include the parent project when loading Nerves packages
   * Better error message from the Docker provider when Docker is not installed
+  * Delete system artifact directories only when instructed by `mix nerves.clean` on Linux.
+    This prevents triggering a full rebuild for every change made to a custom system.
 * Enhancements
   * Added support for the new `nerves.system.shell` task, provided by
     `nerves_bootstrap`, to `Nerves.Package.Providers.Docker` and
     `Nerves.Package.Providers.Local`, which provides a consistent way to
     configure a Buildroot-based Nerves system on both OSX and Linux. This
     replaces the `nerves.shell` Mix task, which had not been fully implemented.
+  * `mix firmware.burn` no longer asks for your password if using Linux and have 
+     read/write permissions on the SD card device.
 
 ## Nerves 0.6.1
 * Bug Fixes
