@@ -1,8 +1,8 @@
 # Release Notes
 
-## Nerves 0.7.0-dev
+## Nerves 0.7.0
 * Bug Fixes
-  * Attempt to include the parent project when loading Nerves packages
+  * Try to include the parent project when loading Nerves packages
   * Better error message from the Docker provider when Docker is not installed
 * Enhancements
   * Added support for the new `nerves.system.shell` task, provided by
