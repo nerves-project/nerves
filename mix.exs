@@ -6,9 +6,9 @@ defmodule Nerves.Mixfile do
      name: "Nerves",
      source_url: "https://github.com/nerves-project/nerves",
      homepage_url: "http://nerves-project.org/",
-     version: "0.6.2-dev",
-     archives: [nerves_bootstrap: "~> 0.3"],
-     elixir: "~> 1.4.0",
+     version: "0.7.0",
+     archives: [nerves_bootstrap: "~> 0.6"],
+     elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      deps: deps(),
      description: description(),
@@ -26,9 +26,8 @@ defmodule Nerves.Mixfile do
 
   defp deps do
     [
-      {:distillery, "~> 1.2"},
-      {:earmark, "~> 1.2", only: :dev},
-      {:ex_doc, "~> 0.15", only: :dev},
+      {:distillery, "~> 1.4"},
+      {:ex_doc, "~> 0.16", only: :dev},
       {:nerves_bootstrap, path: "bootstrap", only: [:test, :dev]}
     ]
   end

@@ -1,6 +1,6 @@
 # nerves_bootstrap
 
-## v0.6.0-dev
+## v0.6.0
 * Enhancements
   * New `nerves.system.shell` Mix task, which provides a consistent way to
     configure a Buildroot-based Nerves system on both OSX and Linux. This
