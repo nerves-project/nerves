@@ -143,9 +143,14 @@ These settings are defined in `etc/erlinit.config`.
 +----------------------------+
 | p1*: Rootfs B (squashfs)   |
 +----------------------------+
-| p2: App Data  (FAT32)      |
+| p2: App Data  (ext4)       |
 +----------------------------+
 ```
+
+More information about how the App Data partition is initialized and mounted can be found
+in the documentation for `nerves_runtime` [Filesystem Initialization](https://hexdocs.pm/nerves_runtime/readme.html#filesystem-initialization)
+
+**Additional Partitions**
 
 You can enable and mount an additional read/write partition by modifying the `fwup.conf` file.
 This strategy is typically used to define two locations where data can be written.
@@ -200,7 +205,7 @@ mbr mbr-a {
     partition 2 {
         block-offset = ${CONFIG_PART_OFFSET}
         block-count = ${CONFIG_PART_COUNT}
-        type = 0xc # FAT32
+        type = 0x83 # Linux
     }
     partition 3 {
         block-offset = ${LOG_PART_OFFSET}
@@ -224,7 +229,7 @@ mbr mbr-b {
     partition 2 {
         block-offset = ${CONFIG_PART_OFFSET}
         block-count = ${CONFIG_PART_COUNT}
-        type = 0xc # FAT32
+        type = 0x83 # Linux
     }
     partition 3 {
         block-offset = ${LOG_PART_OFFSET}
@@ -246,7 +251,7 @@ This layout defines our system as follows:
 +----------------------------+
 | p1*: Rootfs B (squashfs)   |
 +----------------------------+
-| p2: Config      (FAT32)    |
+| p2: Config      (EXT4)     |
 +----------------------------+
 | p3: Log         (EXT4)     |
 +----------------------------+
@@ -261,7 +266,7 @@ To have `erlinit` mount the partition for you, you will need to supply your own 
 # Mount the configdata partition
 # See http://www.linuxfromscratch.org/lfs/view/6.3/chapter08/fstab.html about
 # ignoring warning the Linux kernel warning about using UTF8 with vfat.
--m /dev/mmcblk0p3:/root:vfat::;/dev/mmcblk0p4:/mnt/log:ext4::
+-m /dev/mmcblk0p3:/root:ext4::;/dev/mmcblk0p4:/mnt/log:ext4::
 ```
 
 The other option is to handle it in your Elixir code.
@@ -279,4 +284,3 @@ Then, we mount it:
 ```elixir
 System.cmd("mount", ["-t", "ext4", "/dev/mmcblk0p4", "/mnt/log"])
 ```
-
