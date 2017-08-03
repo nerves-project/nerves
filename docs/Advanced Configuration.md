@@ -150,7 +150,7 @@ These settings are defined in `etc/erlinit.config`.
 More information about how the App Data partition is initialized and mounted can be found
 in the documentation for `nerves_runtime` [Filesystem Initialization](https://hexdocs.pm/nerves_runtime/readme.html#filesystem-initialization)
 
-**Additional Partitions**
+### Adding a Partition
 
 You can enable and mount an additional read/write partition by modifying the `fwup.conf` file.
 This strategy is typically used to define two locations where data can be written.
