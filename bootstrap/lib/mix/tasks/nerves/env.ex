@@ -19,6 +19,7 @@ defmodule Mix.Tasks.Nerves.Env do
       System.delete_env("NERVES_ENV_DISABLED")
     end
     unless Code.ensure_compiled?(Nerves.Env) do
+      Mix.Tasks.Deps.Loadpaths.run ["--no-compile"]
       Mix.Tasks.Deps.Compile.run ["nerves", "--include-children"]
     end
     Nerves.Env.start()

@@ -297,7 +297,7 @@ defmodule Mix.Tasks.Nerves.New do
         :append ->
           append_to(Path.dirname(target), Path.basename(target), render(source))
         :eex  ->
-          contents = EEx.eval_string(render(source), binding, file: source)
+          contents = EEx.eval_string(render(source), binding, file: source, trim: true)
           create_file(target, contents)
       end
     end

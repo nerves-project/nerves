@@ -39,11 +39,9 @@ defmodule Nerves.Package.Providers.Local do
     defconfig = Path.join("#{pkg.path}", platform_config)
 
     initial_input = [
-      "echo Creating build directory...\n",
+      "echo Updating build directory.\nThis will take a while if it's the first time...\n",
       "#{script} #{defconfig} #{dest} >/dev/null",
       "cd #{dest}",
-      "echo Cleaning up...\n",
-      "make clean >/dev/null",
     ]
 
     Mix.Nerves.Shell.open(shell, initial_input)

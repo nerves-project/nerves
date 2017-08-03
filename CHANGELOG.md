@@ -1,5 +1,13 @@
 # Release Notes
 
+## Nerves v0.7.1-dev
+* Bug Fixes
+  * The `nerves.system.shell` Mix task should not do `make clean` by default.
+* Enhancements
+  * The "Customizing Your Own Nerves System" documentation has been updated to
+    include the `mix nerves.system.shell` functionality, including a blurb to
+    recommend running a clean build any time it's not working as expected.
+
 ## Nerves 0.7.0
 * Bug Fixes
   * Try to include the parent project when loading Nerves packages
@@ -12,7 +20,7 @@
     `Nerves.Package.Providers.Local`, which provides a consistent way to
     configure a Buildroot-based Nerves system on both OSX and Linux. This
     replaces the `nerves.shell` Mix task, which had not been fully implemented.
-  * `mix firmware.burn` no longer asks for your password if using Linux and have 
+  * `mix firmware.burn` no longer asks for your password if using Linux and have
      read/write permissions on the SD card device.
 
 ## Nerves 0.6.1

@@ -16,15 +16,26 @@ defmodule Mix.Tasks.Nerves.System.Shell do
 
   """
 
+  @standard_error_message """
+  Make sure you run this task from a Nerves-based project or the source directory of a custom Nerves system.
+  Also, set the MIX_TARGET environment variable to allow mix.exs to know which custom system dependency to use.
+  """
+
   @no_nerves_dep_error """
   Nerves dependency not found in current Mix project.
-  Make sure you run this task from a Nerves-based project or the source directory of a custom Nerves system.
+  #{@standard_error_message}
   """
 
   @no_system_pkg_error """
   Unable to locate a relevant Nerves system package.
-  Make sure you run this task from a Nerves-based project or the source directory of a custom Nerves system.
+  #{@standard_error_message}
   """
+
+  @no_mix_target_error """
+  MIX_TARGET environment variable not set or set to "host".
+  #{@standard_error_message}
+  """
+
 
   @doc false
   def run(_argv) do
@@ -39,14 +50,23 @@ defmodule Mix.Tasks.Nerves.System.Shell do
     try do
       Mix.Task.run("nerves.env", ["--disable"])
     rescue
-      e in Mix.Error ->
-        if String.starts_with?(e.message, "Unknown dependency nerves for environment") do
-          Mix.raise(@no_nerves_dep_error)
+      e ->
+        case e do
+          %Mix.Error{message: "Unknown dependency nerves for environment " <> _env} ->
+            Mix.raise(@no_nerves_dep_error)
+          _ ->
+            reraise(e, System.stacktrace)
         end
     end
 
     pkg = Nerves.Env.system()
-    if is_nil(pkg), do: Mix.raise(@no_system_pkg_error)
+    if is_nil(pkg) do
+      target = System.get_env("MIX_TARGET") || "host"
+      case target do
+        "host" -> Mix.raise(@no_mix_target_error)
+        _ -> Mix.raise(@no_system_pkg_error)
+      end
+    end
 
     provider = case :os.type do
       {_, :linux} -> Nerves.Package.Providers.Local
