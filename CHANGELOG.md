@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves v0.7.1-dev
+## Nerves v0.7.1
 * Bug Fixes
   * The `nerves.system.shell` Mix task should not do `make clean` by default.
 * Enhancements
