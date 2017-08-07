@@ -1,5 +1,11 @@
 # Release Notes
 
+## Nerves v0.7.2-dev
+* Enhancements
+  * Deprecated the `rootfs_additions` configuration option, to be superseded by
+    the `rootfs_overlay` option, which matches the convention used by the
+    Buildroot community.
+
 ## Nerves v0.7.1
 * Bug Fixes
   * The `nerves.system.shell` Mix task should not do `make clean` by default.

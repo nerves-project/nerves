@@ -80,28 +80,21 @@ defmodule Mix.Tasks.Firmware do
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
     args = [rel2fw_path]
-    rootfs_additions =
-      case firmware_config[:rootfs_additions] do
-        nil -> []
-        rootfs_additions ->
-          rfs = File.cwd!
-          |> Path.join(rootfs_additions)
-          ["-a", rfs]
-      end
-    fwup_conf =
-      case firmware_config[:fwup_conf] do
-        nil -> []
-        fwup_conf ->
-          fw_conf = File.cwd!
-          |> Path.join(fwup_conf)
-          ["-c", fw_conf]
-      end
+    if firmware_config[:rootfs_additions] do
+      Mix.shell.error("The :rootfs_additions configuration option has been deprecated. Please use :rootfs_overlay instead.")
+    end
+    rootfs_overlay = case (firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions]) do
+      nil -> []
+      overlay -> ["-a", Path.join(File.cwd!, overlay)]
+    end
+    fwup_conf = case firmware_config[:fwup_conf] do
+      nil -> []
+      fwup_conf -> ["-c", Path.join(File.cwd!, fwup_conf)]
+    end
     fw = ["-f", "#{images_path}/#{otp_app}.fw"]
-    release_path =
-      Mix.Project.build_path()
-      |> Path.join("rel/#{otp_app}")
+    release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
-    args = args ++ fwup_conf ++ rootfs_additions ++ fw ++ output
+    args = args ++ fwup_conf ++ rootfs_overlay ++ fw ++ output
     env = standard_fwup_variables(config)
 
     shell(cmd, args, env: env)

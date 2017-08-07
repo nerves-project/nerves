@@ -10,7 +10,7 @@ use Mix.Config
 # archive.
 
 # config :nerves, :firmware,
-#   rootfs_additions: "config/rootfs_additions",
+#   rootfs_overlay: "rootfs_overlay",
 #   fwup_conf: "config/fwup.conf"
 
 # Import target specific config. This must remain at the bottom

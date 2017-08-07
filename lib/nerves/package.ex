@@ -30,7 +30,7 @@ defmodule Nerves.Package do
       ],
       checksum: [
         "linux",
-        "rootfs-additions",
+        "rootfs_overlay",
         "uboot",
         "bbb-busybox.config",
         "fwup.conf",
