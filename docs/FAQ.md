@@ -1,7 +1,7 @@
 # Frequently-Asked Questions
 
 This is a collection of questions that often come up as people are getting started with Nerves.
-If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves-examples) and got stuck, hopefully one of the following answers will help.
+If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves_examples) and got stuck, hopefully one of the following answers will help.
 If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/master/docs).
 
 ## Using a USB Serial Console

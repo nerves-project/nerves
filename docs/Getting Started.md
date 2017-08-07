@@ -74,7 +74,7 @@ $ MIX_TARGET=rpi3 mix deps.get
 Once the dependencies are fetched, you can build a Nerves Firmware (a bundle that contains a minimal Linux platform and your application, packaged as an OTP release).
 The first time you ask any dependencies or your application to compile, Nerves will fetch the System and Toolchain from one of our cache mirrors.
 These artifacts are cached locally in `~/.nerves/artifacts` so they can be shared across projects.
- 
+
 ### Generating a release config file
 
 You must generate a _release config file_ before generating a firmware bundle.
@@ -136,18 +136,18 @@ For Raspberry Pi, be sure to connect it to an HDMI display and USB keyboard so y
 
 ## Nerves Examples
 
-To get up and running quickly, you can check out our [collection of example projects](https://github.com/nerves-project/nerves-examples).
+To get up and running quickly, you can check out our [collection of example projects](https://github.com/nerves-project/nerves_examples).
 Be sure to set your `MIX_TARGET` environment variable appropriately for the target hardware you have.
 Visit the [Targets Page](targets.html) for more information on what target name to use for the boards that Nerves supports.
 
-The `nerves-examples` repository contains several example projects to get you started.
+The `nerves_examples` repository contains several example projects to get you started.
 The simplest example is Blinky, known as the "Hello World" of hardware because all it does is blink an LED indefinitely.
 If you are ever curious about project structuring or can't get something running, check out Blinky and run it on your target to confirm that it works in the simplest case.
 
 ``` bash
-$ git clone https://github.com/nerves-project/nerves-examples
+$ git clone https://github.com/nerves-project/nerves_examples
 $ export MIX_TARGET=rpi3
-$ cd nerves-examples/blinky
+$ cd nerves_examples/blinky
 $ mix do deps.get, firmware, firmware.burn
 ```
 
