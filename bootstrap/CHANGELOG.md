@@ -1,5 +1,11 @@
 # nerves_bootstrap
 
+## v0.6.2
+* Enhancements
+  * Change the new project generator to use the new `rootfs_overlay` option
+    rather than the deprecated `rootfs_additions` option and also recommend
+    placing the relevant files in a top-level `rootfs_overlay` directory in the
+    project root rather than in `config/rootfs_additions`.
 ## v0.6.1
 * Enhancements
   * Improved error messages in `nerves.system.shell` Mix task. In particular,

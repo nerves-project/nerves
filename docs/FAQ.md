@@ -12,14 +12,14 @@ This allows you to interact with the console of the target device using a termin
 
 To override the default, you need to locate the `erlinit.config` for the system you're using and modify it to replace the `-c` option to control the console.
 You can figure out what the correct value is by referring to the hardware description table in the README of your target's system repository.
-For example, for the Raspberry Pi 3 target, you can find the [hardware description README here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/README.md) and the [default `erlinit.config` here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/rootfs-additions/etc/erlinit.config).
+For example, for the Raspberry Pi 3 target, you can find the [hardware description README here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/README.md) and the [default `erlinit.config` here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/rootfs_overlay/etc/erlinit.config).
 
  1. Download the default `erlinit.config` file from the system repository for your target.
- 2. Place it in your project folder under `config/rootfs_additions/etc/erlinit.config`.
+ 2. Place it in your project folder under `rootfs_overlay/etc/erlinit.config`.
  2. Modify the `-c` console setting to match the value shown in the `UART` row of the hardware description table (`rpi3` example shown):
 
     ```bash
-    # config/rootfs_additions/etc/erlinit.config
+    # rootfs_overlay/etc/erlinit.config
 
     ...
 
@@ -36,7 +36,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
     use Mix.Config
 
     config :nerves, :firmware,
-      rootfs_additions: "config/rootfs_additions"
+      rootfs_overlay: "rootfs_overlay"
     ```
 
  4. Connect your USB serial cable to the desired UART pins (per the I/O pin-out for your particular hardware).
@@ -76,4 +76,3 @@ In general, platform-specific features will be documented in the target's system
 You may also find what you need by looking at the [community-maintained list of libraries](http://nerves-project.org/libraries/) that work well with Nerves.
 
 If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
-

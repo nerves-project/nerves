@@ -40,7 +40,7 @@ config :nerves_leds, names: [
 ]
 ```
 
-## Root Filesystem Additions
+## Root Filesystem Overlays
 
 Sometimes, you want to ship additional files and configurations with your firmware.
 This is done by telling the firmware assembler where to find a directory to use as an overlay on the root mount point:
@@ -49,21 +49,21 @@ This is done by telling the firmware assembler where to find a directory to use 
 # config/config.exs
 
 config :nerves, :firmware,
-  rootfs_additions: "config/rootfs-additions"
+  rootfs_overlay: "rootfs_overlay"
 ```
 
-This declares that the contents of the folder at `config/rootfs-additions` will be merged into the root file system when `mix firmware` is called.
-You can also specify different rootfs additions per target, as shown in the previous section.
+This declares that the contents of the folder at `rootfs_overlay` in your project root directory will be merged into the root file system when `mix firmware` is called.
+You can also specify a different `rootfs_overlay` for each target, as shown in the previous section.
 
-## Overwriting Files in the Root File System
+### Overwriting Files in the Root File System
 
-Any files in the `rootfs_additions` directory will overwrite those present in the underlying filesystem.
+Any files in the `rootfs_overlay` directory will overwrite those present in the underlying filesystem.
 This can be useful if you want to change the contents of included files in the underlying Nerves system.
 Let's say, for example, that you want to change the behavior of `erlinit`.
 You can include your own `erlinit.config`:
 
 ```bash
-# config/rootfs-additions/etc/erlinit.config
+# rootfs_overlay/etc/erlinit.config
 
 # Uncomment to hang the board rather than rebooting when Erlang exits
 #--hang-on-exit
@@ -95,7 +95,7 @@ $ unsquashfs ~/.nerves/artifacts/<cached_system_name>/images/rootfs.squashfs
 
 It will be expanded into the current directory under `squashfs-root`
 
-## Overwriting Files in the Boot Partition
+### Overwriting Files in the Boot Partition
 
 Different targets have different boot partition contents.
 To overwrite files in the boot partition, you will need to use your own `fwup.conf` file:
