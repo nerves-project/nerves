@@ -117,7 +117,8 @@ defmodule Nerves.Package.Providers.Docker do
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
 
     initial_input = [
-      "echo Updating build directory.\nThis will take a while if it's the first time...\n",
+      "echo Updating build directory.",
+      "echo This will take a while if it is the first time...",
       "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null",
     ]
 

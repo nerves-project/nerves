@@ -39,7 +39,8 @@ defmodule Nerves.Package.Providers.Local do
     defconfig = Path.join("#{pkg.path}", platform_config)
 
     initial_input = [
-      "echo Updating build directory.\nThis will take a while if it's the first time...\n",
+      "echo Updating build directory.",
+      "echo This will take a while if it is the first time...",
       "#{script} #{defconfig} #{dest} >/dev/null",
       "cd #{dest}",
     ]
