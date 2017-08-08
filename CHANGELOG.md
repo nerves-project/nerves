@@ -1,6 +1,8 @@
 # Release Notes
 
-## Nerves v0.7.2-dev
+## Nerves v0.7.2
+* Bug Fixes
+  * Fixed issue where `nerves.system.shell` would hang and load improperly.
 * Enhancements
   * Deprecated the `rootfs_additions` configuration option, to be superseded by
     the `rootfs_overlay` option, which matches the convention used by the
