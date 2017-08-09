@@ -266,7 +266,7 @@ project directory, like so:
 
   # ...
   def system("rpi3"), do: {:nerves_system_rpi3, ">= 0.0.0", runtime: false}
-  def system("custom_rpi3"), do: {:custom_rpi3, path: "../custom_rpi3" runtime: false}
+  def system("custom_rpi3"), do: {:custom_rpi3, path: "../custom_rpi3", runtime: false}
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 ```
 
