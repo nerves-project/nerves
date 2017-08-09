@@ -62,14 +62,14 @@ defmodule <%= app_module %>.Mixfile do
   # Specify target specific dependencies
   def deps("host"), do: []
   def deps(target) do
-    [ system(target),
+    [
       {:bootloader, "~> <%= bootloader_vsn %>"},
       {:nerves_runtime, "~> <%= runtime_vsn %>"}
-    ]
+    ] ++ system(target)
   end
 
 <%= for target <- targets do %>
-  def system("<%= target %>"), do: {:<%= "nerves_system_#{target}" %>, ">= 0.0.0", runtime: false}
+  def system("<%= target %>"), do: [{:<%= "nerves_system_#{target}" %>, ">= 0.0.0", runtime: false}]
 <% end %>
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 

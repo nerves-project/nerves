@@ -20,14 +20,14 @@ defmodule Nerves.BootstrapTest do
       assert_file "#{@app_name}/README.md"
       assert_file "#{@app_name}/mix.exs", fn file ->
         assert file =~ "app: :#{@app_name}"
-        assert file =~ "def system(\"rpi\"), do: {:nerves_system_rpi, \">= 0.0.0\""
-        assert file =~ "def system(\"rpi0\"), do: {:nerves_system_rpi0, \">= 0.0.0\""
-        assert file =~ "def system(\"rpi2\"), do: {:nerves_system_rpi2, \">= 0.0.0\""
-        assert file =~ "def system(\"rpi3\"), do: {:nerves_system_rpi3, \">= 0.0.0\""
-        assert file =~ "def system(\"bbb\"), do: {:nerves_system_bbb, \">= 0.0.0\""
-        assert file =~ "def system(\"linkit\"), do: {:nerves_system_linkit, \">= 0.0.0\""
-        assert file =~ "def system(\"ev3\"), do: {:nerves_system_ev3, \">= 0.0.0\""
-        assert file =~ "def system(\"qemu_arm\"), do: {:nerves_system_qemu_arm, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi\"), do: [{:nerves_system_rpi, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi0\"), do: [{:nerves_system_rpi0, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi2\"), do: [{:nerves_system_rpi2, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi3\"), do: [{:nerves_system_rpi3, \">= 0.0.0\""
+        assert file =~ "def system(\"bbb\"), do: [{:nerves_system_bbb, \">= 0.0.0\""
+        assert file =~ "def system(\"linkit\"), do: [{:nerves_system_linkit, \">= 0.0.0\""
+        assert file =~ "def system(\"ev3\"), do: [{:nerves_system_ev3, \">= 0.0.0\""
+        assert file =~ "def system(\"qemu_arm\"), do: [{:nerves_system_qemu_arm, \">= 0.0.0\""
       end
     end
   end
@@ -39,8 +39,8 @@ defmodule Nerves.BootstrapTest do
       assert_file "#{@app_name}/README.md"
       assert_file "#{@app_name}/mix.exs", fn file ->
         assert file =~ "app: :#{@app_name}"
-        assert file =~ "def system(\"rpi\"), do: {:nerves_system_rpi, \">= 0.0.0\""
-        refute file =~ "def system(\"rpi0\"), do: {:nerves_system_rpi0, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi\"), do: [{:nerves_system_rpi, \">= 0.0.0\""
+        refute file =~ "def system(\"rpi0\"), do: [{:nerves_system_rpi0, \">= 0.0.0\""
       end
     end
   end
@@ -52,9 +52,9 @@ defmodule Nerves.BootstrapTest do
       assert_file "#{@app_name}/README.md"
       assert_file "#{@app_name}/mix.exs", fn file ->
         assert file =~ "app: :#{@app_name}"
-        assert file =~ "def system(\"rpi\"), do: {:nerves_system_rpi, \">= 0.0.0\""
-        assert file =~ "def system(\"rpi3\"), do: {:nerves_system_rpi3, \">= 0.0.0\""
-        refute file =~ "def system(\"rpi0\"), do: {:nerves_system_rpi0, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi\"), do: [{:nerves_system_rpi, \">= 0.0.0\""
+        assert file =~ "def system(\"rpi3\"), do: [{:nerves_system_rpi3, \">= 0.0.0\""
+        refute file =~ "def system(\"rpi0\"), do: [{:nerves_system_rpi0, \">= 0.0.0\""
       end
     end
   end
