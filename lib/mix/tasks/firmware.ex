@@ -64,7 +64,7 @@ defmodule Mix.Tasks.Firmware do
   end
 
   defp build_release do
-    Mix.Task.run "release", ["--silent"]
+    Mix.Task.run "release", ["--silent", "--no-tar"]
   end
 
   defp build_firmware(system_path) do
