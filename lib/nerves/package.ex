@@ -116,25 +116,18 @@ defmodule Nerves.Package do
   """
   @spec load_config({app :: atom, path :: String.t}) :: Nerves.Package.t
   def load_config({app, path}) do
-    load_nerves_config(path)
-    config = Application.get_env(app, :nerves_env)
+    config = config(app, path)
     version = config[:version]
-    unless version do
-      Mix.shell.error "The Nerves package #{app} does not define a version.\n\n" <>
-                      "Verify that the key exists in '#{config_path(path)}'\n" <>
-                      "and that the package name is correct."
-      exit({:shutdown, 1})
-    end
-    type = config[:type]
+    type = config[:nerves_package][:type]
     unless type do
       Mix.shell.error "The Nerves package #{app} does not define a type.\n\n" <>
                       "Verify that the key exists in '#{config_path(path)}'.\n"
       exit({:shutdown, 1})
     end
-    platform = config[:platform]
+    platform = config[:nerves_package][:platform]
     provider = provider(app, type)
-    compiler = config[:compiler]
-    config = Enum.reject(config, fn({k, _v}) -> k in @required end)
+    compiler = config[:nerves_package][:compiler]
+    config = Enum.reject(config[:nerves_package], fn({k, _v}) -> k in @required end)
 
     %Package{
       app: app,
@@ -211,6 +204,53 @@ defmodule Nerves.Package do
   @spec config_path(String.t) :: String.t
   def config_path(path) do
     Path.join(path, @package_config)
+  end
+
+  def config(app, path) do
+    project_config =
+      if app == Mix.Project.config[:app] do
+        Mix.Project.config
+      else
+        Mix.Project.in_project(app, path, fn(_mod) ->
+          Mix.Project.config
+        end)
+      end
+    nerves_package =
+      case project_config[:nerves_package] do
+        nil ->
+          # TODO: Deprecated. Clean up after 1.0
+          load_nerves_config(path)
+          config = Application.get_env(app, :nerves_env)
+          Mix.shell.error """
+          Nerves config has moved from nerves.exs to mix.exs.
+
+          For Example:
+
+          ## nerves.exs
+            config #{project_config[:app]}, :nerves_env,
+              type: #{config[:type]}
+              # ...
+
+          ## mix.exs
+
+            def project do
+              [app: #{project_config[:app]},
+               version: #{project_config[:version]},
+               nerves_package: nerves_package()
+               # ...
+              ]
+            end
+
+            def nerves_package do
+              [type: #{config[:type]}
+              # ...
+              ]
+            end
+          """
+          config
+        nerves_package -> nerves_package
+      end
+    Keyword.put(project_config, :nerves_package, nerves_package)
   end
 
   defp match_checksum?(pkg, toolchain) do
