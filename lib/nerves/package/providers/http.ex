@@ -3,20 +3,24 @@ defmodule Nerves.Package.Providers.HTTP do
   Downloads an artifact from a remote http location.
   """
 
-  @behaviour Nerves.Package.Provider
-
   alias Nerves.Package.Artifact
   require Logger
+
+  @behaviour Nerves.Package.Provider
+  @url_placeholders %{
+    "HOST_PLATFORM" => {Nerves.Env, :host_platform, []},
+    "HOST_ARCH" => {Nerves.Env, :host_arch, []}
+  }
 
   @doc """
   Download the artifact from an http location
   """
   def artifact(pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
-    url = pkg.config[:artifact_url]
+    urls = Enum.map(pkg.config[:artifact_url], &parse_url/1)
     dest = Artifact.dir(pkg, toolchain)
 
-    download(artifact, url)
+    download(artifact, urls)
     |> unpack(artifact, dest)
   end
 
@@ -102,6 +106,16 @@ defmodule Nerves.Package.Providers.HTTP do
       end
     File.rm_rf!(tmp_path)
     ret
+  end
+
+  defp parse_url(url) do
+    Enum.reduce(@url_placeholders, url, fn({key, mfa}, url) ->
+      replace_url_arg(url, key, mfa)
+    end)
+  end
+
+  defp replace_url_arg(url, key, {m, f, a}) do
+    String.replace(url, key, apply(m, f, a))
   end
 
   defp shell_info(header, text \\ "") do
