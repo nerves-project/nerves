@@ -20,7 +20,6 @@ defmodule Nerves.Package do
     config pkg, :nerves_env,
       type: :system,
       version: version,
-      compiler: :nerves_package,
       artifact_url: [
         "https://github.com/nerves-project/\#{pkg}/releases/download/v\#{version}/\#{pkg}-v\#{version}.tar.gz",
       ],
@@ -52,15 +51,11 @@ defmodule Nerves.Package do
       * `:toolchain` - A Nerves toolchain
       * `:toolchain_platform` - A set of build tools for a Nerves toolchain.
     * `:version` - The package version
-
-  ** Optional **
-
-    * `:compiler` - The Mix.Project compiler for the package. Example: `:nerves_package`
     * `:platform` - The application which is the packages build platform.
     * `:checksum` - A list of files and top level folders to expand paths for use when calculating the checksum of the package source.
   """
 
-  defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, compiler: nil, config: []]
+  defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, config: []]
 
   alias __MODULE__
   alias Nerves.Package.{Artifact, Providers}
@@ -77,7 +72,6 @@ defmodule Nerves.Package do
                               :git,
                     platform: atom,
                     provider: atom,
-                    compiler: atom,
                      version: Version.t,
                       config: Keyword.t}
 
@@ -131,8 +125,7 @@ defmodule Nerves.Package do
     end
     platform = config[:nerves_package][:platform]
     provider = provider(app, type)
-    compiler = config[:nerves_package][:compiler]
-    config = Enum.reject(config[:nerves_package], fn({k, _v}) -> k in @required end)
+    config = Enum.reject(config, fn({k, _v}) -> k in @required end)
 
     %Package{
       app: app,
@@ -142,7 +135,6 @@ defmodule Nerves.Package do
       dep: dep_type(app),
       path: path,
       version: version,
-      compiler: compiler,
       config: config}
   end
 

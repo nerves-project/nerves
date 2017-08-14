@@ -68,9 +68,7 @@ defmodule Nerves.ArtifactTest do
   test "tar file error detection" do
       pkg =
       %Nerves.Package{app: :nerves_system_rpi3,
-                      compiler: :nerves_package,
-                      config: [compiler: :nerves_package,
-                               artifact_url: ["https://github.com/nerves-project/nerves_system_rpi3/releases/download/v0.10.0/nerves_system_rpi3-v0.10.0.fw"],
+                      config: [artifact_url: ["https://github.com/nerves-project/nerves_system_rpi3/releases/download/v0.10.0/nerves_system_rpi3-v0.10.0.fw"],
                                platform_config: [defconfig: "nerves_defconfig"],
                                checksum: []],
                       dep: :hex,

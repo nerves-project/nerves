@@ -209,7 +209,6 @@ pkg = :custom_rpi3
 config pkg, :nerves_env,
   type: :system,
   version: version,
-  compiler: :nerves_package,
 #   artifact_url: [
 #     "...",
 #   ],

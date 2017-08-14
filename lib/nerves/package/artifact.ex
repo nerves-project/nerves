@@ -56,7 +56,6 @@ defmodule Nerves.Package.Artifact do
     else
       base_dir(pkg)
       |> Path.join(name(pkg, toolchain))
-      |> protocol_vsn(pkg)
     end
   end
 
@@ -102,21 +101,4 @@ defmodule Nerves.Package.Artifact do
   def ext(%{type: :toolchain}), do: "tar.xz"
   def ext(_), do: "tar.gz"
 
-  defp protocol_vsn(dir, pkg) do
-    if pkg.compiler == :nerves_package do
-      dir
-    else
-      build_path =
-        Mix.Project.build_path
-        |> Path.join("nerves")
-        |> Path.expand
-        case pkg.type do
-        :toolchain ->
-          Path.join(build_path, "toolchain")
-        :system ->
-          Path.join(build_path, "system")
-        type -> Mix.raise "Cannot determine artifact path for #{type}"
-      end
-    end
-  end
 end
