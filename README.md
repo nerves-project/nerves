@@ -53,7 +53,7 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 ## Contributors
 
 This project exists thanks to all the people who contribute.
-<a href="graphs/contributors"><img src="https://opencollective.com/nerves-project/contributors.svg?width=890" /></a>
+<a href="https://github.com/nerves-project/nerves/graphs/contributors"><img src="https://opencollective.com/nerves-project/contributors.svg?width=890" /></a>
 
 
 ## Backers
