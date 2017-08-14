@@ -1,7 +1,7 @@
 # Nerves
 Craft and deploy bulletproof embedded software in Elixir
 
-[![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
+[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors) [![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
 
 ## Requirements
 
@@ -50,4 +50,33 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 
 [Advanced Configuration](https://hexdocs.pm/nerves/advanced-configuration.html)
 
+## Contributors
+
+This project exists thanks to all the people who contribute.
+<a href="graphs/contributors"><img src="https://opencollective.com/nerves-project/contributors.svg?width=890" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/nerves-project#backer)]
+
+<a href="https://opencollective.com/nerves-project#backers" target="_blank"><img src="https://opencollective.com/nerves-project/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/nerves-project#sponsor)]
+
+<a href="https://opencollective.com/nerves-project/sponsor/0/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/1/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/2/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/3/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/4/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/5/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/6/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/7/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/8/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/nerves-project/sponsor/9/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/9/avatar.svg"></a>
+
 Copyright (C) 2015-2017 by the Nerves Project developers <nerves@nerves-project.org>
+
