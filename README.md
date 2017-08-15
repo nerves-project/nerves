@@ -1,7 +1,10 @@
 # Nerves
 Craft and deploy bulletproof embedded software in Elixir
 
-[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors) [![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
+[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors)
+[![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
+[![Hex version](https://img.shields.io/hexpm/v/nerves.svg "Hex version")](https://hex.pm/packages/nerves)
 
 ## Requirements
 
