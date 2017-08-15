@@ -6,14 +6,16 @@ Craft and deploy bulletproof embedded software in Elixir
 [![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
 [![Hex version](https://img.shields.io/hexpm/v/nerves.svg "Hex version")](https://hex.pm/packages/nerves)
 
-## Requirements
+## Host Requirements
 
-* 64-bit host
 * Mac OS 10.10+
-* Linux (tested on Debian / Ubuntu / Redhat / CentOS)
-* Windows 10 with [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) (untested)
+* 64-bit Linux (tested on Debian / Ubuntu / Redhat / CentOS)
+* Windows 10 with [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) (experimental)
+* Raspberry Pi 3 (experimental)
 * Elixir ~> 1.4
-* [fwup](https://github.com/fhunleth/fwup) >= 0.8.0
+
+See [Installation Docs](https://hexdocs.pm/nerves/installation.html) for
+software dependencies.
 
 ## Quick-Reference
 
