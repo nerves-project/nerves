@@ -257,7 +257,10 @@ defmodule Nerves.Package.Providers.Docker do
     end
 
     unless Docker.Image.exists?(tag) do
-      Docker.Image.create(dockerfile, tag)
+      Docker.Image.pull(tag)
+      unless Docker.Image.exists?(tag) do
+        Docker.Image.create(dockerfile, tag)
+      end
     end
 
     :ok
