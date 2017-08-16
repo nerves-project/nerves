@@ -6,7 +6,7 @@ defmodule Nerves.Package.Provider.Docker.Image do
     cmd = "docker"
     path = Path.dirname(dockerfile)
     args = ["build", "--tag", "#{tag}", path]
-    shell_info "Create Image"
+    shell_info "Create image"
     if Mix.shell.yes?("The Nerves Docker provider needs to create the image.\nProceed? ") do
       case Mix.Nerves.Utils.shell(cmd, args) do
         {_, 0} -> :ok
@@ -17,9 +17,23 @@ defmodule Nerves.Package.Provider.Docker.Image do
     end
   end
 
+  def pull(tag) do
+    shell_info "Trying to pull image"
+    cmd = "docker"
+    args = ["pull", "#{tag}"]
+    case System.cmd(cmd, args, stderr_to_stdout: true) do
+      {"", _} ->
+        false
+      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
+        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
+      {_, 0} ->
+        true
+    end
+  end
+
   def exists?(tag) do
     cmd = "docker"
-    args = ["images", "-q", "#{tag}", "-q"]
+    args = ["image", "ls", "#{tag}", "-q"]
     case System.cmd(cmd, args, stderr_to_stdout: true) do
       {"", _} ->
         false
