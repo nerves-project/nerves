@@ -1,14 +1,10 @@
 # Nerves
 Craft and deploy bulletproof embedded software in Elixir
 
-<<<<<<< HEAD
 [![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)
 [![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors)
-[![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
+[![CircleCI](https://circleci.com/gh/nerves-project/nerves/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves/tree/master)
 [![Hex version](https://img.shields.io/hexpm/v/nerves.svg "Hex version")](https://hex.pm/packages/nerves)
-=======
-[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors) [![CircleCI](https://circleci.com/gh/nerves-project/nerves/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves/tree/master)
->>>>>>> 8e953ad... switch from travis to circle ci
 
 ## Host Requirements
 
