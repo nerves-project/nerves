@@ -1,5 +1,5 @@
 defmodule Mix.Nerves.Utils do
-  @fwup_semver "~> 0.8 or ~> 1.0.0-dev"
+  @fwup_semver "~> 0.15 or ~> 1.0.0-dev"
 
   def shell(cmd, args, opts \\ []) do
     stream = opts[:stream] || IO.binstream(:standard_io, :line)
