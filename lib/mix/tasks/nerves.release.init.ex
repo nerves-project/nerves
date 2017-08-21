@@ -6,10 +6,10 @@ defmodule Mix.Tasks.Nerves.Release.Init do
   @moduledoc """
   Prepares a new project for use with releases.
   By default, this forwards the call to
-    mix release.init --template /path/to/nerves/release_template.eex
+      mix release.init --template /path/to/nerves/release_template.eex
 
-  For more information on additional args, reference
-    mix help release.init
+  For more information on additional args, see
+      mix help release.init
   """
 
   @spec run(OptionParser.argv) :: no_return
