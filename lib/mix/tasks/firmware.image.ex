@@ -8,6 +8,13 @@ defmodule Mix.Tasks.Firmware.Image do
   Create a firmware image file that can be copied byte-for-byte to an SDCard
   or other memory device.
 
+  ## Usage
+
+      mix firmware.image [my_image.img]
+
+  If not supplied, the output image file will be based off the OTP application
+  name.
+
   ## Example
 
   ```
@@ -47,15 +54,23 @@ defmodule Mix.Tasks.Firmware.Image do
     image(fw, file)
   end
 
+  def run([]) do
+    otp_app = Mix.Project.config[:app]
+    file = "#{otp_app}.img"
+    run([file])
+  end
+
   def run(_args) do
     Mix.raise """
-    mix firmware.image takes a single argument
+    mix firmware.image [my_image.img]
+
     See mix help firmware.image for more info
     """
     Mix.Task.run "help", ["firmware.image"]
   end
 
   defp image(fw, file) do
+    Mix.shell.info "Writing to #{file}..."
     args = ["-a", "-i", fw, "-t", "complete", "-d", file]
     cmd = "fwup"
     shell(cmd, args)
