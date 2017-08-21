@@ -2,6 +2,8 @@ defmodule Mix.Tasks.Firmware.Image do
   use Mix.Task
   import Mix.Nerves.Utils
 
+  @shortdoc "Create a firmware image file"
+
   @moduledoc """
   Writes the generated firmware image to an output file.
 
