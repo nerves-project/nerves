@@ -5,13 +5,17 @@ defmodule Mix.Tasks.Firmware.Image do
   @shortdoc "Create a firmware image file"
 
   @moduledoc """
-  Writes the generated firmware image to an output file.
+  Create a firmware image file that can be copied byte-for-byte to an SDCard
+  or other memory device.
 
-  ## Examples
+  ## Example
 
   ```
-  # Create an image file from a .fw file for use with dd(1)
+  # Create the image file
   mix firmware.image my_image.img
+
+  # Write it to a MicroSD card in Linux
+  dd if=my_image.img of=/dev/sdc bs=1M
   ```
   """
   def run([file]) do
