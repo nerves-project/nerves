@@ -2,6 +2,8 @@ defmodule Mix.Tasks.Firmware do
   use Mix.Task
   import Mix.Nerves.Utils
 
+  @shortdoc "Build a firmware bundle"
+
   @moduledoc """
   Build a firmware image for the selected target platform.
 

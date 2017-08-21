@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Nerves.Release.Init do
   use Mix.Task
 
+  @shortdoc "Prepare a new project for use with releases"
+
   @moduledoc """
   Prepares a new project for use with releases.
   By default, this forwards the call to
