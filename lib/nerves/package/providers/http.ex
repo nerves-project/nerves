@@ -13,10 +13,10 @@ defmodule Nerves.Package.Providers.HTTP do
   """
   def artifact(pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
-    url = pkg.config[:artifact_url]
+    urls = pkg.config[:artifact_url]
     dest = Artifact.dir(pkg, toolchain)
 
-    download(artifact, url)
+    get(artifact, urls)
     |> unpack(artifact, dest)
   end
 
@@ -28,14 +28,14 @@ defmodule Nerves.Package.Providers.HTTP do
     :ok
   end
 
-  # def shell(_pkg, _opts) do
-  #   :ok
-  # end
-  #
-  # def clean(_pkg, _opts) do
-  #   :ok
-  # end
-
+  defp get(artifact, urls) do
+    cache_file = cache_file(artifact)
+    if File.exists?(cache_file) do
+      {:ok, cache_file}
+    else
+      download(artifact, urls)
+    end
+  end
 
   defp download(artifact, [location | locations]) do
     shell_info "Downloading Artifact #{artifact}", """
@@ -60,51 +60,42 @@ defmodule Nerves.Package.Providers.HTTP do
     {:error, :nocache}
   end
 
-  defp result({:ok, body}, name, _) do
-    shell_info "Artifact #{name} Downloaded"
-    {:ok, body}
+  defp result({:ok, body}, artifact, _) do
+    shell_info "Artifact #{artifact} Downloaded"
+    file = cache_file(artifact)
+    File.write(file, body)
+    {:ok, file}
   end
   defp result(_, _, []) do
     shell_info "No Available Locations"
     {:error, :nocache}
   end
-  defp result(_, name, locations) do
+  defp result(_, artifact, locations) do
     shell_info "Switching Location"
-    download(name, locations)
+    download(artifact, locations)
   end
 
   defp unpack({:error, _} = error, _, _), do: error
-  defp unpack({:ok, tar}, artifact, destination) do
+  defp unpack({:ok, file}, artifact, destination) do
     shell_info "Unpacking #{artifact}", """
       To Destination:
         #{destination}
     """
-    tmp_path = Path.join(destination, ".tmp")
-    File.mkdir_p!(tmp_path)
-    tar_file = Path.join(tmp_path, artifact)
-    File.write(tar_file, tar)
-
-    {_, status} = System.cmd("tar", ["xf", artifact], cd: tmp_path)
-
-    source =
-      File.ls!(tmp_path)
-      |> Enum.map(& Path.join(tmp_path, &1))
-      |> Enum.find(&File.dir?/1)
-
-
-    File.rm!(tar_file)
-    ret =
-      case status do
-        0 ->
-          File.cp_r(source, destination)
-          :ok
-        _ -> :error
-      end
-    File.rm_rf!(tmp_path)
-    ret
+    File.mkdir_p!(destination)
+    {_, status} = System.cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
+    case status do
+      0 -> :ok
+      _ -> :error
+    end
   end
 
   defp shell_info(header, text \\ "") do
     Mix.Nerves.IO.shell_info(header, text, __MODULE__)
+  end
+
+  defp cache_file(artifact) do
+    Nerves.Env.download_dir
+    |> Path.join(artifact)
+    |> Path.expand
   end
 end

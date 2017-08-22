@@ -53,6 +53,18 @@ defmodule Nerves.Env do
   end
 
   @doc """
+  The download location for artifacts.
+
+  Placing an artifact tar in this location will bypass the need for it to
+  be downloaded.
+  """
+  @spec download_dir() :: path :: String.t
+  def download_dir do
+    (System.get_env("NERVES_DL_DIR") || "~/.nerves/dl")
+    |> Path.expand
+  end
+
+  @doc """
   Re evaluates the mix file under a different target.
 
   This allows you to start in one target, like host, but then
