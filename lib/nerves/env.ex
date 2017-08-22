@@ -53,6 +53,18 @@ defmodule Nerves.Env do
   end
 
   @doc """
+  The download location for artifacts.
+
+  Placing an artifact tar in this location will bypass the need for it to
+  be downloaded.
+  """
+  @spec download_dir() :: path :: String.t
+  def download_dir do
+    (System.get_env("NERVES_DL_DIR") || "~/.nerves/dl")
+    |> Path.expand
+  end
+
+  @doc """
   Re evaluates the mix file under a different target.
 
   This allows you to start in one target, like host, but then
@@ -293,10 +305,7 @@ defmodule Nerves.Env do
   defp load_packages do
     Mix.Project.deps_paths
     |> Map.put(Mix.Project.config[:app], File.cwd!)
-    |> Enum.filter(fn({_, path}) ->
-      Package.config_path(path)
-      |> File.exists?
-    end)
+    |> Enum.filter(&nerves_package?/1)
     |> Enum.map(&Package.load_config/1)
     |> validate_packages
   end
@@ -371,5 +380,12 @@ defmodule Nerves.Env do
   @doc false
   def deps_by_type(type), do: packages_by_type(type)
   ## End Pre 0.4.0 Legacy
-
+  defp nerves_package?({app, path}) do
+    try do
+      Package.config(app, path)[:nerves_package] != nil
+    rescue
+    _e ->
+      File.exists?(Package.config_path(path))
+    end
+  end
 end
