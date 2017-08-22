@@ -5,6 +5,8 @@ defmodule Mix.Tasks.Firmware.Burn do
   @switches [device: :string, task: :string]
   @aliases [d: :device, t: :task]
 
+  @shortdoc "Write a firmware image to an SDCard"
+
   @moduledoc """
   Writes the generated firmware image to an attached SDCard or file.
 
