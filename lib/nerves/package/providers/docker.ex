@@ -33,13 +33,13 @@ defmodule Nerves.Package.Providers.Docker do
     * `/nerves/env/platform` - The package platform package.
     * `/nerves/host/artifacts` - The host artifact dir.
 
-  Nerves will also create and mount docker volume which is used to cache
-  downloaded assets the build platform requires for producing the artifact.
-  This is mounted at `/nerves/cache`. This volume can significally reduce build
+  Nerves will also mount the host NERVES_DL_DIR to save downloaded assets the
+  build platform requires for producing the artifact.
+  This is mounted at `/nerves/dl`. This volume can significally reduce build
   times but has potential for corruption. If you suspect that your build is
   failing due to a faulty downloaded cached data, you can manually mount
-  the offending container and remove the file from this volume or delete the
-  entire cache volume.
+  the offending container and remove the file from this location or delete the
+  entire dir.
 
   Nerves uses a docker volume to attach the build files. The volume name is
   defined as the package name and a unique id that is stored at
