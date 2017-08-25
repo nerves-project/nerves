@@ -68,7 +68,6 @@ defmodule Nerves.Package.Providers.Docker do
   @dockerfile File.cwd!
               |> Path.join("template/Dockerfile")
   @working_dir "/nerves/build"
-  @cache_volume "nerves_cache"
 
   @doc """
   Create an artifact for the package
@@ -209,13 +208,13 @@ defmodule Nerves.Package.Providers.Docker do
     build_paths = build_paths(pkg)
     base_dir = Artifact.base_dir(pkg)
     build_volume = Docker.Volume.name(pkg)
-    mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/cache"]
+    mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
     mounts =
       Enum.reduce(build_paths, mounts, fn({_, host,target}, acc) ->
         ["--mount", "type=bind,src=#{host},target=#{target}" | acc]
       end)
     mounts = ["--mount", "type=bind,src=#{base_dir},target=/nerves/host/artifacts" | mounts]
-    mounts = ["--mount", "type=volume,src=#{@cache_volume},target=/nerves/cache" | mounts]
+    mounts = ["--mount", "type=volume,src=#{Nerves.Env.download_dir()},target=/nerves/dl" | mounts]
     ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
   end
 
