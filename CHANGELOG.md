@@ -1,5 +1,12 @@
 # Release Notes
 
+## Nerves v0.7.3
+* Enhancements
+  * [mix firmware.image] remove the need to pass an image name. Default to the app name.
+  * [mix] added shortdocs to all mix tasks.
+  * [fwup] bumped requirement to ~> 0.15 and support 1.0.0 pre release.
+  * Cache downloads to ~/.nerves/dl or $NERVES_DL_DIR if defined.  
+
 ## Nerves v0.7.2
 * Bug Fixes
   * Fixed issue where `nerves.system.shell` would hang and load improperly.

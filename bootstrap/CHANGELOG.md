@@ -2,10 +2,15 @@
 
 ## v0.6.2
 * Enhancements
-  * Change the new project generator to use the new `rootfs_overlay` option
+  * [mix nerves.new] Use the new `rootfs_overlay` option
     rather than the deprecated `rootfs_additions` option and also recommend
     placing the relevant files in a top-level `rootfs_overlay` directory in the
     project root rather than in `config/rootfs_additions`.
+  * [mix nerves.new] system dependencies are appended as a list so there is a
+    clear location for where system specific dependencies are added.
+  * [mix nerves.new] moved the config for bootloader above so that it is
+    configured before importing target specific configuration. 
+
 ## v0.6.1
 * Enhancements
   * Improved error messages in `nerves.system.shell` Mix task. In particular,
