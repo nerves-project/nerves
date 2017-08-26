@@ -63,6 +63,7 @@ defmodule Nerves.Package.Providers.HTTP do
   defp result({:ok, body}, artifact, _) do
     shell_info "Artifact #{artifact} Downloaded"
     file = cache_file(artifact)
+    File.mkdir_p(Nerves.Env.download_dir())
     File.write(file, body)
     {:ok, file}
   end
@@ -94,7 +95,7 @@ defmodule Nerves.Package.Providers.HTTP do
   end
 
   defp cache_file(artifact) do
-    Nerves.Env.download_dir
+    Nerves.Env.download_dir()
     |> Path.join(artifact)
     |> Path.expand
   end

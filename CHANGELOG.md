@@ -1,5 +1,9 @@
 # Release Notes
 
+## Nerves v0.7.4
+* Bug Fixes
+  * Make sure the path NERVES_DL_DIR exists before writing artifacts to it.
+
 ## Nerves v0.7.3
 * Enhancements
   * [mix firmware.image] remove the need to pass an image name. Default to the app name.
