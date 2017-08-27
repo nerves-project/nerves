@@ -1,5 +1,18 @@
 # Release Notes
 
+## Nerves v0.7.5
+* Enhancements
+  * Docker
+    * Reduced the image size by optimizing docker file.
+    * Images are pulled from Docker Hub instead of building locally.
+    * Containers are transient and build files are stored in docker volumes.
+    * NERVES_BR_DL_DIR is mounted as a host volume instead of a docker volume.
+
+* Bug Fixes
+  * Docker
+    * Fixed issue where moving the project location on the host would require
+      the container to be force deleted.
+
 ## Nerves v0.7.4
 * Bug Fixes
   * Make sure the path NERVES_DL_DIR exists before writing artifacts to it.
