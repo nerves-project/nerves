@@ -6,7 +6,7 @@ FROM ubuntu:xenial
 
 MAINTAINER Justin Schneck
 
-ENV NERVES_BR_DL_DIR=/nerves/cache/buildroot
+ENV -NERVES_BR_DL_DIR=/nerves/cache/buildroot
 
 # Set the locale
 ENV LANG en_US.UTF-8

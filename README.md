@@ -1,16 +1,21 @@
 # Nerves
 Craft and deploy bulletproof embedded software in Elixir
 
-[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers) [![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors) [![Build Status](https://travis-ci.org/nerves-project/nerves.svg?branch=master)](https://travis-ci.org/nerves-project/nerves)
+[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors)
+[![CircleCI](https://circleci.com/gh/nerves-project/nerves/tree/master.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves/tree/master)
+[![Hex version](https://img.shields.io/hexpm/v/nerves.svg "Hex version")](https://hex.pm/packages/nerves)
 
-## Requirements
+## Host Requirements
 
-* 64-bit host
 * Mac OS 10.10+
-* Linux (tested on Debian / Ubuntu / Redhat / CentOS)
-* Windows 10 with [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) (untested)
+* 64-bit Linux (tested on Debian / Ubuntu / Redhat / CentOS)
+* Windows 10 with [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) (experimental)
+* Raspberry Pi 3 (experimental)
 * Elixir ~> 1.4
-* [fwup](https://github.com/fhunleth/fwup) >= 0.8.0
+
+See [Installation Docs](https://hexdocs.pm/nerves/installation.html) for
+software dependencies.
 
 ## Quick-Reference
 
@@ -55,6 +60,13 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 This project exists thanks to all the people who contribute.
 <a href="https://github.com/nerves-project/nerves/graphs/contributors"><img src="https://opencollective.com/nerves-project/contributors.svg?width=890" /></a>
 
+## Platinum Sponsors
+
+<!-- When updating, make sure that https://github.com/nerves-project/nerves-project.github.com/blob/master/index.md is updated as well. -->
+
+<a href="https://www.letote.com/careers" target="_blank"><img width="150" height="150" src="http://nerves-project.org/images/sponsorship/letote.png"></a>
+
+[[Become a metal level sponsor]](http://nerves-project.org/sponsoring)
 
 ## Backers
 
