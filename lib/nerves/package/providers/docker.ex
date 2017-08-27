@@ -31,7 +31,7 @@ defmodule Nerves.Package.Providers.Docker do
 
     * `/nerves/env/<package.name>` - The package being built.
     * `/nerves/env/platform` - The package platform package.
-    * `/nerves/host/artifacts` - The host artifact dir.
+    * `/nerves/host/artifacts` - The host artifact directory.
 
   Nerves will also mount the host NERVES_DL_DIR to save downloaded assets the
   build platform requires for producing the artifact.
@@ -39,7 +39,7 @@ defmodule Nerves.Package.Providers.Docker do
   times but has potential for corruption. If you suspect that your build is
   failing due to a faulty downloaded cached data, you can manually mount
   the offending container and remove the file from this location or delete the
-  entire dir.
+  entire directory.
 
   Nerves uses a docker volume to attach the build files. The volume name is
   defined as the package name and a unique id that is stored at
@@ -53,7 +53,7 @@ defmodule Nerves.Package.Providers.Docker do
   do this.
 
   When the provider is finished, the artifact is decompressed on the host at
-  the packages defined artifact dir.
+  the packages defined artifact directory.
   """
 
   @behaviour Nerves.Package.Provider
