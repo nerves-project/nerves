@@ -13,12 +13,11 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-RUN dpkg --add-architecture i386
-RUN DEBIAN_FRONTEND=noninteractive apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y locales
-RUN localedef -i en_US -f UTF-8 en_US.UTF-8
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive \
+  dpkg --add-architecture i386 && \
+  apt-get update -y && \
+  apt-get install -y \
+  locales \
   git \
   g++ \
   libssl-dev \
@@ -35,4 +34,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libc6:i386 \
   libncurses5:i386 \
   libstdc++6:i386 \
-  xz-utils
+  xz-utils && \
+  rm -rf /var/lib/apt/lists/* && \
+  localedef -i en_US -f UTF-8 en_US.UTF-8

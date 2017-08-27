@@ -91,3 +91,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/nerves-project/sponsor/9/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/9/avatar.svg"></a>
 
 Copyright (C) 2015-2017 by the Nerves Project developers <nerves@nerves-project.org>
+

@@ -11,7 +11,7 @@ defmodule Nerves.Package.Providers.Docker do
 
   Docker containers will be created based off the image that is loaded.
   By default, containers will use the default image
-  `nervesproject/nerves_system_br:0.8.0`. Sometimes additional host tools
+  `nervesproject/nerves_system_br:latest`. Sometimes additional host tools
   are required to build a package. Therefore, packages can provide their own
   images by specifying it in the package config under `:provider_config`.
   the file is specified as a tuple `{"path/to/Dockerfile", tag_name}`.
@@ -21,15 +21,6 @@ defmodule Nerves.Package.Providers.Docker do
     provider_config: [
       docker: {"Dockerfile", "my_system:0.1.0"}
     ]
-
-  ## Containers
-
-  Containers are created for each package / checksum combination and they are
-  prefixed with a unique id. This allows the provider to build two similar
-  packages for different applications at the same time without fighting
-  over the same container. When the build has finished the container is
-  stopped, but not removed. This allows you to manually start and attach
-  to the container for debugging purposes.
 
   ## Volumes and Cache
 
@@ -42,20 +33,22 @@ defmodule Nerves.Package.Providers.Docker do
     * `/nerves/env/platform` - The package platform package.
     * `/nerves/host/artifacts` - The host artifact dir.
 
-  Nerves will also create and mount docker volume which is used to cache
-  downloaded assets the build platform requires for producing the artifact.
-  This is mounted at `/nerves/cache`. This volume can significally reduce build
+  Nerves will also mount the host NERVES_DL_DIR to save downloaded assets the
+  build platform requires for producing the artifact.
+  This is mounted at `/nerves/dl`. This volume can significally reduce build
   times but has potential for corruption. If you suspect that your build is
   failing due to a faulty downloaded cached data, you can manually mount
-  the offending container and remove the file from this volume or delete the
-  entire cache volume.
+  the offending container and remove the file from this location or delete the
+  entire dir.
 
-  Due to issues with building in host mounted volumes, the working directory
-  is set to `/nerves/build` and is not mounted from the host.
+  Nerves uses a docker volume to attach the build files. The volume name is
+  defined as the package name and a unique id that is stored at
+  `ARTIFACT_DIR/.docker_id`. The build directory is mounted to the container at
+  `/nerves/build` and is configured as the current working directory.
 
   ## Cleanup
 
-  Perodically, you may want to destroy all unused containers to clean up.
+  Perodically, you may want to destroy all unused volumes to clean up.
   Please refer to the Docker documentation for more information on how to
   do this.
 
@@ -66,6 +59,8 @@ defmodule Nerves.Package.Providers.Docker do
   @behaviour Nerves.Package.Provider
 
   alias Nerves.Package.Artifact
+  alias Nerves.Package.Provider.Docker
+  import Docker.Utils
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or ~> 17.0"
   @tag "nervesproject/nerves_system_br:latest"
@@ -79,28 +74,24 @@ defmodule Nerves.Package.Providers.Docker do
   """
   @spec artifact(Nerves.Package.t, Nerves.Package.t, term) :: :ok
   def artifact(pkg, toolchain, _opts) do
-    container = preflight(pkg)
-    artifact_name = Artifact.name(pkg, toolchain)
+    preflight(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)
 
-    container_ensure_started(container)
-
-    :ok = create_build(pkg, container, stream)
-    :ok = make(container, stream)
+    :ok = create_build(pkg, stream)
+    :ok = make(pkg, stream)
     Mix.shell.info("\n")
-    :ok = make_artifact(artifact_name, container, stream)
+    :ok = make_artifact(pkg, toolchain, stream)
     Mix.shell.info("\n")
-    :ok = copy_artifact(pkg, toolchain, container, stream)
+    :ok = copy_artifact(pkg, toolchain, stream)
     Mix.shell.info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
-    container_stop(container)
   end
 
   def clean(pkg) do
-    container_name(pkg)
-    |> container_delete
+    Docker.Volume.name(pkg)
+    |> Docker.Volume.delete()
     Artifact.base_dir(pkg)
     |> File.rm_rf
   end
@@ -110,9 +101,8 @@ defmodule Nerves.Package.Providers.Docker do
   """
   @spec system_shell(Nerves.Package.t) :: :ok
   def system_shell(pkg) do
-    container_name = preflight(pkg)
-    container_ensure_started(container_name)
-
+    preflight(pkg)
+    {_, image} = config(pkg)
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
 
@@ -121,133 +111,55 @@ defmodule Nerves.Package.Providers.Docker do
       "echo This will take a while if it is the first time...",
       "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null",
     ]
-
-    Mix.Nerves.Shell.open("docker attach #{container_name}", initial_input)
+    mounts = Enum.join(mounts(pkg), " ")
+    Mix.Nerves.Shell.open("docker run --rm -it -w #{@working_dir} #{mounts} #{image}", initial_input)
   end
 
   defp preflight(pkg) do
-    container_id(pkg) || create_container_id(pkg)
-    name = container_name(pkg)
+    Docker.Volume.id(pkg) || Docker.Volume.create_id(pkg)
+    name = Docker.Volume.name(pkg)
     _ = host_check()
     _ = config_check(pkg, name)
     name
   end
 
-  defp container_name(pkg) do
-    if id = container_id(pkg) do
-      "#{pkg.app}-#{id}"
-    end
-  end
+  # Build Commands
 
-  defp container_id(pkg) do
-    id_file = container_id_file(pkg)
-
-    if File.exists?(id_file) do
-      File.read!(id_file)
-    else
-      create_container_id(pkg)
-      container_id(pkg)
-    end
-  end
-
-  defp container_id_file(pkg) do
-    Artifact.base_dir(pkg)
-    |> Path.join(".docker_id")
-  end
-
-  defp create_container_id(pkg) do
-    id_file = container_id_file(pkg)
-    id = Nerves.Utils.random_alpha_num(16)
-    Path.dirname(id_file)
-    |> File.mkdir_p!
-    File.write!(id_file, id)
-  end
-
-  defp create_build(pkg, container, stream) do
+  defp create_build(pkg, stream) do
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
-
-    shell_info "Starting Build... (this may take a while)"
-    args = [
-      "exec",
-      "-i",
-      container,
+    cmd = [
       "/nerves/env/platform/create-build.sh",
       defconfig,
       @working_dir]
-
-    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
-      {_result, 0} ->
-        :ok
-      {_result, _} ->
-        Mix.raise """
-        Nerves Docker provider encountered an error.
-        See build.log for more details.
-        """
-    end
+    shell_info "Starting Build... (this may take a while)"
+    run(pkg, cmd, stream)
   end
 
-  defp make(container, stream) do
-
-    args = [
-      "exec",
-      "-i",
-      container,
-      "make"]
-
-    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
-      {_result, 0} ->
-        :ok
-      {_result, _} ->
-        Mix.raise """
-        Nerves Docker provider encountered an error.
-        See build.log for more details.
-        """
-    end
+  defp make(pkg, stream) do
+    run(pkg, ["make"], stream)
   end
 
-  defp make_artifact(name, container, stream) do
+  defp make_artifact(pkg, toolchain, stream) do
+    name = Artifact.name(pkg, toolchain)
     shell_info "Compressing artifact"
-    args = [
-      "exec",
-      "-i",
-      container,
+    cmd = [
       "make",
       "system",
       "NERVES_ARTIFACT_NAME=#{name}"]
-
-    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
-      {_result, 0} ->
-        :ok
-      {_result, _} ->
-        Mix.raise """
-        Nerves Docker provider encountered an error.
-        See build.log for more details.
-        """
-    end
+    run(pkg, cmd, stream)
   end
 
-  defp copy_artifact(pkg, toolchain, container, stream) do
+  defp copy_artifact(pkg, toolchain, stream) do
     shell_info "Copying artifact to host"
     name = Artifact.name(pkg, toolchain)
 
-    args = [
-      "exec",
-      "-i",
-      container,
+    cmd = [
       "cp",
       "#{name}.tar.gz",
       "/nerves/host/artifacts/#{name}.tar.gz"]
 
-    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
-      {_result, 0} ->
-        :ok
-      {_result, _} ->
-        Mix.raise """
-        Nerves Docker provider encountered an error.
-        See build.log for more details.
-        """
-    end
+    run(pkg, cmd, stream)
 
     base_dir = Artifact.base_dir(pkg)
     tar_file = Path.join(base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")
@@ -268,6 +180,42 @@ defmodule Nerves.Package.Providers.Docker do
     else
       Mix.raise "Nerves Docker provider expected artifact to exist at #{tar_file}"
     end
+  end
+
+  # Helpers
+
+  defp run(pkg, cmd, stream) do
+    {_dockerfile, image} = config(pkg)
+    args = [
+      "run",
+      "--rm",
+      "-w=#{@working_dir}",
+      "-a", "stdout",
+      "-a", "stderr"
+      ] ++ mounts(pkg) ++ [image | cmd]
+    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
+      {_result, 0} ->
+        :ok
+      {_result, _} ->
+        Mix.raise """
+        Nerves Docker provider encountered an error.
+        See build.log for more details.
+        """
+    end
+  end
+
+  defp mounts(pkg) do
+    build_paths = build_paths(pkg)
+    base_dir = Artifact.base_dir(pkg)
+    build_volume = Docker.Volume.name(pkg)
+    mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
+    mounts =
+      Enum.reduce(build_paths, mounts, fn({_, host,target}, acc) ->
+        ["--mount", "type=bind,src=#{host},target=#{target}" | acc]
+      end)
+    mounts = ["--mount", "type=bind,src=#{base_dir},target=/nerves/host/artifacts" | mounts]
+    mounts = ["--mount", "type=volume,src=#{Nerves.Env.download_dir()},target=/nerves/dl" | mounts]
+    ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
   end
 
   defp build_paths(pkg) do
@@ -295,6 +243,29 @@ defmodule Nerves.Package.Providers.Docker do
   end
 
   defp config_check(pkg, name) do
+    {dockerfile, tag} = config(pkg)
+
+    # Check for the Cache Volume
+    unless Docker.Volume.exists?(@cache_volume) do
+      Docker.Volume.create(@cache_volume)
+    end
+
+    # Check for the Build Volume
+    unless Docker.Volume.exists?(name) do
+      Docker.Volume.create(name)
+    end
+
+    unless Docker.Image.exists?(tag) do
+      Docker.Image.pull(tag)
+      unless Docker.Image.exists?(tag) do
+        Docker.Image.create(dockerfile, tag)
+      end
+    end
+
+    :ok
+  end
+
+  defp config(pkg) do
     {dockerfile, tag} =
       (pkg.config[:provider_config] || [])
       |> Keyword.get(:docker, {@dockerfile, @tag})
@@ -303,170 +274,7 @@ defmodule Nerves.Package.Providers.Docker do
       dockerfile
       |> Path.relative_to_cwd
       |> Path.expand
-
-    # Check for the Cache Volume
-    unless cache_volume?() do
-      cache_volume_create()
-    end
-
-    unless docker_image?(tag) do
-      docker_image_create(dockerfile, tag)
-    end
-
-    unless container?(name) do
-      container_create(pkg, name, tag)
-    end
-    :ok
-  end
-
-  defp container?(name) do
-    cmd = "docker"
-    args = ["ps", "-a", "-f", "name=#{name}", "-q"]
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {"", _} ->
-        false
-      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-        Mix.raise "Unable to connect to docker daemon"
-      {_, 0} ->
-        true
-    end
-  end
-
-  defp container_create(pkg, name, tag) do
-    shell_info "Creating Docker container #{name}"
-    build_paths = build_paths(pkg)
-    base_dir = Artifact.base_dir(pkg)
-
-    args = [tag, "bash"]
-
-    args =
-      Enum.reduce(build_paths, args, fn({_, host,target}, acc) ->
-        ["-v" | ["#{host}:#{target}" | acc]]
-      end)
-    args = ["-v" | ["nerves_cache:/nerves/cache" | args]]
-    args = ["-v" | ["#{base_dir}:/nerves/host/artifacts" | args]]
-
-    cmd = "docker"
-    args = ["create", "-it", "--name", name , "-w", @working_dir | args]
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {error, code} when code != 0 ->
-        Mix.raise "Nerves Docker provider encountered error: #{error}"
-      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
-      _ -> :ok
-    end
-  end
-
-  defp docker_image?(tag) do
-    cmd = "docker"
-    args = ["images", "-q", "#{tag}", "-q"]
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {"", _} ->
-        false
-      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
-      {_, 0} ->
-        true
-    end
-  end
-
-  defp docker_image_create(dockerfile, tag) do
-    cmd = "docker"
-    path = Path.dirname(dockerfile)
-    args = ["build", "--tag", "#{tag}", path]
-    shell_info "Create Image"
-    if Mix.shell.yes?("The Nerves Docker provider needs to create the image.\nProceed? ") do
-      case Mix.Nerves.Utils.shell(cmd, args) do
-        {_, 0} -> :ok
-        _ -> Mix.raise "Nerves Docker provider could not create docker volume nerves_cache"
-      end
-    else
-      Mix.raise "Unable to use Nerves Docker provider without image"
-    end
-  end
-
-  defp cache_volume? do
-    cmd = "docker"
-    args = ["volume", "ls", "-f", "name=nerves_cache", "-q"]
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {<<"nerves_cache", _tail :: binary>>, 0} ->
-        true
-        {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-          Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
-      _ ->
-        false
-    end
-  end
-
-  defp cache_volume_create do
-    cmd = "docker"
-    args = ["volume", "create", "--name", "nerves_cache"]
-    case System.cmd(cmd, args) do
-      {_, 0} -> :noop
-      _ -> Mix.raise "Nerves Docker provider could not create docker volume nerves_cache"
-    end
-  end
-
-  defp container_ensure_started(name) do
-    cmd = "docker"
-    args = ["start", name]
-    case System.cmd(cmd, args) do
-      {_, 0} -> :noop
-      {error, _} -> Mix.raise """
-        The Nerves Docker provider could not start Docker container #{name}
-        Reason: #{error}
-        """
-    end
-  end
-
-  defp container_stop(name) do
-    cmd = "docker"
-    args = ["stop", name]
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {_, 0} -> :ok
-      {<<"Error response from daemon: ", response :: binary>>, _} ->
-
-        if response =~ "No such container" do
-          :ok
-        else
-          Mix.raise """
-          Nerves Docker provider could not stop container #{name}
-          Reason: #{response}
-          """
-        end
-      {error, _} -> Mix.raise """
-        The Nerves Docker provider could not stop Docker container #{name}
-        Reason: #{error}
-        """
-    end
-  end
-
-  defp container_delete(nil), do: :noop
-  defp container_delete(name) do
-    container_stop(name)
-    cmd = "docker"
-    args = ["rm", name]
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {_, 0} ->
-        :ok
-      {<<"Error response from daemon: ", response :: binary>>, _} ->
-        if response =~ "No such container" do
-          :ok
-        else
-          Mix.raise """
-          Nerves Docker provider encountered an error.
-          Could not remove container #{name}
-          Reason #{response}
-          """
-        end
-      {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-        Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
-      _ ->
-        Mix.raise """
-        Nerves Docker provider encountered an error.
-        Could not remove container #{name}
-        """
-    end
+    {dockerfile, tag}
   end
 
   defp error_not_installed do
@@ -489,7 +297,5 @@ defmodule Nerves.Package.Providers.Docker do
     |> Version.parse
   end
 
-  defp shell_info(header, text \\ "") do
-    Mix.Nerves.IO.shell_info(header, text, __MODULE__)
-  end
+
 end
