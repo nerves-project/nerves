@@ -208,13 +208,14 @@ defmodule Nerves.Package.Providers.Docker do
     build_paths = build_paths(pkg)
     base_dir = Artifact.base_dir(pkg)
     build_volume = Docker.Volume.name(pkg)
+    download_dir = Nerves.Env.download_dir() |> Path.expand()
     mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
     mounts =
       Enum.reduce(build_paths, mounts, fn({_, host,target}, acc) ->
         ["--mount", "type=bind,src=#{host},target=#{target}" | acc]
       end)
     mounts = ["--mount", "type=bind,src=#{base_dir},target=/nerves/host/artifacts" | mounts]
-    mounts = ["--mount", "type=volume,src=#{Nerves.Env.download_dir()},target=/nerves/dl" | mounts]
+    mounts = ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl" | mounts]
     ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
   end
 
