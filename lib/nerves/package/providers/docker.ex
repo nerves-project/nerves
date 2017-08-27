@@ -246,11 +246,6 @@ defmodule Nerves.Package.Providers.Docker do
   defp config_check(pkg, name) do
     {dockerfile, tag} = config(pkg)
 
-    # Check for the Cache Volume
-    unless Docker.Volume.exists?(@cache_volume) do
-      Docker.Volume.create(@cache_volume)
-    end
-
     # Check for the Build Volume
     unless Docker.Volume.exists?(name) do
       Docker.Volume.create(name)
