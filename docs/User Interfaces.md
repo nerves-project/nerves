@@ -16,36 +16,40 @@ Next, create your sub-applications for Nerves and for Phoenix:
 ```bash
 $ cd nervy/apps
 $ mix nerves.new fw
-$ mix phoenix.new ui --no-ecto --no-brunch
+$ mix phx.new ui --no-ecto --no-brunch
 ```
 
-Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` app as dependencies:
+Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
 
 ```elixir
 # nervy/apps/fw/mix.exs
 
 ...
-defp deps do
+def deps do
   [{:ui, in_umbrella: true},
-   {:nerves_networking, "~> 0.6.0"}]
+   {:nerves_network, "~> 0.3"}]
 end
 ...
 ```
 
-In order to start networking when `fw` boots, add a worker that sets up networking.
-This example sets up the networking using DHCP.
-For more network settings, check the [`nerves_networking` project](https://github.com/nerves-project/nerves_networking).
+In order to start the network when `fw` boots, add `nerves_network` to the `bootloader` configuration in `config.exs`.
 
 ```elixir
-# nervy/apps/fw/lib/fw/application.ex
-
-...
-# add networking
-children = [
-  worker(Task, [fn -> Nerves.Networking.setup :eth0, [mode: "dhcp"] end], restart: :transient)
-]
-...
+config :bootloader,
+  init: [:nerves_runtime, :nerves_network]
 ```
+
+To set the default networking configuration:
+
+```elixir
+config :nerves_network, :default,
+  eth0: [
+    ipv4_address_method: :dhcp
+  ]
+```
+
+For more network settings, see the [`nerves_network`](https://github.com/nerves-project/nerves_network) project.
+
 
 In order to build the `ui` Phoenix application into the nerves `fw` app, you need to add some configuration to your firmware config:
 
@@ -54,14 +58,14 @@ In order to build the `ui` Phoenix application into the nerves `fw` app, you nee
 
 use Mix.Config
 
-config :ui, Ui.Endpoint,
+config :ui, UiWeb.Endpoint,
+  url: [host: "localhost"],
   http: [port: 80],
-  url: [host: "localhost", port: 80],
   secret_key_base: "#############################",
   root: Path.dirname(__DIR__),
   server: true,
-  render_errors: [accepts: ~w(html json)],
-  pubsub: [name: Nerves.PubSub],
+  render_errors: [view: UiWeb.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: Nerves.PubSub, adapter: Phoenix.PubSub.PG2],
   code_reloader: false
 
 config :logger, level: :debug
