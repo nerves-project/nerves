@@ -4,13 +4,11 @@
 
 Phoenix makes an excellent companion to Nerves applications by offering an easy-to-use, powerful framework to create user interfaces in parallel with Nerves device code.
 
-### Set up your application
+### Choosing a project structure
 
-Although it's possible to lay out your application as an Umbrella project, the preferred way is to use poncho projects, i.e. a side-by-side project layout. For the reasoning behind this, please read the [Poncho Projects](http://embedded-elixir.com/post/2017-05-19-poncho-projects/) blog post by Greg Mefford.
+Although Nerves supports umbrella projects, the preferred project structure is to simply use separate Mix projects side-by-side with path dependencies between them if they're in the same source code repository. We call this a "poncho project" structure. For the reasoning behind this, please see [this blog post describing poncho projects](http://embedded-elixir.com/post/2017-05-19-poncho-projects/).
 
-We'll cover the use of both approaches here, but we encourage you to use ponchos.
-
-#### Using a poncho project layout
+#### Using a poncho project structure
 
 First, generate the two new apps in a containing folder:
 
@@ -36,7 +34,7 @@ end
 Next: [Configure Networking](#configure-networking)
 
 
-#### Using an umbrella project layout
+#### Using an umbrella project structure
 
 First, generate a new umbrella app, called `nervy` in this case:
 
@@ -67,10 +65,15 @@ end
 
 ##### Specifying configuration order
 
-By default, the main config loads the application configs in an unordered way: `import_config "../apps/*/config/config.exs`. This can cause problems if the  `ui` config is applied last: we may lose overrides applied in the `fw` config. You need to force the order in which the config files get imported:
+By default, the top-level configuration loads the application configurations in an unordered way: 
+> ```elixir
+> import_config "../apps/*/config/config.exs
+> ```
+
+This can cause problems if the  `ui` config is applied last: we may lose overrides applied in the `fw` config. You need to force the order in which the config files get imported:
 
 ```elixir
-# nervy/config/config.exs
+# config/config.exs
 
 use Mix.Config
 
@@ -98,12 +101,17 @@ To set the default networking configuration:
 # fw/config/config.exs
 
 # ...
-# Use your ISO 3166-1 alpha-2 country code below
 
+# For WiFi, set regulatory domain to avoid restrictive default
 config :nerves_network,
   regulatory_domain: "US"
 
 config :nerves_network, :default,
+  wlan0: [
+    ssid: System.get_env("NERVES_NETWORK_SSID"),
+    psk: System.get_env("NERVES_NETWORK_PSK"),
+    key_mgmt: String.to_atom(System.get_env("NERVES_NETWORK_MGMT"))
+  ],
   eth0: [
     ipv4_address_method: :dhcp
   ]
@@ -116,7 +124,7 @@ For more network settings, see the [`nerves_network`](https://github.com/nerves-
 
 ### Configure Phoenix
 
-In order to build the `ui` Phoenix app into the Nerves `fw` app, you need to add some configuration to your firmware config:
+In order to build the `ui` Phoenix app into the Nerves `fw` app, you will need to make some changes to your `fw` application configuration:
 
 ```elixir
 # fw/config/config.exs
