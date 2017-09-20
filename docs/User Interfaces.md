@@ -3,7 +3,38 @@
 ## Phoenix Web Interfaces
 
 Phoenix makes an excellent companion to Nerves applications by offering an easy-to-use, powerful framework to create user interfaces in parallel with Nerves device code.
-The easiest way to handle this is to lay out your application as an Umbrella.
+
+### Choosing a project structure
+
+Although Nerves supports umbrella projects, the preferred project structure is to simply use separate Mix projects side-by-side with path dependencies between them if they're in the same source code repository. We call this a "poncho project" structure. For the reasoning behind this, please see [this blog post describing poncho projects](http://embedded-elixir.com/post/2017-05-19-poncho-projects/).
+
+#### Using a poncho project structure
+
+First, generate the two new apps in a containing folder:
+
+```bash
+$ mkdir nervy && cd nervy
+$ mix nerves.new fw
+$ mix phx.new ui --no-ecto --no-brunch
+```
+
+Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
+
+```elixir
+# fw/mix.exs
+
+# ...
+def deps do
+  [{:nerves_network, "~> 0.3"},
+   {:ui, path: "../ui"}]
+end
+# ...
+```
+
+Next: [Configure Networking](#configure-networking)
+
+
+#### Using an umbrella project structure
 
 First, generate a new umbrella app, called `nervy` in this case:
 
@@ -16,89 +47,119 @@ Next, create your sub-applications for Nerves and for Phoenix:
 ```bash
 $ cd nervy/apps
 $ mix nerves.new fw
-$ mix phoenix.new ui --no-ecto --no-brunch
+$ mix phx.new ui --no-ecto --no-brunch
 ```
 
-Now, add the Phoenix `ui` app and the `nerves_networking` library to the `fw` app as dependencies:
+Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
 
 ```elixir
-# nervy/apps/fw/mix.exs
+# apps/fw/mix.exs
 
-...
-defp deps do
+# ...
+def deps do
   [{:ui, in_umbrella: true},
-   {:nerves_networking, "~> 0.6.0"}]
+   {:nerves_network, "~> 0.3"}]
 end
-...
+# ...
 ```
 
-In order to start networking when `fw` boots, add a worker that sets up networking.
-This example sets up the networking using DHCP.
-For more network settings, check the [`nerves_networking` project](https://github.com/nerves-project/nerves_networking).
+##### Specifying configuration order
+
+By default, the top-level configuration loads the application configurations in an unordered way: 
+> ```elixir
+> import_config "../apps/*/config/config.exs
+> ```
+
+This can cause problems if the  `ui` config is applied last: we may lose overrides applied in the `fw` config. You need to force the order in which the config files get imported:
 
 ```elixir
-# nervy/apps/fw/lib/fw/application.ex
-
-...
-# add networking
-children = [
-  worker(Task, [fn -> Nerves.Networking.setup :eth0, [mode: "dhcp"] end], restart: :transient)
-]
-...
-```
-
-In order to build the `ui` Phoenix application into the nerves `fw` app, you need to add some configuration to your firmware config:
-
-```elixir
-# nervy/apps/fw/config/config.exs
+# config/config.exs
 
 use Mix.Config
 
-config :ui, Ui.Endpoint,
-  http: [port: 80],
-  url: [host: "localhost", port: 80],
-  secret_key_base: "#############################",
-  root: Path.dirname(__DIR__),
-  server: true,
-  render_errors: [accepts: ~w(html json)],
-  pubsub: [name: Nerves.PubSub],
-  code_reloader: false
-
-config :logger, level: :debug
-```
-
-By default,
-the main config loads the application configs in an unordered way: `import_config "../apps/*/config/config.exs`.   This can cause problems if the  `ui` config is applied last: we loose the overrides we just added in the previous step.  You need to force the order in which the config files get imported:
-
-```elixir
-# nervy/config/config.exs
-
-use Mix.Config
-
-# By default, the umbrella project as well as each child
-# application will require this configuration file, ensuring
-# they all use the same configuration. While one could
-# configure all applications here, we prefer to delegate
-# back to each application for organization purposes.
 import_config "../apps/ui/config/config.exs"
 import_config "../apps/fw/config/config.exs"
 ```
+
+
+### Configure networking
+
+In order to start the network when `fw` boots, add `nerves_network` to the `bootloader` configuration in `config.exs`.
+
+```elixir
+# fw/config/config.exs
+
+# ...
+config :bootloader,
+  init: [:nerves_runtime, :nerves_network]
+# ...
+```
+
+To set the default networking configuration:
+
+```elixir
+# fw/config/config.exs
+
+# ...
+
+# For WiFi, set regulatory domain to avoid restrictive default
+config :nerves_network,
+  regulatory_domain: "US"
+
+config :nerves_network, :default,
+  wlan0: [
+    ssid: System.get_env("NERVES_NETWORK_SSID"),
+    psk: System.get_env("NERVES_NETWORK_PSK"),
+    key_mgmt: String.to_atom(System.get_env("NERVES_NETWORK_MGMT"))
+  ],
+  eth0: [
+    ipv4_address_method: :dhcp
+  ]
+
+# ...
+```
+
+For more network settings, see the [`nerves_network`](https://github.com/nerves-project/nerves_network) project.
+
+
+### Configure Phoenix
+
+In order to build the `ui` Phoenix app into the Nerves `fw` app, you will need to make some changes to your `fw` application configuration:
+
+```elixir
+# fw/config/config.exs
+
+# ...
+config :ui, UiWeb.Endpoint,
+  url: [host: "localhost"],
+  http: [port: 80],
+  secret_key_base: "#############################",
+  root: Path.dirname(__DIR__),
+  server: true,
+  render_errors: [view: UiWeb.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: Nerves.PubSub, adapter: Phoenix.PubSub.PG2],
+  code_reloader: false
+
+config :logger, level: :debug
+# ...
+```
+
 
 There you have it!
 A Phoenix web application ready to run on your Nerves device.
 By separating the Phoenix application from the Nerves application, you could easily distribute the development between team members and continue to leverage the features we have all come to love from Phoenix, like live code reloading.
 
-When developing your UI, you can simply run the phoenix server from the UI application:
+When developing your UI, you can simply run the Phoenix server from the UI application:
 
 ```bash
-$ cd nervy/apps/ui
+$ cd path/to/ui
 $ mix phoenix.server
 ```
 
 When it's time to create your firmware:
 
 ```bash
-$ cd nervy/apps/fw
+$ cd path/to/fw
 $ export MIX_TARGET=rpi3
 $ mix deps.get
 $ mix firmware
