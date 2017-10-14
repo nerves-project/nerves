@@ -113,6 +113,15 @@ by others if it's posted to the [Elixir Forum] instead
 * Helping to get it posted to the Forum or converted to a GitHub Issue to
 capture or summarize the discussion in Slack about it
 
+## Become a Backer or Sponsor through OpenCollective
+
+The Nerves project has set up an [OpenCollective site] that allows individuals
+and companies to make one-time or recurring financial contributions to cover the
+cost of maintaining the project (e.g. paying for hosted services like AWS and
+CircleCI).
+
+[OpenCollective site]: https://opencollective.com/nerves-project
+
 ## Issue and Pull Request triage
 
 In order to keep track of Issues and Pull Requests across all of our
