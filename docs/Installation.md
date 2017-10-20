@@ -24,8 +24,8 @@ The easiest installation route on MacOS is to use [Homebrew](brew.sh).
 Just run the following:
 
 ```bash
-$ brew update
-$ brew install fwup squashfs coreutils
+brew update
+brew install fwup squashfs coreutils
 ```
 
 Optionally, if you want to build custom Nerves Systems, you'll also need to
@@ -52,14 +52,14 @@ firmware.burn` step will be able to use `sudo` to gain the required permission
 to write directly to an SD card:
 
 ```bash
-$ sudo apt-get install ssh-askpass
+sudo apt-get install ssh-askpass
 ```
 
 Finally, install `squashfs-tools` using your distribution's package manager.
 For example:
 
 ```bash
-$ sudo apt-get install squashfs-tools
+sudo apt-get install squashfs-tools
 ```
 
 Optionally, if you want to build custom Nerves Systems, you need a few more
@@ -103,8 +103,8 @@ It is important to update the versions of `hex` and `rebar` used by Elixir,
 **even if you already had Elixir installed**.
 
 ```bash
-$ mix local.hex
-$ mix local.rebar
+mix local.hex
+mix local.rebar
 ```
 
 If you have your own version of `rebar` in your path, be sure that it is
@@ -125,7 +125,7 @@ perform an offline installation, you can download the `.ez` file and install it
 like this:
 
 ```bash
-$ mix archive.install /path/to/nerves_bootstrap.ez
+mix archive.install /path/to/nerves_bootstrap.ez
 ```
 
 Once installed, you can later upgrade `nerves_bootstrap` by doing:

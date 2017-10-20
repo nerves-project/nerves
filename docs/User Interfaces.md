@@ -13,9 +13,9 @@ Although Nerves supports umbrella projects, the preferred project structure is t
 First, generate the two new apps in a containing folder:
 
 ```bash
-$ mkdir nervy && cd nervy
-$ mix nerves.new fw
-$ mix phx.new ui --no-ecto --no-brunch
+mkdir nervy && cd nervy
+mix nerves.new fw
+mix phx.new ui --no-ecto --no-brunch
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
@@ -39,15 +39,15 @@ Next: [Configure Networking](#configure-networking)
 First, generate a new umbrella app, called `nervy` in this case:
 
 ```bash
-$ mix new nervy --umbrella
+mix new nervy --umbrella
 ```
 
 Next, create your sub-applications for Nerves and for Phoenix:
 
 ```bash
-$ cd nervy/apps
-$ mix nerves.new fw
-$ mix phx.new ui --no-ecto --no-brunch
+cd nervy/apps
+mix nerves.new fw
+mix phx.new ui --no-ecto --no-brunch
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
@@ -65,7 +65,7 @@ end
 
 ##### Specifying configuration order
 
-By default, the top-level configuration loads the application configurations in an unordered way: 
+By default, the top-level configuration loads the application configurations in an unordered way:
 > ```elixir
 > import_config "../apps/*/config/config.exs
 > ```
@@ -152,16 +152,16 @@ By separating the Phoenix application from the Nerves application, you could eas
 When developing your UI, you can simply run the Phoenix server from the UI application:
 
 ```bash
-$ cd path/to/ui
-$ mix phoenix.server
+cd path/to/ui
+mix phoenix.server
 ```
 
 When it's time to create your firmware:
 
 ```bash
-$ cd path/to/fw
-$ export MIX_TARGET=rpi3
-$ mix deps.get
-$ mix firmware
-$ mix firmware.burn
+cd path/to/fw
+export MIX_TARGET=rpi3
+mix deps.get
+mix firmware
+mix firmware.burn
 ```
