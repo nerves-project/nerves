@@ -7,10 +7,11 @@ jobs:
     docker:
       - image: circleci/elixir:1.5.1
     working_directory: ~/repo
+    environment:
+      MIX_ENV: test
     steps:
       - checkout
       - run: mix local.hex --force && mix local.rebar --force
-      - run: cd bootstrap && mix install && cd -
+      - run: git clone https://github.com/nerves-project/nerves_bootstrap && cd nerves_bootstrap && mix deps.get && mix install && cd -
       - run: mix deps.get --only test
       - run: mix test
-      - run: cd bootstrap && mix test
