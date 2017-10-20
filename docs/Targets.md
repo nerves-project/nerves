@@ -14,12 +14,9 @@ Raspberry Pi Zero and Zero W | [nerves_system_rpi0](https://github.com/nerves-pr
 Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
 Raspberry Pi 3 | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
 BeagleBone Black | [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) | `bbb`
-Alix | [nerves_system_alix](https://github.com/nerves-project/nerves_system_alix) | `alix`
-AG150 | [nerves_system_ag150](https://github.com/nerves-project/nerves_system_ag150) | `ag150`
-Intel Galileo 2 | [nerves_system_galileo](https://github.com/nerves-project/nerves_system_galileo) | `galileo`
+Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves_system_x86_64) | `x86_64`
+QEMU Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | `qemu_arm`
 Lego EV3 | [nerves_system_ev3](https://github.com/nerves-project/nerves_system_ev3) | `ev3`
-Linkit Smart 7688 (and Duo) | [nerves_system_linkit](https://github.com/nerves-project/nerves_system_linkit) | `linkit`
-QEmu Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | `qemu_arm`
 
 ## Supporting New Target Hardware
 
