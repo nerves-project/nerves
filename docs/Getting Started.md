@@ -41,7 +41,7 @@ The `nerves.new` project generator can be called from anywhere and can take eith
 > This allows for more seamless interaction with tools on your host without cross-compilers getting in the way until you're ready to build firmware for a particular target.
 
 ``` bash
-$ mix nerves.new hello_nerves
+mix nerves.new hello_nerves
 ```
 
 Nerves will generate the required files and directory structure for your application.
@@ -57,16 +57,16 @@ We find that it's easiest to have two shell windows open: one remaining defaulte
 This allows you quick access to use host-based tooling in the former and deploy updated firmware from the latter, all without having to modify the `MIX_TARGET` variable in your shell.
 
 ``` bash
-$ cd hello_nerves
-$ export MIX_TARGET=rpi3
-$ mix deps.get
+cd hello_nerves
+export MIX_TARGET=rpi3
+mix deps.get
 ```
 
 **OR**
 
 ``` bash
-$ cd hello_nerves
-$ MIX_TARGET=rpi3 mix deps.get
+cd hello_nerves
+MIX_TARGET=rpi3 mix deps.get
 ```
 
 ## Building and Deploying Firmware
@@ -87,7 +87,7 @@ Normally, it will be created for you by the `mix nerves.new` task, but if not, y
 You can generate the file using this Mix task:
 
 ```bash
-$ mix nerves.release.init
+mix nerves.release.init
 ```
 
 > NOTE: `mix nerves.release.init` generates a **Nerves-specific release config file**.
@@ -100,14 +100,14 @@ $ mix nerves.release.init
 You can create the firmware bundle with the following command:
 
 ``` bash
-$ mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
+mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
 ```
 
 This will result in a `hello_nerves.fw` firmware bundle file.
 To create a bootable SD card, use the following command:
 
 ``` bash
-$ mix firmware.burn # -OR- # MIX_TARGET=rpi3 mix firmware.burn
+mix firmware.burn # -OR- # MIX_TARGET=rpi3 mix firmware.burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your host.
@@ -116,7 +116,7 @@ If this happens, you can specify the intended device by passing the `-d <device>
 
 ``` bash
 # For example:
-$ mix firmware.burn -d /dev/rdisk3
+mix firmware.burn -d /dev/rdisk3
 ```
 
 > NOTE: You can also use `-d <filename>` to specify an output file that is a raw image of the SD card.
@@ -126,7 +126,7 @@ The `mix firmware.burn` task uses the `fwup` tool internally; any extra argument
 For example, if you are sure there is only one SD card inserted, you can also add the `-y` flag to skip the confirmation that it is the correct device.
 
 ``` bash
-$ mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
+mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
 ```
 
 You can read about the other supported options in the [`fwup` documentation](https://github.com/fhunleth/fwup#invoking).
@@ -145,9 +145,9 @@ The simplest example is Blinky, known as the "Hello World" of hardware because a
 If you are ever curious about project structuring or can't get something running, check out Blinky and run it on your target to confirm that it works in the simplest case.
 
 ``` bash
-$ git clone https://github.com/nerves-project/nerves_examples
-$ export MIX_TARGET=rpi3
-$ cd nerves_examples/blinky
-$ mix do deps.get, firmware, firmware.burn
+git clone https://github.com/nerves-project/nerves_examples
+export MIX_TARGET=rpi3
+cd nerves_examples/blinky
+mix do deps.get, firmware, firmware.burn
 ```
 
