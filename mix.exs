@@ -28,7 +28,7 @@ defmodule Nerves.Mixfile do
     [
       {:distillery, "~> 1.4"},
       {:ex_doc, "~> 0.16", only: :dev},
-      {:nerves_bootstrap, path: "bootstrap", only: [:test, :dev]}
+      {:nerves_bootstrap, github: "nerves-project/nerves_bootstrap", only: [:test, :dev]}
     ]
   end
 
