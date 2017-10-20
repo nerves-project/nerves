@@ -117,7 +117,7 @@ is properly compiled using the right cross-compiler for the target. The
 to create new Nerves projects. To install the `nerves_bootstrap` archive:
 
 ```bash
-$ mix archive.install https://github.com/nerves-project/archives/raw/master/nerves_bootstrap.ez
+mix archive.install hex nerves_bootstrap
 ```
 
 If the archive fails to install properly using this command, or you need to
