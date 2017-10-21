@@ -107,7 +107,12 @@ defmodule Nerves.Package do
     case ret do
       :ok -> Path.join(Artifact.dir(pkg, toolchain), @checksum)
              |> File.write!(checksum(pkg))
-        _ -> :error
+      {:error, error} ->
+          Mix.raise """
+          
+          Nerves encountered an error while constructing the artifact
+          #{error}
+          """
     end
   end
 
