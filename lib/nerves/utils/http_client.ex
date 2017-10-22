@@ -72,7 +72,9 @@ defmodule Nerves.Utils.HTTPClient do
   def handle_info({:http, {_, :stream, data}}, s) do
     size = byte_size(data) + s.buffer_size
     buffer = s.buffer <> data
-    put_progress(size, s.content_length)
+    unless System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") do
+      put_progress(size, s.content_length)
+    end
     {:noreply, %{s | buffer_size: size, buffer: buffer}}
   end
 
