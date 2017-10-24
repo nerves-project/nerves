@@ -153,9 +153,9 @@ Working on your first Pull Request? You can learn how from this *free* series,
 
 The core team has GitHub integrations with Slack, so we will be notified
 immediately in the #nerves-dev channel about activity on GitHub Issues and Pull
-Requests. Our goal is to at least reply with a comment within a few days of a
-new Issue or Pull Request being opened to let you know what we saw it and we're
-thinking about it.
+Requests. We really appreciate you taking the time to record any Issues in
+GitHub so that we don't lose track, but we all have busy lives outside of Nerves
+work, so don't take it personally if it takes us a long time to respond.
 
 [How to Contribute to an Open Source Project on GitHub]: https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github
 
