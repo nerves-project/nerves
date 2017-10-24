@@ -117,8 +117,7 @@ capture or summarize the discussion in Slack about it
 
 The Nerves project has set up an [OpenCollective site] that allows individuals
 and companies to make one-time or recurring financial contributions to cover the
-cost of maintaining the project (e.g. paying for hosted services like AWS and
-CircleCI).
+cost of maintaining the project.
 
 [OpenCollective site]: https://opencollective.com/nerves-project
 
@@ -152,46 +151,21 @@ being worked-on, avoiding duplicated effort and Issues that get stale over time.
 Working on your first Pull Request? You can learn how from this *free* series,
 [How to Contribute to an Open Source Project on GitHub].
 
+The core team has GitHub integrations with Slack, so we will be notified
+immediately in the #nerves-dev channel about activity on GitHub Issues and Pull
+Requests. Our goal is to at least reply with a comment within a few days of a
+new Issue or Pull Request being opened to let you know what we saw it and we're
+thinking about it.
+
 [How to Contribute to an Open Source Project on GitHub]: https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github
 
-### Copyright assignment
+### Licensing and copyright assignment
 
-**TODO:
-  I mostly made this up based on http://requirejs.org/docs/contributing.html.
-  Review CLA/DCO processes for other OSS projects**
-
-Licensing is very important to open-source software projects, especially for
-companies who want to use that software in a commercial product. By contributing
-to the Nerves source code or documentation, you are agreeing to release your own
-intellectual property (and not the intellectual property of others) to the
-Nerves project.
-
-### Code review process
-
-The core team has GitHub integrations with Slack, so we will be notified immediately in the #nerves-dev channel about activity on GitHub Issues and Pull Requests. Our goal is to at least reply with a comment within a few days of a new Issue or Pull Request being opened to let you know what we saw it and we're thinking about it.
-
-We currently don't have a formal code-review process in place, but our current
-guidelines are as follows:
-
-* Each repository should have an owner and one or more maintainers.
-* At least one approval is required to merge a Pull Request.
-* Anyone on the core team can approve a Pull Request on any repository.
-
-  > NOTE: Please approve responsibly. If you're not deeply familiar with the
-  code, feel free to comment or request changes, but don't approve.
-
-* The owner of a repository should be the one to perform the merge.
-
-  > NOTE: We prefer the GitHub "Squash and Merge" button, but any method is OK.
-
-* If the owner can't or doesn't merge an approved Pull Request within a
-  reasonable amount of time, one of the maintainers can do so.
-
-  > NOTE: The definition of "reasonable" here depends on the urgency of the
-  change. Be respectful of the repository owner as well as the needs of the
-  community. If you're planning to merge a Pull Request on behalf of the owner,
-  be sure to communicate your intention with the core team as much as possible
-  ahead of time.
+Copyright and licensing are very important to open-source software projects.
+Nerves components fall under several licenses, so please review the license for
+the project to which you are contributing. By contributing, you certify that you
+have the right to submit the changes under the project's open source license and
+assign copyright to the Nerves Project maintainers.
 
 ### Style guide for documentation
 
