@@ -60,6 +60,9 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 This project exists thanks to all the people who contribute.
 <a href="https://github.com/nerves-project/nerves/graphs/contributors"><img src="https://opencollective.com/nerves-project/contributors.svg?width=890" /></a>
 
+Please see our [Contributing Guide](CONTRIBUTING.md) for details on how you can
+contribute in various ways.
+
 ## Platinum Sponsors
 
 <!-- When updating, make sure that https://github.com/nerves-project/nerves-project.github.com/blob/master/index.md is updated as well. -->
@@ -91,4 +94,3 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/nerves-project/sponsor/9/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/9/avatar.svg"></a>
 
 Copyright (C) 2015-2017 by the Nerves Project developers <nerves@nerves-project.org>
-
