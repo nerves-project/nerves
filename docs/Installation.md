@@ -24,8 +24,8 @@ The easiest installation route on MacOS is to use [Homebrew](brew.sh).
 Just run the following:
 
 ```bash
-brew update
-brew install fwup squashfs coreutils
+$ brew update
+$ brew install fwup squashfs coreutils
 ```
 
 Optionally, if you want to build custom Nerves Systems, you'll also need to
@@ -52,14 +52,14 @@ firmware.burn` step will be able to use `sudo` to gain the required permission
 to write directly to an SD card:
 
 ```bash
-sudo apt-get install ssh-askpass
+$ sudo apt-get install ssh-askpass
 ```
 
 Finally, install `squashfs-tools` using your distribution's package manager.
 For example:
 
 ```bash
-sudo apt-get install squashfs-tools
+$ sudo apt-get install squashfs-tools
 ```
 
 Optionally, if you want to build custom Nerves Systems, you need a few more
@@ -68,7 +68,7 @@ you need to have all of the dependencies installed on your host. On Debian and
 Ubuntu, run the following:
 
 ```bash
-sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake python
+$ sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake python
 ```
 
 > For other host Linux distributions, you will need to install equivalent
@@ -85,26 +85,26 @@ First, install the required versions of Erlang/OTP and Elixir using ADSF (more
 details at https://github.com/asdf-vm/asdf/blob/master/README.md#setup).
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.3.0
+$ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.3.0
 # The following steps are for BASH. If you’re using something else, do the
 # equivalent for your shell.
-echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile
-source ~/.bash_profile).
-asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
-asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
-asdf install erlang 20.0 # This takes a while
-asdf install elixir 1.4.5
-asdf global erlang 20.0
-asdf global elixir 1.4.5
+$ echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
+$ echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile
+$ source ~/.bash_profile).
+$ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+$ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+$ asdf install erlang 20.0 # This takes a while
+$ asdf install elixir 1.4.5
+$ asdf global erlang 20.0
+$ asdf global elixir 1.4.5
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
 **even if you already had Elixir installed**.
 
 ```bash
-mix local.hex
-mix local.rebar
+$ mix local.hex
+$ mix local.rebar
 ```
 
 If you have your own version of `rebar` in your path, be sure that it is
@@ -117,7 +117,7 @@ is properly compiled using the right cross-compiler for the target. The
 to create new Nerves projects. To install the `nerves_bootstrap` archive:
 
 ```bash
-mix archive.install hex nerves_bootstrap
+$ mix archive.install hex nerves_bootstrap
 ```
 
 If the archive fails to install properly using this command, or you need to
@@ -125,11 +125,11 @@ perform an offline installation, you can download the `.ez` file and install it
 like this:
 
 ```bash
-mix archive.install /path/to/nerves_bootstrap.ez
+$ mix archive.install /path/to/nerves_bootstrap.ez
 ```
 
 Once installed, you can later upgrade `nerves_bootstrap` by doing:
 
 ```bash
-mix local.nerves
+$ mix local.nerves
 ```
