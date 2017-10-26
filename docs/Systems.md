@@ -177,7 +177,7 @@ an existing one, renaming it to distinguish it from the official release. For
 example, if you're targeting a Raspberry Pi 3 board, do the following:
 
 ```bash
-git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3
+$ git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -189,10 +189,10 @@ using GitHub:
 ```bash
 # After creating an empty custom_rpi3 repository in your GitHub account
 
-cd custom_rpi3
-git remote rename origin upstream
-git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
-git push origin master
+$ cd custom_rpi3
+$ git remote rename origin upstream
+$ git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
+$ git push origin master
 ```
 
 Next, tweak the metadata for your system so it won't conflict with the official
@@ -272,10 +272,10 @@ project directory, like so:
 Set your `MIX_TARGET` to refer to your custom system and build your firmware.
 
 ```bash
-cd ~/projects/your_project
-export MIX_TARGET=custom_rpi3
-mix deps.get
-mix firmware
+$ cd ~/projects/your_project
+$ export MIX_TARGET=custom_rpi3
+$ mix deps.get
+$ mix firmware
 ```
 
 This process will take quite a bit longer than a normal firmware build (15 to 30
@@ -361,8 +361,8 @@ appropriate steps below:
 2.  After `make linux-menuconfig`:
 
     ```bash
-    make linux-savedefconfig
-    cp build/linux-x.y.z/defconfig <your system>/linux-x.y_defconfig
+    $ make linux-savedefconfig
+    $ cp build/linux-x.y.z/defconfig <your system>/linux-x.y_defconfig
     ```
 
     If your system doesn't contain a custom Linux configuration yet, you'll need
@@ -373,8 +373,8 @@ appropriate steps below:
 3.  After `make busybox-menuconfig`:
 
     ```bash
-    make busybox-savedefconfig
-    cp build/busybox-x.y.z/defconfig <your system>/busybox-x.y_defconfig
+    $ make busybox-savedefconfig
+    $ cp build/busybox-x.y.z/defconfig <your system>/busybox-x.y_defconfig
     ```
 
     Like the Linux configuration, the Buildroot configuration will need to be
