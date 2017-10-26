@@ -134,7 +134,7 @@ this document itself!
 
 [Nerves Radar]: https://github.com/orgs/nerves-project/projects/1
 
-## Code and Documentation changes
+## Code and documentation changes
 
 If you're looking for a way to directly contribute to the code and
 documentation, check our [repositories] for Issues that are labeled with
@@ -169,29 +169,35 @@ assign copyright to the Nerves Project maintainers.
 
 ### Style guide for documentation
 
-This is currently a work-in-progress. Feel free to suggest any missing details!
+> NOTE: This is currently a work-in-progress. Feel free to suggest any missing
+details!
 
 #### Step-by-step command-line instructions
 
-We want them to be very user-friendly, even for people who are not familiar with
-using a command-line interface. Therefore, we will not show the `$` or `#`
-prompt before the commands to be entered to make them easier to copy and paste
-into a terminal. For example:
+We want our instructions to be clear and user-friendly, even for people who are
+not familiar with using a command-line interface. We also want to be consistent
+within the Nerves documentation and with documentation in the broader community.
+Therefore, we will show an appropriate prompt (e.g. `$`, `#`, or `iex(1)>`)
+before the commands to be entered. This makes it slightly harder to
+copy-and-paste several commands from the browser to the terminal, but allows the
+reader to more easily differentiate what they need to type from what they should
+expect to see as output. For example:
 
 ```bash
-export MIX_TARGET=rpi3
-mix firmware
-mix firmware.burn
+$ export MIX_TARGET=rpi3
+$ mix firmware
+$ mix firmware.burn
 ```
 
-When showing what we expect a person to see or do on the command-line, we will
-include an appropriate prompt before commands that they would run, to help them
-see which are input and which are output. We encourage the use of small
-formatting changes, where possible and not confusing, to emphasize or set apart
-the input from the output. We also encourage the use of either three dots or an
-ellipsis to truncate long output or code examples, only showing the relevant
-part. Where possible, show a truncation in a code example using a comment rather
-than invalid code. For example:
+When showing an exact command to be run, we prefer placing the command line(s)
+in a block with triple back-ticks and an appropriate text type, rather than
+single inline back-ticks.
+
+We encourage the use of small formatting changes, where possible and not
+confusing, to emphasize or set apart the input from the output. We also
+encourage the use of either three dots or an ellipsis to truncate long output or
+code examples, only showing the relevant part. Where possible, show a truncation
+in a code example using a comment rather than invalid code. For example:
 
 ```plain
 $ iex -S mix
