@@ -66,6 +66,10 @@ This project exists thanks to all the people who contribute.
 
 <a href="https://www.letote.com/careers" target="_blank"><img width="150" height="150" src="http://nerves-project.org/images/sponsorship/letote.png"></a>
 
+## Silver Sponsors
+
+<a href="https://www.smartrent.com" target="_blank"><img width="150" height="150" src="http://nerves-project.org/images/sponsorship/smartrent.png"></a>
+
 [[Become a metal level sponsor]](http://nerves-project.org/sponsoring)
 
 ## Backers
