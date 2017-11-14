@@ -36,13 +36,9 @@ defmodule Mix.Tasks.Firmware.Image do
       (config[:images_path] || Path.join([Mix.Project.build_path, "nerves", "images"]))
       |> Path.expand
 
-    System.get_env("NERVES_SYSTEM") || raise """
-      Environment variable $NERVES_SYSTEM is not set
-    """
+    check_nerves_system_is_set!()
 
-    System.get_env("NERVES_TOOLCHAIN") || raise """
-      Environment variable $NERVES_TOOLCHAIN is not set
-    """
+    check_nerves_toolchain_is_set!()
 
     fw = "#{images_path}/#{otp_app}.fw"
     unless File.exists?(fw) do

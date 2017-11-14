@@ -23,13 +23,9 @@ defmodule Mix.Tasks.Firmware do
     preflight()
     debug_info "Nerves Firmware Assembler"
 
-    system_path = System.get_env("NERVES_SYSTEM") || Mix.raise """
-      Environment variable $NERVES_SYSTEM is not set
-    """
+    system_path = check_nerves_system_is_set!()
 
-    System.get_env("NERVES_TOOLCHAIN") || Mix.raise """
-      Environment variable $NERVES_TOOLCHAIN is not set
-    """
+    check_nerves_toolchain_is_set!()
 
     rel_config =
       File.cwd!
