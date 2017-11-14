@@ -52,7 +52,6 @@ nerves_system_rpi3
 ├── fwup.conf
 ├── linux-4.4.defconfig
 ├── mix.exs
-├── nerves.exs
 ├── nerves_defconfig
 ├── post-createfs.sh
 └── rootfs-overlay
@@ -66,15 +65,39 @@ The `mix.exs` defines the toolchain and build platform, for example:
 ```elixir
 def project do
   [ # ...
+   nerves_package: nerves_package(),
    compilers: Mix.compilers ++ [:nerves_package],
    aliases: ["deps.precompile": ["nerves.env", "deps.precompile"]]]
 end
 # ...
+def nerves_package do
+  [
+    type: :system,
+    artifact_url: [
+      "https://github.com/nerves-project/#{@app}/releases/download/v#{@version}/#{@app}-v#{@version}.tar.gz",
+    ],
+    platform: Nerves.System.BR,
+    platform_config: [
+      defconfig: "nerves_defconfig"
+    ],
+    checksum: [
+      "nerves_defconfig",
+      "rootfs_overlay",
+      "linux-4.4.defconfig",
+      "fwup.conf",
+      "cmdline.txt",
+      "config.txt",
+      "post-createfs.sh",
+      "VERSION"
+    ]
+  ]
+end
+# ...
 defp deps do
   [
-    {:nerves, "~> 0.7", runtime: false },
-    {:nerves_system_br, "~> 0.13.3", runtime: false },
-    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 0.10.0", runtime: false}
+    {:nerves, "~> 0.7", runtime: false},
+    {:nerves_system_br, "~> 0.14.1", runtime: false},
+    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 0.11.0", runtime: false}
   ]
 end
 # ...
@@ -91,46 +114,47 @@ Nerves systems have a few requirements in the mix file:
 2. There must be a dependency for the toolchain and the build platform.
 3. The `package` must specify all the required `files` so they are present when
    downloading from Hex.
+4. The `nerves_package` key should contain nerves package configuration metadata as 
+   described in the next section.
 
 ## Package Configuration
 
-In addition to the `mix.exs` file, Nerves packages read from a special
-`nerves.exs` configuration file in the root of the package directory. This file
+The `mix.exs` project configuration contains a special configuration key `nerves_package`. This key
 contains configuration information that Nerves loads before any application or
 dependency code is compiled. It is used to store metadata about a package. Here
-is an example from the `nerves.exs` file for `nerves_system_rpi3`:
+is an example from the `mix.exs` file for `nerves_system_rpi3`:
 
 ```elixir
-use Mix.Config
-
-version =
-  Path.join(__DIR__, "VERSION")
-  |> File.read!
-  |> String.trim
-
-pkg = :nerves_system_rpi3
-
-config pkg, :nerves_env,
-  type: :system,
-  version: version,
-  compiler: :nerves_package,
-  artifact_url: [
-    "https://github.com/nerves-project/#{pkg}/releases/download/v#{version}/#{pkg}-v#{version}.tar.gz",
-  ],
-  platform: Nerves.System.BR,
-  platform_config: [
-    defconfig: "nerves_defconfig",
-  ],
-  checksum: [
-    "nerves_defconfig",
-    "rootfs-overlay",
-    "linux-4.4.defconfig",
-    "fwup.conf",
-    "cmdline.txt",
-    "config.txt",
-    "post-createfs.sh",
-    "VERSION"
+# ...
+def project do
+  [ # ...
+   nerves_package: nerves_package(),
+    # ...
   ]
+end
+# ....
+def nerves_package do
+  [
+    type: :system,
+    artifact_url: [
+      "https://github.com/nerves-project/#{@app}/releases/download/v#{@version}/#{@app}-v#{@version}.tar.gz",
+    ],
+    platform: Nerves.System.BR,
+    platform_config: [
+      defconfig: "nerves_defconfig"
+    ],
+    checksum: [
+      "nerves_defconfig",
+      "rootfs_overlay",
+      "linux-4.4.defconfig",
+      "fwup.conf",
+      "cmdline.txt",
+      "config.txt",
+      "post-createfs.sh",
+      "VERSION"
+    ]
+  ]
+end
 ```
 
 There are a few required keys in this file:
@@ -199,26 +223,30 @@ Next, tweak the metadata for your system so it won't conflict with the official
 one and won't try to download a cached artifact that doesn't exist yet:
 
 ```elixir
-# custom_rpi3/nerves.exs
-use Mix.Config
-
-# =vvv= Update the package name and remove (or replace) the artifact_url list
-
-pkg = :custom_rpi3
-
-config pkg, :nerves_env,
-  type: :system,
-  version: version,
-#   artifact_url: [
-#     "...",
-#   ],
+# custom_rpi3/mix.exs
+# ...
+def nerves_package do
+  [
+    type: :system,
+    # artifact_url: [
+    #   "https://github.com/nerves-project/#{@app}/releases/download/v#{@version}/#{@app}-v#{@version}.tar.gz",
+    # ],
     platform: Nerves.System.BR,
     platform_config: [
       defconfig: "nerves_defconfig"
     ],
-
-# =^^^=
-
+    checksum: [
+      "nerves_defconfig",
+      "rootfs_overlay",
+      "linux-4.4.defconfig",
+      "fwup.conf",
+      "cmdline.txt",
+      "config.txt",
+      "post-createfs.sh",
+      "VERSION"
+    ]
+  ]
+end
 # ...
 ```
 
