@@ -72,4 +72,17 @@ defmodule Mix.Nerves.Utils do
       Mix.shell.info(msg)
     end
   end
+
+  def check_nerves_system_is_set! do
+    System.get_env("NERVES_SYSTEM") || Mix.raise """
+      Environment variable $NERVES_SYSTEM is not set
+    """
+
+  end
+
+  def check_nerves_toolchain_is_set! do
+    System.get_env("NERVES_TOOLCHAIN") || Mix.raise """
+      Environment variable $NERVES_TOOLCHAIN is not set
+    """
+  end
 end
