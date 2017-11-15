@@ -62,7 +62,7 @@ defmodule Nerves.Package.Providers.Local do
 
     case shell("make", [], [cd: dest, stream: stream]) do
       {_, 0} -> :ok
-      {error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
+      {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
     end
   end
 

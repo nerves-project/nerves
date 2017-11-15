@@ -2,7 +2,7 @@ defmodule Nerves do
   use Mix.Releases.Plugin
 
   def before_assembly(release, _opts) do
-    if nerves_env_loaded? do
+    if nerves_env_loaded?() do
       project_config = Mix.Project.config
       profile =
         release.profile
@@ -16,6 +16,22 @@ defmodule Nerves do
     else
       release
     end
+  end
+
+  def after_assembly(%Release{} = release, _opts) do
+    release
+  end
+
+  def before_package(%Release{} = release, _opts) do
+    release
+  end
+
+  def after_package(%Release{} = release, _opts) do
+    release
+  end
+
+  def after_cleanup(_args, _opts) do
+    :noop
   end
 
   def version,        do: unquote(Mix.Project.config[:version])
