@@ -125,7 +125,7 @@ defmodule Nerves.Package do
     end
     platform = config[:nerves_package][:platform]
     provider = provider(app, type)
-    config = Enum.reject(config, fn({k, _v}) -> k in @required end)
+    config = Enum.reject(config[:nerves_package], fn({k, _v}) -> k in @required end)
 
     %Package{
       app: app,
