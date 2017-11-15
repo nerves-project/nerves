@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves v0.8.0-dev
+## Nerves v0.8.0
 
 * Enhancements
   * Removed legacy compiler key from the package struct. The `nerves_package` compiler will be chosen by default.
