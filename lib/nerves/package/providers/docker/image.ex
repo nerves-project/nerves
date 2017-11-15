@@ -22,12 +22,12 @@ defmodule Nerves.Package.Provider.Docker.Image do
     cmd = "docker"
     args = ["pull", "#{tag}"]
     case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {"", _} ->
-        false
       {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
         Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
       {_, 0} ->
         true
+      {_reason, _} ->
+        false
     end
   end
 
