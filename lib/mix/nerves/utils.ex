@@ -74,15 +74,22 @@ defmodule Mix.Nerves.Utils do
   end
 
   def check_nerves_system_is_set! do
-    System.get_env("NERVES_SYSTEM") || Mix.raise """
-      Environment variable $NERVES_SYSTEM is not set
-    """
-
+    var_name = "NERVES_SYSTEM"
+    System.get_env(var_name) || raise_env_var_missing(var_name)
   end
 
   def check_nerves_toolchain_is_set! do
-    System.get_env("NERVES_TOOLCHAIN") || Mix.raise """
-      Environment variable $NERVES_TOOLCHAIN is not set
+    var_name = "NERVES_TOOLCHAIN"
+    System.get_env(var_name) || raise_env_var_missing(var_name)
+  end
+
+  defp raise_env_var_missing(name) do
+    Mix.raise """
+    Environment variable $#{name} is not set.
+
+    This variable is usually set for you by Nerves when you specify the
+    $MIX_TARGET. For examples please see
+    https://hexdocs.pm/nerves/getting-started.html#create-the-firmware-bundle
     """
   end
 end
