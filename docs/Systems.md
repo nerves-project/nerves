@@ -114,7 +114,7 @@ Nerves systems have a few requirements in the mix file:
 2. There must be a dependency for the toolchain and the build platform.
 3. The `package` must specify all the required `files` so they are present when
    downloading from Hex.
-4. The `nerves_package` key should contain nerves package configuration metadata as 
+4. The `nerves_package` key should contain nerves package configuration metadata as
    described in the next section.
 
 ## Package Configuration
@@ -157,14 +157,14 @@ def nerves_package do
 end
 ```
 
-There are a few required keys in this file:
+The following keys are supported:
 
 1.  `type`: The type of Nerves Package.
 
     Options are: `system`, `system_compiler`, `system_platform`,
     `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
 
-2.  `artifact_url`: The URL(s) of cached assets.
+2.  `artifact_url` (optional): The URL(s) of cached assets.
 
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
@@ -173,7 +173,7 @@ There are a few required keys in this file:
 
 4.  `platform_config`: Configuration options for the build platform.
 
-    In this example, the `defconfig` option for the `Nerves.System.Platforms.BR`
+    In this example, the `defconfig` option for the `Nerves.System.BR`
     platform points to the Buildroot defconfig fragment file used to build the
     system.
 

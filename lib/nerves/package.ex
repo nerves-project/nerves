@@ -2,57 +2,9 @@ defmodule Nerves.Package do
   @moduledoc """
   Defines a Nerves package struct and helper functions.
 
-  A Nerves package is an application which defines a Nerves package
-  configuration file at the root of the application path. The configuration
-  file is `nerves.exs` and uses Mix.Config to list configuration values.
-
-  ## Example Configuration
-  ```
-    use Mix.Config
-
-    version =
-      Path.join(__DIR__, "VERSION")
-      |> File.read!
-      |> String.trim
-
-    pkg =
-
-    config pkg, :nerves_env,
-      type: :system,
-      version: version,
-      artifact_url: [
-        "https://github.com/nerves-project/\#{pkg}/releases/download/v\#{version}/\#{pkg}-v\#{version}.tar.gz",
-      ],
-      platform: Nerves.System.BR,
-      platform_config: [
-        defconfig: "nerves_defconfig",
-      ],
-      checksum: [
-        "linux",
-        "rootfs_overlay",
-        "uboot",
-        "bbb-busybox.config",
-        "fwup.conf",
-        "nerves_defconfig",
-        "nerves.exs",
-        "post-createfs.sh",
-        "uboot-script.cmd",
-        "VERSION"
-      ]
-  ```
-
-  ## Keys
-
-  ** Required **
-
-    * `:type` - The Nerves package type. Can be any one of the following
-      * `:system` - A Nerves system.
-      * `:system_platform` - A set of build tools for a Nerves system.
-      * `:toolchain` - A Nerves toolchain
-      * `:toolchain_platform` - A set of build tools for a Nerves toolchain.
-    * `:version` - The package version
-    * `:platform` - The application which is the packages build platform.
-    * `:checksum` - A list of files and top level folders to expand paths for use when calculating the checksum of the package source.
+  A Nerves package is a Mix application that defines the configuration for a
+  Nerves system or Nerves toolchain. For more details, see the Nerves
+  [system documentation](https://hexdocs.pm/nerves/systems.html#package-configuration)
   """
 
   defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, config: []]
@@ -103,7 +55,7 @@ defmodule Nerves.Package do
              |> File.write!(checksum(pkg))
       {:error, error} ->
           Mix.raise """
-          
+
           Nerves encountered an error while constructing the artifact
           #{error}
           """
