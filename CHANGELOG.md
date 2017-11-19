@@ -1,5 +1,13 @@
 # Release Notes
 
+## Nerves v0.8.1
+
+* Bug Fixes
+  * Fixed an error in the `Nerves` Distillery plugin that was causing the following error message:
+    ```
+    Plugin failed: no function clause matching in IO.chardata_to_string/1
+    ```
+
 ## Nerves v0.8.0
 
 * Enhancements
