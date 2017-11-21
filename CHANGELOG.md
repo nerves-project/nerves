@@ -1,5 +1,10 @@
 # Release Notes
 
+## Nerves v0.8.2
+
+* Bug Fixes
+  * Don't override the output_dir in the Distillery Plugin.
+
 ## Nerves v0.8.1
 
 * Bug Fixes

@@ -3,11 +3,9 @@ defmodule Nerves do
 
   def before_assembly(release, _opts) do
     if nerves_env_loaded?() do
-      project_config = Mix.Project.config
       profile =
         release.profile
         |> Map.put(:dev_mode, false)
-        |> Map.put(:output_dir, Path.join([project_config[:build_path], to_string(Mix.env), "rel"]))
         |> Map.put(:include_src, false)
         |> Map.put(:include_erts, System.get_env("ERL_LIB_DIR"))
         |> Map.put(:include_system_libs, System.get_env("ERL_SYSTEM_LIB_DIR"))
