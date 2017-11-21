@@ -2,6 +2,9 @@
 
 ## Nerves v0.8.2
 
+* Enhancements
+  * Improved error messages when `NERVES_SYSTEM` or `NERVES_TOOLCHAIN` are unset.
+
 * Bug Fixes
   * Don't override the output_dir in the Distillery Plugin.
 
