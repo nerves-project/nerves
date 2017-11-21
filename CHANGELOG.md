@@ -3,6 +3,7 @@
 ## Nerves v0.8.2
 
 * Enhancements
+  * Added [contributing guide](https://github.com/nerves-project/nerves/blob/master/docs/CONTRIBUTING.md)
   * Improved error messages when `NERVES_SYSTEM` or `NERVES_TOOLCHAIN` are unset.
 
 * Bug Fixes
