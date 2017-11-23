@@ -1,5 +1,22 @@
 # Release Notes
 
+## Nerves v0.8.3
+
+* Bug Fixes
+  * Revert plugin Nerves in new project generator until
+    the fix can be made in distillery.
+    This issue was causing the release to contain compiled
+    libraries from the host instead of the target.
+    The error would look similar to this
+    ```
+    Got:
+    ELF 64-bit LSB relocatable, x86-64, version 1
+
+    If binary, expecting:
+    ELF 32-bit LSB executable, ARM, EABI5 version 1, interpreter /lib/ld-linux.so.3, for GNU/Linux 4.1.39
+    ```
+    You can fix this by updating and regenerating the new project.
+
 ## Nerves v0.8.2
 
 * Enhancements
