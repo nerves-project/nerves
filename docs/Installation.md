@@ -89,8 +89,8 @@ $ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.3.0
 # The following steps are for BASH. If you’re using something else, do the
 # equivalent for your shell.
 $ echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
-$ echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile
-$ source ~/.bash_profile).
+$ echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
+$ source ~/.bash_profile
 $ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 $ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
 $ asdf install erlang 20.0 # This takes a while
