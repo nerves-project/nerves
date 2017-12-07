@@ -9,9 +9,7 @@ MAINTAINER Justin Schneck
 ENV -NERVES_BR_DL_DIR=/nerves/cache/buildroot
 
 # Set the locale
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LC_ALL C.UTF-8
 
 RUN DEBIAN_FRONTEND=noninteractive \
   dpkg --add-architecture i386 && \
@@ -35,5 +33,4 @@ RUN DEBIAN_FRONTEND=noninteractive \
   libncurses5:i386 \
   libstdc++6:i386 \
   xz-utils && \
-  rm -rf /var/lib/apt/lists/* && \
-  localedef -i en_US -f UTF-8 en_US.UTF-8
+  rm -rf /var/lib/apt/lists/*
