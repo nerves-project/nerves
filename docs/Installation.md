@@ -93,10 +93,10 @@ $ echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
 $ source ~/.bash_profile
 $ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 $ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
-$ asdf install erlang 20.0 # This takes a while
-$ asdf install elixir 1.4.5
-$ asdf global erlang 20.0
-$ asdf global elixir 1.4.5
+$ asdf install erlang 20.1 # This takes a while
+$ asdf install elixir 1.5.2
+$ asdf global erlang 20.1
+$ asdf global elixir 1.5.2
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
