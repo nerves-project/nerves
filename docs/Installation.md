@@ -85,7 +85,7 @@ First, install the required versions of Erlang/OTP and Elixir using ADSF (more
 details at https://github.com/asdf-vm/asdf/blob/master/README.md#setup).
 
 ```bash
-$ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.3.0
+$ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.4.0
 # The following steps are for BASH. If you’re using something else, do the
 # equivalent for your shell.
 $ echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
@@ -93,9 +93,9 @@ $ echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
 $ source ~/.bash_profile
 $ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 $ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
-$ asdf install erlang 20.1 # This takes a while
+$ asdf install erlang 20.2 # This takes a while
 $ asdf install elixir 1.5.2
-$ asdf global erlang 20.1
+$ asdf global erlang 20.2
 $ asdf global elixir 1.5.2
 ```
 
