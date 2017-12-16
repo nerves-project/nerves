@@ -51,9 +51,16 @@ to be a "10,000 ft" overview.
 
 # Key Files/Variables
 
+The following are the key parts of the bootstrap.  Note that NERVES_SYSTEM and 
+NERVES_TOOLCHAIN can be defined before running `mix firmware` to point to a 
+trusted decompressed system or toolchain. This is useful in situations where 
+you produce a system directly using Buildroot and want to force Nerves to use it.
+
 NERVES_SYSTEM 
   * Path to the nerves_system_* folder
   * Has to be defined at Nerves.Env.bootstrap() or system blows up
+  * Exists only if the system dependency is being included from a source other than hex.
+    * When a system is being sourced from hex, it will attempt to place the uncompressed artifact in the global path located at ~/.nerves/artifacts or $NERVES_ARTIFACTS_DIR
 
 NERVES_TOOLCHAIN 
   * Path to the toolchain
