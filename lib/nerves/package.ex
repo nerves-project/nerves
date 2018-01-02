@@ -76,7 +76,7 @@ defmodule Nerves.Package do
       exit({:shutdown, 1})
     end
     platform = config[:nerves_package][:platform]
-    provider = provider(app, type)
+    provider = provider(config)
     config = Enum.reject(config[:nerves_package], fn({k, _v}) -> k in @required end)
 
     %Package{
@@ -214,18 +214,18 @@ defmodule Nerves.Package do
     end
   end
 
-  defp provider(app, type) do
-    config = Mix.Project.config[:artifacts] || []
-
-    case Keyword.get(config, app) do
-      nil -> provider_mod(type)
-      opts -> provider_opts(opts)
+  defp provider(config) do
+    case config[:nerves_package][:provider] do
+      provider -> 
+        provider_opts = config[:nerves_package][:provider_opts] || []
+        {provider, provider_opts}
+      nil -> provider_type(config[:nerves_package][:type])
     end
   end
 
-  defp provider_mod(:system_platform), do: []
-  defp provider_mod(:toolchain_platform), do: []
-  defp provider_mod(:toolchain) do
+  defp provider_type(:system_platform), do: []
+  defp provider_type(:toolchain_platform), do: []
+  defp provider_type(:toolchain) do
     mod =
       case :os.type do
         {_, :linux} -> Providers.HTTP
@@ -235,24 +235,13 @@ defmodule Nerves.Package do
     [{Providers.HTTP, []}, {mod, []}]
   end
 
-  defp provider_mod(_) do
+  defp provider_type(_) do
     mod =
       case :os.type do
         {_, :linux} -> Providers.Local
         _ -> Providers.Docker
       end
     [{Providers.HTTP, []}, {mod, []}]
-  end
-
-  defp provider_opts(mod) when is_atom(mod), do: {mod, []}
-  defp provider_opts(opts) when is_list(opts) do
-    mod =
-      cond do
-        opts[:path] != nil -> Providers.Path
-        opts[:url] != nil -> Providers.HTTP
-        true -> Mix.raise "Invalid artifact options"
-      end
-    {mod, opts}
   end
 
   defp load_nerves_config(path) do
