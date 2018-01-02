@@ -120,15 +120,7 @@ to create new Nerves projects. To install the `nerves_bootstrap` archive:
 $ mix archive.install hex nerves_bootstrap
 ```
 
-If the archive fails to install properly using this command, or you need to
-perform an offline installation, you can download the `.ez` file and install it
-like this:
-
-```bash
-$ mix archive.install /path/to/nerves_bootstrap.ez
-```
-
-Once installed, you can later upgrade `nerves_bootstrap` by doing:
+Once installed, you can upgrade `nerves_bootstrap` by running:
 
 ```bash
 $ mix local.nerves
