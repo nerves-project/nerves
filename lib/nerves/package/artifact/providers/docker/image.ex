@@ -1,5 +1,5 @@
-defmodule Nerves.Package.Provider.Docker.Image do
-  alias Nerves.Package.Provider.Docker
+defmodule Nerves.Package.Artifact.Providers.Docker.Image do
+  alias Nerves.Package.Artifact.Providers.Docker
   import Docker.Utils
 
   def create(dockerfile, tag) do

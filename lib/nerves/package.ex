@@ -10,7 +10,8 @@ defmodule Nerves.Package do
   defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, config: []]
 
   alias __MODULE__
-  alias Nerves.Package.{Artifact, Providers}
+  alias Nerves.Package.Artifact
+  alias Nerves.Package.Artifact.Providers
   alias Nerves.Package
 
   @type t :: %__MODULE__{app: atom,

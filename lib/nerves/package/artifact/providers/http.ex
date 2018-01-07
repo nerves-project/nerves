@@ -1,15 +1,15 @@
-defmodule Nerves.Package.Providers.HTTP do
+defmodule Nerves.Package.Artifact.Providers.HTTP do
   @moduledoc """
-  Downloads an artifact from a remote http location.
+  Downloads an artifact from a remote http location.
   """
 
-  @behaviour Nerves.Package.Provider
+  @behaviour Nerves.Package.Artifact.Provider
 
   alias Nerves.Package.Artifact
   require Logger
 
   @doc """
-  Download the artifact from an http location
+  Download the artifact from an http location
   """
   def artifact(pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"

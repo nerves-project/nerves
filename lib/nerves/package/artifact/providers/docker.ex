@@ -1,6 +1,6 @@
-defmodule Nerves.Package.Providers.Docker do
+defmodule Nerves.Package.Artifact.Providers.Docker do
   @moduledoc """
-  Produce an artifact for a package using Docker.
+  Produce an artifact for a package using Docker.
 
   The Nerves Docker artifact provider will use docker to create the artifact
   for the package. The output in Mix will be limited to the headlines from the
@@ -56,10 +56,10 @@ defmodule Nerves.Package.Providers.Docker do
   the packages defined artifact directory.
   """
 
-  @behaviour Nerves.Package.Provider
+  @behaviour Nerves.Package.Artifact.Provider
 
   alias Nerves.Package.Artifact
-  alias Nerves.Package.Provider.Docker
+  alias Nerves.Package.Artifact.Providers.Docker
   import Docker.Utils
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or ~> 17.0"

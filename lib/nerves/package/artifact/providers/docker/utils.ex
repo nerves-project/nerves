@@ -1,4 +1,4 @@
-defmodule Nerves.Package.Provider.Docker.Utils do
+defmodule Nerves.Package.Artifact.Providers.Docker.Utils do
 
   def shell_info(header, text \\ "") do
     Mix.Nerves.IO.shell_info(header, text, Docker)
