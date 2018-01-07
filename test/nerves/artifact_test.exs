@@ -1,7 +1,7 @@
 defmodule Nerves.ArtifactTest do
   use NervesTest.Case, async: false
 
-  alias Nerves.Package.Providers, as: P
+  alias Nerves.Package.Artifact.Providers, as: P
   alias Nerves.Package.Artifact
   alias Nerves.Env
 
@@ -69,7 +69,7 @@ defmodule Nerves.ArtifactTest do
                                checksum: []],
                       dep: :hex,
                       path: "",
-                      provider: [{Nerves.Package.Providers.HTTP, []}],
+                      provider: [{Nerves.Package.Artifact.Providers.HTTP, []}],
                       type: :system,
                       version: "0.10.0"}
 

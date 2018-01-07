@@ -1,11 +1,11 @@
-defmodule Nerves.Package.Providers.Local do
+defmodule Nerves.Package.Artifact.Providers.Local do
   @moduledoc """
   Builds an artifact locally.
 
   This provider will only function on certain Linux host configurations
   """
 
-  @behaviour Nerves.Package.Provider
+  @behaviour Nerves.Package.Artifact.Provider
 
   alias Nerves.Package.Artifact
   import Mix.Nerves.Utils

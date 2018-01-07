@@ -1,6 +1,6 @@
-defmodule Nerves.Package.Provider.Docker.Volume do
+defmodule Nerves.Package.Artifact.Providers.Docker.Volume do
   alias Nerves.Package.Artifact
-  alias Nerves.Package.Provider.Docker
+  alias Nerves.Package.Artifact.Providers.Docker
   import Docker.Utils
 
   def name(pkg) do

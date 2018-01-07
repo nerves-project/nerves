@@ -1,6 +1,6 @@
-defmodule Nerves.Package.Provider do
+defmodule Nerves.Package.Artifact.Provider do
   @moduledoc """
-  Defines the Nerves package provider behaviour
+  Defines the Nerves package provider behaviour
 
   A package provider is a module that can take package source and produce
   artifacts.
