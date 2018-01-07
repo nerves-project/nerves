@@ -72,8 +72,8 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
   @doc """
   Create an artifact for the package
   """
-  @spec artifact(Nerves.Package.t, Nerves.Package.t, term) :: :ok
-  def artifact(pkg, toolchain, _opts) do
+  @spec build(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  def build(pkg, toolchain, _opts) do
     preflight(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
@@ -84,9 +84,10 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
     Mix.shell.info("\n")
     :ok = make_artifact(pkg, toolchain, stream)
     Mix.shell.info("\n")
-    :ok = copy_artifact(pkg, toolchain, stream)
+    {:ok, path} = copy_artifact(pkg, toolchain, stream)
     Mix.shell.info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
+    {:ok, path}
   end
 
   def clean(pkg) do
@@ -176,7 +177,7 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
       |> :erl_tar.extract([:compressed, {:cwd, cwd}])
 
       File.rm!(tar_file)
-      :ok
+      {:ok, dir}
     else
       Mix.raise "Nerves Docker provider expected artifact to exist at #{tar_file}"
     end

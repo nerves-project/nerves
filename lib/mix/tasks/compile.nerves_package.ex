@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     toolchain = Nerves.Env.toolchain
 
     if Nerves.Env.enabled? and Nerves.Package.stale?(package, toolchain) do
-      Nerves.Package.artifact(package, toolchain)
+      Nerves.Package.build(package, toolchain)
     end
 
     debug_info "Compile.NervesPackage end"

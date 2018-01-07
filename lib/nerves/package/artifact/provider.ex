@@ -6,8 +6,8 @@ defmodule Nerves.Package.Artifact.Provider do
   artifacts.
   """
 
-  @callback artifact(package :: Nerves.Package.t, toolchain :: atom, opts :: term) ::
-    :ok | {:error, reason :: term}
+  @callback build(package :: Nerves.Package.t, toolchain :: atom, opts :: term) ::
+    {:ok, build_path :: String.t} | {:error, reason :: term}
 
   @callback clean(package :: Nerves.Package.t) ::
     :ok | {:error, reason :: term}

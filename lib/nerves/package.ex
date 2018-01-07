@@ -36,15 +36,16 @@ defmodule Nerves.Package do
   Builds the package and produces an artifact. See Nerves.Package.Artifact
   for more information.
   """
-  @spec artifact(Nerves.Package.t, Nerves.Package.t) :: :ok
-  def artifact(pkg, toolchain) do
+  @spec build(Nerves.Package.t, Nerves.Package.t) :: :ok
+  def build(pkg, toolchain) do
     ret =
       case pkg.provider do
-        {mod, opts} -> mod.artifact(pkg, toolchain, opts)
+        {provider, opts} -> 
+          provider.build(pkg, toolchain, opts)
         providers when is_list(providers) ->
-          Enum.reduce(providers, nil, fn ({mod, opts}, ret) ->
+          Enum.reduce(providers, nil, fn ({provider, opts}, ret) ->
             if ret != :ok do
-              mod.artifact(pkg, toolchain, opts)
+              provider.build(pkg, toolchain, opts)
             else
               ret
             end

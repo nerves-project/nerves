@@ -11,7 +11,7 @@ defmodule Nerves.Package.Artifact.Providers.HTTP do
   @doc """
   Download the artifact from an http location
   """
-  def artifact(pkg, toolchain, _opts) do
+  def build(pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
     urls = pkg.config[:artifact_url]
     dest = Artifact.dir(pkg, toolchain)
@@ -20,7 +20,7 @@ defmodule Nerves.Package.Artifact.Providers.HTTP do
     |> unpack(artifact, dest)
   end
 
-  def artifact(pkg, _toolchain) do
+  def build(pkg, _toolchain) do
     Logger.debug "#{__MODULE__}: artifact: #{inspect pkg}"
   end
 
@@ -85,7 +85,7 @@ defmodule Nerves.Package.Artifact.Providers.HTTP do
     File.mkdir_p!(destination)
     {_, status} = System.cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
     case status do
-      0 -> :ok
+      0 -> {:ok, destination}
       _ -> :error
     end
   end
