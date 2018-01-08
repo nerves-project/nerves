@@ -44,7 +44,7 @@ to be a "10,000 ft" overview.
 
 ### nerves_package
   * Nerves.Env.start
-  * Nerves.Env.enabled? and Nerves.Package.stale?(package, toolchain)
+  * Nerves.Env.enabled? and Nerves.Package.Artifact.stale?(package, toolchain)
     * Nerves.Package.artifact(package, toolchain)
       * pkg.provider.artifact(pkg, toolchain, opts) [Nerves.Package.Artifact.Providers.HTTP, Nerves.Package.Artifact.Providers.Local]
 * firmware
