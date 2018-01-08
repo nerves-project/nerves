@@ -85,7 +85,7 @@ defmodule Nerves.Env do
   """
   @spec clean([Nerves.Package.t]) :: :ok | {:error, term}
   def clean(pkgs) do
-    Enum.each(pkgs, &Package.clean/1)
+    Enum.each(pkgs, &Package.Artifact.clean/1)
   end
 
   @doc """

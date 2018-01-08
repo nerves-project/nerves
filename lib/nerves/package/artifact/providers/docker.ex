@@ -84,10 +84,21 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
     Mix.shell.info("\n")
     :ok = make_artifact(pkg, toolchain, stream)
     Mix.shell.info("\n")
-    {:ok, path} = copy_artifact(pkg, toolchain, stream)
+    {:ok, archive} = copy_artifact(pkg, toolchain, stream)
+    {:ok, path} = expand_archive(pkg, toolchain, archive)
+    File.rm!(archive)
     Mix.shell.info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
     {:ok, path}
+  end
+
+  @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  def archive(pkg, toolchain, _opts) do
+    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
+    stream = IO.stream(pid, :line)
+
+    make_artifact(pkg, toolchain, stream)
+    copy_artifact(pkg, toolchain, stream)
   end
 
   def clean(pkg) do
@@ -143,7 +154,7 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
 
   defp make_artifact(pkg, toolchain, stream) do
     name = Artifact.name(pkg, toolchain)
-    shell_info "Compressing artifact"
+    shell_info "Creating artifact archive"
     cmd = [
       "make",
       "system",
@@ -152,7 +163,7 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
   end
 
   defp copy_artifact(pkg, toolchain, stream) do
-    shell_info "Copying artifact to host"
+    shell_info "Copying artifact archive to host"
     name = Artifact.name(pkg, toolchain)
 
     cmd = [
@@ -161,25 +172,28 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
       "/nerves/host/artifacts/#{name}.tar.gz"]
 
     run(pkg, cmd, stream)
-
     base_dir = Artifact.base_dir(pkg)
-    tar_file = Path.join(base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")
+    {:ok, Path.join(base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")}
+  end
 
-    if File.exists?(tar_file) do
+  defp expand_archive(pkg, toolchain, archive) do
+    shell_info "Expanding artifact archive"
+    base_dir = Artifact.base_dir(pkg)
+    
+    if File.exists?(archive) do
       dir = Artifact.dir(pkg, toolchain)
       File.rm_rf(dir)
       File.mkdir_p(dir)
 
       cwd = base_dir
       |> String.to_charlist
-
-      String.to_charlist(tar_file)
+      
+      String.to_charlist(archive)
       |> :erl_tar.extract([:compressed, {:cwd, cwd}])
 
-      File.rm!(tar_file)
       {:ok, dir}
     else
-      Mix.raise "Nerves Docker provider expected artifact to exist at #{tar_file}"
+      Mix.raise "Nerves Docker provider expected artifact to exist at #{archive}"
     end
   end
 

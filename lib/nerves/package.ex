@@ -11,8 +11,6 @@ defmodule Nerves.Package do
 
   alias __MODULE__
   alias Nerves.Package.Artifact
-  alias Nerves.Package.Artifact.Providers
-  alias Nerves.Package
 
   @type t :: %__MODULE__{app: atom,
                         path: binary,
@@ -29,40 +27,7 @@ defmodule Nerves.Package do
                       config: Keyword.t}
 
   @package_config "nerves.exs"
-  @checksum "CHECKSUM"
   @required [:type, :version, :platform]
-
-  @doc """
-  Builds the package and produces an artifact. See Nerves.Package.Artifact
-  for more information.
-  """
-  @spec build(Nerves.Package.t, Nerves.Package.t) :: :ok
-  def build(pkg, toolchain) do
-    ret =
-      case pkg.provider do
-        {provider, opts} -> 
-          provider.build(pkg, toolchain, opts)
-        providers when is_list(providers) ->
-          Enum.reduce(providers, nil, fn ({provider, opts}, ret) ->
-            if ret != :ok do
-              provider.build(pkg, toolchain, opts)
-            else
-              ret
-            end
-          end)
-      end
-
-    case ret do
-      :ok -> Path.join(Artifact.dir(pkg, toolchain), @checksum)
-             |> File.write!(checksum(pkg))
-      {:error, error} ->
-          Mix.raise """
-
-          Nerves encountered an error while constructing the artifact
-          #{error}
-          """
-    end
-  end
 
   @doc """
   Loads the package config and parses it into a `%Package{}`
@@ -78,7 +43,7 @@ defmodule Nerves.Package do
       exit({:shutdown, 1})
     end
     platform = config[:nerves_package][:platform]
-    provider = provider(config)
+    provider = Artifact.provider(app, type)
     config = Enum.reject(config[:nerves_package], fn({k, _v}) -> k in @required end)
 
     %Package{
@@ -92,45 +57,7 @@ defmodule Nerves.Package do
       config: config}
   end
 
-  @doc """
-  Produce a base16 encoded checksum for the package from the list of files
-  and expanded folders listed in the checksum config key.
-  """
-  @spec checksum(Nerves.Package.t) :: String.t
-  def checksum(pkg) do
-    blob =
-      (pkg.config[:checksum] || [])
-      |> expand_paths(pkg.path)
-      |> Enum.map(& File.read!/1)
-      |> Enum.map(& :crypto.hash(:sha256, &1))
-      |> Enum.join
-    :crypto.hash(:sha256, blob)
-    |> Base.encode16
-  end
-
-  @doc """
-  Cleans the artifacts for the package providers of all packages
-  """
-  @spec clean(Nerves.Package.t) :: :ok | {:error, term}
-  def clean(pkg) do
-    Mix.shell.info("Cleaning Nerves Package #{pkg.app}")
-    Enum.each(pkg.provider, fn({provider, _}) -> provider.clean(pkg) end)
-  end
-
-  @doc """
-  Determines if the artifact for a package is stale and needs to be rebuilt.
-  """
-  @spec stale?(Nerves.Package.t, Nerves.Package.t) :: boolean
-  def stale?(pkg, toolchain) do
-    if Artifact.env_var?(pkg) do
-      false
-    else
-      exists = Artifact.exists?(pkg, toolchain)
-      checksum = match_checksum?(pkg, toolchain)
-
-      !(exists and checksum)
-    end
-  end
+  
 
   @doc """
   Starts an interactive shell with the working directory set
@@ -204,47 +131,7 @@ defmodule Nerves.Package do
     Keyword.put(project_config, :nerves_package, nerves_package)
   end
 
-  defp match_checksum?(pkg, toolchain) do
-    artifact_checksum =
-      Path.join(Artifact.dir(pkg, toolchain), @checksum)
-      |> File.read
-    case artifact_checksum do
-      {:ok, checksum} ->
-        checksum == Package.checksum(pkg)
-      _ ->
-        false
-    end
-  end
-
-  defp provider(config) do
-    case config[:nerves_package][:provider] do
-      nil -> provider_type(config[:nerves_package][:type])
-      provider -> 
-        provider_opts = config[:nerves_package][:provider_opts] || []
-        {provider, provider_opts}
-    end
-  end
-
-  defp provider_type(:system_platform), do: []
-  defp provider_type(:toolchain_platform), do: []
-  defp provider_type(:toolchain) do
-    mod =
-      case :os.type do
-        {_, :linux} -> Providers.HTTP
-        {_, :darwin} -> Providers.HTTP
-        _ -> Providers.Docker
-      end
-    [{Providers.HTTP, []}, {mod, []}]
-  end
-
-  defp provider_type(_) do
-    mod =
-      case :os.type do
-        {_, :linux} -> Providers.Local
-        _ -> Providers.Docker
-      end
-    [{Providers.HTTP, []}, {mod, []}]
-  end
+  
 
   defp load_nerves_config(path) do
     config_path(path)
@@ -267,27 +154,6 @@ defmodule Nerves.Package do
         else
           :path
         end
-    end
-  end
-
-  defp expand_paths(paths, dir) do
-    expand_dir = Path.expand(dir)
-
-    paths
-    |> Enum.map(&Path.join(dir, &1))
-    |> Enum.flat_map(&Path.wildcard/1)
-    |> Enum.flat_map(&dir_files/1)
-    |> Enum.map(&Path.expand/1)
-    |> Enum.filter(&File.regular?/1)
-    |> Enum.uniq
-    |> Enum.map(&Path.relative_to(&1, expand_dir))
-  end
-
-  defp dir_files(path) do
-    if File.dir?(path) do
-      Path.wildcard(Path.join(path, "**"))
-    else
-      [path]
     end
   end
 

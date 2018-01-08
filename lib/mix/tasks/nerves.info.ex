@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Nerves.Info do
     if target = opts[:target] do
       Nerves.Env.change_target(target)
     end
-    Mix.Tasks.Nerves.Env.run(["--info"])
+    Mix.Tasks.Nerves.Env.run(["--info", "--disable"])
     Mix.shell.info "Nerves:           #{Nerves.version}"
     Mix.shell.info "Nerves Bootstrap: #{Nerves.Bootstrap.version}"
     Mix.shell.info "Elixir:           #{Nerves.elixir_version}"

@@ -9,6 +9,9 @@ defmodule Nerves.Package.Artifact.Provider do
   @callback build(package :: Nerves.Package.t, toolchain :: atom, opts :: term) ::
     {:ok, build_path :: String.t} | {:error, reason :: term}
 
+  @callback archive(package :: Nerves.Package.t, toolchain :: atom, opts :: term) ::
+    {:ok, path :: String.t} | {:error, reason :: term}
+
   @callback clean(package :: Nerves.Package.t) ::
     :ok | {:error, reason :: term}
 

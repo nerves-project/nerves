@@ -19,6 +19,12 @@ defmodule Nerves.Package.Artifact.Providers.Local do
     make(type, pkg, toolchain, opts)
   end
 
+  @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  def archive(pkg, toolchain, opts) do
+    {_, type} = :os.type
+    make_archive(type, pkg, toolchain, opts)
+  end
+
   def clean(pkg) do
     dest = Artifact.dir(pkg, Nerves.Env.toolchain)
     File.rm_rf(dest)
@@ -67,6 +73,27 @@ defmodule Nerves.Package.Artifact.Providers.Local do
   end
 
   defp make(type , _pkg, _toolchain, _opts) do
+    error_host_os(type)
+  end
+
+  defp make_archive(:linux, pkg, toolchain, _opts) do
+    name = Artifact.name(pkg, toolchain)
+    dest = Artifact.dir(pkg, toolchain)
+
+    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
+    stream = IO.stream(pid, :line)
+
+    case shell("make", ["system", "NERVES_ARTIFACT_NAME=#{name}"], [cd: dest, stream: stream]) do
+      {_, 0} -> {:ok, Path.join(dest, "#{name}.#{Artifact.ext(pkg)}")}
+      {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
+    end
+  end
+
+  defp make_archive(type, _pkg, _toolchain, _opts) do
+    error_host_os(type)
+  end
+
+  defp error_host_os(type) do
     {:error, """
     Local provider is not available for host system: #{type}
     Please use the Docker provider to build this package artifact
