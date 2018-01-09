@@ -12,7 +12,6 @@ defmodule Nerves.Package.Artifact.Resolver do
   def get(pkg, toolchain, _opts) do
     artifact = "#{Artifact.name(pkg, toolchain)}.#{Artifact.ext(pkg)}"
     urls = pkg.config[:artifact_url]
-    dest = Artifact.dir(pkg, toolchain)
 
     cache_file = cache_file(artifact)
     if File.exists?(cache_file) do

@@ -5,7 +5,6 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   alias Nerves.Package.Artifact.Resolver
 
   def run(opts) do
-    Mix.Project.config() |> IO.inspect
     Mix.shell.info "Resolving Nerves artifacts..."
     Nerves.Env.packages()
     |> Enum.each(&get(&1.app, opts))
