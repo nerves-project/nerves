@@ -216,10 +216,10 @@ defmodule Nerves.Package do
 
   defp provider(config) do
     case config[:nerves_package][:provider] do
+      nil -> provider_type(config[:nerves_package][:type])
       provider -> 
         provider_opts = config[:nerves_package][:provider_opts] || []
         {provider, provider_opts}
-      nil -> provider_type(config[:nerves_package][:type])
     end
   end
 
