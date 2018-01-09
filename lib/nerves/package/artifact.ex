@@ -189,18 +189,18 @@ defmodule Nerves.Package.Artifact do
   def ext(%{type: :toolchain}), do: "tar.xz"
   def ext(_), do: "tar.gz"
 
-  def provider(app, type) do
-    config = Mix.Project.config[:artifacts] || []
-
-    case Keyword.get(config, app) do
-      nil -> provider_mod(type)
-      opts -> provider_opts(opts)
+  def provider(config) do
+    case config[:nerves_package][:provider] do
+      nil -> provider_type(config[:nerves_package][:type])
+      provider -> 
+        provider_opts = config[:nerves_package][:provider_opts] || []
+        {provider, provider_opts}
     end
   end
 
-  defp provider_mod(:system_platform), do: :noop
-  defp provider_mod(:toolchain_platform), do: :noop
-  defp provider_mod(:toolchain) do
+  defp provider_type(:system_platform), do: []
+  defp provider_type(:toolchain_platform), do: []
+  defp provider_type(:toolchain) do
     mod =
       case :os.type do
         {_, :linux} -> Providers.HTTP
@@ -210,24 +210,13 @@ defmodule Nerves.Package.Artifact do
     {mod, []}
   end
 
-  defp provider_mod(_) do
+  defp provider_type(_) do
     mod =
       case :os.type do
         {_, :linux} -> Providers.Local
         _ -> Providers.Docker
       end
     {mod, []}
-  end
-
-  defp provider_opts(mod) when is_atom(mod), do: {mod, []}
-  defp provider_opts(opts) when is_list(opts) do
-    mod =
-      cond do
-        opts[:path] != nil -> Providers.Path
-        opts[:url] != nil -> Providers.HTTP
-        true -> Mix.raise "Invalid artifact options"
-      end
-    {mod, opts}
   end
 
   defp match_checksum?(pkg, toolchain) do

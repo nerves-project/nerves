@@ -43,7 +43,7 @@ defmodule Nerves.Package do
       exit({:shutdown, 1})
     end
     platform = config[:nerves_package][:platform]
-    provider = Artifact.provider(app, type)
+    provider = Artifact.provider(config)
     config = Enum.reject(config[:nerves_package], fn({k, _v}) -> k in @required end)
 
     %Package{
