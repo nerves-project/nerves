@@ -177,7 +177,18 @@ The following keys are supported:
     platform points to the Buildroot defconfig fragment file used to build the
     system.
 
-5.  `checksum`: The list of files for which checksums are calculated and stored
+5.  `provider`: Optional - The provider that should be used to build the artifact.
+    
+    If this key is not defined, Nerves will choose a default provider
+    that should be used to build the artifact based on information about the host
+    computer that you are building on. For example, Mac OS will use
+    `Nerves.Package.Artifact.Providers.Docker` where as Linux will use
+    `Nerves.Package.Artifact.Providers.Local`. Specifying a provider module in 
+    the package config could be used to force the provider.
+
+6.  `provider_opts`: Optional - A keyword list of options to pass to the provider module.
+
+6.  `checksum`: The list of files for which checksums are calculated and stored
     in the artifact cache.
 
     This checksum is used to match the cached Nerves artifact on disk with its
