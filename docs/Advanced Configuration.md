@@ -127,6 +127,81 @@ You can use the `NERVES_APP` environment variable to point to the root of your
 Elixir app. This variable is automatically managed for you by
 `nerves_bootstrap`.
 
+
+### Device Tree Overlays
+
+To add a device tree overlay for your hardware, first define a file-resource for
+the dtbo file inside `fwup.conf`. As with other file overlays, you can use
+absolute paths or environment variables to point to the file location. For
+example, to add support for a Bosch BMP280 I2C sensor on a Raspberry Pi, your new
+file resource will be:
+
+```bash
+# fwup.conf
+
+file-resource i2c-sensor.dtbo {
+    host-path = "${NERVES_SYSTEM}/images/rpi-firmware/overlays/i2c-sensor.dtbo"
+}
+```
+
+Next you need make sure the dtbo file is written to the destination media on
+build and update of your firmware. Add a new `on-resource` declaration for each
+of the three firmware tasks:
+
+```bash
+# fwup.conf
+
+task complete{
+    # ... look for where `on-resource` directives are already defined and add:
+    on-resource i2c-sensor.dtbo {
+        fat_write(${BOOT_A_PART_OFFSET}, "overlays/i2c-sensor.dtbo")
+    }
+}
+
+task upgrade.a {
+    # ...
+    on-resource i2c-sensor.dtbo {
+        fat_write(${BOOT_A_PART_OFFSET}, "overlays/i2c-sensor.dtbo")
+    }
+}
+
+task upgrade.b {
+    # ...
+    on-resource i2c-sensor.dtbo {
+        fat_write(${BOOT_B_PART_OFFSET}, "overlays/i2c-sensor.dtbo")
+    }
+}
+```
+
+Note that the `BOOT_x_PART_OFFSET` variable must match the partition being
+written to for each task.
+
+In order to load your new overlay, you will need to create your own
+`config.txt` and use it instead of the default. Copy `config.txt` from your
+target Nerves system and place it inside your project at `config/config.txt`.
+
+`fwup.conf` now needs to be updated to use this new file. There should already be a
+`file-resource` directive for `config.txt`. Find it and change the `host-path`
+to point at the new location inside you project:
+
+```bash
+# fwup.conf
+
+file-resource config.txt {
+    host-path = "${NERVES_APP}/config/config.txt"
+}
+```
+
+At this point the overlay will be available to load inside `config/config.txt`
+on boot. Follow the documentation for your hardware. For the Bosch BMP280 in our
+example, the configuration will be:
+
+```bash
+# config.txt
+
+dtoverlay=i2c-sensor,bmp280
+```
+
 ## Partitions
 
 Nerves firmware uses Master Boot Record (MBR) partition layout, which only
