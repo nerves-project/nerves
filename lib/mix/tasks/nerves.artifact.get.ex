@@ -21,25 +21,25 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
         Nerves.Utils.Shell.warn("  Skipping #{app}")
     end
   end
-  defp get_artifact(pkg, nil, nil, _), do: 
-    Nerves.Utils.Shell.warn("  Skipping #{pkg.app} (missing url/checksum)")
   defp get_artifact(pkg, nil, _, _), do: 
     Nerves.Utils.Shell.warn("  Skipping #{pkg.app} (missing url)")
-  defp get_artifact(pkg, _, nil, _), do: 
-    Nerves.Utils.Shell.warn("  Skipping #{pkg.app} (missing checksum)")
   defp get_artifact(pkg, _url, checksum, opts) do
     Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
     toolchain = Nerves.Env.toolchain()
     case Resolver.get(pkg, toolchain, opts) do
       {:ok, archive} ->
-        if checksum == Nerves.Package.Artifact.archive_checksum(archive) do
-          destination = Artifact.dir(pkg, toolchain)
-          unpack(archive, destination)
-          Nerves.Utils.Shell.success("  => Success")
-        else
-          Nerves.Utils.Shell.error("  => Error: Checksums do not match")
-          # TODO: Determine if we should toss the file if the checksums do not match
-          #File.rm_rf(archive)
+        case checksum do
+          nil -> 
+            Nerves.Utils.Shell.warn("  => Warning: missing checksum")
+            Nerves.Utils.Shell.success("  => Success")
+          checksum ->
+            if checksum == Nerves.Package.Artifact.archive_checksum(archive) do
+              destination = Artifact.dir(pkg, toolchain)
+              unpack(archive, destination)
+              Nerves.Utils.Shell.success("  => Success")
+            else
+              Nerves.Utils.Shell.error("  => Error: Checksums do not match")
+            end
         end
       {:error, :nocache} ->
         Nerves.Utils.Shell.error("  => Failed to resolve after trying all locations")
