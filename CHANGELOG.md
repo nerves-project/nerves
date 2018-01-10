@@ -1,5 +1,50 @@
 # Release Notes
 
+## Nerves v0.9.0
+
+* Update Notes
+
+Starting in Nerves v0.9.0, artifacts will no longer be fetched during
+`mix compile`. Artifact archives are intended to be fetched following `mix deps.get`.
+To handle this, you will need to update your installed version of `nerves_bootstrap` by
+calling `mix nerves.local`. After updating `nerves_bootstrap`, you should update 
+your `mix.exs` file to add the new required mix aliases found there. A helper 
+function is available named `Nerves.Bootstrap.add_aliases` that you can pipe your 
+existing aliases to like this:
+
+```elixir
+  defp aliases(_target) do
+    [
+      # Add custom mix aliases here
+    ]
+    |> Nerves.Bootstrap.add_aliases()
+  end
+```
+
+Also, update your nerves dependency to:
+
+`{:nerves, "~> 0.9", runtime: false}`
+
+* API Changes
+  * Moved `Nerves.Package.Providers` to `Nerves.Package.Artifact.Providers`
+  * Moved `Nerves.Package.Providers.HTTP` to `Nerves.Package.Artifact.Resolver`
+  * `Nerves.Package.Artifact.Resolver` no longer implements the 
+    `Nerves.Package.Artifact.Provider` behaviour.
+
+* Enhancements
+  * Added Mix task `nerves.artifact.get`. Use to fetch the artifact archive from an
+    `artifact_url` location. Once downloaded its checksum will be checked against
+    `artifact_checksum` from the `nerves_package` config in `mix.exs`. The Mix task
+    `nerves.deps.get` will recursively call `nerves.artifact.get` to fetch archives.
+  * Added Mix task `nerves.artifact.archive`. This task will produce the 
+    artifact archive and artifact checksum file which are used when calling
+    `nerves.artifact.get`.
+  * Nerves packages can override the Provider in the `nerves_package` config
+    in `mix.exs` using the keys `provider` and `provider_opts`. This is
+    useful to force a package to build using a specific provider like 
+    `Nerves.Package.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration) 
+    for more information.
+
 ## Nerves v0.8.3
 
 * Bug Fixes
