@@ -21,6 +21,8 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
         Nerves.Utils.Shell.warn("  Skipping #{app}")
     end
   end
+  defp get_artifact(%{type: :toolchain_platform}, _, _, _), do: :noop
+  defp get_artifact(%{type: :system_platform}, _, _, _), do: :noop
   defp get_artifact(pkg, nil, _, _), do: 
     Nerves.Utils.Shell.warn("  Skipping #{pkg.app} (missing url)")
   defp get_artifact(pkg, _url, checksum, opts) do
