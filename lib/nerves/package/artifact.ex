@@ -31,7 +31,11 @@ defmodule Nerves.Package.Artifact do
     end
   end
 
-  def archive(pkg, toolchain, opts) do
+  @doc """
+  Produces an artifact archive and artifact checksum file which 
+  are used when calling `nerves.artifact.get`.
+  """
+  def archive(%{type: :system} = pkg, toolchain, opts) do
     Mix.shell.info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
     results = 
@@ -47,7 +51,16 @@ defmodule Nerves.Package.Artifact do
 
     File.write!(opts[:checksum_path], archive_checksum(archive_path))
   end
+  def archive(%{type: type}, _toolchain, _opts) do
+    Mix.raise """
+    mix artifact.archive
+    Has not been implemented for #{inspect type} packages. 
+    """
+  end
 
+  @doc """
+  Generate a base64 encoded sha256 sum for the file at the supplied path.
+  """
   def archive_checksum(archive_path) do
     archive = File.read!(archive_path)
     :crypto.hash(:sha256, archive)
@@ -55,7 +68,7 @@ defmodule Nerves.Package.Artifact do
   end
 
   @doc """
-  Cleans the artifacts for the package providers of all packages
+  Cleans the artifacts for the package providers of all packages.
   """
   @spec clean(Nerves.Package.t) :: :ok | {:error, term}
   def clean(pkg) do
@@ -81,7 +94,7 @@ defmodule Nerves.Package.Artifact do
   @doc """
   Get the artifact name
 
-  Requires the package and toolchain package to be supplied
+  Requires the package and toolchain package to be supplied.
   """
   @spec name(Nerves.Package.t, Nerves.Package.t) :: String.t
   def name(pkg, toolchain) do
@@ -104,7 +117,7 @@ defmodule Nerves.Package.Artifact do
   to the NERVES_ARTIFACT_DIR or if undefined, `~/.nerves/artifacts`
 
   Packages which were obtained through other Mix SCM's such as path will
-  have a base_dir local to the package path
+  have a base_dir local to the package path.
   """
   @spec base_dir(Nerves.Package.t) :: String.t
   def base_dir(pkg) do
@@ -135,7 +148,7 @@ defmodule Nerves.Package.Artifact do
   end
 
   @doc """
-  The full path to the artifact
+  The full path to the artifact.
   """
   @spec dir(Nerves.Package.t, Nerves.Package.t) :: String.t
   def dir(pkg, toolchain) do
@@ -157,7 +170,7 @@ defmodule Nerves.Package.Artifact do
   end
 
   @doc """
-  Check to see if the artifact path is being set from the system env
+  Check to see if the artifact path is being set from the system env.
   """
   @spec env_var?(Nerves.Package.t) :: boolean
   def env_var?(pkg) do
@@ -167,7 +180,7 @@ defmodule Nerves.Package.Artifact do
   end
 
   @doc """
-  Determine the environment variable which would be set to override the path
+  Determine the environment variable which would be set to override the path.
   """
   @spec env_var(Nerves.Package.t) :: String.t
   def env_var(pkg) do
@@ -183,7 +196,7 @@ defmodule Nerves.Package.Artifact do
 
   @doc """
   Determines the extension for an artifact based off its type.
-  Toolchains use xz compression
+  Toolchains use xz compression.
   """
   @spec ext(Nerves.Package.t) :: String.t
   def ext(%{type: :toolchain}), do: "tar.xz"
@@ -198,17 +211,9 @@ defmodule Nerves.Package.Artifact do
     end
   end
 
-  defp provider_type(:system_platform), do: []
-  defp provider_type(:toolchain_platform), do: []
-  defp provider_type(:toolchain) do
-    mod =
-      case :os.type do
-        {_, :linux} -> Providers.HTTP
-        {_, :darwin} -> Providers.HTTP
-        _ -> Providers.Docker
-      end
-    {mod, []}
-  end
+  defp provider_type(:system_platform), do: nil
+  defp provider_type(:toolchain_platform), do: nil
+  defp provider_type(:toolchain), do: {Providers.Docker, []}
 
   defp provider_type(_) do
     mod =
