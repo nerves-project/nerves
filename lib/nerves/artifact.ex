@@ -150,7 +150,7 @@ defmodule Nerves.Artifact do
       System.get_env(env_var(pkg)) |> Path.expand
     else
       base_dir()
-      |> Path.join(name(pkg))
+      |> Path.join(Cache.name(pkg))
     end
   end
 
