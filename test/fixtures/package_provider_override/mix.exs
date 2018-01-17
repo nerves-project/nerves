@@ -16,7 +16,7 @@ defmodule Package.Fixture.Mixfile do
   defp nerves_package do
     [
       type: :package,
-      provider: Nerves.Package.Artifact.Providers.Docker,
+      provider: Nerves.Artifact.Providers.Docker,
       platform: Nerves.System.BR,
       platform_config: [
         defconfig: "nerves_defconfig",

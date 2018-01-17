@@ -9,4 +9,9 @@ defmodule Nerves.Utils do
     |> to_string
   end
 
+  def untar(file, destination \\ nil) do
+    destination = destination || File.cwd!
+    System.cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
+  end
+  
 end

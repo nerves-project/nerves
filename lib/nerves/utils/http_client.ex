@@ -47,30 +47,29 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def handle_info({:http, {_, :stream_start, headers}}, s) do
-    {_, content_length} =
-      headers
-      |> Enum.find(fn({key, _}) -> key == 'content-length' end)
+    content_length = 
+      case Enum.find(headers, fn({key, _}) -> key == 'content-length' end) do
+        nil -> 0
+        {_, content_length} ->
+          {content_length, _} =
+            content_length
+            |> to_string()
+            |> Integer.parse()
+          content_length
+      end
 
-    {content_length, _} =
-      content_length
-      |> to_string()
-      |> Integer.parse()
-
-    cd = headers
-         |> Enum.find(fn({key, _}) -> key == 'content-disposition' end)
-
-    filename = case cd do
-      nil ->
-        Path.basename(s.url)
-      {_, filename} ->
-        filename
-        |> to_string
-        |> String.split(";")
-        |> List.last
-        |> String.trim
-        |> String.trim("filename=")
-    end
-
+    filename = 
+      case Enum.find(headers, fn({key, _}) -> key == 'content-disposition' end) do
+        nil -> Path.basename(s.url)
+        {_, filename} -> 
+          filename
+          |> to_string
+          |> String.split(";")
+          |> List.last
+          |> String.trim
+          |> String.trim("filename=")
+      end
+    
     {:noreply, %{s | content_length: content_length, filename: filename}}
   end
 
@@ -97,8 +96,9 @@ defmodule Nerves.Utils.HTTPClient do
         GenServer.reply(s.caller, {:error, status_code})
     end
   end
-  def handle_info({:http, {error, _headers}}, s) do
-    GenServer.reply(s.caller, {:error, error})
+  def handle_info({:http, {_ref, {{_, status_code, reason}, _headers, _body}}}, s) do
+    reason = "Status #{to_string(status_code)} #{to_string(reason)}"
+    GenServer.reply(s.caller, {:error, reason})
     {:noreply, s}
   end
 

@@ -1,6 +1,6 @@
-defmodule Nerves.Package.Artifact.Providers.Docker.Volume do
-  alias Nerves.Package.Artifact
-  alias Nerves.Package.Artifact.Providers.Docker
+defmodule Nerves.Artifact.Providers.Docker.Volume do
+  alias Nerves.Artifact
+  alias Nerves.Artifact.Providers.Docker
   import Docker.Utils
 
   def name(pkg) do
@@ -21,7 +21,7 @@ defmodule Nerves.Package.Artifact.Providers.Docker.Volume do
   end
 
   def id_file(pkg) do
-    Artifact.base_dir(pkg)
+    Artifact.build_path(pkg)
     |> Path.join(".docker_id")
   end
 

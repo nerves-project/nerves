@@ -1,8 +1,8 @@
 defmodule Nerves.ArtifactTest do
   use NervesTest.Case, async: false
 
-  alias Nerves.Package.Artifact.Providers, as: P
-  alias Nerves.Package.Artifact
+  alias Nerves.Artifact.Providers, as: P
+  alias Nerves.Artifact
   alias Nerves.Env
 
   test "Fetch provider overrides" do
@@ -60,19 +60,11 @@ defmodule Nerves.ArtifactTest do
     end
   end
 
-  @tag :skip
-  test "tar file error detection" do
-      pkg =
-      %Nerves.Package{app: :nerves_system_rpi3,
-                      config: [artifact_url: ["https://github.com/nerves-project/nerves_system_rpi3/releases/download/v0.10.0/nerves_system_rpi3-v0.10.0.fw"],
-                               platform_config: [defconfig: "nerves_defconfig"],
-                               checksum: []],
-                      dep: :hex,
-                      path: "",
-                      provider: [{Nerves.Package.Artifact.Providers.HTTP, []}],
-                      type: :system,
-                      version: "0.10.0"}
-
-      assert  :error  == Nerves.Package.artifact(pkg, %Nerves.Package{})
+  test "parse name from regex" do
+    {:ok, values} = Artifact.parse_name("package-name-portable-0.12.2-ABCDEF1234567890")
+    assert String.equivalent?(values.app, "package-name")
+    assert String.equivalent?(values.host_tuple, "portable")
+    assert String.equivalent?(values.version, "0.12.2")
+    assert String.equivalent?(values.checksum, "ABCDEF1234567890")
   end
 end

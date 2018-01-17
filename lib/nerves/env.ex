@@ -8,7 +8,7 @@ defmodule Nerves.Env do
   about Nerves compile time dependencies before any code is compiled.
   """
 
-  alias Nerves.Package
+  alias Nerves.{Package, Artifact}
 
   @doc """
   Starts the Nerves environment agent and loads package information.
@@ -85,7 +85,7 @@ defmodule Nerves.Env do
   """
   @spec clean([Nerves.Package.t]) :: :ok | {:error, term}
   def clean(pkgs) do
-    Enum.each(pkgs, &Package.Artifact.clean/1)
+    Enum.each(pkgs, &Artifact.clean/1)
   end
 
   @doc """
@@ -155,15 +155,15 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Returns the platform for the host system.
+  Returns the os for the host system.
 
   ## Example return values
     "win"
     "linux"
     "darwin"
   """
-  @spec host_platform() :: String.t
-  def host_platform() do
+  @spec host_os() :: String.t
+  def host_os() do
     :erlang.system_info(:system_architecture)
     |> to_string
     |> parse_platform
@@ -336,7 +336,8 @@ defmodule Nerves.Env do
     case Nerves.Env.toolchain do
       nil -> nil
       toolchain ->
-        Nerves.Package.Artifact.dir(toolchain, toolchain)
+        Nerves.Artifact.Cache.get(toolchain) || 
+        Nerves.Artifact.build_path(toolchain)
     end
   end
   @doc false
@@ -344,8 +345,8 @@ defmodule Nerves.Env do
     case Nerves.Env.system do
       nil -> nil
       system ->
-        toolchain = Nerves.Env.toolchain
-        Nerves.Package.Artifact.dir(system, toolchain)
+        Nerves.Artifact.Cache.get(system) || 
+        Nerves.Artifact.build_path(system)
     end
   end
 

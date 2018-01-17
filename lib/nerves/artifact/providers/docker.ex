@@ -1,4 +1,4 @@
-defmodule Nerves.Package.Artifact.Providers.Docker do
+defmodule Nerves.Artifact.Providers.Docker do
   @moduledoc """
   Produce an artifact for a package using Docker.
 
@@ -56,10 +56,10 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
   the packages defined artifact directory.
   """
 
-  @behaviour Nerves.Package.Artifact.Provider
+  @behaviour Nerves.Artifact.Provider
 
-  alias Nerves.Package.Artifact
-  alias Nerves.Package.Artifact.Providers.Docker
+  alias Nerves.Artifact
+  alias Nerves.Artifact.Providers.Docker
   import Docker.Utils
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or ~> 17.0"
@@ -73,7 +73,7 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
   Create an artifact for the package
   """
   @spec build(Nerves.Package.t, Nerves.Package.t, term) :: :ok
-  def build(pkg, toolchain, _opts) do
+  def build(pkg, _toolchain, _opts) do
     preflight(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
@@ -82,29 +82,28 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
     :ok = create_build(pkg, stream)
     :ok = make(pkg, stream)
     Mix.shell.info("\n")
-    :ok = make_artifact(pkg, toolchain, stream)
+    :ok = make_artifact(pkg, stream)
     Mix.shell.info("\n")
-    {:ok, archive} = copy_artifact(pkg, toolchain, stream)
-    {:ok, path} = expand_archive(pkg, toolchain, archive)
-    File.rm!(archive)
+    {:ok, archive} = copy_artifact(pkg, stream)
+    {:ok, path} = Artifact.Cache.put(pkg, archive)
     Mix.shell.info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
     {:ok, path}
   end
 
   @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: :ok
-  def archive(pkg, toolchain, _opts) do
+  def archive(pkg, _toolchain, _opts) do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
     stream = IO.stream(pid, :line)
 
-    make_artifact(pkg, toolchain, stream)
-    copy_artifact(pkg, toolchain, stream)
+    make_artifact(pkg, stream)
+    copy_artifact(pkg, stream)
   end
 
   def clean(pkg) do
     Docker.Volume.name(pkg)
     |> Docker.Volume.delete()
-    Artifact.base_dir(pkg)
+    Artifact.Cache.path(pkg)
     |> File.rm_rf
   end
 
@@ -152,8 +151,8 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
     run(pkg, ["make"], stream)
   end
 
-  defp make_artifact(pkg, toolchain, stream) do
-    name = Artifact.name(pkg, toolchain)
+  defp make_artifact(pkg, stream) do
+    name = Artifact.name(pkg)
     shell_info "Creating artifact archive"
     cmd = [
       "make",
@@ -162,39 +161,17 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
     run(pkg, cmd, stream)
   end
 
-  defp copy_artifact(pkg, toolchain, stream) do
+  defp copy_artifact(pkg, stream) do
     shell_info "Copying artifact archive to host"
-    name = Artifact.name(pkg, toolchain)
-
+    name = Artifact.name(pkg) <> Artifact.ext(pkg)
     cmd = [
       "cp",
-      "#{name}.tar.gz",
-      "/nerves/host/artifacts/#{name}.tar.gz"]
+      name,
+      "/nerves/host/artifacts/#{name}"]
 
     run(pkg, cmd, stream)
-    base_dir = Artifact.base_dir(pkg)
-    {:ok, Path.join(base_dir, "#{Artifact.name(pkg, toolchain)}.tar.gz")}
-  end
-
-  defp expand_archive(pkg, toolchain, archive) do
-    shell_info "Expanding artifact archive"
-    base_dir = Artifact.base_dir(pkg)
-    
-    if File.exists?(archive) do
-      dir = Artifact.dir(pkg, toolchain)
-      File.rm_rf(dir)
-      File.mkdir_p(dir)
-
-      cwd = base_dir
-      |> String.to_charlist
-      
-      String.to_charlist(archive)
-      |> :erl_tar.extract([:compressed, {:cwd, cwd}])
-
-      {:ok, dir}
-    else
-      Mix.raise "Nerves Docker provider expected artifact to exist at #{archive}"
-    end
+    path = Path.join(name, Nerves.Env.download_dir())
+    {:ok, path}
   end
 
   # Helpers
@@ -221,7 +198,6 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
 
   defp mounts(pkg) do
     build_paths = build_paths(pkg)
-    base_dir = Artifact.base_dir(pkg)
     build_volume = Docker.Volume.name(pkg)
     download_dir = Nerves.Env.download_dir() |> Path.expand()
     mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
@@ -229,7 +205,6 @@ defmodule Nerves.Package.Artifact.Providers.Docker do
       Enum.reduce(build_paths, mounts, fn({_, host,target}, acc) ->
         ["--mount", "type=bind,src=#{host},target=#{target}" | acc]
       end)
-    mounts = ["--mount", "type=bind,src=#{base_dir},target=/nerves/host/artifacts" | mounts]
     mounts = ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl" | mounts]
     ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
   end

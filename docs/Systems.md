@@ -182,8 +182,8 @@ The following keys are supported:
     If this key is not defined, Nerves will choose a default provider
     that should be used to build the artifact based on information about the host
     computer that you are building on. For example, Mac OS will use
-    `Nerves.Package.Artifact.Providers.Docker` where as Linux will use
-    `Nerves.Package.Artifact.Providers.Local`. Specifying a provider module in 
+    `Nerves.Artifact.Providers.Docker` where as Linux will use
+    `Nerves.Artifact.Providers.Local`. Specifying a provider module in 
     the package config could be used to force the provider.
 
 6.  `provider_opts`: Optional - A keyword list of options to pass to the provider module.

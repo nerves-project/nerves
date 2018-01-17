@@ -32,11 +32,11 @@ to be a "10,000 ft" overview.
       * Nerves.Env.bootstrap()
         * system_path()
           * Nerves.Env.system()
-            * Nerves.Package.Artifact.dir()
+            * Nerves.Artifact.dir()
               * System.get_env(env_var(pkg)) NERVES_SYSTEM
         * toolchain_path()
           * Nerves.Env.toolchain()
-            * Nerves.Package.Artifact.dir()
+            * Nerves.Artifact.dir()
               * System.get_env(env_var(pkg)) NERVES_TOOLCHAIN
         * platform.bootstrap(pkg) Nerves.Env.system.platform ||Nerves.Env.system.config[:build_platform]
           * nerves_env.exs Nerves.System.BR
@@ -44,9 +44,9 @@ to be a "10,000 ft" overview.
 
 ### nerves_package
   * Nerves.Env.start
-  * Nerves.Env.enabled? and Nerves.Package.Artifact.stale?(package, toolchain)
+  * Nerves.Env.enabled? and Nerves.Artifact.stale?(package)
     * Nerves.Package.artifact(package, toolchain)
-      * pkg.provider.artifact(pkg, toolchain, opts) [Nerves.Package.Artifact.Providers.HTTP, Nerves.Package.Artifact.Providers.Local]
+      * pkg.provider.artifact(pkg, toolchain, opts) [Nerves.Artifact.Providers.HTTP, Nerves.Artifact.Providers.Local]
 * firmware
 
 # Key Files/Variables
