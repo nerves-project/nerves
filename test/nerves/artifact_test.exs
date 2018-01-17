@@ -22,10 +22,9 @@ defmodule Nerves.ArtifactTest do
 
       _ = load_env(packages)
       system = Env.package(:system)
-      toolchain = Env.package(:toolchain)
-      target_tuple = toolchain.config[:target_tuple]
-      artifact_dir = Artifact.dir(system, toolchain)
-      artifact_file = "#{system.app}-#{system.version}.#{target_tuple}"
+      host_tuple = Artifact.host_tuple(system)
+      artifact_dir = Artifact.dir(system)
+      artifact_file = "#{system.app}-#{host_tuple}-#{system.version}"
       assert String.ends_with?(artifact_dir, artifact_file)
     end
   end
@@ -52,8 +51,8 @@ defmodule Nerves.ArtifactTest do
 
       _ = load_env(packages)
 
-      assert Artifact.dir(Env.system, Env.toolchain) == system_path
-      assert Artifact.dir(Env.toolchain, Env.toolchain) == toolchain_path
+      assert Artifact.dir(Env.system) == system_path
+      assert Artifact.dir(Env.toolchain) == toolchain_path
 
       System.delete_env("NERVES_SYSTEM")
       System.delete_env("NERVES_TOOLCHAIN")
