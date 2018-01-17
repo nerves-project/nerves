@@ -1,4 +1,4 @@
-defmodule Nerves.Package.Artifact.Provider do
+defmodule Nerves.Artifact.Provider do
   @moduledoc """
   Defines the Nerves package provider behaviour
 

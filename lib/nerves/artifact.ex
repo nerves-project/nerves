@@ -1,16 +1,16 @@
-defmodule Nerves.Package.Artifact do
+defmodule Nerves.Artifact do
   @moduledoc """
   Package artifacts are the product of compiling a package with a
   specific toolchain.
 
   """
-  alias Nerves.Package.Artifact.Providers
+  alias Nerves.Artifact.{Cache, Providers}
 
   @base_dir Path.expand("~/.nerves/artifacts")
-  @checksum "CHECKSUM"
+  
 
   @doc """
-  Builds the package and produces an  See Nerves.Package.Artifact
+  Builds the package and produces an  See Nerves.Artifact
   for more information.
   """
   @spec build(Nerves.Package.t, Nerves.Package.t) :: :ok
@@ -19,8 +19,7 @@ defmodule Nerves.Package.Artifact do
       {provider, opts} ->
         case provider.build(pkg, toolchain, opts) do
           {:ok, path} ->
-            Path.join(path, @checksum)
-            |> File.write!(checksum(pkg))
+            Cache.put(pkg, path)
           {:error, error} ->
             Mix.raise """
             Nerves encountered an error while constructing the artifact
@@ -32,39 +31,30 @@ defmodule Nerves.Package.Artifact do
   end
 
   @doc """
-  Produces an artifact archive and artifact checksum file which 
-  are used when calling `nerves.artifact.get`.
+  Produces an artifact which can be fetched when calling `nerves.artifact.get`.
   """
-  def archive(%{type: :system} = pkg, toolchain, opts) do
+  def archive(%{type: type} = pkg, toolchain, opts) when type in [:toolchain, :system] do
     Mix.shell.info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
-    results = 
-      Enum.map(pkg.provider, fn({provider, _}) -> provider.archive(pkg, toolchain, opts) end)
+    case pkg.provider do
+      {provider, _opts} ->
+        {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
 
-    {:ok, archive_path} = Enum.find(results, fn
-      ({:ok, _}) -> true 
-      _ -> false
-    end)
-    if opts[:path] != archive_path do
-      File.cp!(archive_path, opts[:path])
+        if opts[:path] != archive_path do
+          File.cp!(archive_path, opts[:path])
+        end
+        {:ok, archive_path}
+      _ ->
+        Mix.shell.info("No provider specified for #{pkg.app}")
+        :noop
     end
-
-    File.write!(opts[:checksum_path], archive_checksum(archive_path))
+    
   end
   def archive(%{type: type}, _toolchain, _opts) do
     Mix.raise """
-    mix artifact.archive
+    mix artifact
     Has not been implemented for #{inspect type} packages. 
     """
-  end
-
-  @doc """
-  Generate a base64 encoded sha256 sum for the file at the supplied path.
-  """
-  def archive_checksum(archive_path) do
-    archive = File.read!(archive_path)
-    :crypto.hash(:sha256, archive)
-    |> Base.encode16
   end
 
   @doc """
@@ -73,62 +63,66 @@ defmodule Nerves.Package.Artifact do
   @spec clean(Nerves.Package.t) :: :ok | {:error, term}
   def clean(pkg) do
     Mix.shell.info("Cleaning Nerves Package #{pkg.app}")
-    Enum.each(pkg.provider, fn({provider, _}) -> provider.clean(pkg) end)
+    case pkg.provider do
+      {provider, _opts} ->
+        provider.clean(pkg)
+      _ ->
+        Mix.shell.info("No provider specified for #{pkg.app}")
+        :noop
+    end
   end
 
   @doc """
   Determines if the artifact for a package is stale and needs to be rebuilt.
   """
-  @spec stale?(Nerves.Package.t, Nerves.Package.t) :: boolean
-  def stale?(pkg, toolchain) do
+  @spec stale?(Nerves.Package.t) :: boolean
+  def stale?(pkg) do
     if env_var?(pkg) do
       false
     else
-      exists = exists?(pkg, toolchain)
-      checksum = match_checksum?(pkg, toolchain)
-
-      !(exists and checksum)
+      !Cache.valid?(pkg)
     end
   end
 
   @doc """
   Get the artifact name
-
-  Requires the package and toolchain package to be supplied.
   """
-  @spec name(Nerves.Package.t, Nerves.Package.t) :: String.t
-  def name(pkg, toolchain) do
-    target_tuple =
-      case pkg.type do
-        :toolchain ->
-          Nerves.Env.host_platform <> "-" <>
-          Nerves.Env.host_arch
-        _ ->
-        toolchain.config[:target_tuple]
-        |> to_string
-      end
-    "#{pkg.app}-#{pkg.version}.#{target_tuple}"
+  @spec name(Nerves.Package.t) :: String.t
+  def name(pkg) do
+    "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg)}"
+  end
+  
+  def parse_name(name) when is_binary(name) do
+    name = Regex.run(~r/(.*)-([^-]*)-(.*)-([^-]*)/, name)
+    case name do
+      [_, app, host_tuple, version, checksum] ->
+        {:ok, %{
+          app: app, 
+          host_tuple: host_tuple,
+          checksum: checksum,
+          version: version
+        }}
+      _->
+        {:error, "Unable to parse artifact name #{name}"}
+    end
   end
 
   @doc """
   Get the base dir for where an artifact for a package should be stored.
 
-  If a package is pulled in from hex, the base dir for an artifact will point
+  The base dir for an artifact will point
   to the NERVES_ARTIFACT_DIR or if undefined, `~/.nerves/artifacts`
-
-  Packages which were obtained through other Mix SCM's such as path will
-  have a base_dir local to the package path.
   """
-  @spec base_dir(Nerves.Package.t) :: String.t
-  def base_dir(pkg) do
-    case pkg.dep do
-      local when local in [:path, :project] ->
-        pkg.path
-        |> Path.join(".nerves/artifacts")
-      _ ->
-        System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
-    end
+  @spec base_dir() :: String.t
+  def base_dir() do
+    System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
+  end
 
+  def build_path(pkg) do
+    pkg.path
+    |> Path.join(".nerves")
+    |> Path.join("artifacts")
+    |> Path.join(Cache.name(pkg))
   end
 
   @doc """
@@ -150,23 +144,14 @@ defmodule Nerves.Package.Artifact do
   @doc """
   The full path to the artifact.
   """
-  @spec dir(Nerves.Package.t, Nerves.Package.t) :: String.t
-  def dir(pkg, toolchain) do
+  @spec dir(Nerves.Package.t) :: String.t
+  def dir(pkg) do
     if env_var?(pkg) do
       System.get_env(env_var(pkg)) |> Path.expand
     else
-      base_dir(pkg)
-      |> Path.join(name(pkg, toolchain))
+      base_dir()
+      |> Path.join(name(pkg))
     end
-  end
-
-  @doc """
-  Determines if an artifact exists at its artifact dir.
-  """
-  @spec exists?(Nerves.Package.t, Nerves.Package.t) :: boolean
-  def exists?(pkg, toolchain) do
-    dir(pkg, toolchain)
-    |> File.dir?
   end
 
   @doc """
@@ -194,13 +179,39 @@ defmodule Nerves.Package.Artifact do
     end
   end
 
+  def expand_sites(pkg) do
+    case pkg.config[:artifact_url] do
+      nil -> 
+        Keyword.get(pkg.config, :artifact_sites, [])
+        |> Enum.map(&expand_site(&1, pkg))
+      url when is_binary(url) -> url
+      _invalid -> 
+        Mix.raise "Invalid artifact_url. Please use artifact_sites instead"
+    end
+  end
+
+  def download_path(pkg) do
+    name = name(pkg) <> ext(pkg)
+    Nerves.Env.download_dir()
+    |> Path.join(name)
+    |> Path.expand
+  end
+
+  def host_tuple(%{type: :toolchain}) do 
+    Nerves.Env.host_os <> "_" <>
+    Nerves.Env.host_arch
+  end  
+  def host_tuple(_pkg) do
+    "portable"
+  end 
+
   @doc """
   Determines the extension for an artifact based off its type.
   Toolchains use xz compression.
   """
   @spec ext(Nerves.Package.t) :: String.t
-  def ext(%{type: :toolchain}), do: "tar.xz"
-  def ext(_), do: "tar.gz"
+  def ext(%{type: :toolchain}), do: ".tar.xz"
+  def ext(_), do: ".tar.gz"
 
   def provider(config) do
     case config[:nerves_package][:provider] do
@@ -213,7 +224,7 @@ defmodule Nerves.Package.Artifact do
 
   defp provider_type(:system_platform), do: nil
   defp provider_type(:toolchain_platform), do: nil
-  defp provider_type(:toolchain), do: {Providers.Docker, []}
+  defp provider_type(:toolchain), do: {Providers.Local, []}
 
   defp provider_type(_) do
     mod =
@@ -222,18 +233,6 @@ defmodule Nerves.Package.Artifact do
         _ -> Providers.Docker
       end
     {mod, []}
-  end
-
-  defp match_checksum?(pkg, toolchain) do
-    artifact_checksum =
-      Path.join(dir(pkg, toolchain), @checksum)
-      |> File.read
-    case artifact_checksum do
-      {:ok, checksum} ->
-        checksum == checksum(pkg)
-      _ ->
-        false
-    end
   end
 
   defp expand_paths(paths, dir) do
@@ -246,7 +245,7 @@ defmodule Nerves.Package.Artifact do
     |> Enum.map(&Path.expand/1)
     |> Enum.filter(&File.regular?/1)
     |> Enum.uniq
-    |> Enum.map(&Path.relative_to(&1, expand_dir))
+    
   end
 
   defp dir_files(path) do
@@ -258,10 +257,15 @@ defmodule Nerves.Package.Artifact do
   end
 
   defp default_archive_opts(pkg, opts) do
-    name = opts[:name] || "#{pkg.app}-v#{pkg.version}.#{ext(pkg)}"
+    name = name(pkg) <> ext(pkg)
     opts
     |> Keyword.put_new(:name, name)
     |> Keyword.put_new(:path, Path.join(File.cwd!(), name))
-    |> Keyword.put_new(:checksum_path, Path.join(File.cwd!(), "ARTIFACT_CHECKSUM"))
   end
+
+  defp expand_site({:github_releases, org_proj}, pkg) do
+    "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/#{name(pkg)}"
+  end
+  defp expand_site(loc, _pkg) when is_binary(loc), do: loc
+
 end

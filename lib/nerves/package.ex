@@ -10,7 +10,7 @@ defmodule Nerves.Package do
   defstruct [app: nil, path: nil, dep: nil, type: nil, version: nil, platform: nil, provider: nil, config: []]
 
   alias __MODULE__
-  alias Nerves.Package.Artifact
+  alias Nerves.Artifact
 
   @type t :: %__MODULE__{app: atom,
                         path: binary,
@@ -130,8 +130,6 @@ defmodule Nerves.Package do
       end
     Keyword.put(project_config, :nerves_package, nerves_package)
   end
-
-  
 
   defp load_nerves_config(path) do
     config_path(path)

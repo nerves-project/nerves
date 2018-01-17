@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves v0.9.0
+## Nerves v0.9.0-dev
 
 * Update Notes
 
@@ -26,10 +26,10 @@ Also, update your nerves dependency to:
 `{:nerves, "~> 0.9", runtime: false}`
 
 * API Changes
-  * Moved `Nerves.Package.Providers` to `Nerves.Package.Artifact.Providers`
-  * Moved `Nerves.Package.Providers.HTTP` to `Nerves.Package.Artifact.Resolver`
-  * `Nerves.Package.Artifact.Resolver` no longer implements the 
-    `Nerves.Package.Artifact.Provider` behaviour.
+  * Moved `Nerves.Package.Providers` to `Nerves.Artifact.Providers`
+  * Moved `Nerves.Package.Providers.HTTP` to `Nerves.Artifact.Resolver`
+  * `Nerves.Artifact.Resolver` no longer implements the 
+    `Nerves.Artifact.Provider` behaviour.
 
 * Enhancements
   * Added Mix task `nerves.artifact.get`. Use to fetch the artifact archive from an
@@ -42,7 +42,7 @@ Also, update your nerves dependency to:
   * Nerves packages can override the Provider in the `nerves_package` config
     in `mix.exs` using the keys `provider` and `provider_opts`. This is
     useful to force a package to build using a specific provider like 
-    `Nerves.Package.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration) 
+    `Nerves.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration) 
     for more information.
 
 ## Nerves v0.8.3
