@@ -20,7 +20,7 @@ defmodule Nerves.Artifact.Cache do
     else
       File.rm_rf!(dest)
       File.mkdir_p!(dest)
-      File.cp_r!(path, dest)
+      File.ln_s!(path, dest)
     end
     Path.join(dest, @checksum)
     |> File.write(Artifact.checksum(pkg))
