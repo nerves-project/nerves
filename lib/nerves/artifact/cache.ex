@@ -41,17 +41,9 @@ defmodule Nerves.Artifact.Cache do
     end
   end
 
-  @doc """
-  Get the cache name
-  """
-  @spec name(Nerves.Package.t) :: String.t
-  def name(pkg) do
-    "#{pkg.app}-#{Artifact.host_tuple(pkg)}-#{pkg.version}"
-  end
-
   def path(pkg) do
     Artifact.base_dir()
-    |> Path.join(name(pkg))
+    |> Path.join(Artifact.name(pkg))
     |> Path.expand
   end
 

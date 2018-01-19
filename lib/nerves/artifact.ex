@@ -89,10 +89,18 @@ defmodule Nerves.Artifact do
   """
   @spec name(Nerves.Package.t) :: String.t
   def name(pkg) do
+    "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}"
+  end
+
+  @doc """
+  Get the artifact download name
+  """
+  @spec download_name(Nerves.Package.t) :: String.t
+  def download_name(pkg) do
     "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg)}"
   end
   
-  def parse_name(name) when is_binary(name) do
+  def parse_download_name(name) when is_binary(name) do
     name = Regex.run(~r/(.*)-([^-]*)-(.*)-([^-]*)/, name)
     case name do
       [_, app, host_tuple, version, checksum] ->
@@ -122,7 +130,7 @@ defmodule Nerves.Artifact do
     pkg.path
     |> Path.join(".nerves")
     |> Path.join("artifacts")
-    |> Path.join(Cache.name(pkg))
+    |> Path.join(name(pkg))
   end
 
   @doc """
@@ -150,7 +158,7 @@ defmodule Nerves.Artifact do
       System.get_env(env_var(pkg)) |> Path.expand
     else
       base_dir()
-      |> Path.join(Cache.name(pkg))
+      |> Path.join(name(pkg))
     end
   end
 
