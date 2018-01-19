@@ -59,8 +59,8 @@ defmodule Nerves.ArtifactTest do
     end
   end
 
-  test "parse name from regex" do
-    {:ok, values} = Artifact.parse_name("package-name-portable-0.12.2-ABCDEF1234567890")
+  test "parse artifact download name from regex" do
+    {:ok, values} = Artifact.parse_download_name("package-name-portable-0.12.2-ABCDEF1234567890")
     assert String.equivalent?(values.app, "package-name")
     assert String.equivalent?(values.host_tuple, "portable")
     assert String.equivalent?(values.version, "0.12.2")
