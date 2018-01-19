@@ -2,15 +2,16 @@ defmodule Package.Fixture.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
-           |> File.read!
-           |> String.trim
+    |> File.read!
+    |> String.trim
 
   def project do
-    [app: :package,
-     version: @version,
-     compilers: Mix.compilers ++ [:nerves_package],
-     nerves_package: nerves_package(),
-     deps: deps()]
+    [ app: :package,
+      version: @version,
+      compilers: Mix.compilers ++ [:nerves_package],
+      nerves_package: nerves_package(),
+      deps: deps()
+    ]
   end
 
   defp nerves_package do
