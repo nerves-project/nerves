@@ -56,16 +56,21 @@ defmodule Nerves.Utils.HTTPClient do
       |> to_string()
       |> Integer.parse()
 
-    {_, filename} =
-      headers
-      |> Enum.find(fn({key, _}) -> key == 'content-disposition' end)
-    filename =
-      filename
-      |> to_string
-      |> String.split(";")
-      |> List.last
-      |> String.trim
-      |> String.trim("filename=")
+    cd = headers
+         |> Enum.find(fn({key, _}) -> key == 'content-disposition' end)
+
+    filename = case cd do
+      nil ->
+        Path.basename(s.url)
+      {_, filename} ->
+        filename
+        |> to_string
+        |> String.split(";")
+        |> List.last
+        |> String.trim
+        |> String.trim("filename=")
+    end
+
     {:noreply, %{s | content_length: content_length, filename: filename}}
   end
 
