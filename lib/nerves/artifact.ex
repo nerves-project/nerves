@@ -192,7 +192,8 @@ defmodule Nerves.Artifact do
       nil -> 
         Keyword.get(pkg.config, :artifact_sites, [])
         |> Enum.map(&expand_site(&1, pkg))
-      url when is_binary(url) -> url
+      urls when is_list(urls) -> 
+        urls
       _invalid -> 
         Mix.raise "Invalid artifact_url. Please use artifact_sites instead"
     end
