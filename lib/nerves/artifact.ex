@@ -273,7 +273,7 @@ defmodule Nerves.Artifact do
   end
 
   defp expand_site({:github_releases, org_proj}, pkg) do
-    "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/#{name(pkg)}"
+    "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/#{download_name(pkg)}#{ext(pkg)}"
   end
   defp expand_site(loc, _pkg) when is_binary(loc), do: loc
 
