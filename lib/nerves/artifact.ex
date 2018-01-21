@@ -266,7 +266,7 @@ defmodule Nerves.Artifact do
   end
 
   defp default_archive_opts(pkg, opts) do
-    name = name(pkg) <> ext(pkg)
+    name = download_name(pkg) <> ext(pkg)
     opts
     |> Keyword.put_new(:name, name)
     |> Keyword.put_new(:path, Path.join(File.cwd!(), name))
