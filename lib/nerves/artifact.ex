@@ -133,6 +133,15 @@ defmodule Nerves.Artifact do
     |> Path.join(name(pkg))
   end
 
+  def build_path_link(pkg) do
+    case pkg.platform do
+      platform when is_atom(platform) ->
+        platform.build_path_link(pkg)
+      _ ->
+        build_path(pkg)
+    end
+  end
+
   @doc """
   Produce a base16 encoded checksum for the package from the list of files
   and expanded folders listed in the checksum config key.
