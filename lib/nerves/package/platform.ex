@@ -5,6 +5,9 @@ defmodule Nerves.Package.Platform do
 
   @callback bootstrap(Nerves.Package.t) ::
     :ok | {:error, error :: term}
+  
+  @callback build_path_link(package :: Nerves.Package.t) ::
+    build_path_link :: String.t
 
   defmacro __using__(_) do
     quote do

@@ -32,12 +32,12 @@ defmodule Nerves.Artifact.Cache do
   end
 
   def valid?(pkg) do
-    case read_checksum(pkg) do
-      nil -> false
+    path = checksum_path(pkg)
+    case read_checksum(path) do
+      nil -> 
+        try_link(pkg)
       checksum -> 
-        pkg
-        |> Artifact.checksum()
-        |> String.equivalent?(checksum)
+        valid_checksum?(pkg, checksum)
     end
   end
 
@@ -52,13 +52,8 @@ defmodule Nerves.Artifact.Cache do
     |> Path.join(@checksum)
   end
 
-  def read_checksum(pkg) do
-    checksum = 
-      pkg
-      |> checksum_path()
-      |> File.read
-      
-    case checksum do
+  defp read_checksum(path) do
+    case File.read(path) do
       {:ok, checksum} ->
         String.trim(checksum)
       {:error, _reason} ->
@@ -66,4 +61,24 @@ defmodule Nerves.Artifact.Cache do
     end
   end
 
+  defp valid_checksum?(_pkg, nil), do: false
+  defp valid_checksum?(pkg, checksum) do
+    pkg
+    |> Artifact.checksum()
+    |> String.equivalent?(checksum)
+  end
+
+  defp try_link(pkg) do
+    build_path_link = Artifact.build_path_link(pkg)
+    checksum_path = Path.join(build_path_link, @checksum)
+    checksum = read_checksum(checksum_path)
+    if valid_checksum?(pkg, checksum) do
+      dest = path(pkg)
+      File.rm_rf!(dest)
+      File.ln_s!(build_path_link, dest)
+      true
+    else
+      false
+    end
+  end
 end

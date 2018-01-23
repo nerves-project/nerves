@@ -16,6 +16,13 @@ defmodule Nerves.System.BR do
     make(type, pkg, toolchain, opts)
   end
 
+  @doc """
+  Return the location in the build path to where the global artifact is linked
+  """
+  def build_path_link(pkg) do
+    Artifact.build_path(pkg)
+  end
+
   def clean(pkg) do
     Artifact.Cache.delete(pkg)
     Artifact.build_path(pkg)
