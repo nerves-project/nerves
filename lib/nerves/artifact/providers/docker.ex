@@ -84,8 +84,7 @@ defmodule Nerves.Artifact.Providers.Docker do
     Mix.shell.info("\n")
     :ok = make_artifact(pkg, stream)
     Mix.shell.info("\n")
-    {:ok, archive} = copy_artifact(pkg, stream)
-    {:ok, path} = Artifact.Cache.put(pkg, archive)
+    {:ok, path} = copy_artifact(pkg, stream)
     Mix.shell.info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
     {:ok, path}
@@ -123,7 +122,9 @@ defmodule Nerves.Artifact.Providers.Docker do
       "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null",
     ]
     mounts = Enum.join(mounts(pkg), " ")
-    Mix.Nerves.Shell.open("docker run --rm -it -w #{@working_dir} #{mounts} #{image}", initial_input)
+    cmd = "docker run --rm -it -w #{@working_dir} #{mounts} #{image}"
+    |> IO.inspect
+    Mix.Nerves.Shell.open(cmd, initial_input)
   end
 
   defp preflight(pkg) do
@@ -167,10 +168,10 @@ defmodule Nerves.Artifact.Providers.Docker do
     cmd = [
       "cp",
       name,
-      "/nerves/host/artifacts/#{name}"]
+      "/nerves/dl/#{name}"]
 
     run(pkg, cmd, stream)
-    path = Path.join(name, Nerves.Env.download_dir())
+    path = Artifact.download_path(pkg)
     {:ok, path}
   end
 
