@@ -39,9 +39,10 @@ defmodule Nerves.Artifact do
     case pkg.provider do
       {provider, _opts} ->
         {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
-
-        if opts[:path] != archive_path do
-          File.cp!(archive_path, opts[:path])
+        archive_path = Path.expand(archive_path)
+        path = Path.expand(opts[:path])
+        if path != archive_path do
+          File.cp!(archive_path, path)
         end
         {:ok, archive_path}
       _ ->
