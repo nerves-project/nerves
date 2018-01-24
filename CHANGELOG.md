@@ -44,6 +44,31 @@ Also, update your nerves dependency to:
     useful to force a package to build using a specific provider like 
     `Nerves.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration) 
     for more information.
+  * Added `artifact_sites` to the `nerves_package` config. Artifact sites
+    are helpers that are useful for cleanly specifying locations where artifacts
+    can be fetched. If you are hosting your artifacts using Github relases
+    you can specify it like this:
+    ```elixir
+    artifact_sites: [
+      {:github_releases, "orginization/project"}
+    ]
+    ```
+
+    You can also specify your own custom server location by using the `:prefix`
+    helper by passing a url or file path:
+    ```elixir
+    artifact_sites: [
+      {:prefix, "/path/to/artifacts"}
+      {:prefix, "https://my_bucket.s3-east.amazonaws.com/artifacts"}
+    ]
+    ```
+    Artifact sites will be tried in order until one succeffully downloads the
+    artifact.
+* Bug Fixes
+  * Fixed issue with `Nerves.Utils.HTTPResolver` crashing when missing the 
+    `content-disposition` and `content-length` headers.
+  * Run integrity check on tar files to validate they are not corrupted on 
+    download.
 
 ## Nerves v0.8.3
 
