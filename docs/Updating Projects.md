@@ -156,10 +156,8 @@ required manual steps. Nerves v0.9.0 adds the `nerves.artifact` mix task to make
 this easier. Please update your CI scripts or build instructions to use this new
 method.
 
-To create artifacts for your custom systems and toolchains, run
-Nerves makes it easier to predigest artifacts for systems and toolchains by
-with the added mix task `mix nerves.artifact <app_name>` where app_name is the
-name of system or toolchain depndency to make an artifact for. Ommitting `<app_name>`
+Nerves makes it easier to predigest artifacts for systems and toolchains 
+with the added mix task `mix nerves.artifact <app_name>` Ommitting `<app_name>`
 will default to the app name of the parent mix project. This is useful if
 you are calling `mix nerves.artifact` from within a custom system or toolchain
 project.
@@ -175,8 +173,8 @@ For example,
 
 ## Artifact sites
 
-Once you've created the artifact (or had CI create it for you), it needs to be uploaded to
-You can then upload this to Github releases and instruct the artifact resolver
+Once you've created the artifact (or had CI create it for you), 
+you can then upload this to Github releases and instruct the artifact resolver
 to fetch this artifact following `deps.get`. Update the Nerves package config
 by editing the `:nerves_package` options of `Mix.project/0` for your custom
 system or toolchain to set the sites for which the artifact is available on.
