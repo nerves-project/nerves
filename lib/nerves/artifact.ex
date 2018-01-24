@@ -282,8 +282,23 @@ defmodule Nerves.Artifact do
   end
 
   defp expand_site({:github_releases, org_proj}, pkg) do
-    "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/#{download_name(pkg)}#{ext(pkg)}"
+    expand_site({:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/"}, pkg)
   end
-  defp expand_site(loc, _pkg) when is_binary(loc), do: loc
+  defp expand_site({:prefix, path}, pkg) do
+    Path.join(path, download_name(pkg) <> ext(pkg))
+  end
+
+  defp expand_site(loc, _pkg) when is_binary(loc), 
+    do: Nerves.Utils.Shell.warn """
+    Unsupported artifact site
+    #{inspect loc}
+    
+    Supported artifact sites:
+    {:github_releases, "orginization/project"}
+    {:prefix, "http://myserver.com/artifacts"}
+    {:prefix, "file:///my_artifacts/"}
+    {:prefix, "/users/my_user/artifacts/"}
+    """
+ 
 
 end

@@ -15,7 +15,14 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def get(pid, url) do
-    GenServer.call(pid, {:get, url}, :infinity)
+    case URI.parse(url) do
+      %{host: nil} = uri ->
+        uri.path 
+        |> Path.expand()
+        |> File.read()
+      _uri -> 
+        GenServer.call(pid, {:get, url}, :infinity)
+    end
   end
 
   def init([]) do
