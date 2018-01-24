@@ -43,7 +43,7 @@ defmodule Nerves.Artifact do
         path = 
           opts[:path]
           |> Path.expand()
-          |> Path.join("/")
+          |> Path.join(download_name(pkg) <> ext(pkg))
         if path != archive_path do
           File.cp!(archive_path, path)
         end
