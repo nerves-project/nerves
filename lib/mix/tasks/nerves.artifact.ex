@@ -31,6 +31,8 @@ defmodule Mix.Tasks.Nerves.Artifact do
   def run(argv) do
     {package_name, argv} = 
       case argv do
+        [] ->
+          {to_string(Mix.Project.config()[:app]), argv}
         ["-" <> _arg | _] ->
           {to_string(Mix.Project.config()[:app]), argv}
         [package_name | argv] -> 
