@@ -4,6 +4,21 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   alias Nerves.Artifact
   alias Nerves.Artifact.{Cache, Resolver}
 
+  @moduledoc """
+    Fetch the artifacts from one of the artifact_sites
+    This task is typically called as part of the 
+    Nerves.Bootstrap aliases during `mix deps.get`
+
+    You can also call into this task by calling 
+    `mix nerves.deps.get`
+
+    # Example
+
+      $ mix nerves.artifact.get
+  """
+
+  @shortdoc "Nerves get artifacts"
+
   def run(opts) do
     Mix.shell.info "Resolving Nerves artifacts..."
     Nerves.Env.packages()

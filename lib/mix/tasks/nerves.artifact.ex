@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
   require Logger
 
   @moduledoc """
-    Create an artifac for a specified Nerves package.
+    Create an artifact for a specified Nerves package.
 
     ## Command line options
       
@@ -15,7 +15,12 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
     ## Example
 
-      mix nerves.artifact nerves_system_rpi0
+      $ mix nerves.artifact nerves_system_rpi0
+
+    If the command is called without the package name, 
+    Nerves.Project.config()[:app] will be used by default.
+
+      $ mix nerves.artifact --path /tmp
   """
 
   @shortdoc "Nerves create artifact"
@@ -23,7 +28,14 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   @switches [path: :string]
 
-  def run([package_name | argv]) do
+  def run(argv) do
+    {package_name, argv} = 
+      case argv do
+        ["-" <> _arg | _] ->
+          {Mix.Project.config()[:app], argv}
+        [package_name | argv] -> 
+          {package_name, argv}
+      end
     debug_info "Nerves.Artifact start"
 
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
