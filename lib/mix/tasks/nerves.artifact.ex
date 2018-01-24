@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
     {package_name, argv} = 
       case argv do
         ["-" <> _arg | _] ->
-          {Mix.Project.config()[:app], argv}
+          {to_string(Mix.Project.config()[:app]), argv}
         [package_name | argv] -> 
           {package_name, argv}
       end
