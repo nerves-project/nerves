@@ -143,7 +143,11 @@ defmodule Nerves.Artifact do
   def build_path_link(pkg) do
     case pkg.platform do
       platform when is_atom(platform) ->
-        platform.build_path_link(pkg)
+        if :erlang.function_exported(platform, :build_path_link, 1) do
+          apply(platform, :build_path_link, [pkg])
+        else
+          build_path(pkg)
+        end
       _ ->
         build_path(pkg)
     end
