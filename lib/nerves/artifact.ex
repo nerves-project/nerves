@@ -40,7 +40,10 @@ defmodule Nerves.Artifact do
       {provider, _opts} ->
         {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
         archive_path = Path.expand(archive_path)
-        path = Path.expand(opts[:path])
+        path = 
+          opts[:path]
+          |> Path.expand()
+          |> Path.join("/")
         if path != archive_path do
           File.cp!(archive_path, path)
         end
