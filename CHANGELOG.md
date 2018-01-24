@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves v0.9.0-dev
+## Nerves v0.9.0
 
 * Update Notes
 
