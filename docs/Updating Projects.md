@@ -135,7 +135,10 @@ For example, here is a snippet from `nerves-project/nerves_system_rpi0`
 
 Nerves makes it easier to predigest artifacts for systems and toolchains by
 with the added mix task `mix nerves.artifact <app_name>` where app_name is the
-name of system or toolchain depndency to make an artifact for.
+name of system or toolchain depndency to make an artifact for. Ommitting `<app_name>`
+will default to the app name of the parent mix project. This is useful if
+you are calling `mix nerves.artifact` from within a custom system or toolchain
+project.
 
 For example, lets say we have a custom `rpi0` system and we would like to
 create an artifact. `mix nerves.artifact custom_system_rpi0`
@@ -153,7 +156,10 @@ to fetch this artifact following `deps.get`. Update the Nerves package config
 by editing the `:nerves_package` options of `Mix.project/0` for your custom 
 system or toolchain to set the sites for which the artifact is available on.
 This can be passed as 
-`{:github_releases, "<orginization>/<repository>"}` or full urls `"https://myserver.com/custom_system_rpi0-portable-0.11.0-17C58821DE265AC241F28A0A722DB25C447A7B5FFF5648E4D0B99EF72EB3341F.tar.gz"`
+`{:github_releases, "<orginization>/<repository>"}`
+or specified as url / path prefixes
+`{:prefix, "/path/to/artifact_dir"}`
+`{:prefix, http://artifact_server.com/artifacts}`
 
 ```elixir
 def nerves_package do

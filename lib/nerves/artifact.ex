@@ -48,7 +48,6 @@ defmodule Nerves.Artifact do
         Mix.shell.info("No provider specified for #{pkg.app}")
         :noop
     end
-    
   end
   def archive(%{type: type}, _toolchain, _opts) do
     Mix.raise """
@@ -126,6 +125,9 @@ defmodule Nerves.Artifact do
     System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
   end
 
+  @doc """
+  Get the path to where the artifact is built
+  """
   def build_path(pkg) do
     pkg.path
     |> Path.join(".nerves")
@@ -133,6 +135,11 @@ defmodule Nerves.Artifact do
     |> Path.join(name(pkg))
   end
 
+  @doc """
+  Get the path where the global artifact will be linked to.
+  This path is typically a location within build_path, but can be 
+  vary on different build platforms.
+  """
   def build_path_link(pkg) do
     case pkg.platform do
       platform when is_atom(platform) ->
@@ -196,6 +203,9 @@ defmodule Nerves.Artifact do
     end
   end
 
+  @doc """
+  Expands the sites helpers from `artifact_sites` in the nerves_package config.
+  """
   def expand_sites(pkg) do
     case pkg.config[:artifact_url] do
       nil -> 
@@ -208,6 +218,9 @@ defmodule Nerves.Artifact do
     end
   end
 
+  @doc """
+  Get the path to where the artifact archive is downloaded to.
+  """
   def download_path(pkg) do
     name = name(pkg) <> ext(pkg)
     Nerves.Env.download_dir()
@@ -215,6 +228,11 @@ defmodule Nerves.Artifact do
     |> Path.expand
   end
 
+  @doc """
+  Get the host_tuple for the package. Toolchains are specifically build to run
+  on a host for a target. Other packages are host agnostic for now. They are 
+  marked as `portable`.
+  """
   def host_tuple(%{type: :toolchain}) do 
     Nerves.Env.host_os <> "_" <>
     Nerves.Env.host_arch
