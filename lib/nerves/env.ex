@@ -129,9 +129,13 @@ defmodule Nerves.Env do
   """
   @spec host_arch() :: String.t
   def host_arch() do
-    :erlang.system_info(:system_architecture)
-    |> to_string
-    |> parse_arch
+    case System.get_env("HOST_ARCH") do
+      nil -> 
+        :erlang.system_info(:system_architecture)
+        |> to_string
+        |> parse_arch
+      host_arch -> host_arch
+    end
   end
 
   @doc false
@@ -164,9 +168,14 @@ defmodule Nerves.Env do
   """
   @spec host_os() :: String.t
   def host_os() do
-    :erlang.system_info(:system_architecture)
-    |> to_string
-    |> parse_platform
+    case System.get_env("HOST_OS") do
+      nil ->
+        :erlang.system_info(:system_architecture)
+        |> to_string
+        |> parse_platform
+      host_os -> host_os
+    end
+    
   end
   @doc false
   def parse_platform(platform) when is_binary(platform) do

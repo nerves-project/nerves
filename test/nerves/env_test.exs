@@ -34,4 +34,13 @@ defmodule Nerves.EnvTest do
       Env.parse_platform("unknown")
     end
   end
+
+  test "override host os and host arch" do
+    System.put_env("HOST_OS", "rpi")
+    assert Nerves.Env.host_os() == "rpi"
+    System.delete_env("HOST_OS")
+    System.put_env("HOST_ARCH", "arm")
+    assert Nerves.Env.host_arch() == "arm"
+    System.delete_env("HOST_ARCH")
+  end
 end
