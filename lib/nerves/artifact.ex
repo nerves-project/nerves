@@ -304,7 +304,7 @@ defmodule Nerves.Artifact do
     name = download_name(pkg) <> ext(pkg)
     opts
     |> Keyword.put_new(:name, name)
-    |> Keyword.put_new(:path, Path.join(File.cwd!(), name))
+    |> Keyword.put_new(:path, File.cwd!())
   end
 
   defp expand_site({:github_releases, org_proj}, pkg) do
