@@ -1,5 +1,14 @@
 # Release Notes
 
+## Nerves v0.9.1
+  * Bug Fixes 
+    * Fixed issue with artifact default path containing duplicate names
+    * `Nerves.Env.host_os` can be set from `$HOST_OS` for use with canadian
+      cross compile
+    * `Nerves.Env.host_arch` can be set from `$HOST_ARCH` for use with canadian
+      cross compile
+    * mkdir -p on `Artifact.base_dir` before trying to link to build path artifacts
+
 ## Nerves v0.9.0
 
 * Update Notes
