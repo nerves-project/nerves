@@ -8,6 +8,7 @@
     * `Nerves.Env.host_arch` can be set from `$HOST_ARCH` for use with canadian
       cross compile
     * mkdir -p on `Artifact.base_dir` before trying to link to build path artifacts
+    * raise if artifact_urls are not binaries.
 
 ## Nerves v0.9.0
 
