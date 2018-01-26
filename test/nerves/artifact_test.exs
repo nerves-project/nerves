@@ -66,4 +66,10 @@ defmodule Nerves.ArtifactTest do
     assert String.equivalent?(values.version, "0.12.2")
     assert String.equivalent?(values.checksum, "ABCDEF1234567890")
   end
+
+  test "artifact_urls can only be binaries" do
+    assert_raise Mix.Error, fn ->
+      Artifact.expand_sites(%{config: [artifact_url: [{:broken}]]})
+    end
+  end
 end
