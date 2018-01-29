@@ -311,6 +311,25 @@ defmodule Nerves.Env do
   end
 
   @doc false
+  def toolchain_path do
+    case Nerves.Env.toolchain do
+      nil -> nil
+      toolchain ->
+        Nerves.Artifact.dir(toolchain) || 
+        Nerves.Artifact.build_path(toolchain)
+    end
+  end
+  @doc false
+  def system_path do
+    case Nerves.Env.system do
+      nil -> nil
+      system ->
+        Nerves.Artifact.dir(system) || 
+        Nerves.Artifact.build_path(system)
+    end
+  end
+
+  @doc false
   defp load_packages do
     Mix.Project.deps_paths
     |> Map.put(Mix.Project.config[:app], File.cwd!)
@@ -339,25 +358,6 @@ defmodule Nerves.Env do
   end
   @doc false
   defp validate_one(packages, _type), do: packages
-
-  @doc false
-  defp toolchain_path do
-    case Nerves.Env.toolchain do
-      nil -> nil
-      toolchain ->
-        Nerves.Artifact.Cache.get(toolchain) || 
-        Nerves.Artifact.build_path(toolchain)
-    end
-  end
-  @doc false
-  defp system_path do
-    case Nerves.Env.system do
-      nil -> nil
-      system ->
-        Nerves.Artifact.Cache.get(system) || 
-        Nerves.Artifact.build_path(system)
-    end
-  end
 
   # Pre 0.4.0 Legacy
   @doc false

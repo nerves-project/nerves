@@ -53,7 +53,8 @@ defmodule Nerves.ArtifactTest do
 
       assert Artifact.dir(Env.system) == system_path
       assert Artifact.dir(Env.toolchain) == toolchain_path
-
+      assert Nerves.Env.toolchain_path == toolchain_path
+      assert Nerves.Env.system_path == system_path
       System.delete_env("NERVES_SYSTEM")
       System.delete_env("NERVES_TOOLCHAIN")
     end
