@@ -1,6 +1,13 @@
 # Release Notes
 
+## Nerves v0.9.2
+  
+  * Bug Fixes
+    * Fixed issue where env var artifact path overides were being calculated
+      instead of honored.
+
 ## Nerves v0.9.1
+  
   * Bug Fixes 
     * Fixed issue with artifact default path containing duplicate names
     * `Nerves.Env.host_os` can be set from `$HOST_OS` for use with canadian
