@@ -237,7 +237,7 @@ defmodule Nerves.Artifact do
   Get the path to where the artifact archive is downloaded to.
   """
   def download_path(pkg) do
-    name = name(pkg) <> ext(pkg)
+    name = download_name(pkg) <> ext(pkg)
     Nerves.Env.download_dir()
     |> Path.join(name)
     |> Path.expand
