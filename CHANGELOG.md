@@ -1,5 +1,14 @@
 # Release Notes
 
+## Nerves v0.9.3
+
+  * Bug Fixes
+    * Artifact download_path should use download_name. This was causing a 
+      mismatch between dl files from buildroot and the resolver causing it to 
+      have to download them twice
+    * Fixed issue with compiling certain nerves packages when calling
+      `mix deps.compile`
+
 ## Nerves v0.9.2
   
   * Bug Fixes
