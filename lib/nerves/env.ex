@@ -100,7 +100,7 @@ defmodule Nerves.Env do
     {:ok, Nerves.Package.t} | {:error, term}
   def ensure_loaded(app, path \\ nil) do
     path = path || File.cwd!
-    if File.exists?(Package.config_path(path)) do
+    if nerves_package?({app, path}) do
       packages = Agent.get(__MODULE__, &(&1))
       case Enum.find(packages, & &1.app == app) do
         nil ->
@@ -337,7 +337,7 @@ defmodule Nerves.Env do
     |> Enum.map(&Package.load_config/1)
     |> validate_packages
   end
-
+  
   @doc false
   defp validate_packages(packages) do
     for type <- [:system, :toolchain] do
@@ -392,7 +392,10 @@ defmodule Nerves.Env do
   ## End Pre 0.4.0 Legacy
   defp nerves_package?({app, path}) do
     try do
-      Package.config(app, path)[:nerves_package] != nil
+      package_config = 
+        Package.config(app, path)
+        |> Keyword.get(:nerves_package)
+      package_config != nil
     rescue
     _e ->
       File.exists?(Package.config_path(path))
