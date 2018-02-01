@@ -1,5 +1,12 @@
 # Release Notes
 
+## Nerves v0.9.4
+
+  * Bug Fixes
+    * Fix artifact archiver to use `Artifact.download_name/1` instead of 
+      `Artifact.name/1`. Fixes issues with the Docker provider and
+      `mix nerves.artifact`
+
 ## Nerves v0.9.3
 
   * Bug Fixes
