@@ -153,7 +153,7 @@ defmodule Nerves.Artifact.Providers.Docker do
   end
 
   defp make_artifact(pkg, stream) do
-    name = Artifact.name(pkg)
+    name = Artifact.download_name(pkg)
     shell_info "Creating artifact archive"
     cmd = [
       "make",
@@ -164,7 +164,7 @@ defmodule Nerves.Artifact.Providers.Docker do
 
   defp copy_artifact(pkg, stream) do
     shell_info "Copying artifact archive to host"
-    name = Artifact.name(pkg) <> Artifact.ext(pkg)
+    name = Artifact.download_name(pkg) <> Artifact.ext(pkg)
     cmd = [
       "cp",
       name,

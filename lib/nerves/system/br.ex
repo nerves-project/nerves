@@ -75,7 +75,7 @@ defmodule Nerves.System.BR do
   end
 
   defp make_archive(:linux, pkg, _toolchain, _opts) do
-    name = Artifact.name(pkg)
+    name = Artifact.download_name(pkg)
     dest = Artifact.build_path(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
