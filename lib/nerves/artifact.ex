@@ -248,13 +248,14 @@ defmodule Nerves.Artifact do
   on a host for a target. Other packages are host agnostic for now. They are 
   marked as `portable`.
   """
-  def host_tuple(%{type: type}) when type in [:toolchain, :host] do 
+  def host_tuple(%{type: :system}) do
+    "portable"
+  end 
+  def host_tuple(_pkg) do 
     Nerves.Env.host_os <> "_" <>
     Nerves.Env.host_arch
   end  
-  def host_tuple(_pkg) do
-    "portable"
-  end 
+  
 
   @doc """
   Determines the extension for an artifact based off its type.
