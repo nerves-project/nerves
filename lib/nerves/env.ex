@@ -300,9 +300,7 @@ defmodule Nerves.Env do
     if nerves_system_path != nil and File.dir?(nerves_system_path) do
       # Bootstrap the build platform
       platform = Nerves.Env.system.platform
-      # Pre 0.4.0 Legacy
-      platform = platform || Nerves.Env.system.config[:build_platform]
-      ## end re 0.4.0 Legacy
+
       pkg =
         Nerves.Env.packages_by_type(:system_platform)
         |> List.first
