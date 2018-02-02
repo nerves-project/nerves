@@ -205,7 +205,7 @@ defmodule Nerves.Artifact do
       :toolchain -> "NERVES_TOOLCHAIN"
       :system -> "NERVES_SYSTEM"
       _ ->
-        pkg.name
+        pkg.app
         |> Atom.to_string
         |> String.upcase
     end
