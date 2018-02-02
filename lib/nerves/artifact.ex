@@ -122,7 +122,7 @@ defmodule Nerves.Artifact do
   Get the base dir for where an artifact for a package should be stored.
 
   The base dir for an artifact will point
-  to the NERVES_ARTIFACT_DIR or if undefined, `~/.nerves/artifacts`
+  to the NERVES_ARTIFACTS_DIR or if undefined, `~/.nerves/artifacts`
   """
   @spec base_dir() :: String.t
   def base_dir() do
@@ -248,7 +248,7 @@ defmodule Nerves.Artifact do
   on a host for a target. Other packages are host agnostic for now. They are 
   marked as `portable`.
   """
-  def host_tuple(%{type: :toolchain}) do 
+  def host_tuple(%{type: type}) when type in [:toolchain, :host] do 
     Nerves.Env.host_os <> "_" <>
     Nerves.Env.host_arch
   end  
