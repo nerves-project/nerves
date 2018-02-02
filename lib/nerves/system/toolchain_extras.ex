@@ -1,4 +1,4 @@
-defmodule Nerves.System.ToolChainExtras do
+defmodule Nerves.System.ToolchainExtras do
   use Nerves.Package.Platform
 
   alias Nerves.Artifact
