@@ -306,6 +306,17 @@ defmodule Nerves.Env do
         |> List.first
       platform.bootstrap(pkg)
     end
+
+    # Bootstrap all other packahes who define a platform
+    Nerves.Env.packages
+    |> Enum.reject(& &1 == Nerves.Env.toolchain())
+    |> Enum.reject(& &1 == Nerves.Env.system())
+    |> Enum.reject(& &1.platform == nil)
+    |> Enum.each(fn
+      (%{platform: platform} = pkg) -> 
+        platform.bootstrap(pkg)
+      _ -> :noop
+    end)
   end
 
   @doc false
