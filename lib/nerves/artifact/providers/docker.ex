@@ -123,7 +123,6 @@ defmodule Nerves.Artifact.Providers.Docker do
     ]
     mounts = Enum.join(mounts(pkg), " ")
     cmd = "docker run --rm -it -w #{@working_dir} #{mounts} #{image}"
-    |> IO.inspect
     Mix.Nerves.Shell.open(cmd, initial_input)
   end
 
