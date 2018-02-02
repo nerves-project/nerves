@@ -1,14 +1,15 @@
-defmodule SystemPlatform.Fixture.Mixfile do
+defmodule Extra.Fixture.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
-           |> File.read!
-           |> String.trim
+    |> File.read!
+    |> String.trim
 
   def project do
-    [
-      app: :system_platform,
+    [ 
+      app: :extra,
       version: @version,
+      compilers: Mix.compilers ++ [:nerves_package],
       nerves_package: nerves_package(),
       deps: deps()
     ]
@@ -16,32 +17,34 @@ defmodule SystemPlatform.Fixture.Mixfile do
 
   defp nerves_package do
     [
-      type: :system_platform,
+      type: :host,
+      platform: ExtraPlatform,
+      platform_config: [],
       checksum: package_files()
     ]
   end
 
   defp deps do
-    []
+    [
+      {:nerves, path: "../../../"}
+    ]
   end
 
   defp package_files do
     [
       "mix.exs",
-      "env.exs",
-      "lib",
       "VERSION"
     ]
   end
 end
 
-defmodule SystemPlatform.Fixture do
+defmodule ExtraPlatform do
   use Nerves.Package.Platform
 
   alias Nerves.Artifact
 
   def bootstrap(_pkg) do
-    System.put_env("NERVES_BOOTSTRAP_SYSTEM", "1")
+    System.put_env("NERVES_BOOTSTRAP_EXTRA", "1")
     :ok
   end
 
@@ -68,8 +71,8 @@ defmodule SystemPlatform.Fixture do
     {:ok, Path.join(File.cwd!, name)}
   end
 
-  def clean(pkg) do
-    Artifact.build_path(pkg)
-    |> File.rm_rf()
+  def clean(_pkg) do
+    :ok
   end
+
 end
