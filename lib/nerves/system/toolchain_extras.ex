@@ -8,7 +8,8 @@ defmodule Nerves.System.ToolchainExtras do
   Called as the last step of bootstrapping the Nerves env.
   """
   def bootstrap(%{path: path} = pkg) do
-    IO.puts "extras:bootsrapping: #{inspect pkg}"
+    build_path = Artifact.build_path(pkg)
+    IO.puts "extras:bootsrapping: \n\t pkg: #{inspect pkg} \n\t build_path: #{inspect build_path}"
     System.put_env("PRU_CGT", path)
     :ok
   end
@@ -21,13 +22,12 @@ defmodule Nerves.System.ToolchainExtras do
     #File.rm_rf!(build_path)
     #File.mkdir_p!(build_path)
 
-    IO.puts "extras.prucgt:build: toolchain: #{inspect _toolchain}, opts: #{inspect _opts}"
 
-    script = 
-      :nerves_toolchain_ctng
-      |> Nerves.Env.package()
-      |> Map.get(:path)
-      |> Path.join("build.sh")
+    script =
+      build_path
+      |> Path.join(pkg.config[:toolchain_extras][:build_script])
+
+    IO.puts "extras.prucgt:build: build_script: #{inspect script} toolchain: #{inspect _toolchain}, opts: #{inspect _opts}"
 
     # defconfig = defconfig(pkg)
 
@@ -50,8 +50,7 @@ defmodule Nerves.System.ToolchainExtras do
   Return the location in the build path to where the global artifact is linked
   """
   def build_path_link(pkg) do
-    Artifact.build_path(pkg)
-    |> Path.join("ti-cgt-pru")
+    IO.inspect Artifact.build_path(pkg) |> Path.join(pkg.config[:build_path_link]), lable: :extras_build_path_link
   end
 
   @doc """
@@ -61,7 +60,7 @@ defmodule Nerves.System.ToolchainExtras do
     build_path = Artifact.build_path(pkg)
 
     IO.puts "extras.prucgt:archive: toolchain: #{inspect _toolchain}, opts: #{inspect _opts}"
-    1
+
     script =
       :nerves_toolchain_ctng
       |> Nerves.Env.package()
