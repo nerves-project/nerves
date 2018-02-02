@@ -1,6 +1,11 @@
 # Release Notes
 
 ## Nerves v0.9.4
+  * Enhancements
+    * Nerves.Env will call bootstrap on any additional packages that define a 
+      provider after `system` and `toolchain`.
+    * Nerves.Artifact.host_tuple will return portable for any package other than
+      types `:toolchain` and `:host`
 
   * Bug Fixes
     * Fix artifact archiver to use `Artifact.download_name/1` instead of 
