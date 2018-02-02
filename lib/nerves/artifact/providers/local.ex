@@ -14,7 +14,6 @@ defmodule Nerves.Artifact.Providers.Local do
   """
   @spec build(Nerves.Package.t, Nerves.Package.t, term) :: :ok
   def build(pkg, toolchain, opts) do
-    IO.puts "Local Provider Build"
     pkg.platform.build(pkg, toolchain, opts)
   end
 
