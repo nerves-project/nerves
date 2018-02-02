@@ -8,7 +8,7 @@ defmodule Nerves.System.ToolchainExtras do
   Called as the last step of bootstrapping the Nerves env.
   """
   def bootstrap(%{path: path} = pkg) do
-    build_path = Artifact.build_path(pkg)
+    build_path = Artifact.base_dir() |> Path.join(Artifact.name(pkg))
     env_var = pkg.config[:toolchain_extras][:env_var]
     IO.puts "extras:bootsrapping: \n\t pkg: #{inspect pkg} \n\t build_path: #{inspect build_path}"
     IO.puts "extras:bootsrapping: put_env: envvar: #{inspect env_var}"
