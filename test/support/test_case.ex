@@ -9,6 +9,10 @@ defmodule NervesTest.Case do
   end
 
   setup config do
+    artifact_dir = NervesTest.Case.tmp_path(".nerves/artifacts")
+    File.mkdir_p!(artifact_dir)
+    System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
+
     if apps = config[:apps] do
       Logger.remove_backend(:console)
     end
@@ -35,14 +39,14 @@ defmodule NervesTest.Case do
   end
 
   defmacro in_fixture(which, block) do
-      module   = inspect __CALLER__.module
-      function = Atom.to_string elem(__CALLER__.function, 0)
-      tmp      = Path.join(module, function)
+    module   = inspect __CALLER__.module
+    function = Atom.to_string elem(__CALLER__.function, 0)
+    tmp      = Path.join(module, function)
 
-      quote do
-        unquote(__MODULE__).in_fixture(unquote(which), unquote(tmp), unquote(block))
-      end
+    quote do
+      unquote(__MODULE__).in_fixture(unquote(which), unquote(tmp), unquote(block))
     end
+  end
 
   def in_fixture(which, tmp, function) do
     dest = tmp_path(tmp)
@@ -65,6 +69,13 @@ defmodule NervesTest.Case do
         purge [mod]
       end
     end
+  end
+
+  def in_tmp(which, function) do
+    path = tmp_path(which)
+    File.rm_rf!(path)
+    File.mkdir_p!(path)
+    File.cd!(path, function)
   end
 
   def fixture_path do
@@ -124,7 +135,3 @@ defmodule NervesTest.Case do
   end
 
 end
-
-artifcat_dir = NervesTest.Case.tmp_path(".nerves/artifacts")
-File.mkdir_p!(artifcat_dir)
-System.put_env("NERVES_ARTIFACT_DIR", artifcat_dir)

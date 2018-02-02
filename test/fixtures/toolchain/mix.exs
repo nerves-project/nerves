@@ -19,7 +19,7 @@ defmodule Toolchain.Fixture.Mixfile do
     [
       type: :toolchain,
       target_tuple: :x86_64_unknown_linux_musl,
-      platform: Nerves.Toolchain.CTNG,
+      platform: ToolchainPlatform.Fixture,
       platform_config: [
         defconfig: [
           darwin: "darwin_defconfig",
