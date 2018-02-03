@@ -10,7 +10,7 @@ defmodule Mix.Nerves.Shell do
 
     # We run the command through the script command to emulate a pty
     cmd_port =
-      Port.open({:spawn, "script -q /dev/null #{command}"}, [
+      Port.open({:spawn, "script -q /dev/null -c \"#{command}\" "}, [
         :binary,
         :eof,
         :stream,
