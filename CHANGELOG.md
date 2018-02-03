@@ -6,6 +6,7 @@
     * Fix artifact archiver to use `Artifact.download_name/1` instead of 
       `Artifact.name/1`. Fixes issues with the Docker provider and
       `mix nerves.artifact`
+    * Fix issue with `nerves.system.shell` not rendering properly
 
 ## Nerves v0.9.3
 
