@@ -68,7 +68,10 @@ defmodule Nerves.System.ToolchainExtras do
   Return the location in the build path to where the global artifact is linked
   """
   def build_path_link(pkg) do
-    IO.inspect Artifact.build_path(pkg) |> Path.join(pkg.config[:build_path_link]), lable: :extras_build_path_link
+    IO.puts "extras:build_path_link: pkg: #{inspect pkg}"
+    path = (Artifact.build_path(pkg) || "") |> Path.join(pkg.config[:build_path_link])
+    IO.inspect path, label: :extras_build_path_link
+    path
   end
 
   @doc """
