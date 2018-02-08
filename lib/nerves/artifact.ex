@@ -33,11 +33,20 @@ defmodule Nerves.Artifact do
   @doc """
   Produces an artifact which can be fetched when calling `nerves.artifact.get`.
   """
-  def archive(%{type: type} = pkg, toolchain, opts) when type in [:toolchain, :system] do
+  def archive(%{provider: nil}, _toolchain, _opts) do
+    Mix.raise """
+    mix artifact
+    Nerves package provider required
+    """
+  end
+  def archive(pkg, toolchain, opts) do
     Mix.shell.info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
+  
     case pkg.provider do
       {provider, _opts} ->
+
+        Code.ensure_compiled(pkg.platform) |> IO.inspect
         {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
         archive_path = Path.expand(archive_path)
         path = 
@@ -53,12 +62,7 @@ defmodule Nerves.Artifact do
         :noop
     end
   end
-  def archive(%{type: type}, _toolchain, _opts) do
-    Mix.raise """
-    mix artifact
-    Has not been implemented for #{inspect type} packages. 
-    """
-  end
+  
 
   @doc """
   Cleans the artifacts for the package providers of all packages.
