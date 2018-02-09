@@ -5,23 +5,32 @@ defmodule Nerves.Artifact.Providers.Local do
   This provider will only function on certain Linux host configurations
   """
 
-  @behaviour Nerves.Artifact.Provider
-
   alias Nerves.Artifact
+  alias Nerves.Artifact.Provider
+
+  @behaviour Provider
+
 
   @doc """
   Builds an artifact locally.
   """
-  @spec build(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  @spec build(Nerves.Package.t, Nerves.Package.t, term) :: Provider.build_result
   def build(pkg, toolchain, opts) do
     pkg.platform.build(pkg, toolchain, opts)
   end
 
-  @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  @doc """
+  Builds an artifact locally.
+  """
+  @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: Provider.archive_result
   def archive(pkg, toolchain, opts) do
     pkg.platform.archive(pkg, toolchain, opts)
   end
 
+  @doc """
+  Builds an artifact locally.
+  """
+  @callback clean(package :: Nerves.Package.t) :: Provider.clean_result
   def clean(pkg) do
     pkg.platform.clean(pkg)
   end
