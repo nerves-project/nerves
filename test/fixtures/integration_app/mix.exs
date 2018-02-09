@@ -21,14 +21,14 @@ defmodule IntegrationApp do
 
   defp deps do
     [
-      {:nerves, path: "../../../", runtime: false, compile: false},
-      {:system, path: "../system", runtime: false},
-      {:host_tool, path: "../host_tool", runtime: false}
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
+      {:system, path: "../system"},
+      {:host_tool, path: "../host_tool"}
     ]
   end
 
   def aliases do
-    [
+    [ 
       
     ] |> Nerves.Bootstrap.add_aliases()
   end

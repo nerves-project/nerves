@@ -9,10 +9,6 @@ defmodule NervesTest.Case do
   end
 
   setup config do
-    artifact_dir = NervesTest.Case.tmp_path(".nerves/artifacts")
-    File.mkdir_p!(artifact_dir)
-    System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
-
     if apps = config[:apps] do
       Logger.remove_backend(:console)
     end
@@ -52,6 +48,10 @@ defmodule NervesTest.Case do
     dest = tmp_path(tmp)
     |> Path.join(which)
     fixture_to_tmp(which, dest)
+    
+    artifact_dir = Path.join(tmp_path(tmp), ".nerves/artifacts")
+    File.mkdir_p!(artifact_dir)
+    System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
 
     try do
       File.cd! dest, function

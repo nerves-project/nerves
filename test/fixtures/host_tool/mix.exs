@@ -24,7 +24,7 @@ defmodule HostTool.Mixfile do
 
   defp deps do
     [
-      {:nerves, path: "../../../", compile: false, runtime: false}
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
     ]
   end
 
