@@ -1,15 +1,16 @@
-defmodule ExtraApp.Fixture do
+defmodule IntegrationApp do
   use Mix.Project
 
   @target System.get_env("MIX_TARGET") || "system"
 
   def project do
     [
-      app: :simple_app,
+      app: :example_app,
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 0.7"],
       target: @target,
       aliases: aliases(),
+      compilers: Mix.compilers() ++ [:host_tool],
       deps: deps()
     ]
   end
@@ -20,8 +21,9 @@ defmodule ExtraApp.Fixture do
 
   defp deps do
     [
-      {:system, path: "../system"},
-      {:extra, path: "../extra"}
+      {:nerves, path: "../../../", runtime: false, compile: false},
+      {:system, path: "../system", runtime: false},
+      {:host_tool, path: "../host_tool", runtime: false}
     ]
   end
 

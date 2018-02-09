@@ -1,4 +1,4 @@
-defmodule Toolchain.Fixture.Mixfile do
+defmodule Toolchain.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
@@ -9,7 +9,7 @@ defmodule Toolchain.Fixture.Mixfile do
     [ 
       app: :toolchain,
       version: @version,
-      compilers: Mix.compilers ++ [:nerves_package],
+      compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
       deps: deps()
     ]
@@ -19,7 +19,7 @@ defmodule Toolchain.Fixture.Mixfile do
     [
       type: :toolchain,
       target_tuple: :x86_64_unknown_linux_musl,
-      platform: ToolchainPlatform.Fixture,
+      platform: ToolchainPlatform,
       platform_config: [
         defconfig: [
           darwin: "darwin_defconfig",
@@ -32,7 +32,7 @@ defmodule Toolchain.Fixture.Mixfile do
 
   defp deps do
     [
-      {:nerves, path: "../../../"},
+      {:nerves, path: "../../../", compile: false},
       {:toolchain_platform, path: "../toolchain_platform"}
     ]
   end

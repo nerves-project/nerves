@@ -61,13 +61,7 @@ defmodule NervesTest.Case do
     try do
       File.cd! dest, function
     after
-      :code.set_path(get_path)
-
-      for {mod, file} <- :code.all_loaded -- previous,
-          file == :in_memory or
-          (is_list(file) and :lists.prefix(flag, file)) do
-        purge [mod]
-      end
+      #unload_env()
     end
   end
 
@@ -120,11 +114,15 @@ defmodule NervesTest.Case do
     Nerves.Env.packages
   end
 
-  def purge(modules) do
-    Enum.each modules, fn(m) ->
-      :code.purge(m)
-      :code.delete(m)
-    end
+  def unload_env() do
+    packages =
+      Nerves.Env.packages
+      |> Enum.sort
+
+    Enum.each(packages, fn (%{app: app}) ->
+      key = {:cached_deps, Mix.env(), app}
+      Agent.cast(Mix.ProjectStack, &%{&1 | cache: Map.delete(&1.cache, key)})
+    end)
   end
 
   defp delete_tmp_paths do
