@@ -31,12 +31,13 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Produces an artifact which can be fetched when calling `nerves.artifact.get`.
+  Produces an archive of the package artifact which can be fetched when 
+  calling `nerves.artifact.get`.
   """
-  def archive(%{provider: nil}, _toolchain, _opts) do
+  def archive(%{app: app, provider: nil}, _toolchain, _opts) do
     Mix.raise """
-    mix artifact
-    Nerves package provider required
+    #{inspect app} does not declare a provider and therefore cannot
+    be used to produce an artifact archive.
     """
   end
   def archive(pkg, toolchain, opts) do
@@ -45,8 +46,7 @@ defmodule Nerves.Artifact do
   
     case pkg.provider do
       {provider, _opts} ->
-
-        Code.ensure_compiled(pkg.platform) |> IO.inspect
+        Code.ensure_compiled(pkg.platform)
         {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
         archive_path = Path.expand(archive_path)
         path = 

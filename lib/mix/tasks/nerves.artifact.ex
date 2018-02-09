@@ -29,6 +29,9 @@ defmodule Mix.Tasks.Nerves.Artifact do
   @switches [path: :string]
 
   def run(argv) do
+    # We need to make sure the the Nerves env has been set up.
+    # This allows the task to be called from a project level that 
+    # does not include aliases to nerves_bootstrap
     Mix.Task.run("nerves.precompile", [])
 
     {package_name, argv} = 
