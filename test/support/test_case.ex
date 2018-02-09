@@ -53,15 +53,10 @@ defmodule NervesTest.Case do
     |> Path.join(which)
     fixture_to_tmp(which, dest)
 
-    flag = String.to_charlist(tmp_path())
-
-    get_path = :code.get_path
-    previous = :code.all_loaded
-
     try do
       File.cd! dest, function
     after
-      #unload_env()
+      unload_env()
     end
   end
 

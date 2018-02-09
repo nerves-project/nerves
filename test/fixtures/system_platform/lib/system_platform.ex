@@ -1,6 +1,5 @@
 defmodule SystemPlatform do
   use Nerves.Package.Platform
-  IO.puts "Here"
   alias Nerves.Artifact
 
   def bootstrap(_pkg) do
