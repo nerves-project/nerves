@@ -11,13 +11,14 @@ defmodule Mix.Tasks.Compile.HostTool do
   @recursive true
 
   def run(_args) do
-    file = 
+    file =
       File.cwd!()
       |> Path.join("hello")
 
     case System.cmd("host_tool", [file]) do
       {_, 0} ->
         :ok
+
       {error, _} ->
         {:error, error}
     end

@@ -28,36 +28,39 @@ defmodule Nerves.Artifact.Providers.Docker.Volume do
   def create_id(pkg) do
     id_file = id_file(pkg)
     id = Nerves.Utils.random_alpha_num(16)
+
     Path.dirname(id_file)
-    |> File.mkdir_p!
+    |> File.mkdir_p!()
+
     File.write!(id_file, id)
   end
 
   def delete(volume_name) do
-    shell_info "Deleting build volume #{volume_name}"
-    args = [
-      "volume",
-      "rm",
-      volume_name]
+    shell_info("Deleting build volume #{volume_name}")
+    args = ["volume", "rm", volume_name]
 
     case Mix.Nerves.Utils.shell("docker", args) do
       {_result, 0} ->
         :ok
+
       {_result, _} ->
-        Mix.raise """
+        Mix.raise("""
         Nerves Docker provider encountered an error while deleting volume #{volume_name}
-        """
+        """)
     end
   end
 
   def exists?(volume_name) do
     cmd = "docker"
     args = ["volume", "ls", "-f", "name=#{volume_name}", "-q"]
+
     case System.cmd(cmd, args, stderr_to_stdout: true) do
-      {<<^volume_name, _tail :: binary>>, 0} ->
+      {<<^volume_name, _tail::binary>>, 0} ->
         true
-        {<<"Cannot connect to the Docker daemon", _tail :: binary>>, _} ->
-          Mix.raise "Nerves Docker provider is unable to connect to docker daemon"
+
+      {<<"Cannot connect to the Docker daemon", _tail::binary>>, _} ->
+        Mix.raise("Nerves Docker provider is unable to connect to docker daemon")
+
       _ ->
         false
     end
@@ -66,9 +69,10 @@ defmodule Nerves.Artifact.Providers.Docker.Volume do
   def create(volume_name) do
     cmd = "docker"
     args = ["volume", "create", "--name", volume_name]
+
     case System.cmd(cmd, args) do
       {_, 0} -> :noop
-      _ -> Mix.raise "Nerves Docker provider could not create docker volume #{volume_name}"
+      _ -> Mix.raise("Nerves Docker provider could not create docker volume #{volume_name}")
     end
   end
 end

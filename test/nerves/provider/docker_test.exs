@@ -15,11 +15,10 @@ defmodule Nerves.Provider.DockerTest do
   end
 
   test "parse versions with leading zeros" do
-    assert {:ok, %{major: 17, minor: 0, patch: 1}} =
-      Docker.parse_docker_version("17.0.1")
-    assert {:ok, %{major: 17, minor: 3, patch: 1}} =
-      Docker.parse_docker_version("17.03.1")
+    assert {:ok, %{major: 17, minor: 0, patch: 1}} = Docker.parse_docker_version("17.0.1")
+    assert {:ok, %{major: 17, minor: 3, patch: 1}} = Docker.parse_docker_version("17.03.1")
+
     assert {:ok, %{major: 17000, minor: 300, patch: 1000, pre: ["ce"]}} =
-      Docker.parse_docker_version("0017000.00300.00001000-ce")
+             Docker.parse_docker_version("0017000.00300.00001000-ce")
   end
 end

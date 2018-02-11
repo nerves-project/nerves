@@ -17,32 +17,34 @@ defmodule Nerves.Utils.HTTPClient do
   def get(pid, url) do
     case URI.parse(url) do
       %{host: nil} = uri ->
-        uri.path 
+        uri.path
         |> Path.expand()
         |> File.read()
-      _uri -> 
+
+      _uri ->
         GenServer.call(pid, {:get, url}, :infinity)
     end
   end
 
   def init([]) do
-    {:ok, %{
-      url: nil,
-      content_length: 0,
-      buffer: "",
-      buffer_size: 0,
-      filename: "",
-      caller: nil,
-      number_of_redirects: 0,
-    }}
+    {:ok,
+     %{
+       url: nil,
+       content_length: 0,
+       buffer: "",
+       buffer_size: 0,
+       filename: "",
+       caller: nil,
+       number_of_redirects: 0
+     }}
   end
 
-  def handle_call({:get, _url}, _from, %{number_of_redirects: n}=s) when n > 5 do
+  def handle_call({:get, _url}, _from, %{number_of_redirects: n} = s) when n > 5 do
     GenServer.reply(s.caller, {:error, :too_many_redirects})
     {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
   end
-  def handle_call({:get, url}, from, s) do
 
+  def handle_call({:get, url}, from, s) do
     headers = [
       {'Content-Type', 'application/octet-stream'}
     ]
@@ -54,38 +56,45 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def handle_info({:http, {_, :stream_start, headers}}, s) do
-    content_length = 
-      case Enum.find(headers, fn({key, _}) -> key == 'content-length' end) do
-        nil -> 0
+    content_length =
+      case Enum.find(headers, fn {key, _} -> key == 'content-length' end) do
+        nil ->
+          0
+
         {_, content_length} ->
           {content_length, _} =
             content_length
             |> to_string()
             |> Integer.parse()
+
           content_length
       end
 
-    filename = 
-      case Enum.find(headers, fn({key, _}) -> key == 'content-disposition' end) do
-        nil -> Path.basename(s.url)
-        {_, filename} -> 
+    filename =
+      case Enum.find(headers, fn {key, _} -> key == 'content-disposition' end) do
+        nil ->
+          Path.basename(s.url)
+
+        {_, filename} ->
           filename
           |> to_string
           |> String.split(";")
-          |> List.last
-          |> String.trim
+          |> List.last()
+          |> String.trim()
           |> String.trim("filename=")
       end
-    
+
     {:noreply, %{s | content_length: content_length, filename: filename}}
   end
 
   def handle_info({:http, {_, :stream, data}}, s) do
     size = byte_size(data) + s.buffer_size
     buffer = s.buffer <> data
+
     unless System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") do
       put_progress(size, s.content_length)
     end
+
     {:noreply, %{s | buffer_size: size, buffer: buffer}}
   end
 
@@ -95,14 +104,22 @@ defmodule Nerves.Utils.HTTPClient do
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
 
-  def handle_info({:http, {_ref, {{_, status_code, _}, headers, _body}}}, s) when status_code in @redirect_status_codes do
-    case Enum.find(headers, fn({key,_}) -> key == 'location' end) do
+  def handle_info({:http, {_ref, {{_, status_code, _}, headers, _body}}}, s)
+      when status_code in @redirect_status_codes do
+    case Enum.find(headers, fn {key, _} -> key == 'location' end) do
       {'location', next_url} ->
-        handle_call({:get, List.to_string(next_url)}, s.caller, %{s | buffer: "", buffer_size: 0, number_of_redirects: s.number_of_redirects + 1})
+        handle_call({:get, List.to_string(next_url)}, s.caller, %{
+          s
+          | buffer: "",
+            buffer_size: 0,
+            number_of_redirects: s.number_of_redirects + 1
+        })
+
       _ ->
         GenServer.reply(s.caller, {:error, status_code})
     end
   end
+
   def handle_info({:http, {_ref, {{_, status_code, reason}, _headers, _body}}}, s) do
     reason = "Status #{to_string(status_code)} #{to_string(reason)}"
     GenServer.reply(s.caller, {:error, reason})
@@ -110,15 +127,22 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def put_progress(size, max) do
-    fraction = (size / max)
+    fraction = size / max
     completed = trunc(fraction * @progress_steps)
     percent = trunc(fraction * 100)
     unfilled = @progress_steps - completed
-    IO.write(:stderr, "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{bytes_to_mb(size)} / #{bytes_to_mb(max)}) MB")
+
+    IO.write(
+      :stderr,
+      "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{
+        bytes_to_mb(size)
+      } / #{bytes_to_mb(max)}) MB"
+    )
   end
 
   defp start_httpc() do
     :inets.start(:httpc, profile: :nerves)
+
     opts = [
       max_sessions: 8,
       max_keep_alive_length: 4,
@@ -126,6 +150,7 @@ defmodule Nerves.Utils.HTTPClient do
       keep_alive_timeout: 120_000,
       pipeline_timeout: 60_000
     ]
+
     :httpc.set_options(opts, :nerves)
   end
 

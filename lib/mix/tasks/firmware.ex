@@ -21,54 +21,58 @@ defmodule Mix.Tasks.Firmware do
   """
   def run(_args) do
     preflight()
-    debug_info "Nerves Firmware Assembler"
+    debug_info("Nerves Firmware Assembler")
 
     system_path = check_nerves_system_is_set!()
 
     check_nerves_toolchain_is_set!()
 
     rel_config =
-      File.cwd!
+      File.cwd!()
       |> Path.join("rel/config.exs")
 
     unless File.exists?(rel_config) do
-      Mix.raise """
+      Mix.raise("""
         You are missing a release config file. Run  nerves.release.init task first
-      """
+      """)
     end
 
-    Mix.Task.run "compile", []
+    Mix.Task.run("compile", [])
 
-    Mix.Nerves.IO.shell_info "Building OTP Release..."
+    Mix.Nerves.IO.shell_info("Building OTP Release...")
 
     clean_release()
     build_release()
     build_firmware(system_path)
   end
 
-  def result({_ , 0}), do: nil
-  def result({result, _}), do: Mix.raise """
-  Nerves encountered an error. #{inspect result}
-  """
+  def result({_, 0}), do: nil
+
+  def result({result, _}),
+    do:
+      Mix.raise("""
+      Nerves encountered an error. #{inspect(result)}
+      """)
 
   defp clean_release do
     try do
-      Mix.Task.run "release.clean", ["--implode", "--no-confirm"]
+      Mix.Task.run("release.clean", ["--implode", "--no-confirm"])
     catch
       :exit, _ -> :noop
     end
   end
 
   defp build_release do
-    Mix.Task.run "release", ["--silent", "--no-tar"]
+    Mix.Task.run("release", ["--silent", "--no-tar"])
   end
 
   defp build_firmware(system_path) do
-    config = Mix.Project.config
+    config = Mix.Project.config()
     otp_app = config[:app]
+
     images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path, "nerves", "images"]))
-      |> Path.expand
+      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
+      |> Path.expand()
 
     unless File.exists?(images_path) do
       File.mkdir_p(images_path)
@@ -78,17 +82,25 @@ defmodule Mix.Tasks.Firmware do
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
     args = [rel2fw_path]
+
     if firmware_config[:rootfs_additions] do
-      Mix.shell.error("The :rootfs_additions configuration option has been deprecated. Please use :rootfs_overlay instead.")
+      Mix.shell().error(
+        "The :rootfs_additions configuration option has been deprecated. Please use :rootfs_overlay instead."
+      )
     end
-    rootfs_overlay = case (firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions]) do
-      nil -> []
-      overlay -> ["-a", Path.join(File.cwd!, overlay)]
-    end
-    fwup_conf = case firmware_config[:fwup_conf] do
-      nil -> []
-      fwup_conf -> ["-c", Path.join(File.cwd!, fwup_conf)]
-    end
+
+    rootfs_overlay =
+      case firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions] do
+        nil -> []
+        overlay -> ["-a", Path.join(File.cwd!(), overlay)]
+      end
+
+    fwup_conf =
+      case firmware_config[:fwup_conf] do
+        nil -> []
+        fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
+      end
+
     fw = ["-f", "#{images_path}/#{otp_app}.fw"]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
@@ -102,10 +114,11 @@ defmodule Mix.Tasks.Firmware do
   defp standard_fwup_variables(config) do
     # Assuming the fwup.conf file respects these variable like the official
     # systems do, this will set the .fw metadata to what's in the mix.exs.
-    [{"NERVES_FW_VERSION", config[:version]},
-     {"NERVES_FW_PRODUCT", config[:name] || to_string(config[:app])},
-     {"NERVES_FW_DESCRIPTION", config[:description]},
-     {"NERVES_FW_AUTHOR", config[:author]},
+    [
+      {"NERVES_FW_VERSION", config[:version]},
+      {"NERVES_FW_PRODUCT", config[:name] || to_string(config[:app])},
+      {"NERVES_FW_DESCRIPTION", config[:description]},
+      {"NERVES_FW_AUTHOR", config[:author]}
     ]
   end
 end

@@ -2,8 +2,8 @@ defmodule System.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
-           |> File.read!
-           |> String.trim
+           |> File.read!()
+           |> String.trim()
 
   def project do
     [
@@ -20,7 +20,7 @@ defmodule System.Mixfile do
       type: :system,
       platform: SystemPlatform,
       platform_config: [
-        defconfig: "nerves_defconfig",
+        defconfig: "nerves_defconfig"
       ],
       checksum: package_files()
     ]

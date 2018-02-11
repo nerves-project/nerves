@@ -17,7 +17,7 @@ defmodule Nerves.Artifact.Resolver do
 
     location =
       location
-      |> URI.encode
+      |> URI.encode()
       |> String.replace("+", "%2B")
 
     result = Nerves.Utils.HTTPClient.get(pid, location)
@@ -34,16 +34,21 @@ defmodule Nerves.Artifact.Resolver do
     file = Artifact.download_path(pkg)
     File.mkdir_p(Nerves.Env.download_dir())
     File.write(file, body)
+
     case Nerves.Utils.File.validate(file) do
-      :ok -> {:ok, file}
-      {:error, reason} -> 
+      :ok ->
+        {:ok, file}
+
+      {:error, reason} ->
         File.rm(file)
         {:error, reason}
     end
   end
+
   defp result({:error, reason}, _, []) do
     {:error, reason}
   end
+
   defp result(_, pkg, locations) do
     get(pkg, locations)
   end

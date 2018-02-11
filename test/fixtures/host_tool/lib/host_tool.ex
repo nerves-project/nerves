@@ -1,3 +1,2 @@
 defmodule HostTool do
-  
 end

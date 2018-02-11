@@ -12,24 +12,24 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   @recursive true
 
   def run(_args) do
-    debug_info "Compile.NervesPackage start"
-    config = Mix.Project.config
+    debug_info("Compile.NervesPackage start")
+    config = Mix.Project.config()
 
-    Nerves.Env.start
-    Nerves.Env.ensure_loaded(Mix.Project.config[:app])
+    Nerves.Env.start()
+    Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
 
     package = Nerves.Env.package(config[:app])
-    toolchain = Nerves.Env.toolchain
-    ret = 
-      if Nerves.Env.enabled? and Nerves.Artifact.stale?(package) do
+    toolchain = Nerves.Env.toolchain()
+
+    ret =
+      if Nerves.Env.enabled?() and Nerves.Artifact.stale?(package) do
         Nerves.Artifact.build(package, toolchain)
         :ok
       else
         :noop
       end
 
-    debug_info "Compile.NervesPackage end"
+    debug_info("Compile.NervesPackage end")
     ret
   end
-
 end

@@ -9,14 +9,16 @@ defmodule Mix.Nerves.Shell do
     stdin_port = Port.open({:spawn, "tty_sl -c -e"}, [:binary, :eof, :stream, :in])
 
     # We run the command through the script command to emulate a pty
-    cmd = 
+    cmd =
       "script -q /dev/null " <>
-      case Nerves.Env.host_os() do
-        "linux" ->
-          "-c \"#{command}\""
-        _ -> "#{command}"
-      end
-    
+        case Nerves.Env.host_os() do
+          "linux" ->
+            "-c \"#{command}\""
+
+          _ ->
+            "#{command}"
+        end
+
     cmd_port =
       Port.open({:spawn, cmd}, [
         :binary,

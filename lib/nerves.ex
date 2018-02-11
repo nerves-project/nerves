@@ -10,6 +10,7 @@ defmodule Nerves do
         |> Map.put(:include_erts, System.get_env("ERL_LIB_DIR"))
         |> Map.put(:include_system_libs, System.get_env("ERL_SYSTEM_LIB_DIR"))
         |> Map.put_new(:vm_args, "rel/vm.args")
+
       %{release | profile: profile}
     else
       release
@@ -32,8 +33,8 @@ defmodule Nerves do
     :noop
   end
 
-  def version,        do: unquote(Mix.Project.config[:version])
-  def elixir_version, do: unquote(System.version)
+  def version, do: unquote(Mix.Project.config()[:version])
+  def elixir_version, do: unquote(System.version())
 
   def nerves_env_loaded? do
     System.get_env("NERVES_PRECOMPILE") != nil

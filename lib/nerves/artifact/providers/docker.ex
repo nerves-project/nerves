@@ -65,14 +65,14 @@ defmodule Nerves.Artifact.Providers.Docker do
   @version "~> 1.12 or ~> 1.12.0-rc2 or ~> 17.0"
   @tag "nervesproject/nerves_system_br:latest"
 
-  @dockerfile File.cwd!
+  @dockerfile File.cwd!()
               |> Path.join("template/Dockerfile")
   @working_dir "/nerves/build"
 
   @doc """
   Create an artifact for the package
   """
-  @spec build(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: :ok
   def build(pkg, _toolchain, _opts) do
     preflight(pkg)
 
@@ -81,16 +81,16 @@ defmodule Nerves.Artifact.Providers.Docker do
 
     :ok = create_build(pkg, stream)
     :ok = make(pkg, stream)
-    Mix.shell.info("\n")
+    Mix.shell().info("\n")
     :ok = make_artifact(pkg, stream)
-    Mix.shell.info("\n")
+    Mix.shell().info("\n")
     {:ok, path} = copy_artifact(pkg, stream)
-    Mix.shell.info("\n")
+    Mix.shell().info("\n")
     _ = Nerves.Utils.Stream.stop(pid)
     {:ok, path}
   end
 
-  @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: :ok
+  @spec archive(Nerves.Package.t(), Nerves.Package.t(), term) :: :ok
   def archive(pkg, _toolchain, _opts) do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
     stream = IO.stream(pid, :line)
@@ -102,14 +102,15 @@ defmodule Nerves.Artifact.Providers.Docker do
   def clean(pkg) do
     Docker.Volume.name(pkg)
     |> Docker.Volume.delete()
+
     Artifact.Cache.path(pkg)
-    |> File.rm_rf
+    |> File.rm_rf()
   end
 
   @doc """
   Connect to a system configuration shell in a Docker container
   """
-  @spec system_shell(Nerves.Package.t) :: :ok
+  @spec system_shell(Nerves.Package.t()) :: :ok
   def system_shell(pkg) do
     preflight(pkg)
     {_, image} = config(pkg)
@@ -119,8 +120,9 @@ defmodule Nerves.Artifact.Providers.Docker do
     initial_input = [
       "echo Updating build directory.",
       "echo This will take a while if it is the first time...",
-      "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null",
+      "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null"
     ]
+
     mounts = Enum.join(mounts(pkg), " ")
     cmd = "docker run --rm -it -w #{@working_dir} #{mounts} #{image}"
     Mix.Nerves.Shell.open(cmd, initial_input)
@@ -139,11 +141,8 @@ defmodule Nerves.Artifact.Providers.Docker do
   defp create_build(pkg, stream) do
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
-    cmd = [
-      "/nerves/env/platform/create-build.sh",
-      defconfig,
-      @working_dir]
-    shell_info "Starting Build... (this may take a while)"
+    cmd = ["/nerves/env/platform/create-build.sh", defconfig, @working_dir]
+    shell_info("Starting Build... (this may take a while)")
     run(pkg, cmd, stream)
   end
 
@@ -153,21 +152,15 @@ defmodule Nerves.Artifact.Providers.Docker do
 
   defp make_artifact(pkg, stream) do
     name = Artifact.download_name(pkg)
-    shell_info "Creating artifact archive"
-    cmd = [
-      "make",
-      "system",
-      "NERVES_ARTIFACT_NAME=#{name}"]
+    shell_info("Creating artifact archive")
+    cmd = ["make", "system", "NERVES_ARTIFACT_NAME=#{name}"]
     run(pkg, cmd, stream)
   end
 
   defp copy_artifact(pkg, stream) do
-    shell_info "Copying artifact archive to host"
+    shell_info("Copying artifact archive to host")
     name = Artifact.download_name(pkg) <> Artifact.ext(pkg)
-    cmd = [
-      "cp",
-      name,
-      "/nerves/dl/#{name}"]
+    cmd = ["cp", name, "/nerves/dl/#{name}"]
 
     run(pkg, cmd, stream)
     path = Artifact.download_path(pkg)
@@ -178,21 +171,27 @@ defmodule Nerves.Artifact.Providers.Docker do
 
   defp run(pkg, cmd, stream) do
     {_dockerfile, image} = config(pkg)
-    args = [
-      "run",
-      "--rm",
-      "-w=#{@working_dir}",
-      "-a", "stdout",
-      "-a", "stderr"
+
+    args =
+      [
+        "run",
+        "--rm",
+        "-w=#{@working_dir}",
+        "-a",
+        "stdout",
+        "-a",
+        "stderr"
       ] ++ mounts(pkg) ++ [image | cmd]
+
     case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
       {_result, 0} ->
         :ok
+
       {_result, _} ->
-        Mix.raise """
+        Mix.raise("""
         Nerves Docker provider encountered an error.
         See build.log for more details.
-        """
+        """)
     end
   end
 
@@ -201,32 +200,41 @@ defmodule Nerves.Artifact.Providers.Docker do
     build_volume = Docker.Volume.name(pkg)
     download_dir = Nerves.Env.download_dir() |> Path.expand()
     mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
+
     mounts =
-      Enum.reduce(build_paths, mounts, fn({_, host,target}, acc) ->
+      Enum.reduce(build_paths, mounts, fn {_, host, target}, acc ->
         ["--mount", "type=bind,src=#{host},target=#{target}" | acc]
       end)
+
     mounts = ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl" | mounts]
     ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
   end
 
   defp build_paths(pkg) do
     system_br = Nerves.Env.package(:nerves_system_br)
-    [{:platform, system_br.path, "/nerves/env/platform"},
-     {:package, pkg.path, "/nerves/env/#{pkg.app}"}]
+
+    [
+      {:platform, system_br.path, "/nerves/env/platform"},
+      {:package, pkg.path, "/nerves/env/#{pkg.app}"}
+    ]
   end
 
   defp host_check() do
     try do
       case System.cmd("docker", ["--version"]) do
         {result, 0} ->
-          <<"Docker version ", vsn :: binary>> = result
+          <<"Docker version ", vsn::binary>> = result
           {:ok, requirement} = Version.parse_requirement(@version)
           {:ok, vsn} = parse_docker_version(vsn)
+
           unless Version.match?(vsn, requirement) do
             error_invalid_version(vsn)
           end
+
           :ok
-        _ -> error_not_installed()
+
+        _ ->
+          error_not_installed()
       end
     rescue
       ErlangError -> error_not_installed()
@@ -243,6 +251,7 @@ defmodule Nerves.Artifact.Providers.Docker do
 
     unless Docker.Image.exists?(tag) do
       Docker.Image.pull(tag)
+
       unless Docker.Image.exists?(tag) do
         Docker.Image.create(dockerfile, tag)
       end
@@ -258,30 +267,30 @@ defmodule Nerves.Artifact.Providers.Docker do
 
     dockerfile =
       dockerfile
-      |> Path.relative_to_cwd
-      |> Path.expand
+      |> Path.relative_to_cwd()
+      |> Path.expand()
+
     {dockerfile, tag}
   end
 
   defp error_not_installed do
-    Mix.raise """
+    Mix.raise("""
     Docker is not installed on your machine.
     Please install docker #{@version} or later
-    """
+    """)
   end
 
   defp error_invalid_version(vsn) do
-    Mix.raise """
+    Mix.raise("""
     Your version of docker: #{vsn}
     does not meet the requirements: #{@version}
-    """
+    """)
   end
 
   def parse_docker_version(vsn) do
     [vsn | _] = String.split(vsn, ",", parts: 2)
+
     Regex.replace(~r/(\.|^)0+(?=\d)/, vsn, "\\1")
-    |> Version.parse
+    |> Version.parse()
   end
-
-
 end

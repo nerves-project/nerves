@@ -37,24 +37,26 @@ defmodule Mix.Tasks.Firmware.Burn do
   """
   def run(argv) do
     preflight()
-    debug_info "Nerves Firmware Burn"
+    debug_info("Nerves Firmware Burn")
 
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
-    config = Mix.Project.config
+    config = Mix.Project.config()
     otp_app = config[:app]
     target = config[:target]
+
     images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path, "nerves", "images"]))
-      |> Path.expand
+      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
+      |> Path.expand()
 
     check_nerves_system_is_set!()
 
     check_nerves_toolchain_is_set!()
 
     fw = "#{images_path}/#{otp_app}.fw"
+
     unless File.exists?(fw) do
-      Mix.raise "Firmware for target #{target} not found at #{fw} run `mix firmware` to build"
+      Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
     dev =
@@ -62,40 +64,49 @@ defmodule Mix.Tasks.Firmware.Burn do
         nil -> prompt_dev()
         dev -> dev
       end
+
     burn(fw, dev, opts, argv)
   end
 
   defp burn(fw, dev, opts, argv) do
     task = opts[:task] || "complete"
     args = ["-a", "-i", fw, "-t", task, "-d", dev] ++ argv
+
     {cmd, args} =
-      case :os.type do
+      case :os.type() do
         {_, :darwin} ->
           {"fwup", args}
+
         {_, :linux} ->
           case File.stat(dev) do
             {:ok, %File.Stat{access: :read_write}} ->
               {"fwup", args}
+
             _ ->
               ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
               System.put_env("SUDO_ASKPASS", ask_pass)
               {"sudo", ["fwup"] ++ args}
           end
+
         {_, :nt} ->
-           {"fwup", args}
+          {"fwup", args}
+
         {_, type} ->
-          raise "Unable to burn firmware on your host #{inspect type}"
+          raise "Unable to burn firmware on your host #{inspect(type)}"
       end
+
     shell(cmd, args)
   end
 
   defp get_devs do
     {result, 0} = System.cmd("fwup", ["--detect"])
+
     if result == "" do
-      Mix.raise "Could not auto detect your SD card"
+      Mix.raise("Could not auto detect your SD card")
     end
+
     result
-    |> String.trim
+    |> String.trim()
     |> String.split("\n")
     |> Enum.map(&String.split(&1, ","))
   end
@@ -104,30 +115,38 @@ defmodule Mix.Tasks.Firmware.Burn do
     case get_devs() do
       [[dev, bytes]] ->
         choice =
-          Mix.shell.yes?("Use #{bytes_to_gigabytes(bytes)} GiB memory card found at #{dev}?")
+          Mix.shell().yes?("Use #{bytes_to_gigabytes(bytes)} GiB memory card found at #{dev}?")
+
         if choice do
           dev
         else
-          Mix.raise "Aborted"
+          Mix.raise("Aborted")
         end
+
       devs ->
         choices =
           devs
           |> Enum.zip(0..length(devs))
-          |> Enum.reduce([], fn({[dev, bytes], idx}, acc) ->
+          |> Enum.reduce([], fn {[dev, bytes], idx}, acc ->
             ["#{idx}) #{bytes_to_gigabytes(bytes)} GiB found at #{dev}" | acc]
           end)
-          |> Enum.reverse
-        choice = Mix.shell.prompt("Discovered devices:\n#{Enum.join(choices, "\n")}\nWhich device do you want to burn to?")
-        |> String.trim
+          |> Enum.reverse()
+
+        choice =
+          Mix.shell().prompt(
+            "Discovered devices:\n#{Enum.join(choices, "\n")}\nWhich device do you want to burn to?"
+          )
+          |> String.trim()
+
         idx =
           case Integer.parse(choice) do
             {idx, _} -> idx
-            _ -> Mix.raise "Invalid selection #{choice}"
+            _ -> Mix.raise("Invalid selection #{choice}")
           end
+
         case Enum.fetch(devs, idx) do
           {:ok, [dev, _]} -> dev
-          _ -> Mix.raise "Invalid selection #{choice}"
+          _ -> Mix.raise("Invalid selection #{choice}")
         end
     end
   end

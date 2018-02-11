@@ -10,11 +10,10 @@ defmodule Nerves.Artifact.Providers.Local do
 
   @behaviour Provider
 
-
   @doc """
   Builds an artifact locally.
   """
-  @spec build(Nerves.Package.t, Nerves.Package.t, term) :: Provider.build_result
+  @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: Provider.build_result()
   def build(pkg, toolchain, opts) do
     pkg.platform.build(pkg, toolchain, opts)
   end
@@ -22,7 +21,7 @@ defmodule Nerves.Artifact.Providers.Local do
   @doc """
   Builds an artifact locally.
   """
-  @spec archive(Nerves.Package.t, Nerves.Package.t, term) :: Provider.archive_result
+  @spec archive(Nerves.Package.t(), Nerves.Package.t(), term) :: Provider.archive_result()
   def archive(pkg, toolchain, opts) do
     pkg.platform.archive(pkg, toolchain, opts)
   end
@@ -30,7 +29,7 @@ defmodule Nerves.Artifact.Providers.Local do
   @doc """
   Builds an artifact locally.
   """
-  @callback clean(package :: Nerves.Package.t) :: Provider.clean_result
+  @callback clean(package :: Nerves.Package.t()) :: Provider.clean_result()
   def clean(pkg) do
     pkg.platform.clean(pkg)
   end
@@ -38,7 +37,7 @@ defmodule Nerves.Artifact.Providers.Local do
   @doc """
   Connect to a system configuration sub-shell
   """
-  @spec system_shell(Nerves.Package.t) :: :ok
+  @spec system_shell(Nerves.Package.t()) :: :ok
   def system_shell(pkg) do
     dest = Artifact.build_path(pkg)
 
@@ -52,10 +51,9 @@ defmodule Nerves.Artifact.Providers.Local do
       "echo Updating build directory.",
       "echo This will take a while if it is the first time...",
       "#{script} #{defconfig} #{dest} >/dev/null",
-      "cd #{dest}",
+      "cd #{dest}"
     ]
 
     Mix.Nerves.Shell.open(shell, initial_input)
   end
-
 end

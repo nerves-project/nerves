@@ -2,11 +2,11 @@ defmodule Toolchain.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
-    |> File.read!
-    |> String.trim
+           |> File.read!()
+           |> String.trim()
 
   def project do
-    [ 
+    [
       app: :toolchain,
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],

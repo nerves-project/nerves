@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Nerves.Release.Init do
       mix help release.init
   """
 
-  @spec run(OptionParser.argv) :: no_return
+  @spec run(OptionParser.argv()) :: no_return
   def run(args) do
     template_path = Path.join(["#{:code.priv_dir(:nerves)}", "templates", "release.eex"])
     Mix.Task.run("release.init", args ++ ["--template", template_path])

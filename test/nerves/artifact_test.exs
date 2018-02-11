@@ -6,19 +6,17 @@ defmodule Nerves.ArtifactTest do
   alias Nerves.Env
 
   test "Fetch provider overrides" do
-    in_fixture "package_provider_override", fn ->
-      packages =
-        ~w(package)
+    in_fixture("package_provider_override", fn ->
+      packages = ~w(package)
       _ = load_env(packages)
-      
+
       assert Env.package(:package).provider == {P.Docker, []}
-    end
+    end)
   end
 
   test "Resolve artifact path" do
-    in_fixture "simple_app", fn ->
-      packages =
-        ~w(system toolchain)
+    in_fixture("simple_app", fn ->
+      packages = ~w(system toolchain)
 
       _ = load_env(packages)
       system = Env.package(:system)
@@ -26,20 +24,19 @@ defmodule Nerves.ArtifactTest do
       artifact_dir = Artifact.dir(system)
       artifact_file = "#{system.app}-#{host_tuple}-#{system.version}"
       assert String.ends_with?(artifact_dir, artifact_file)
-    end
+    end)
   end
 
   test "Override System and Toolchain path" do
-    in_fixture "simple_app", fn ->
-      packages =
-        ~w(system toolchain)
+    in_fixture("simple_app", fn ->
+      packages = ~w(system toolchain)
 
       system_path =
-        File.cwd!
+        File.cwd!()
         |> Path.join("tmp/system")
 
       toolchain_path =
-        File.cwd!
+        File.cwd!()
         |> Path.join("tmp/toolchain")
 
       File.mkdir_p!(system_path)
@@ -48,16 +45,15 @@ defmodule Nerves.ArtifactTest do
       System.put_env("NERVES_SYSTEM", system_path)
       System.put_env("NERVES_TOOLCHAIN", toolchain_path)
 
-
       _ = load_env(packages)
 
-      assert Artifact.dir(Env.system) == system_path
-      assert Artifact.dir(Env.toolchain) == toolchain_path
-      assert Nerves.Env.toolchain_path == toolchain_path
-      assert Nerves.Env.system_path == system_path
+      assert Artifact.dir(Env.system()) == system_path
+      assert Artifact.dir(Env.toolchain()) == toolchain_path
+      assert Nerves.Env.toolchain_path() == toolchain_path
+      assert Nerves.Env.system_path() == system_path
       System.delete_env("NERVES_SYSTEM")
       System.delete_env("NERVES_TOOLCHAIN")
-    end
+    end)
   end
 
   test "parse artifact download name from regex" do

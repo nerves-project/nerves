@@ -34,34 +34,38 @@ defmodule Mix.Tasks.Nerves.Artifact do
     # does not include aliases to nerves_bootstrap
     Mix.Task.run("nerves.precompile", [])
 
-    {package_name, argv} = 
+    {package_name, argv} =
       case argv do
         [] ->
           {to_string(Mix.Project.config()[:app]), argv}
+
         ["-" <> _arg | _] ->
           {to_string(Mix.Project.config()[:app]), argv}
-        [package_name | argv] -> 
+
+        [package_name | argv] ->
           {package_name, argv}
       end
-    debug_info "Nerves.Artifact start"
+
+    debug_info("Nerves.Artifact start")
 
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
-    
+
     package_name = String.to_atom(package_name)
 
-    
-
     package = Nerves.Env.package(package_name)
-    toolchain = Nerves.Env.toolchain
+    toolchain = Nerves.Env.toolchain()
 
     cond do
       package == nil ->
-        Mix.raise "Could not find Nerves package #{package_name} in env"
+        Mix.raise("Could not find Nerves package #{package_name} in env")
+
       Nerves.Artifact.stale?(package) ->
-        Mix.raise "Your package sources are stale. Please run mix compile first."
+        Mix.raise("Your package sources are stale. Please run mix compile first.")
+
       true ->
         Nerves.Artifact.archive(package, toolchain, opts)
     end
-    debug_info "Nerves.Artifact end"
+
+    debug_info("Nerves.Artifact end")
   end
 end

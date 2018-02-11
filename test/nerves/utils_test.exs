@@ -33,27 +33,23 @@ defmodule Nerves.UtilsTest do
   end
 
   test "create tar archives", context do
-    in_tmp context.test, fn ->
-      cwd = File.cwd!
-      content_path = 
-        Path.join(cwd, "content")
+    in_tmp(context.test, fn ->
+      cwd = File.cwd!()
+      content_path = Path.join(cwd, "content")
       File.mkdir(content_path)
-      contents = 
-        Path.join(content_path, "file")
+      contents = Path.join(content_path, "file")
       File.touch(contents)
       archive = create_archive(content_path, cwd)
       assert File.exists?(archive)
-    end
+    end)
   end
 
   test "decompress tar archives", context do
-    in_tmp context.test, fn ->
-      cwd = File.cwd!
-      content_path = 
-        Path.join(cwd, "content")
+    in_tmp(context.test, fn ->
+      cwd = File.cwd!()
+      content_path = Path.join(cwd, "content")
       File.mkdir(content_path)
-      contents = 
-        Path.join(content_path, "file")
+      contents = Path.join(content_path, "file")
       File.touch(contents)
       archive = create_archive(content_path, cwd)
       assert File.exists?(archive)
@@ -61,18 +57,17 @@ defmodule Nerves.UtilsTest do
       File.mkdir(content_path)
       Utils.File.untar(archive, content_path)
       assert File.exists?(contents)
-    end
+    end)
   end
 
   test "validate tar archives", context do
-    in_tmp context.test, fn ->
-      cwd = File.cwd!
-      archive_path = 
-        Path.join(cwd, "archive.tar.gz")
+    in_tmp(context.test, fn ->
+      cwd = File.cwd!()
+      archive_path = Path.join(cwd, "archive.tar.gz")
 
       :os.cmd('dd if=/dev/urandom bs=1024 count=1 of=#{archive_path}')
       assert {:error, _} = Utils.File.validate(archive_path)
-    end
+    end)
   end
 
   test "validate extension programs" do

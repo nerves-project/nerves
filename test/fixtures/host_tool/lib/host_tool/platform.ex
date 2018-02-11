@@ -13,19 +13,19 @@ defmodule HostTool.Platform do
     build_path = Artifact.build_path(pkg)
     File.rm_rf(build_path)
 
-    priv_dir = 
+    priv_dir =
       pkg.path
       |> Path.join("priv")
-      |> Path.expand
+      |> Path.expand()
 
     build_path
     |> Path.dirname()
     |> File.mkdir_p()
-    
+
     File.mkdir_p(priv_dir)
 
     File.ln_s!(priv_dir, build_path)
-    
+
     System.cmd("make", [])
 
     {:ok, build_path}
@@ -39,18 +39,17 @@ defmodule HostTool.Platform do
     build_path = Artifact.build_path(pkg)
     name = Artifact.download_name(pkg) <> Artifact.ext(pkg)
     Nerves.Utils.File.tar(build_path, name)
-    {:ok, Path.join(File.cwd!, name)}
+    {:ok, Path.join(File.cwd!(), name)}
   end
 
   def clean(pkg) do
     build_path = Artifact.build_path(pkg)
     File.rm_rf(build_path)
-    
 
-    priv_dir = 
+    priv_dir =
       pkg.path
       |> Path.join("priv")
-      |> Path.expand
+      |> Path.expand()
 
     File.rm_rf(priv_dir)
     :ok

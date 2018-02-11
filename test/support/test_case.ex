@@ -13,13 +13,13 @@ defmodule NervesTest.Case do
       Logger.remove_backend(:console)
     end
 
-    on_exit fn ->
+    on_exit(fn ->
       Application.start(:logger)
       Mix.env(:dev)
-      Mix.Task.clear
-      Mix.Shell.Process.flush
-      Mix.ProjectStack.clear_cache
-      Mix.ProjectStack.clear_stack
+      Mix.Task.clear()
+      Mix.Shell.Process.flush()
+      Mix.ProjectStack.clear_cache()
+      Mix.ProjectStack.clear_stack()
       delete_tmp_paths()
 
       if apps do
@@ -27,17 +27,18 @@ defmodule NervesTest.Case do
           Application.stop(app)
           Application.unload(app)
         end
+
         Logger.add_backend(:console, flush: true)
       end
-    end
+    end)
 
     :ok
   end
 
   defmacro in_fixture(which, block) do
-    module   = inspect __CALLER__.module
-    function = Atom.to_string elem(__CALLER__.function, 0)
-    tmp      = Path.join(module, function)
+    module = inspect(__CALLER__.module)
+    function = Atom.to_string(elem(__CALLER__.function, 0))
+    tmp = Path.join(module, function)
 
     quote do
       unquote(__MODULE__).in_fixture(unquote(which), unquote(tmp), unquote(block))
@@ -45,16 +46,18 @@ defmodule NervesTest.Case do
   end
 
   def in_fixture(which, tmp, function) do
-    dest = tmp_path(tmp)
-    |> Path.join(which)
+    dest =
+      tmp_path(tmp)
+      |> Path.join(which)
+
     fixture_to_tmp(which, dest)
-    
+
     artifact_dir = Path.join(tmp_path(tmp), ".nerves/artifacts")
     File.mkdir_p!(artifact_dir)
     System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
 
     try do
-      File.cd! dest, function
+      File.cd!(dest, function)
     after
       unload_env()
     end
@@ -84,7 +87,7 @@ defmodule NervesTest.Case do
   end
 
   def fixture_to_tmp(fixture, dest) do
-    src  = fixture_path(fixture)
+    src = fixture_path(fixture)
 
     File.rm_rf!(dest)
     File.mkdir_p!(dest)
@@ -94,27 +97,27 @@ defmodule NervesTest.Case do
   def load_env(packages \\ []) do
     packages =
       packages
-      |> Enum.sort
+      |> Enum.sort()
 
-    Enum.each(packages, fn (package) ->
-      path = Path.expand("#{File.cwd!}/../#{package}")
+    Enum.each(packages, fn package ->
+      path = Path.expand("#{File.cwd!()}/../#{package}")
       fixture_to_tmp(package, path)
     end)
 
-    File.cwd!
+    File.cwd!()
     |> Path.join("mix.exs")
     |> Code.require_file()
 
-    Nerves.Env.start
-    Nerves.Env.packages
+    Nerves.Env.start()
+    Nerves.Env.packages()
   end
 
   def unload_env() do
     packages =
-      Nerves.Env.packages
-      |> Enum.sort
+      Nerves.Env.packages()
+      |> Enum.sort()
 
-    Enum.each(packages, fn (%{app: app}) ->
+    Enum.each(packages, fn %{app: app} ->
       key = {:cached_deps, Mix.env(), app}
       Agent.cast(Mix.ProjectStack, &%{&1 | cache: Map.delete(&1.cache, key)})
     end)
@@ -122,9 +125,6 @@ defmodule NervesTest.Case do
 
   defp delete_tmp_paths do
     tmp = String.to_charlist(tmp_path())
-    for path <- :code.get_path,
-        :string.str(path, tmp) != 0,
-        do: :code.del_path(path)
+    for path <- :code.get_path(), :string.str(path, tmp) != 0, do: :code.del_path(path)
   end
-
 end

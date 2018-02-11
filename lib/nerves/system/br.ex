@@ -11,14 +11,14 @@ defmodule Nerves.System.BR do
   def bootstrap(%{path: path}) do
     path
     |> Path.join("nerves_env.exs")
-    |> Code.require_file
+    |> Code.require_file()
   end
 
   @doc """
   Build the artifact
   """
   def build(pkg, toolchain, opts) do
-    {_, type} = :os.type
+    {_, type} = :os.type()
     make(type, pkg, toolchain, opts)
   end
 
@@ -34,6 +34,7 @@ defmodule Nerves.System.BR do
   """
   def clean(pkg) do
     Artifact.Cache.delete(pkg)
+
     Artifact.build_path(pkg)
     |> File.rm_rf()
 
@@ -48,7 +49,7 @@ defmodule Nerves.System.BR do
   Create an archive of the artifact
   """
   def archive(pkg, toolchain, opts) do
-    {_, type} = :os.type
+    {_, type} = :os.type()
     make_archive(type, pkg, toolchain, opts)
   end
 
@@ -64,13 +65,13 @@ defmodule Nerves.System.BR do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)
 
-    case shell("make", [], [cd: dest, stream: stream]) do
+    case shell("make", [], cd: dest, stream: stream) do
       {_, 0} -> {:ok, dest}
       {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
     end
   end
 
-  defp make(type , _pkg, _toolchain, _opts) do
+  defp make(type, _pkg, _toolchain, _opts) do
     error_host_os(type)
   end
 
@@ -81,7 +82,7 @@ defmodule Nerves.System.BR do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
     stream = IO.stream(pid, :line)
 
-    case shell("make", ["system", "NERVES_ARTIFACT_NAME=#{name}"], [cd: dest, stream: stream]) do
+    case shell("make", ["system", "NERVES_ARTIFACT_NAME=#{name}"], cd: dest, stream: stream) do
       {_, 0} -> {:ok, Path.join(dest, name <> Artifact.ext(pkg))}
       {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
     end
@@ -92,10 +93,10 @@ defmodule Nerves.System.BR do
   end
 
   defp error_host_os(type) do
-    {:error, """
-    Local provider is not available for host system: #{type}
-    Please use the Docker provider to build this package artifact
-    """}
+    {:error,
+     """
+     Local provider is not available for host system: #{type}
+     Please use the Docker provider to build this package artifact
+     """}
   end
-
 end

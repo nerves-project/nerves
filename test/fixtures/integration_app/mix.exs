@@ -28,9 +28,6 @@ defmodule IntegrationApp do
   end
 
   def aliases do
-    [ 
-      
-    ] |> Nerves.Bootstrap.add_aliases()
+    [] |> Nerves.Bootstrap.add_aliases()
   end
-
 end

@@ -53,23 +53,21 @@ defmodule Nerves.Package.Platform do
 
   ```
   """
-  
+
   @doc """
    Bootstrap is called as the final phase of loading the Nerves environment.
    It is used typically for setting / unsetting any system environment 
    variables. For example, if we were building a C cross compiler, we would 
    use the bootstrap phase to override CC to point to our compiler.
   """
-  @callback bootstrap(Nerves.Package.t) ::
-    :ok | {:error, error :: term}
-  
+  @callback bootstrap(Nerves.Package.t()) :: :ok | {:error, error :: term}
+
   @doc """
   Build path link should return the location inside the `Artifact.build_path`
   that represents the final artifact. This is used to symlink the global
   artifact to the local build_path location.
   """
-  @callback build_path_link(package :: Nerves.Package.t) ::
-    build_path_link :: String.t
+  @callback build_path_link(package :: Nerves.Package.t()) :: build_path_link :: String.t()
 
   defmacro __using__(_) do
     quote do
