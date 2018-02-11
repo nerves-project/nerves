@@ -2,14 +2,24 @@ defmodule Nerves.Utils.File do
 
   def untar(file, destination \\ nil) do
     destination = destination || File.cwd!
-    System.cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
+    cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
+    |> result()
+  end
+
+  @doc """
+  Create a tar of the contents of the path and specified output file
+  """
+  def tar(path, file) do
+    working_dir = Path.dirname(path)
+    path = Path.basename(path)
+    cmd("tar", ["-czf", file, "-C", working_dir, path])
     |> result()
   end
 
   def validate(file) do
     Path.extname(file)
     |> ext_cmd()
-    |> System.cmd(["-t", file])
+    |> cmd(["-t", file])
     |> result()
   end
 
@@ -19,5 +29,9 @@ defmodule Nerves.Utils.File do
 
   defp result({"", 0}), do: :ok
   defp result({reason, _}), do: {:error, reason}
+
+  defp cmd(cmd, args) do
+    System.cmd(cmd, args, [stderr_to_stdout: true])
+  end
 
 end

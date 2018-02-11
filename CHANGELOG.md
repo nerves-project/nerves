@@ -1,6 +1,6 @@
 # Release Notes
 
-## Nerves v0.9.4
+## Nerves v0.9.4-dev
 
   * Bug Fixes
     * Fix artifact archiver to use `Artifact.download_name/1` instead of 

@@ -1,4 +1,4 @@
-defmodule System.Fixture.Mixfile do
+defmodule System.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
@@ -9,7 +9,7 @@ defmodule System.Fixture.Mixfile do
     [
       app: :system,
       version: @version,
-      compilers: Mix.compilers ++ [:nerves_package],
+      compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
       deps: deps()
     ]
@@ -18,7 +18,7 @@ defmodule System.Fixture.Mixfile do
   defp nerves_package do
     [
       type: :system,
-      platform: SystemPlatform.Fixture,
+      platform: SystemPlatform,
       platform_config: [
         defconfig: "nerves_defconfig",
       ],
@@ -28,7 +28,7 @@ defmodule System.Fixture.Mixfile do
 
   defp deps do
     [
-      {:nerves, path: "../../../"},
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
       {:toolchain, path: "../toolchain"},
       {:system_platform, path: "../system_platform"}
     ]

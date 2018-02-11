@@ -35,36 +35,36 @@ defmodule NervesTest.Case do
   end
 
   defmacro in_fixture(which, block) do
-      module   = inspect __CALLER__.module
-      function = Atom.to_string elem(__CALLER__.function, 0)
-      tmp      = Path.join(module, function)
+    module   = inspect __CALLER__.module
+    function = Atom.to_string elem(__CALLER__.function, 0)
+    tmp      = Path.join(module, function)
 
-      quote do
-        unquote(__MODULE__).in_fixture(unquote(which), unquote(tmp), unquote(block))
-      end
+    quote do
+      unquote(__MODULE__).in_fixture(unquote(which), unquote(tmp), unquote(block))
     end
+  end
 
   def in_fixture(which, tmp, function) do
     dest = tmp_path(tmp)
     |> Path.join(which)
     fixture_to_tmp(which, dest)
-
-    flag = String.to_charlist(tmp_path())
-
-    get_path = :code.get_path
-    previous = :code.all_loaded
+    
+    artifact_dir = Path.join(tmp_path(tmp), ".nerves/artifacts")
+    File.mkdir_p!(artifact_dir)
+    System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
 
     try do
       File.cd! dest, function
     after
-      :code.set_path(get_path)
-
-      for {mod, file} <- :code.all_loaded -- previous,
-          file == :in_memory or
-          (is_list(file) and :lists.prefix(flag, file)) do
-        purge [mod]
-      end
+      unload_env()
     end
+  end
+
+  def in_tmp(which, function) do
+    path = tmp_path(which)
+    File.rm_rf!(path)
+    File.mkdir_p!(path)
+    File.cd!(path, function)
   end
 
   def fixture_path do
@@ -109,11 +109,15 @@ defmodule NervesTest.Case do
     Nerves.Env.packages
   end
 
-  def purge(modules) do
-    Enum.each modules, fn(m) ->
-      :code.purge(m)
-      :code.delete(m)
-    end
+  def unload_env() do
+    packages =
+      Nerves.Env.packages
+      |> Enum.sort
+
+    Enum.each(packages, fn (%{app: app}) ->
+      key = {:cached_deps, Mix.env(), app}
+      Agent.cast(Mix.ProjectStack, &%{&1 | cache: Map.delete(&1.cache, key)})
+    end)
   end
 
   defp delete_tmp_paths do
@@ -124,7 +128,3 @@ defmodule NervesTest.Case do
   end
 
 end
-
-artifcat_dir = NervesTest.Case.tmp_path(".nerves/artifacts")
-File.mkdir_p!(artifcat_dir)
-System.put_env("NERVES_ARTIFACT_DIR", artifcat_dir)

@@ -29,6 +29,11 @@ defmodule Mix.Tasks.Nerves.Artifact do
   @switches [path: :string]
 
   def run(argv) do
+    # We need to make sure the the Nerves env has been set up.
+    # This allows the task to be called from a project level that 
+    # does not include aliases to nerves_bootstrap
+    Mix.Task.run("nerves.precompile", [])
+
     {package_name, argv} = 
       case argv do
         [] ->
@@ -41,15 +46,14 @@ defmodule Mix.Tasks.Nerves.Artifact do
     debug_info "Nerves.Artifact start"
 
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
+    
+    package_name = String.to_atom(package_name)
 
-    Nerves.Env.start
-    Nerves.Env.ensure_loaded(Mix.Project.config[:app])
+    
 
-    package = 
-      package_name
-      |> String.to_atom()
-      |> Nerves.Env.package()
+    package = Nerves.Env.package(package_name)
     toolchain = Nerves.Env.toolchain
+
     cond do
       package == nil ->
         Mix.raise "Could not find Nerves package #{package_name} in env"

@@ -1,4 +1,4 @@
-defmodule ToolchainPlatform.Fixture.Mixfile do
+defmodule ToolchainPlatform.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
@@ -22,7 +22,9 @@ defmodule ToolchainPlatform.Fixture.Mixfile do
   end
 
   defp deps do
-    []
+    [
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
+    ]
   end
 
   defp package_files do

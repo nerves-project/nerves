@@ -1,22 +1,23 @@
-defmodule SystemPlatform.Mixfile do
+defmodule HostTool.Mixfile do
   use Mix.Project
 
-  @version Path.join(__DIR__, "VERSION")
-           |> File.read!
-           |> String.trim
-
   def project do
-    [
-      app: :system_platform,
-      version: @version,
+    [ 
+      app: :host_tool,
+      version: "0.1.0",
+      elixir: "~> 1.5",
+      compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      deps: deps()
+      deps: deps(),
+      aliases: Nerves.Bootstrap.add_aliases([])
     ]
   end
 
   defp nerves_package do
     [
-      type: :system_platform,
+      type: :host_tool,
+      platform: HostTool.Platform,
+      platform_config: [],
       checksum: package_files()
     ]
   end
@@ -29,9 +30,8 @@ defmodule SystemPlatform.Mixfile do
 
   defp package_files do
     [
-      "mix.exs",
-      "env.exs",
       "lib",
+      "mix.exs",
       "VERSION"
     ]
   end

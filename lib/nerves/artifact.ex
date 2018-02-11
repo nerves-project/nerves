@@ -31,13 +31,22 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Produces an artifact which can be fetched when calling `nerves.artifact.get`.
+  Produces an archive of the package artifact which can be fetched when 
+  calling `nerves.artifact.get`.
   """
-  def archive(%{type: type} = pkg, toolchain, opts) when type in [:toolchain, :system] do
+  def archive(%{app: app, provider: nil}, _toolchain, _opts) do
+    Mix.raise """
+    #{inspect app} does not declare a provider and therefore cannot
+    be used to produce an artifact archive.
+    """
+  end
+  def archive(pkg, toolchain, opts) do
     Mix.shell.info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
+  
     case pkg.provider do
       {provider, _opts} ->
+        Code.ensure_compiled(pkg.platform)
         {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
         archive_path = Path.expand(archive_path)
         path = 
@@ -53,12 +62,7 @@ defmodule Nerves.Artifact do
         :noop
     end
   end
-  def archive(%{type: type}, _toolchain, _opts) do
-    Mix.raise """
-    mix artifact
-    Has not been implemented for #{inspect type} packages. 
-    """
-  end
+  
 
   @doc """
   Cleans the artifacts for the package providers of all packages.
@@ -122,7 +126,7 @@ defmodule Nerves.Artifact do
   Get the base dir for where an artifact for a package should be stored.
 
   The base dir for an artifact will point
-  to the NERVES_ARTIFACT_DIR or if undefined, `~/.nerves/artifacts`
+  to the NERVES_ARTIFACTS_DIR or if undefined, `~/.nerves/artifacts`
   """
   @spec base_dir() :: String.t
   def base_dir() do
@@ -205,7 +209,7 @@ defmodule Nerves.Artifact do
       :toolchain -> "NERVES_TOOLCHAIN"
       :system -> "NERVES_SYSTEM"
       _ ->
-        pkg.name
+        pkg.app
         |> Atom.to_string
         |> String.upcase
     end
@@ -248,13 +252,14 @@ defmodule Nerves.Artifact do
   on a host for a target. Other packages are host agnostic for now. They are 
   marked as `portable`.
   """
-  def host_tuple(%{type: :toolchain}) do 
+  def host_tuple(%{type: :system}) do
+    "portable"
+  end 
+  def host_tuple(_pkg) do 
     Nerves.Env.host_os <> "_" <>
     Nerves.Env.host_arch
   end  
-  def host_tuple(_pkg) do
-    "portable"
-  end 
+  
 
   @doc """
   Determines the extension for an artifact based off its type.
