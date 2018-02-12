@@ -7,7 +7,7 @@ defmodule Nerves.Mixfile do
       name: "Nerves",
       source_url: "https://github.com/nerves-project/nerves",
       homepage_url: "http://nerves-project.org/",
-      version: "0.10.0-dev",
+      version: "0.10.0",
       archives: [nerves_bootstrap: "~> 0.7"],
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -31,7 +31,7 @@ defmodule Nerves.Mixfile do
       {:distillery, "~> 1.4"},
       {:ex_doc, "~> 0.16", only: [:test, :dev]},
       {:nerves_bootstrap,
-       github: "nerves-project/nerves_bootstrap", branch: "master", only: [:test, :dev]}
+       github: "nerves-project/nerves_bootstrap", branch: "rel-v0.8.0", only: [:test, :dev]}
     ]
   end
 

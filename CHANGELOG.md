@@ -1,6 +1,22 @@
 # Release Notes
 
-## Nerves v0.10.0-dev
+## Nerves v0.10.0
+  
+  * Enhancements
+    * bootstrap/1 is called on any package that defines a platform
+    * Added Nerves.Utils.File.tar helper for creating archives
+    * the host tuple `portable` is only applied to packages with type `system`
+    * Packages other then toolchains and systems can override their artifact
+      paths using an env var of ther app name. For example. a package called
+      `:host_tool` would be able to override the artifact path by setting
+      `HOST_TOOL` in the environment.
+    * Allow any package that declares a provider to create an artifact.
+    * Fixed up test fixtures and added integration test.
+
+  * Bug Fixes
+    * Do not raise when trying to make a directory when putting an artifact
+      in the global cache.
+    * Ensure the Nerves environment has been started when calling `nerves artifact`
 
 ## Nerves v0.9.4
 
