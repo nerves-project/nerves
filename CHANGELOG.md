@@ -1,11 +1,11 @@
 # Release Notes
 
 ## Nerves v0.10.0
-  
+
   * Enhancements
-    * bootstrap/1 is called on any package that defines a platform
+    * Call `bootstrap/1` on any package that defines a platform
     * Added Nerves.Utils.File.tar helper for creating archives
-    * the host tuple `portable` is only applied to packages with type `system`
+    * Only apply the host tuple `portable` to packages with type `system`
     * Packages other then toolchains and systems can override their artifact
       paths using an env var of ther app name. For example. a package called
       `:host_tool` would be able to override the artifact path by setting
@@ -14,14 +14,15 @@
     * Fixed up test fixtures and added integration test.
 
   * Bug Fixes
-    * Do not raise when trying to make a directory when putting an artifact
-      in the global cache.
-    * Ensure the Nerves environment has been started when calling `nerves artifact`
+    * Do not raise when trying to make a directory when putting an artifact in
+      the global cache.
+    * Ensure the Nerves environment has been started when calling `nerves
+      artifact`
 
 ## Nerves v0.9.4
 
   * Bug Fixes
-    * Fix artifact archiver to use `Artifact.download_name/1` instead of 
+    * Fix artifact archiver to use `Artifact.download_name/1` instead of
       `Artifact.name/1`. Fixes issues with the Docker provider and
       `mix nerves.artifact`
     * Fix issue with `nerves.system.shell` not rendering properly
@@ -29,40 +30,42 @@
 ## Nerves v0.9.3
 
   * Bug Fixes
-    * Artifact download_path should use download_name. This was causing a 
-      mismatch between dl files from buildroot and the resolver causing it to 
+    * Artifact download_path should use download_name. This was causing a
+      mismatch between dl files from buildroot and the resolver causing it to
       have to download them twice
     * Fixed issue with compiling certain nerves packages when calling
       `mix deps.compile`
 
 ## Nerves v0.9.2
-  
+
   * Bug Fixes
     * Fixed issue where env var artifact path overides were being calculated
       instead of honored.
 
 ## Nerves v0.9.1
-  
-  * Bug Fixes 
+
+  * Bug Fixes
     * Fixed issue with artifact default path containing duplicate names
     * `Nerves.Env.host_os` can be set from `$HOST_OS` for use with canadian
       cross compile
     * `Nerves.Env.host_arch` can be set from `$HOST_ARCH` for use with canadian
       cross compile
-    * mkdir -p on `Artifact.base_dir` before trying to link to build path artifacts
+    * mkdir -p on `Artifact.base_dir` before trying to link to build path
+      artifacts
     * raise if artifact_urls are not binaries.
 
 ## Nerves v0.9.0
 
 * Update Notes
 
-Starting in Nerves v0.9.0, artifacts will no longer be fetched during
-`mix compile`. Artifact archives are intended to be fetched following `mix deps.get`.
-To handle this, you will need to update your installed version of `nerves_bootstrap` by
-calling `mix nerves.local`. After updating `nerves_bootstrap`, you should update 
-your `mix.exs` file to add the new required mix aliases found there. A helper 
-function is available named `Nerves.Bootstrap.add_aliases` that you can pipe your 
-existing aliases to like this:
+Starting in Nerves v0.9.0, artifacts will no longer be fetched during `mix
+compile`. Artifact archives are intended to be fetched following `mix deps.get`.
+To handle this, you will need to update your installed version of
+`nerves_bootstrap` by calling `mix nerves.local`. After updating
+`nerves_bootstrap`, you should update your `mix.exs` file to add the new
+required mix aliases found there. A helper function is available named
+`Nerves.Bootstrap.add_aliases` that you can pipe your existing aliases to like
+this:
 
 ```elixir
   defp aliases(_target) do
@@ -80,7 +83,7 @@ Also, update your nerves dependency to:
 * API Changes
   * Moved `Nerves.Package.Providers` to `Nerves.Artifact.Providers`
   * Moved `Nerves.Package.Providers.HTTP` to `Nerves.Artifact.Resolver`
-  * `Nerves.Artifact.Resolver` no longer implements the 
+  * `Nerves.Artifact.Resolver` no longer implements the
     `Nerves.Artifact.Provider` behaviour.
 
 * Enhancements
@@ -88,13 +91,13 @@ Also, update your nerves dependency to:
     `artifact_url` location. Once downloaded its checksum will be checked against
     `artifact_checksum` from the `nerves_package` config in `mix.exs`. The Mix task
     `nerves.deps.get` will recursively call `nerves.artifact.get` to fetch archives.
-  * Added Mix task `nerves.artifact.archive`. This task will produce the 
+  * Added Mix task `nerves.artifact.archive`. This task will produce the
     artifact archive and artifact checksum file which are used when calling
     `nerves.artifact.get`.
   * Nerves packages can override the Provider in the `nerves_package` config
     in `mix.exs` using the keys `provider` and `provider_opts`. This is
-    useful to force a package to build using a specific provider like 
-    `Nerves.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration) 
+    useful to force a package to build using a specific provider like
+    `Nerves.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration)
     for more information.
   * Added `artifact_sites` to the `nerves_package` config. Artifact sites
     are helpers that are useful for cleanly specifying locations where artifacts
@@ -117,9 +120,9 @@ Also, update your nerves dependency to:
     Artifact sites will be tried in order until one succeffully downloads the
     artifact.
 * Bug Fixes
-  * Fixed issue with `Nerves.Utils.HTTPResolver` crashing when missing the 
+  * Fixed issue with `Nerves.Utils.HTTPResolver` crashing when missing the
     `content-disposition` and `content-length` headers.
-  * Run integrity check on tar files to validate they are not corrupted on 
+  * Run integrity check on tar files to validate they are not corrupted on
     download.
 
 ## Nerves v0.8.3
@@ -193,7 +196,7 @@ Also, update your nerves dependency to:
   * [mix firmware.image] remove the need to pass an image name. Default to the app name.
   * [mix] added shortdocs to all mix tasks.
   * [fwup] bumped requirement to ~> 0.15 and support 1.0.0 pre release.
-  * Cache downloads to ~/.nerves/dl or $NERVES_DL_DIR if defined.  
+  * Cache downloads to ~/.nerves/dl or $NERVES_DL_DIR if defined.
 
 ## Nerves v0.7.2
 
