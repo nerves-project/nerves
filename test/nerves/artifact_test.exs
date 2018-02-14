@@ -135,21 +135,4 @@ defmodule Nerves.ArtifactTest do
       assert :ok = Mix.Tasks.Nerves.Precompile.run([])
     end)
   end
-  
-  test "checksum short length" do
-    in_fixture("system", fn ->
-      File.cwd!()
-      |> Path.join("mix.exs")
-      |> Code.require_file()
-
-      _ = load_env(packages)
-
-      pkg = Nerves.Env.system()
-
-      <<a::binary-size(7)-unit(8), _tail::binary>> = Nerves.Artifact.checksum(pkg)
-      b = Nerves.Artifact.checksum(pkg, short: 7)
-
-      assert String.equivalent?(a, b)
-    end)
-  end
 end

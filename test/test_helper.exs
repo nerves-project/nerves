@@ -5,6 +5,7 @@ File.cwd!()
 |> Path.join("tmp")
 |> File.rm_rf()
 
+ExUnit.start(exclude: [:skip])
 Code.compiler_options(ignore_module_conflict: true)
 Mix.shell(Mix.Shell.Process)
 
