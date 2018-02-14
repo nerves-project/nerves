@@ -397,41 +397,7 @@ defmodule Nerves.Env do
   @doc false
   defp validate_one(packages, _type), do: packages
 
-  # Pre 0.4.0 Legacy
   @doc false
-  def initialize, do: start()
-  @doc false
-  def stale? do
-    system_manifest =
-      system_path()
-      |> Path.join(".nerves.lock")
-      |> Path.expand()
-
-    if stale_check_manifest(system_manifest) do
-      false
-    else
-      true
-    end
-  end
-
-  @doc false
-  def stale_check_manifest(manifest) do
-    case File.read(manifest) do
-      {:ok, file} ->
-        file
-        |> :erlang.binary_to_term()
-        |> Keyword.equal?(packages())
-
-      _ ->
-        false
-    end
-  end
-
-  @doc false
-  def deps, do: packages()
-  @doc false
-  def deps_by_type(type), do: packages_by_type(type)
-  ## End Pre 0.4.0 Legacy
   defp nerves_package?({app, path}) do
     try do
       package_config =
