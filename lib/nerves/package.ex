@@ -14,6 +14,8 @@ defmodule Nerves.Package do
             version: nil,
             platform: nil,
             provider: nil,
+            compilers: [],
+            dep_opts: [],
             config: []
 
   alias __MODULE__
@@ -33,6 +35,8 @@ defmodule Nerves.Package do
             | :git,
           platform: atom,
           provider: atom,
+          compilers: [atom],
+          dep_opts: Keyword.t(),
           version: Version.t(),
           config: Keyword.t()
         }
@@ -48,6 +52,7 @@ defmodule Nerves.Package do
     config = config(app, path)
     version = config[:version]
     type = config[:nerves_package][:type]
+    compilers = config[:compilers] || Mix.compilers()
 
     unless type do
       Mix.shell().error(
@@ -61,12 +66,19 @@ defmodule Nerves.Package do
     platform = config[:nerves_package][:platform]
     provider = Artifact.provider(config)
     config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
-
+    dep_opts = 
+      Mix.Dep.loaded(env: Mix.env())
+      |> Enum.find(%{}, & &1.app == app)
+      |> Map.get(:opts, [])
+      |> Keyword.get(:nerves, [])
+    
     %Package{
       app: app,
       type: type,
       platform: platform,
       provider: provider,
+      compilers: compilers,
+      dep_opts: dep_opts,
       dep: dep_type(app),
       path: path,
       version: version,

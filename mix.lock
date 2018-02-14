@@ -1,6 +1,6 @@
 %{
   "distillery": {:hex, :distillery, "1.5.2", "eec18b2d37b55b0bcb670cf2bcf64228ed38ce8b046bb30a9b636a6f5a4c0080", [:mix], [], "hexpm"},
   "earmark": {:hex, :earmark, "1.2.4", "99b637c62a4d65a20a9fb674b8cffb8baa771c04605a80c911c4418c69b75439", [:mix], [], "hexpm"},
-  "ex_doc": {:hex, :ex_doc, "0.18.1", "37c69d2ef62f24928c1f4fdc7c724ea04aecfdf500c4329185f8e3649c915baf", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm"},
-  "nerves_bootstrap": {:git, "https://github.com/nerves-project/nerves_bootstrap.git", "d2fe23c80d7501991c08ad9b1595865ea910de25", [branch: "rel-v0.8.0"]},
+  "ex_doc": {:hex, :ex_doc, "0.18.3", "f4b0e4a2ec6f333dccf761838a4b253d75e11f714b85ae271c9ae361367897b7", [:mix], [{:earmark, "~> 1.1", [hex: :earmark, repo: "hexpm", optional: false]}], "hexpm"},
+  "nerves_bootstrap": {:git, "https://github.com/nerves-project/nerves_bootstrap.git", "16c3b6929b9f6fa9a2c9b9fce839774325a2a7b9", [branch: "nerves_compile"]},
 }
