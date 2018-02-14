@@ -16,12 +16,13 @@ defmodule Nerves.Artifact.Cache do
   def put(pkg, path) do
     ext = Artifact.ext(pkg)
     dest = path(pkg)
-    File.mkdir_p(dest)
+
+    File.rm_rf(dest)
 
     if String.ends_with?(path, ext) do
+      File.mkdir_p(dest)
       :ok = Nerves.Utils.File.untar(path, dest)
     else
-      File.rm_rf!(dest)
       File.ln_s!(path, dest)
     end
 
