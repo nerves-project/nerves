@@ -303,7 +303,7 @@ defmodule Nerves.Artifact do
   defp provider_type(:toolchain_platform), do: nil
   defp provider_type(:toolchain), do: {Providers.Local, []}
 
-  defp provider_type(_) do
+  defp provider_type(:system) do
     mod =
       case :os.type() do
         {_, :linux} -> Providers.Local
@@ -312,6 +312,8 @@ defmodule Nerves.Artifact do
 
     {mod, []}
   end
+
+  defp provider_type(_), do: {Providers.Local, []}
 
   defp expand_paths(paths, dir) do
     expand_dir = Path.expand(dir)
