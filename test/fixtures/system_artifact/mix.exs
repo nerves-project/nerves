@@ -11,7 +11,8 @@ defmodule SystemArtifact.Mixfile do
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      deps: deps()
+      deps: deps(),
+      aliases: Nerves.Bootstrap.add_aliases([])
     ]
   end
 
@@ -32,8 +33,7 @@ defmodule SystemArtifact.Mixfile do
 
   defp deps do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
-      {:toolchain, path: "../toolchain"},
+      # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
       {:system_platform, path: "../system_platform"}
     ]
   end

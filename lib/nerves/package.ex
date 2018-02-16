@@ -66,12 +66,13 @@ defmodule Nerves.Package do
     platform = config[:nerves_package][:platform]
     provider = Artifact.provider(config)
     config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
-    dep_opts = 
+
+    dep_opts =
       Mix.Dep.loaded(env: Mix.env())
-      |> Enum.find(%{}, & &1.app == app)
+      |> Enum.find(%{}, &(&1.app == app))
       |> Map.get(:opts, [])
       |> Keyword.get(:nerves, [])
-    
+
     %Package{
       app: app,
       type: type,

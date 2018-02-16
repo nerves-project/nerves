@@ -11,7 +11,8 @@ defmodule PackageProviderOverride.Fixture.Mixfile do
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      deps: deps()
+      deps: deps(),
+      aliases: Nerves.Bootstrap.add_aliases([])
     ]
   end
 

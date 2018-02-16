@@ -9,8 +9,8 @@ defmodule SimpleApp.Fixture do
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 0.7"],
       target: @target,
-      aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      aliases: Nerves.Bootstrap.add_aliases([])
     ]
   end
 
@@ -22,9 +22,5 @@ defmodule SimpleApp.Fixture do
     [
       {:system, path: "../system"}
     ]
-  end
-
-  def aliases do
-    [] |> Nerves.Bootstrap.add_aliases()
   end
 end

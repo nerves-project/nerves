@@ -7,13 +7,12 @@ defmodule Nerves.ArtifactTest do
 
   test "Fetch provider overrides" do
     in_fixture("package_provider_override", fn ->
-
       File.cwd!()
       |> Path.join("mix.exs")
       |> Code.require_file()
-     
-     Env.start 
-     assert Env.package(:package_provider_override).provider == {P.Docker, []}
+
+      Env.start()
+      assert Env.package(:package_provider_override).provider == {P.Docker, []}
     end)
   end
 
@@ -79,10 +78,26 @@ defmodule Nerves.ArtifactTest do
       _ = load_env(packages)
 
       Mix.Tasks.Nerves.Env.run([])
-      
+
       assert_raise Mix.Error, fn ->
         Mix.Tasks.Nerves.Precompile.run([])
       end
+    end)
+  end
+
+  test "parent projects are omitted from precompile check" do
+    in_fixture("system_artifact", fn ->
+      packages = ~w(toolchain system_platform)
+
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      _ = load_env(packages)
+
+      Mix.Tasks.Deps.Get.run([])
+      Mix.Tasks.Nerves.Env.run([])
+      assert :ok = Mix.Tasks.Nerves.Precompile.run([])
     end)
   end
 end

@@ -23,6 +23,9 @@ defmodule Nerves.Artifact.Cache do
       File.mkdir_p(dest)
       :ok = Nerves.Utils.File.untar(path, dest)
     else
+      Path.dirname(dest)
+      |> File.mkdir_p()
+
       File.ln_s!(path, dest)
     end
 
