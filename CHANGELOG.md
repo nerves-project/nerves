@@ -1,18 +1,34 @@
-# Release Notes
+# Changelog
 
-## Nerves v0.11.0
+## v1.0.0-rc.0
+
+Nerves no longer automatically compiles any `nerves_package` that is missing
+it's pre-compiled artifact. This turned out to rarely be desired and caused
+unexpectantly long compilation times when things like the Linux kernel or gcc
+got compiled.
+
+When a pre-compiled artifact is missing, Nerves will now tell you what your
+options are to resolve this. It could be retrying `mix deps.get` to download it
+again. If you want to force compilation to happen, add a `:nerves` option for
+the desired package in your top level project:
+
+  ```elixir
+    {:nerves_system_rpi0, "~> 1.0-rc", nerves: [compile: true]}
+  ```
+
+## v0.11.0
 
   * Bug Fixes
     * Including the entire artifact checksum in artifact download file name was causing issues with
       file encryption libraries. Fixed by changing the artifact download name to only
       use the first 7 of the artifact checksum.
 
-## Nerves v0.10.1
+## v0.10.1
 
   * Bug Fixes
     * Ensure the artifact cache dir is clean and created before putting artifacts.
 
-## Nerves v0.10.0
+## v0.10.0
 
   * Enhancements
     * Call `bootstrap/1` on any package that defines a platform
@@ -31,7 +47,7 @@
     * Ensure the Nerves environment has been started when calling `nerves
       artifact`
 
-## Nerves v0.9.4
+## v0.9.4
 
   * Bug Fixes
     * Fix artifact archiver to use `Artifact.download_name/1` instead of
@@ -39,7 +55,7 @@
       `mix nerves.artifact`
     * Fix issue with `nerves.system.shell` not rendering properly
 
-## Nerves v0.9.3
+## v0.9.3
 
   * Bug Fixes
     * Artifact download_path should use download_name. This was causing a
@@ -48,13 +64,13 @@
     * Fixed issue with compiling certain nerves packages when calling
       `mix deps.compile`
 
-## Nerves v0.9.2
+## v0.9.2
 
   * Bug Fixes
     * Fixed issue where env var artifact path overides were being calculated
       instead of honored.
 
-## Nerves v0.9.1
+## v0.9.1
 
   * Bug Fixes
     * Fixed issue with artifact default path containing duplicate names
@@ -66,7 +82,7 @@
       artifacts
     * raise if artifact_urls are not binaries.
 
-## Nerves v0.9.0
+## v0.9.0
 
 * Update Notes
 
@@ -137,7 +153,7 @@ Also, update your nerves dependency to:
   * Run integrity check on tar files to validate they are not corrupted on
     download.
 
-## Nerves v0.8.3
+## v0.8.3
 
 * Bug Fixes
   * Revert plugin Nerves in new project generator until
@@ -154,7 +170,7 @@ Also, update your nerves dependency to:
     ```
     You can fix this by updating and regenerating the new project.
 
-## Nerves v0.8.2
+## v0.8.2
 
 * Enhancements
   * Added [contributing guide](https://github.com/nerves-project/nerves/blob/master/docs/CONTRIBUTING.md)
@@ -163,7 +179,7 @@ Also, update your nerves dependency to:
 * Bug Fixes
   * Don't override the output_dir in the Distillery Plugin.
 
-## Nerves v0.8.1
+## v0.8.1
 
 * Bug Fixes
   * Fixed an error in the `Nerves` Distillery plugin that was causing the following error message:
@@ -171,7 +187,7 @@ Also, update your nerves dependency to:
     Plugin failed: no function clause matching in IO.chardata_to_string/1
     ```
 
-## Nerves v0.8.0
+## v0.8.0
 
 * Enhancements
   * Removed legacy compiler key from the package struct. The `nerves_package` compiler will be chosen by default.
@@ -183,7 +199,7 @@ Also, update your nerves dependency to:
 * Bug Fixes
   * raise an exception when the artifact build encounters an error
 
-## Nerves v0.7.5
+## v0.7.5
 
 * Enhancements
   * Docker
@@ -197,12 +213,12 @@ Also, update your nerves dependency to:
     * Fixed issue where moving the project location on the host would require
       the container to be force deleted.
 
-## Nerves v0.7.4
+## v0.7.4
 
 * Bug Fixes
   * Make sure the path NERVES_DL_DIR exists before writing artifacts to it.
 
-## Nerves v0.7.3
+## v0.7.3
 
 * Enhancements
   * [mix firmware.image] remove the need to pass an image name. Default to the app name.
@@ -210,7 +226,7 @@ Also, update your nerves dependency to:
   * [fwup] bumped requirement to ~> 0.15 and support 1.0.0 pre release.
   * Cache downloads to ~/.nerves/dl or $NERVES_DL_DIR if defined.
 
-## Nerves v0.7.2
+## v0.7.2
 
 * Bug Fixes
   * Fixed issue where `nerves.system.shell` would hang and load improperly.
@@ -219,7 +235,7 @@ Also, update your nerves dependency to:
     the `rootfs_overlay` option, which matches the convention used by the
     Buildroot community.
 
-## Nerves v0.7.1
+## v0.7.1
 
 * Bug Fixes
   * The `nerves.system.shell` Mix task should not do `make clean` by default.
@@ -228,7 +244,7 @@ Also, update your nerves dependency to:
     include the `mix nerves.system.shell` functionality, including a blurb to
     recommend running a clean build any time it's not working as expected.
 
-## Nerves 0.7.0
+## 0.7.0
 
 * Bug Fixes
   * Try to include the parent project when loading Nerves packages
@@ -244,12 +260,12 @@ Also, update your nerves dependency to:
   * `mix firmware.burn` no longer asks for your password if using Linux and have
      read/write permissions on the SD card device.
 
-## Nerves 0.6.1
+## 0.6.1
 
 * Bug Fixes
   * Docker Provider: Fix version parsing issue when major, minor, or patch contains leading zeros.
 
-## Nerves 0.6.0
+## 0.6.0
 
 * Bug Fixes
   * Require Nerves Packages to have a version
@@ -258,17 +274,17 @@ Also, update your nerves dependency to:
   * Removed checksum from docker container name. Docker provider now only builds changes
   * Added Nerves.Env.clean for cleaning package providers
 
-## Nerves 0.5.2
+## 0.5.2
 
 * BugFixes
   * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
 
-## Nerves 0.5.1
+## 0.5.1
 
 * BugFixes
   * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
 
-## Nerves 0.5.0
+## 0.5.0
 
 * Bug Fixes
   * `:nocache` the HTTP provider if the download list is empty
@@ -284,18 +300,18 @@ Also, update your nerves dependency to:
   * updated docs to reflect changes made to project structure
   * added `mix nerves.info` task. Can be used to gain information about the Nerves env
 
-## Nerves 0.4.8
+## 0.4.8
 
 * Bug Fixes
   * removed `--silent` from `mix release.clean` for compatibility with `:distillery ~> 1.2.0`
 
-## Nerves 0.4.7
+## 0.4.7
 
 * Bug Fixes
   * [Providers.Local] Fix return error on non zero exit status code
   * Fixed IO stream split to handle ANSI code case regression
 
-## Nerves 0.4.6
+## 0.4.6
 
 * Bug Fixes
   * fix artifact http download manager to take as long as it needs unless idle for more than 2 minutes.
@@ -303,17 +319,17 @@ Also, update your nerves dependency to:
   * loosened dependency on distillery
 
 
-## Nerves 0.4.5
+## 0.4.5
 
 * Bug Fixes
   * catch exits from mix release.clean when calling mix firmware
 
-## Nerves 0.4.4
+## 0.4.4
 
 * Bug Fixes
   * return an `{:error, message}` response from the http provider when a resource is not found
 
-## Nerves 0.4.3
+## 0.4.3
 
 * Enhancements
   * Mix will display a progress bar, percentage, and total / expected bytes when downloading artifacts.
@@ -323,27 +339,27 @@ Also, update your nerves dependency to:
 * Bug Fixes
   * Docker provider could potentially produce application id's that were invalid
 
-## Nerves 0.4.2
+## 0.4.2
 
 * Bug Fixes
   * Fixed issue where artifact paths could not be set by system env var
   * Mix Task `nerves.release.init` was failing due to missing template. Include priv in hex package files.
 
-## Nerves 0.4.1
+## 0.4.1
 
 * Bug Fixes
   * Do not stop the Nerves.Env at the end of the package compiler. This would cause the packages to resolve the wrong dep type.
   * Fixed issue where remote artifacts would not be globally cached
   * Fixed issue with package compiler where it would always force systems to be built
 
-## Nerves 0.4.0
+## 0.4.0
 
 * Enhancements
   * Improved test suite
   * Added documentation for modules
   * Consolidated the Nerves Environment to the Nerves package
 
-## Nerves 0.4.0-rc.0
+## 0.4.0-rc.0
 
 * Enhancements
   * Consolidated compilers into `nerves_package`.
@@ -351,39 +367,39 @@ Also, update your nerves dependency to:
   * Removed dependency for `nerves_toolchain`
   * Added Docker provider for building custom systems on machines other than linux
 
-## Nerves 0.3.4
+## 0.3.4
 
 * Bug Fixes
   * Fixed regression with `mix firmware.burn` to allow prompts
 * Enhancements
   * Added ability to override task in `mix firmware.burn`. You can now pass `-t` or `--task` to perform `upgrade` or anything else. Default is `complete`
 
-## Nerves 0.3.3
+## 0.3.3
 
 * Bug Fixes
   * Updated nerves.precompile / loadpaths to support Elixir 1.3.x aliases.
 * Enhancements
   * Removed dependency on porcelain
 
-## Nerves 0.3.2
+## 0.3.2
 
 * Bug Fixes
   * Support for elixir 1.3.0-dev
   * Invoke `nerves.loadpaths` on preflight of `mix firmware` and `mix firmware.burn`. Fixes `ERROR: It looks like the system hasn't been built!`
 
-## Nerves 0.3.1
+## 0.3.1
 
 * Enhancements
   * Perform host tool checks before executing scripts
 
-## Nerves 0.3.0
+## 0.3.0
 
 * Enhancements
   * Added nerves_bootstrap archive
   * `mix firmware` Create firmware bundles from mix
   * `mix firmware.burn` Burn Firmware bundles to SD cards
 
-## Nerves 0.2.0
+## 0.2.0
 
 * Enhancements
   * Added support for 0.4.0 system paths

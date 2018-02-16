@@ -7,10 +7,12 @@ defmodule Nerves.ArtifactTest do
 
   test "Fetch provider overrides" do
     in_fixture("package_provider_override", fn ->
-      packages = ~w(package)
-      _ = load_env(packages)
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
 
-      assert Env.package(:package).provider == {P.Docker, []}
+      Env.start()
+      assert Env.package(:package_provider_override).provider == {P.Docker, []}
     end)
   end
 
@@ -103,5 +105,51 @@ defmodule Nerves.ArtifactTest do
 
     assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
     assert String.ends_with?(long, checksum_long <> Artifact.ext(pkg))
+  end
+  
+  test "precompile will raise if packages are stale and not fetched" do
+    in_fixture("simple_app_artifact", fn ->
+      packages = ~w(system_artifact)
+      _ = load_env(packages)
+
+      Mix.Tasks.Nerves.Env.run([])
+
+      assert_raise Mix.Error, fn ->
+        Mix.Tasks.Nerves.Precompile.run([])
+      end
+    end)
+  end
+
+  test "parent projects are omitted from precompile check" do
+    in_fixture("system_artifact", fn ->
+      packages = ~w(toolchain system_platform)
+
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      _ = load_env(packages)
+
+      Mix.Tasks.Deps.Get.run([])
+      Mix.Tasks.Nerves.Env.run([])
+      assert :ok = Mix.Tasks.Nerves.Precompile.run([])
+    end)
+  end
+  
+  test "checksum short length" do
+    in_fixture("system", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      _ = load_env(packages)
+
+      pkg = Nerves.Env.system()
+
+      <<a::binary-size(7)-unit(8), _tail::binary>> = Nerves.Artifact.checksum(pkg)
+      b = Nerves.Artifact.checksum(pkg, short: 7)
+
+      assert String.equivalent?(a, b)
+    end)
   end
 end

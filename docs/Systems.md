@@ -10,7 +10,7 @@ end up with something like the following in your `mix.exs` configuration:
   @target System.get_env("MIX_TARGET") || "host"
   # ...
   def deps do
-    [{:nerves, "~> 0.7", runtime: false}] ++
+    [{:nerves, "~> 1.0-rc", runtime: false}] ++
     deps(@target)
   end
 
@@ -95,9 +95,9 @@ end
 # ...
 defp deps do
   [
-    {:nerves, "~> 0.7", runtime: false},
-    {:nerves_system_br, "~> 0.14.1", runtime: false},
-    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 0.11.0", runtime: false}
+    {:nerves, "~> 1.0-rc", runtime: false},
+    {:nerves_system_br, "~> 1.0-rc", runtime: false},
+    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 1.0-rc", runtime: false}
   ]
 end
 # ...

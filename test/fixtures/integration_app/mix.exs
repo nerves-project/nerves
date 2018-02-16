@@ -7,11 +7,11 @@ defmodule IntegrationApp do
     [
       app: :example_app,
       version: "0.1.0",
-      archives: [nerves_bootstrap: "~> 0.7"],
+      archives: [nerves_bootstrap: "~> 1.0-rc"],
       target: @target,
-      aliases: aliases(),
       compilers: Mix.compilers() ++ [:host_tool],
-      deps: deps()
+      deps: deps(),
+      aliases: Nerves.Bootstrap.add_aliases([])
     ]
   end
 
@@ -25,9 +25,5 @@ defmodule IntegrationApp do
       {:system, path: "../system"},
       {:host_tool, path: "../host_tool"}
     ]
-  end
-
-  def aliases do
-    [] |> Nerves.Bootstrap.add_aliases()
   end
 end

@@ -12,6 +12,5 @@ jobs:
     steps:
       - checkout
       - run: mix local.hex --force && mix local.rebar --force
-      - run: git clone https://github.com/nerves-project/nerves_bootstrap && cd nerves_bootstrap && mix deps.get && mix install && cd -
       - run: mix deps.get --only test
       - run: mix test
