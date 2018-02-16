@@ -1,6 +1,9 @@
 # Release Notes
 
-## Nerves v0.10.1-dev
+## Nerves v0.10.1
+
+  * Bug Fixes
+    * Ensure the artifact cache dir is clean and created before putting artifacts.
 
 ## Nerves v0.10.0
 
