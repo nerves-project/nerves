@@ -1,16 +1,16 @@
-defmodule SimpleApp.Fixture do
+defmodule SimpleAppArtifact.Fixture do
   use Mix.Project
 
   @target System.get_env("MIX_TARGET") || "system"
 
   def project do
     [
-      app: :simple_app,
+      app: :simple_app_artifact,
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 0.7"],
       target: @target,
-      deps: deps(),
-      aliases: Nerves.Bootstrap.add_aliases([])
+      aliases: aliases(),
+      deps: deps()
     ]
   end
 
@@ -20,7 +20,11 @@ defmodule SimpleApp.Fixture do
 
   defp deps do
     [
-      {:system, path: "../system"}
+      {:system_artifact, path: "../system_artifact"}
     ]
+  end
+
+  def aliases do
+    [] |> Nerves.Bootstrap.add_aliases()
   end
 end

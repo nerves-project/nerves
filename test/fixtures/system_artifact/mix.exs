@@ -1,4 +1,4 @@
-defmodule PackageProviderOverride.Fixture.Mixfile do
+defmodule SystemArtifact.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
@@ -7,7 +7,7 @@ defmodule PackageProviderOverride.Fixture.Mixfile do
 
   def project do
     [
-      app: :package_provider_override,
+      app: :system,
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
@@ -18,24 +18,30 @@ defmodule PackageProviderOverride.Fixture.Mixfile do
 
   defp nerves_package do
     [
-      type: :package,
-      provider: Nerves.Artifact.Providers.Docker,
-      platform: Nerves.System.BR,
+      type: :system_artifact,
+      provider: Nerves.Artifact.Providers.Local,
+      platform: SystemPlatform,
       platform_config: [
         defconfig: "nerves_defconfig"
+      ],
+      artifact_sites: [
+        {:github_releases, "nerves-project/bogus"}
       ],
       checksum: package_files()
     ]
   end
 
   defp deps do
-    []
+    [
+      # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
+      {:system_platform, path: "../system_platform"}
+    ]
   end
 
   defp package_files do
     [
-      "nerves_defconfig",
       "mix.exs",
+      "nerves_defconfig",
       "VERSION"
     ]
   end

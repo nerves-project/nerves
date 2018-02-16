@@ -53,13 +53,15 @@ defmodule NervesTest.Case do
     fixture_to_tmp(which, dest)
 
     artifact_dir = Path.join(tmp_path(tmp), ".nerves/artifacts")
-    File.mkdir_p!(artifact_dir)
+    download_dir = Path.join(tmp_path(tmp), ".nerves/dl")
+
     System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
+    System.put_env("NERVES_DL_DIR", download_dir)
 
     try do
       File.cd!(dest, function)
     after
-      unload_env()
+      # unload_env()
     end
   end
 
