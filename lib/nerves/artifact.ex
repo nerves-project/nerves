@@ -7,6 +7,7 @@ defmodule Nerves.Artifact do
   alias Nerves.Artifact.{Cache, Providers}
 
   @base_dir Path.expand("~/.nerves/artifacts")
+  @checksum_short 7
 
   @doc """
   Builds the package and produces an  See Nerves.Artifact
@@ -112,7 +113,7 @@ defmodule Nerves.Artifact do
   """
   @spec download_name(Nerves.Package.t()) :: String.t()
   def download_name(pkg) do
-    "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg)}"
+    "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: @checksum_short)}"
   end
 
   def parse_download_name(name) when is_binary(name) do
@@ -178,7 +179,7 @@ defmodule Nerves.Artifact do
   and expanded folders listed in the checksum config key.
   """
   @spec checksum(Nerves.Package.t()) :: String.t()
-  def checksum(pkg) do
+  def checksum(pkg, opts \\ []) do
     blob =
       (pkg.config[:checksum] || [])
       |> expand_paths(pkg.path)
@@ -186,8 +187,18 @@ defmodule Nerves.Artifact do
       |> Enum.map(&:crypto.hash(:sha256, &1))
       |> Enum.join()
 
-    :crypto.hash(:sha256, blob)
-    |> Base.encode16()
+    checksum =
+      :crypto.hash(:sha256, blob)
+      |> Base.encode16()
+
+    case Keyword.get(opts, :short) do
+      nil ->
+        checksum
+
+      short_len ->
+        {checksum_short, _} = String.split_at(checksum, short_len)
+        checksum_short
+    end
   end
 
   @doc """

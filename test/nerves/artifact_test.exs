@@ -57,16 +57,33 @@ defmodule Nerves.ArtifactTest do
   end
 
   test "parse artifact download name from regex" do
-    {:ok, values} = Artifact.parse_download_name("package-name-portable-0.12.2-ABCDEF1234567890")
+    {:ok, values} = Artifact.parse_download_name("package-name-portable-0.12.2-ABCDEF1")
     assert String.equivalent?(values.app, "package-name")
     assert String.equivalent?(values.host_tuple, "portable")
     assert String.equivalent?(values.version, "0.12.2")
-    assert String.equivalent?(values.checksum, "ABCDEF1234567890")
+    assert String.equivalent?(values.checksum, "ABCDEF1")
   end
 
   test "artifact_urls can only be binaries" do
     assert_raise Mix.Error, fn ->
       Artifact.expand_sites(%{config: [artifact_url: [{:broken}]]})
     end
+  end
+
+  test "checksum short length" do
+    in_fixture("system", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      Nerves.Env.start()
+
+      pkg = Nerves.Env.system()
+
+      <<a::binary-size(7)-unit(8), _tail::binary>> = Nerves.Artifact.checksum(pkg)
+      b = Nerves.Artifact.checksum(pkg, short: 7)
+
+      assert String.equivalent?(a, b)
+    end)
   end
 end
