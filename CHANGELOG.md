@@ -1,5 +1,12 @@
 # Release Notes
 
+## Nerves v0.11.0
+
+  * Bug Fixes
+    * Including the entire artifact checksum in artifact download file name was causing issues with
+      file encryption libraries. Fixed by changing the artifact download name to only
+      use the first 7 of the artifact checksum.
+
 ## Nerves v0.10.1
 
   * Bug Fixes
