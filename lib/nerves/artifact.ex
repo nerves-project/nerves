@@ -112,8 +112,9 @@ defmodule Nerves.Artifact do
   Get the artifact download name
   """
   @spec download_name(Nerves.Package.t()) :: String.t()
-  def download_name(pkg) do
-    "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: @checksum_short)}"
+  def download_name(pkg, opts \\ []) do
+    checksum_short = opts[:checksum_short] || @checksum_short
+    "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: checksum_short)}"
   end
 
   def parse_download_name(name) when is_binary(name) do
@@ -250,9 +251,18 @@ defmodule Nerves.Artifact do
     case pkg.config[:artifact_url] do
       nil ->
         Keyword.get(pkg.config, :artifact_sites, [])
-        |> Enum.map(&expand_site(&1, pkg))
+        # |> Enum.map(&expand_site(&1, pkg))
+        # Check entire checksum length
+        # This code can be removed sometime after nerves 1.0
+        # and instead use the commented line above
+        |> Enum.reduce([], fn(site, urls) ->  
+          [expand_site(site, pkg), 
+           expand_site(site, pkg, checksum_short: 64) | urls]
+        end)
 
       urls when is_list(urls) ->
+        # artifact_url is deprecated and this code can be removed sometime following
+        # nerves 1.0
         if Enum.any?(urls, &(!is_binary(&1))) do
           Mix.raise("""
           artifact_urls can only be strings.
@@ -354,18 +364,20 @@ defmodule Nerves.Artifact do
     |> Keyword.put_new(:path, File.cwd!())
   end
 
-  defp expand_site({:github_releases, org_proj}, pkg) do
+  defp expand_site(_, _, _ \\ [])
+  defp expand_site({:github_releases, org_proj}, pkg, opts) do
     expand_site(
       {:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/"},
-      pkg
+      pkg,
+      opts
     )
   end
 
-  defp expand_site({:prefix, path}, pkg) do
-    Path.join(path, download_name(pkg) <> ext(pkg))
+  defp expand_site({:prefix, path}, pkg, opts) do
+    Path.join(path, download_name(pkg, opts) <> ext(pkg))
   end
 
-  defp expand_site(loc, _pkg) when is_binary(loc),
+  defp expand_site(loc, _pkg, _opts) when is_binary(loc),
     do:
       Nerves.Utils.Shell.warn("""
       Unsupported artifact site

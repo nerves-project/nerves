@@ -86,4 +86,22 @@ defmodule Nerves.ArtifactTest do
       assert String.equivalent?(a, b)
     end)
   end
+
+  test "artifact sites are expanded" do
+    pkg = 
+      %{
+        app: "my_system", 
+        version: "1.0.0", 
+        path: "./",
+        config: [artifact_sites: [{:github_releases, "nerves-project/system"}]]
+      }
+    
+    checksum_long = Nerves.Artifact.checksum(pkg)
+    checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
+
+    [short, long] = Artifact.expand_sites(pkg)
+
+    assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
+    assert String.ends_with?(long, checksum_long <> Artifact.ext(pkg))
+  end
 end
