@@ -29,9 +29,9 @@ defmodule Nerves.Mixfile do
     [
       {:distillery, "~> 1.4"},
       {:ex_doc, "~> 0.16", only: [:test, :dev]},
-      # {:nerves_bootstrap,
-      #  github: "nerves-project/nerves_bootstrap", branch: "rel-v1.0.0-rc.0", only: [:test, :dev]}
-      {:nerves_bootstrap, path: "../nerves_bootstrap"}
+      {:nerves_bootstrap,
+       github: "nerves-project/nerves_bootstrap", branch: "rel-v1.0.0-rc.0", only: [:test, :dev]}
+      # {:nerves_bootstrap, path: "../nerves_bootstrap"}
     ]
   end
 

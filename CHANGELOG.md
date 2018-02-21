@@ -2,10 +2,10 @@
 
 ## v1.0.0-rc.0
 
-Nerves no longer automatically compiles any `nerves_package` that is missing
-it's pre-compiled artifact. This turned out to rarely be desired and caused
-unexpectantly long compilation times when things like the Linux kernel or gcc
-got compiled.
+Nerves no longer automatically compiles any `nerves_package` that is missing its
+pre-compiled artifact. This turned out to rarely be desired and caused
+unexpectedly long compilation times when things like the Linux kernel or gcc got
+compiled.
 
 When a pre-compiled artifact is missing, Nerves will now tell you what your
 options are to resolve this. It could be retrying `mix deps.get` to download it
@@ -15,6 +15,12 @@ the desired package in your top level project:
   ```elixir
     {:nerves_system_rpi0, "~> 1.0-rc", nerves: [compile: true]}
   ```
+
+  * Bug Fixes
+    * Mix raises a more informative error if the `nerves_package` compiler
+      attempts to run and the `nerves_bootstrap` application has not been
+      started.  This also produces more informative errors when trying to
+      compile from the top of an umbrella.
 
 ## v0.11.0
 
@@ -145,7 +151,7 @@ Also, update your nerves dependency to:
       {:prefix, "https://my_bucket.s3-east.amazonaws.com/artifacts"}
     ]
     ```
-    Artifact sites will be tried in order until one succeffully downloads the
+    Artifact sites will be tried in order until one successfully downloads the
     artifact.
 * Bug Fixes
   * Fixed issue with `Nerves.Utils.HTTPResolver` crashing when missing the
@@ -191,7 +197,7 @@ Also, update your nerves dependency to:
 
 * Enhancements
   * Removed legacy compiler key from the package struct. The `nerves_package` compiler will be chosen by default.
-  * Simplified the distillery relase config by making Nerves a distillery plugin
+  * Simplified the distillery release config by making Nerves a distillery plugin
   * Skip archival phase when making firmware.
   * Allow the progress bar to be disabled for use in CI systems by setting `NERVES_LOG_DISABLE_PROGRESS_BAR=1`
   * Deprecate nerves.exs. The contents of nerves.exs files have been moved into mix.exs under the project key `nerves_package`
