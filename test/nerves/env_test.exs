@@ -44,4 +44,19 @@ defmodule Nerves.EnvTest do
     assert Nerves.Env.host_arch() == "arm"
     System.delete_env("HOST_ARCH")
   end
+
+  test "compiling Nerves packages from the top of an umbrella raises an error" do
+    in_fixture("umbrella", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      Mix.Tasks.Deps.Get.run([])
+
+      assert_raise Mix.Error, fn ->
+        Mix.Tasks.Nerves.Precompile.run([])
+        Mix.Tasks.Compile.run([])
+      end
+    end)
+  end
 end
