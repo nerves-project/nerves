@@ -85,6 +85,7 @@ import_config "../apps/fw/config/config.exs"
 
 ### Configure networking
 
+#### Nerves version < 0.9
 In order to start the network when `fw` boots, add `nerves_network` to the `bootloader` configuration in `config.exs`.
 
 ```elixir
@@ -93,6 +94,20 @@ In order to start the network when `fw` boots, add `nerves_network` to the `boot
 # ...
 config :bootloader,
   init: [:nerves_runtime, :nerves_network]
+# ...
+```
+
+#### Nerves version >= 0.9
+
+In version `0.9` `bootloader` was replaced with `shoehorn` and you need to use it's section in `config.exs`:
+
+```elixir
+# fw/config/config.exs
+
+# ...
+config :shoehorn,
+   init: [:nerves_runtime, :nerves_network],
+   app: Mix.Project.config()[:app]
 # ...
 ```
 
