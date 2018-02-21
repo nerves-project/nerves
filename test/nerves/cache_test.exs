@@ -6,6 +6,8 @@ defmodule Nerves.CacheTest do
 
   test "cache entries are created properly" do
     in_fixture("host_tool", fn ->
+      Application.start(:nerves_bootstrap)
+
       File.cwd!()
       |> Path.join("mix.exs")
       |> Code.require_file()
@@ -19,7 +21,6 @@ defmodule Nerves.CacheTest do
         File.cwd!()
         |> Path.join(artifact_name)
 
-      Mix.Tasks.Deps.Get.run([])
       Mix.Tasks.Nerves.Artifact.run([])
       assert File.exists?(artifact_tar)
 

@@ -8,28 +8,16 @@ defmodule NervesTest.Case do
     end
   end
 
-  setup config do
-    if apps = config[:apps] do
-      Logger.remove_backend(:console)
-    end
+  setup do
+    Application.stop(:nerves_bootstrap)
 
     on_exit(fn ->
-      Application.start(:logger)
       Mix.env(:dev)
       Mix.Task.clear()
       Mix.Shell.Process.flush()
       Mix.ProjectStack.clear_cache()
       Mix.ProjectStack.clear_stack()
       delete_tmp_paths()
-
-      if apps do
-        for app <- apps do
-          Application.stop(app)
-          Application.unload(app)
-        end
-
-        Logger.add_backend(:console, flush: true)
-      end
     end)
 
     :ok
@@ -97,6 +85,8 @@ defmodule NervesTest.Case do
   end
 
   def load_env(packages \\ []) do
+    Application.ensure_all_started(:nerves_bootstrap)
+
     packages =
       packages
       |> Enum.sort()
@@ -115,14 +105,20 @@ defmodule NervesTest.Case do
   end
 
   def unload_env() do
-    packages =
-      Nerves.Env.packages()
-      |> Enum.sort()
+    case Process.whereis(Nerves.Env) do
+      nil ->
+        :ok
 
-    Enum.each(packages, fn %{app: app} ->
-      key = {:cached_deps, Mix.env(), app}
-      Agent.cast(Mix.ProjectStack, &%{&1 | cache: Map.delete(&1.cache, key)})
-    end)
+      _ ->
+        packages =
+          Nerves.Env.packages()
+          |> Enum.sort()
+
+        Enum.each(packages, fn %{app: app} ->
+          key = {:cached_deps, Mix.env(), app}
+          Agent.cast(Mix.ProjectStack, &%{&1 | cache: Map.delete(&1.cache, key)})
+        end)
+    end
   end
 
   defp delete_tmp_paths do

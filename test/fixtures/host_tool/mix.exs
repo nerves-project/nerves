@@ -8,7 +8,6 @@ defmodule HostTool.Mixfile do
       elixir: "~> 1.5",
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      deps: deps(),
       aliases: Nerves.Bootstrap.add_aliases([])
     ]
   end
@@ -19,12 +18,6 @@ defmodule HostTool.Mixfile do
       platform: HostTool.Platform,
       platform_config: [],
       checksum: package_files()
-    ]
-  end
-
-  defp deps do
-    [
-      # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
     ]
   end
 
