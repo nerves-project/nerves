@@ -36,8 +36,8 @@ defmodule Mix.Nerves.Shell do
     start() {
     echo -e "\\e[17F\\e[0J\\e[1;7m\n  Preparing Nerves Shell  \\e[0m"
     echo -e "\\e]0;Nerves Shell\\a"
-    export PS1="\\e[1;7m Nerves \\e[0;1m \\w > \\e[0m"
-    export PS2="\\e[1;7m Nerves \\e[0;1m \\w ..\\e[0m"
+    export PS1="\\e[1;7m Nerves \\e[0;1m \\W > \\e[0m"
+    export PS2="\\e[1;7m Nerves \\e[0;1m \\W ..\\e[0m"
     #{Enum.join(initial_input, "\n")}
     stty echo
     }; start
