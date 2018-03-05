@@ -118,9 +118,3 @@ to create new Nerves projects. To install the `nerves_bootstrap` archive:
 ```bash
 mix archive.install hex nerves_bootstrap
 ```
-
-Once installed, you can upgrade `nerves_bootstrap` by running:
-
-```bash
-mix local.nerves
-```
