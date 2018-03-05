@@ -24,8 +24,8 @@ The easiest installation route on MacOS is to use [Homebrew](brew.sh).
 Just run the following:
 
 ```bash
-$ brew update
-$ brew install fwup squashfs coreutils
+brew update
+brew install fwup squashfs coreutils
 ```
 
 Optionally, if you want to build custom Nerves Systems, you'll also need to
@@ -41,34 +41,27 @@ Now skip to the instructions for all platforms below.
 
 ## Linux
 
-First, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
-install firmware images of your programs. You can install `fwup` using the
-instructions found on the [Installation
-Page](https://github.com/fhunleth/fwup#installing). Installing the pre-built
-`.deb` or `.rpm` files is recommended.
-
-The `ssh-askpass` package is also required on Linux so that the `mix
-firmware.burn` step will be able to use `sudo` to gain the required permission
-to write directly to an SD card:
+First, install a few packages using your package manager:
 
 ```bash
-$ sudo apt-get install ssh-askpass
+sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass
 ```
 
-Finally, install `squashfs-tools` using your distribution's package manager.
-For example:
+If you're curious, `squashfs-tools` will be used by Nerves to create root
+filesystems and `ssh-askpass` will be used to ask for passwords when writing to
+MicroSD cards.
+
+Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
+install firmware images. You can install `fwup` using the instructions found at
+[Installation Page](https://github.com/fhunleth/fwup#installing). Installing the
+pre-built `.deb` or `.rpm` files is recommended.
+
+If you want to build custom Nerves Systems, you need a few more build tools. If
+you skip this step, you'll get an error message with instructions if you ever
+need to build a custom system. On Debian and Ubuntu, run the following:
 
 ```bash
-$ sudo apt-get install squashfs-tools
-```
-
-Optionally, if you want to build custom Nerves Systems, you need a few more
-build tools. Because Linux can build natively rather than inside a container,
-you need to have all of the dependencies installed on your host. On Debian and
-Ubuntu, run the following:
-
-```bash
-$ sudo apt-get install git g++ libssl-dev libncurses5-dev bc m4 make unzip cmake python
+sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python
 ```
 
 > For other host Linux distributions, you will need to install equivalent
@@ -81,30 +74,36 @@ Now continue to the instructions for all platforms below.
 
 ## All platforms
 
-First, install the required versions of Erlang/OTP and Elixir using ADSF (more
-details at https://github.com/asdf-vm/asdf/blob/master/README.md#setup).
+First, install the required versions of Erlang/OTP and Elixir using ADSF (see
+the [ASDF docs](https://github.com/asdf-vm/asdf/blob/master/README.md#setup) for
+more.
 
 ```bash
-$ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.4.0
-# The following steps are for BASH. If you’re using something else, do the
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.4.0
+
+# The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
-$ echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
-$ echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
-$ source ~/.bash_profile
-$ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
-$ asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
-$ asdf install erlang 20.2 # This takes a while
-$ asdf install elixir 1.5.2
-$ asdf global erlang 20.2
-$ asdf global elixir 1.5.2
+echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
+echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
+source ~/.bash_profile
+
+asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+
+# If on Debian or Ubuntu, you'll want to install wx before running the next
+# line: sudo apt install libwxgtk-3.0-dev
+asdf install erlang 20.2 # This takes a while
+asdf install elixir 1.6.2 # or later version
+asdf global erlang 20.2
+asdf global elixir 1.6.2
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
 **even if you already had Elixir installed**.
 
 ```bash
-$ mix local.hex
-$ mix local.rebar
+mix local.hex
+mix local.rebar
 ```
 
 If you have your own version of `rebar` in your path, be sure that it is
@@ -117,11 +116,11 @@ is properly compiled using the right cross-compiler for the target. The
 to create new Nerves projects. To install the `nerves_bootstrap` archive:
 
 ```bash
-$ mix archive.install hex nerves_bootstrap
+mix archive.install hex nerves_bootstrap
 ```
 
 Once installed, you can upgrade `nerves_bootstrap` by running:
 
 ```bash
-$ mix local.nerves
+mix local.nerves
 ```

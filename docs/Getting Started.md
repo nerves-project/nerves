@@ -41,7 +41,7 @@ The `nerves.new` project generator can be called from anywhere and can take eith
 > This allows for more seamless interaction with tools on your host without cross-compilers getting in the way until you're ready to build firmware for a particular target.
 
 ``` bash
-$ mix nerves.new hello_nerves
+mix nerves.new hello_nerves
 ```
 
 Nerves will generate the required files and directory structure for your application.
@@ -57,16 +57,16 @@ We find that it's easiest to have two shell windows open: one remaining defaulte
 This allows you quick access to use host-based tooling in the former and deploy updated firmware from the latter, all without having to modify the `MIX_TARGET` variable in your shell.
 
 ``` bash
-$ cd hello_nerves
-$ export MIX_TARGET=rpi3
-$ mix deps.get
+cd hello_nerves
+export MIX_TARGET=rpi3
+mix deps.get
 ```
 
 **OR**
 
 ```bash
-$ cd hello_nerves
-$ MIX_TARGET=rpi3 mix deps.get
+cd hello_nerves
+MIX_TARGET=rpi3 mix deps.get
 ```
 
 ## Building and Deploying Firmware

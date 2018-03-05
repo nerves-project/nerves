@@ -41,7 +41,7 @@ vulnerability, do not open a GitHub Issue!** Please disclose these by emailing
 [security@nerves-project.org] instead, so that we can work on releasing a fix
 before the vulnerability is disclosed publicly.
 
-1.  Pull Request on GitHub
+1. Pull Request on GitHub
 
     If you're able to send us an improvement directly to the [documentation
     source] or [website source] code, that is extremely helpful! Don't worry
@@ -51,7 +51,7 @@ before the vulnerability is disclosed publicly.
     Also, be sure to check out the guidelines below about contributing code and
     documentation changes.
 
-2.  Issues on GitHub
+2. Issues on GitHub
 
     If you think you might have found a bug or documentation problem that you're
     not sure how to solve, open an Issue on the relevant GitHub repository. The
@@ -62,20 +62,20 @@ before the vulnerability is disclosed publicly.
     [Nerves section] on [Elixir Forum] or the #nerves channel on the [Elixir
     Slack].
 
-3.  Questions on [Elixir Forum] (ideally in the [Nerves section])
+3. Questions on [Elixir Forum] (ideally in the [Nerves section])
 
     If questions and answers are captured in a forum like this, it makes them
     much easier for people to find later via search engine, as opposed to
     searching through a real-time conversation stream like Slack.
 
-4.  Blog about your project
+4. Blog about your project
 
     We love to see how people are using Nerves for fun and and for work. If you
     blog about a Nerves-based project, please consider posting a link somewhere
     that the community will notice it, like [Elixir Forum], [ElixirStatus], or
     the #nerves channel on the [Elixir Slack].
 
-5.  Chat with us on Slack
+5. Chat with us on Slack
 
     We have a #nerves channel on the [Elixir Slack]. We'd be happy to have you
     drop in and let us know if you have questions or want to talk about a
@@ -109,9 +109,9 @@ If you see a question posted in the #nerves channel on Slack, you can help by:
 
 * Asking clarifying questions to ensure that others will understand the context
 * Politely reminding the person that the answer will be more easily found later
-by others if it's posted to the [Elixir Forum] instead
+  by others if it's posted to the [Elixir Forum] instead
 * Helping to get it posted to the Forum or converted to a GitHub Issue to
-capture or summarize the discussion in Slack about it
+  capture or summarize the discussion in Slack about it
 
 ## Become a Backer or Sponsor through OpenCollective
 
@@ -184,9 +184,9 @@ reader to more easily differentiate what they need to type from what they should
 expect to see as output. For example:
 
 ```bash
-$ export MIX_TARGET=rpi3
-$ mix firmware
-$ mix firmware.burn
+export MIX_TARGET=rpi3
+mix firmware
+mix firmware.burn
 ```
 
 When showing an exact command to be run, we prefer placing the command line(s)

@@ -25,9 +25,9 @@ If you're not familiar with [Buildroot](https://buildroot.org/), you should lear
 
 If you can find an existing Buildroot configuration for your intended hardware and you want to get it working with Nerves, you will need to make a custom System as follows:
 
-1.  Follow their procedure and confirm your target boots (independent of Nerves).
+1. Follow their procedure and confirm your target boots (independent of Nerves).
 
-2.  Figure out how to get everything working with the version of Buildroot Nerves uses.
+2. Figure out how to get everything working with the version of Buildroot Nerves uses.
     See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/master/create-build.sh).
 
   * Look for packages and board configs can need to be copied into your System.
@@ -37,4 +37,3 @@ If you can find an existing Buildroot configuration for your intended hardware a
    See the section in the [System](systems.html) documentation about customizing Nerves Systems.
 
 > NOTE: You probably want to disable any userland packages that may be included by default to avoid distraction.
-

@@ -13,9 +13,9 @@ Although Nerves supports umbrella projects, the preferred project structure is t
 First, generate the two new apps in a containing folder:
 
 ```bash
-$ mkdir nervy && cd nervy
-$ mix nerves.new fw
-$ mix phx.new ui --no-ecto --no-brunch
+mkdir nervy && cd nervy
+mix nerves.new fw
+mix phx.new ui --no-ecto --no-brunch
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
@@ -33,21 +33,20 @@ end
 
 Next: [Configure Networking](#configure-networking)
 
-
 #### Using an umbrella project structure
 
 First, generate a new umbrella app, called `nervy` in this case:
 
 ```bash
-$ mix new nervy --umbrella
+mix new nervy --umbrella
 ```
 
 Next, create your sub-applications for Nerves and for Phoenix:
 
 ```bash
-$ cd nervy/apps
-$ mix nerves.new fw
-$ mix phx.new ui --no-ecto --no-brunch
+cd nervy/apps
+mix nerves.new fw
+mix phx.new ui --no-ecto --no-brunch
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
@@ -81,7 +80,6 @@ use Mix.Config
 import_config "../apps/ui/config/config.exs"
 import_config "../apps/fw/config/config.exs"
 ```
-
 
 ### Configure networking
 
@@ -122,7 +120,6 @@ config :nerves_network, :default,
 
 For more network settings, see the [`nerves_network`](https://github.com/nerves-project/nerves_network) project.
 
-
 ### Configure Phoenix
 
 In order to build the `ui` Phoenix app into the Nerves `fw` app, you will need to make some changes to your `fw` application configuration:
@@ -145,7 +142,6 @@ config :logger, level: :debug
 # ...
 ```
 
-
 There you have it!
 A Phoenix web application ready to run on your Nerves device.
 By separating the Phoenix application from the Nerves application, you could easily distribute the development between team members and continue to leverage the features we have all come to love from Phoenix, like live code reloading.
@@ -153,16 +149,16 @@ By separating the Phoenix application from the Nerves application, you could eas
 When developing your UI, you can simply run the Phoenix server from the UI application:
 
 ```bash
-$ cd path/to/ui
-$ mix phoenix.server
+cd path/to/ui
+mix phoenix.server
 ```
 
 When it's time to create your firmware:
 
 ```bash
-$ cd path/to/fw
-$ export MIX_TARGET=rpi3
-$ mix deps.get
-$ mix firmware
-$ mix firmware.burn
+cd path/to/fw
+export MIX_TARGET=rpi3
+mix deps.get
+mix firmware
+mix firmware.burn
 ```
