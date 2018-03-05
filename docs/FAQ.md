@@ -16,7 +16,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
 
  1. Download the default `erlinit.config` file from the system repository for your target.
  2. Place it in your project folder under `rootfs_overlay/etc/erlinit.config`.
- 2. Modify the `-c` console setting to match the value shown in the `UART` row of the hardware description table (`rpi3` example shown):
+ 3. Modify the `-c` console setting to match the value shown in the `UART` row of the hardware description table (`rpi3` example shown):
 
     ```bash
     # rootfs_overlay/etc/erlinit.config
@@ -28,7 +28,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
     -c ttyS0
     ```
 
- 3. Configure your project to replace this file in your firmware.
+ 4. Configure your project to replace this file in your firmware.
 
     ```elixir
     # config/config.exs
@@ -39,8 +39,8 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
       rootfs_overlay: "rootfs_overlay"
     ```
 
- 4. Connect your USB serial cable to the desired UART pins (per the I/O pin-out for your particular hardware).
- 5. On your development host, connect to the serial console.
+ 5. Connect your USB serial cable to the desired UART pins (per the I/O pin-out for your particular hardware).
+ 6. On your development host, connect to the serial console.
 
     * On Linux and Mac OS, use `screen /dev/tty<device>`.
       You may need to specify the baud rate as well, for example: `screen /dev/tty<device> 115200`.

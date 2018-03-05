@@ -92,7 +92,7 @@ and modify the original file. A trick for doing this is to expand the
 `rootfs.squashfs`. You can do this using `unsquashfs`:
 
 ```bash
-$ unsquashfs ~/.nerves/artifacts/<cached_system_name>/images/rootfs.squashfs
+unsquashfs ~/.nerves/artifacts/<cached_system_name>/images/rootfs.squashfs
 ```
 
 It will be expanded into the current directory under `squashfs-root`
@@ -126,7 +126,6 @@ file-resource cmdline.txt {
 You can use the `NERVES_APP` environment variable to point to the root of your
 Elixir app. This variable is automatically managed for you by
 `nerves_bootstrap`.
-
 
 ### Device Tree Overlays
 

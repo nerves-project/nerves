@@ -110,6 +110,7 @@ end
 ```
 
 Nerves systems have a few requirements in the mix file:
+
 1. The `compilers` must include `:nerves_system` compiler after `Mix.compilers`.
 2. There must be a dependency for the toolchain and the build platform.
 3. The `package` must specify all the required `files` so they are present when
@@ -159,36 +160,36 @@ end
 
 The following keys are supported:
 
-1.  `type`: The type of Nerves Package.
+1. `type`: The type of Nerves Package.
 
     Options are: `system`, `system_compiler`, `system_platform`,
     `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
 
-2.  `artifact_url` (optional): The URL(s) of cached assets.
+2. `artifact_url` (optional): The URL(s) of cached assets.
 
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
 
-3.  `platform`: The build platform to use for the system or toolchain.
+3. `platform`: The build platform to use for the system or toolchain.
 
-4.  `platform_config`: Configuration options for the build platform.
+4. `platform_config`: Configuration options for the build platform.
 
     In this example, the `defconfig` option for the `Nerves.System.BR`
     platform points to the Buildroot defconfig fragment file used to build the
     system.
 
-5.  `provider`: Optional - The provider that should be used to build the artifact.
-    
+5. `provider`: Optional - The provider that should be used to build the artifact.
+
     If this key is not defined, Nerves will choose a default provider
     that should be used to build the artifact based on information about the host
     computer that you are building on. For example, Mac OS will use
     `Nerves.Artifact.Providers.Docker` where as Linux will use
-    `Nerves.Artifact.Providers.Local`. Specifying a provider module in 
+    `Nerves.Artifact.Providers.Local`. Specifying a provider module in
     the package config could be used to force the provider.
 
-6.  `provider_opts`: Optional - A keyword list of options to pass to the provider module.
+6. `provider_opts`: Optional - A keyword list of options to pass to the provider module.
 
-6.  `checksum`: The list of files for which checksums are calculated and stored
+7. `checksum`: The list of files for which checksums are calculated and stored
     in the artifact cache.
 
     This checksum is used to match the cached Nerves artifact on disk with its
@@ -212,7 +213,7 @@ an existing one, renaming it to distinguish it from the official release. For
 example, if you're targeting a Raspberry Pi 3 board, do the following:
 
 ```bash
-$ git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3
+git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -224,10 +225,10 @@ using GitHub:
 ```bash
 # After creating an empty custom_rpi3 repository in your GitHub account
 
-$ cd custom_rpi3
-$ git remote rename origin upstream
-$ git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
-$ git push origin master
+cd custom_rpi3
+git remote rename origin upstream
+git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
+git push origin master
 ```
 
 Next, tweak the metadata for your system so it won't conflict with the official
@@ -311,10 +312,10 @@ project directory, like so:
 Set your `MIX_TARGET` to refer to your custom system and build your firmware.
 
 ```bash
-$ cd ~/projects/your_project
-$ export MIX_TARGET=custom_rpi3
-$ mix deps.get
-$ mix firmware
+cd ~/projects/your_project
+export MIX_TARGET=custom_rpi3
+mix deps.get
+mix firmware
 ```
 
 This process will take quite a bit longer than a normal firmware build (15 to 30
@@ -393,15 +394,15 @@ When you quit from the `menuconfig` interface, the changes are stored
 temporarily. To save them back to your system source directory, follow the
 appropriate steps below:
 
-1.  After `make menuconfig`:
+1. After `make menuconfig`:
 
     Run `make savedefconfig` to update the `nerves_defconfig` in your System.
 
-2.  After `make linux-menuconfig`:
+2. After `make linux-menuconfig`:
 
     ```bash
-    $ make linux-savedefconfig
-    $ cp build/linux-x.y.z/defconfig <your system>/linux-x.y_defconfig
+    make linux-savedefconfig
+    cp build/linux-x.y.z/defconfig <your system>/linux-x.y_defconfig
     ```
 
     If your system doesn't contain a custom Linux configuration yet, you'll need
@@ -409,11 +410,11 @@ appropriate steps below:
     the new Linux defconfig in your system directory. The path is usually
     something like `$(NERVES_DEFCONFIG_DIR)/linux-x.y_defconfig`.
 
-3.  After `make busybox-menuconfig`:
+3. After `make busybox-menuconfig`:
 
     ```bash
-    $ make busybox-savedefconfig
-    $ cp build/busybox-x.y.z/defconfig <your system>/busybox-x.y_defconfig
+    make busybox-savedefconfig
+    cp build/busybox-x.y.z/defconfig <your system>/busybox-x.y_defconfig
     ```
 
     Like the Linux configuration, the Buildroot configuration will need to be
