@@ -62,7 +62,7 @@ defmodule Nerves.Artifact.Providers.Docker do
   alias Nerves.Artifact.Providers.Docker
   import Docker.Utils
 
-  @version "~> 1.12 or ~> 1.12.0-rc2 or ~> 17.0"
+  @version "~> 1.12 or ~> 1.12.0-rc2 or >= 17.0.0"
   @tag "nervesproject/nerves_system_br:latest"
 
   @dockerfile File.cwd!()
