@@ -41,7 +41,7 @@ the desired package in your top level project:
     * Added Nerves.Utils.File.tar helper for creating archives
     * Only apply the host tuple `portable` to packages with type `system`
     * Packages other then toolchains and systems can override their artifact
-      paths using an env var of ther app name. For example. a package called
+      paths using an env var of their app name. For example. a package called
       `:host_tool` would be able to override the artifact path by setting
       `HOST_TOOL` in the environment.
     * Allow any package that declares a provider to create an artifact.
@@ -125,9 +125,8 @@ Also, update your nerves dependency to:
     `artifact_url` location. Once downloaded its checksum will be checked against
     `artifact_checksum` from the `nerves_package` config in `mix.exs`. The Mix task
     `nerves.deps.get` will recursively call `nerves.artifact.get` to fetch archives.
-  * Added Mix task `nerves.artifact.archive`. This task will produce the
-    artifact archive and artifact checksum file which are used when calling
-    `nerves.artifact.get`.
+  * Added Mix task `nerves.artifact`. This task will produce the
+    artifact archive file which are used when calling `nerves.artifact.get`.
   * Nerves packages can override the Provider in the `nerves_package` config
     in `mix.exs` using the keys `provider` and `provider_opts`. This is
     useful to force a package to build using a specific provider like
@@ -135,11 +134,11 @@ Also, update your nerves dependency to:
     for more information.
   * Added `artifact_sites` to the `nerves_package` config. Artifact sites
     are helpers that are useful for cleanly specifying locations where artifacts
-    can be fetched. If you are hosting your artifacts using Github relases
+    can be fetched. If you are hosting your artifacts using Github releases
     you can specify it like this:
     ```elixir
     artifact_sites: [
-      {:github_releases, "orginization/project"}
+      {:github_releases, "organization/project"}
     ]
     ```
 
