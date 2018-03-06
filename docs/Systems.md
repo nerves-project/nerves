@@ -22,8 +22,8 @@ end up with something like the following in your `mix.exs` configuration:
     ]
   end
 
-  def system("rpi"), do: {:nerves_system_rpi, ">= 0.0.0", runtime: false}
-  def system("rpi0"), do: {:nerves_system_rpi0, ">= 0.0.0", runtime: false}
+  def system("rpi"), do: {:nerves_system_rpi, "~> 1.0-rc", runtime: false}
+  def system("rpi0"), do: {:nerves_system_rpi0, "~> 1.0-rc", runtime: false}
   # ...
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 ```
@@ -67,14 +67,14 @@ def project do
   [ # ...
    nerves_package: nerves_package(),
    compilers: Mix.compilers ++ [:nerves_package],
-   aliases: ["deps.precompile": ["nerves.env", "deps.precompile"]]]
+   aliases: [loadconfig: [&bootstrap/1]]]
 end
 # ...
 def nerves_package do
   [
     type: :system,
-    artifact_url: [
-      "https://github.com/nerves-project/#{@app}/releases/download/v#{@version}/#{@app}-v#{@version}.tar.gz",
+    artifact_sites: [
+      {:github_releases, "nerves-project/#{@app}",
     ],
     platform: Nerves.System.BR,
     platform_config: [
@@ -118,7 +118,7 @@ Nerves systems have a few requirements in the mix file:
 4. The `nerves_package` key should contain nerves package configuration metadata as
    described in the next section.
 
-## Package Configuration
+## Nerves Package Configuration
 
 The `mix.exs` project configuration contains a special configuration key `nerves_package`. This key
 contains configuration information that Nerves loads before any application or
@@ -137,8 +137,8 @@ end
 def nerves_package do
   [
     type: :system,
-    artifact_url: [
-      "https://github.com/nerves-project/#{@app}/releases/download/v#{@version}/#{@app}-v#{@version}.tar.gz",
+    artifact_sites: [
+      {:github_releases, "nerves-project/#{@app}",
     ],
     platform: Nerves.System.BR,
     platform_config: [
@@ -165,7 +165,15 @@ The following keys are supported:
     Options are: `system`, `system_compiler`, `system_platform`,
     `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
 
-2. `artifact_url` (optional): The URL(s) of cached assets.
+2. `artifact_sites` (optional): Artifact sites are helpers that are useful for 
+    cleanly specifying locations where artifacts can be fetched. Artifact sites 
+    will be tried in order until one successfully downloads the artifact.
+
+    Supported artifact sites:
+    `{:github_releases, "orginization/project"}`
+    `{:prefix, "http://myserver.com/artifacts"}`
+    `{:prefix, "file:///my_artifacts/"}`
+    `{:prefix, "/users/my_user/artifacts/"}`
 
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
@@ -240,8 +248,8 @@ one and won't try to download a cached artifact that doesn't exist yet:
 def nerves_package do
   [
     type: :system,
-    # artifact_url: [
-    #   "https://github.com/nerves-project/#{@app}/releases/download/v#{@version}/#{@app}-v#{@version}.tar.gz",
+    # artifact_sites: [
+    #   {:github_releases, "nerves-project/#{@app}",
     # ],
     platform: Nerves.System.BR,
     platform_config: [
@@ -266,14 +274,16 @@ end
 # custom_rpi3/mix.exs
 
 # =vvv= Update the module and application names
-defmodule CustomRpi3.Mixfile do
+defmodule CustomRpi3.MixProject do
 
   # ...
 
   def project do
-   [app: :custom_rpi3,
-    version: @version,
-    # ...
+    [
+      app: :custom_rpi3,
+      version: @version,
+      # ...
+    ]
   end
 # =^^^=
 
@@ -281,9 +291,11 @@ defmodule CustomRpi3.Mixfile do
 
 # =vvv= Update the maintainer and project information
   defp package do
-   [maintainers: ["Your Name"],
-    # ...
-    links: %{"Github" => "https://github.com/YourGitHubUserName/custom_rpi3"}]
+    [
+      maintainers: ["Your Name"],
+      # ...
+      links: %{"Github" => "https://github.com/YourGitHubUserName/custom_rpi3"}
+    ]
   end
 # =^^^=
 end
@@ -304,7 +316,7 @@ project directory, like so:
 # your_project/mix.exs
 
   # ...
-  def system("rpi3"), do: [{:nerves_system_rpi3, ">= 0.0.0", runtime: false}]
+  def system("rpi3"), do: [{:nerves_system_rpi3, "~> 1.0-rc", runtime: false}]
   def system("custom_rpi3"), do: [{:custom_rpi3, path: "../custom_rpi3", runtime: false}]
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 ```
@@ -325,7 +337,7 @@ custom system has been built, you can modify your application and re-build
 firmware normally. The custom system will only re-build if you make changes to
 the system source project itself.
 
-## Package Configuration
+## Buildroot Package Configuration
 
 Because Buildroot can only be used from Linux, Nerves provides an abstraction
 layer called the Nerves system configuration shell that allows the same
@@ -423,3 +435,33 @@ appropriate steps below:
 The [Buildroot user manual](http://nightly.buildroot.org/manual.html) can be
 very helpful, especially if you need to add a package. The various Nerves system
 repositories have examples of many common use cases, so check them out as well.
+
+## Creating an Artifact
+
+Building a Nerves system can require a lot of system resources and often takes a
+long time to complete. Once you are satisfied with the configuration of your
+Nerves system and you are ready to make a release you can create an artifact.
+An artifact is a pre-compiled version of your Nerves system that can be
+retrieved when calling `mix deps.get`. Artifacts will attempt to be retrieved
+using one of the helpers specified in the `artifact_sites` list in
+the `nerves_package` config. 
+
+There are currently two different helpers, `{:github_releases, "orginization/repo"}`
+and `{:prefix, "url"}`. `artifact_sites` only declare the path of the location to
+the artifact. This is because the name of the artifact is defined by Nerves and
+used to download the correct one. The artifact name for a Nerves system follows
+the structure `<name>-portable-<version>-<checksum>.tar.gz`. The checksum at
+the end of the file is calculated based off the contents of the files and
+directories specified in the `checksum` list in the `nerves_package` configuration.
+It is important to note that if you modify contents of any of the `checksum` files
+or directories after creating the artifact, the artifact will not match and will
+not be used. Therefore, you first need to define the `artifact_sites` before
+creating the artifact.
+
+To construct a artifact, simply build the project and call `mix nerves.artifact`
+from within the directory of your custom Nerves system. For example, if your
+system name is `custom_system` and the version is `0.1.0` you will see a file
+similar to `custom_system-portable-0.1.0-ABCDEF0.tar.gz` in your current working
+directory. This file should be placed in the location specified by the
+`artifact_sites`. If you are using the Github releases helper, you will need
+to create a release from your tag on Github and then upload the file.
