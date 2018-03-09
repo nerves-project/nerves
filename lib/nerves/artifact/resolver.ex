@@ -10,17 +10,19 @@ defmodule Nerves.Artifact.Resolver do
   @doc """
   Download the artifact from an http location
   """
-  def get(pkg, [location | locations]) do
+  def get(pkg, [{location, opts} | locations]) do
     Nerves.Utils.Shell.info("  => Downloading #{location}")
 
     {:ok, pid} = Nerves.Utils.HTTPClient.start_link()
 
-    location =
-      location
-      |> URI.encode()
-      |> String.replace("+", "%2B")
+    query_params = Keyword.get(opts, :query_params, %{})
 
-    result = Nerves.Utils.HTTPClient.get(pid, location)
+    uri =
+      location
+      |> URI.parse()
+      |> Map.put(:query, URI.encode_query(query_params))
+
+    result = Nerves.Utils.HTTPClient.get(pid, uri, opts)
     Nerves.Utils.HTTPClient.stop(pid)
 
     result(result, pkg, locations)

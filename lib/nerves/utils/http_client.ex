@@ -14,17 +14,19 @@ defmodule Nerves.Utils.HTTPClient do
     GenServer.stop(pid)
   end
 
-  def get(pid, url) do
-    case URI.parse(url) do
-      %{host: nil} = uri ->
-        uri.path
-        |> Path.expand()
-        |> File.read()
+  def get(_, _, _ \\ [])
 
-      _uri ->
-        GenServer.call(pid, {:get, url}, :infinity)
-    end
+  def get(_pid, %URI{host: nil, path: path}, _opts) do
+    path
+    |> Path.expand()
+    |> File.read()
   end
+
+  def get(pid, %URI{} = uri, opts) do
+    GenServer.call(pid, {:get, uri, opts}, :infinity)
+  end
+
+  def get(pid, url, opts), do: get(pid, URI.parse(url), opts)
 
   def init([]) do
     {:ok,
@@ -39,17 +41,30 @@ defmodule Nerves.Utils.HTTPClient do
      }}
   end
 
-  def handle_call({:get, _url}, _from, %{number_of_redirects: n} = s) when n > 5 do
+  def handle_call({:get, _uri, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
     GenServer.reply(s.caller, {:error, :too_many_redirects})
     {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
   end
 
-  def handle_call({:get, url}, from, s) do
-    headers = [
-      {'Content-Type', 'application/octet-stream'}
-    ]
+  def handle_call({:get, uri, opts}, from, s) do
+    url = 
+      uri
+      |> URI.to_string()
+      |> URI.encode()
+      |> String.replace("+", "%2B")
 
-    http_opts = [timeout: :infinity, autoredirect: false] ++ Nerves.Utils.Proxy.config(url)
+    headers =
+      Keyword.get(opts, :headers, [])
+      |> Enum.map(fn {k, v} ->
+        {to_charlist(k), to_charlist(v)}
+      end)
+
+    headers = [{'Content-Type', 'application/octet-stream'} | headers]
+
+    http_opts =
+      [timeout: :infinity, autoredirect: false] ++
+        Nerves.Utils.Proxy.config(url) ++ Keyword.get(opts, :http_opts, [])
+
     opts = [stream: :self, receiver: self(), sync: false]
     :httpc.request(:get, {String.to_charlist(url), headers}, http_opts, opts, :nerves)
     {:noreply, %{s | url: url, caller: from}}
@@ -99,7 +114,10 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def handle_info({:http, {_, :stream_end, _headers}}, s) do
-    IO.write(:stderr, "\n")
+    unless System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") do
+      IO.write(:stderr, "\n")
+    end
+
     GenServer.reply(s.caller, {:ok, s.buffer})
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
