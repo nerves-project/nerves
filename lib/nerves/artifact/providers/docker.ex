@@ -124,7 +124,8 @@ defmodule Nerves.Artifact.Providers.Docker do
     ]
 
     mounts = Enum.join(mounts(pkg), " ")
-    cmd = "docker run --rm -it -w #{@working_dir} #{mounts} #{image}"
+    ssh_agent = Enum.join(ssh_agent(), " ")
+    cmd = "docker run --rm -it -w #{@working_dir} #{mounts} #{ssh_agent} #{image}"
     Mix.Nerves.Shell.open(cmd, initial_input)
   end
 
@@ -181,7 +182,7 @@ defmodule Nerves.Artifact.Providers.Docker do
         "stdout",
         "-a",
         "stderr"
-      ] ++ mounts(pkg) ++ [image | cmd]
+      ] ++ mounts(pkg) ++ ssh_agent() ++ [image | cmd]
 
     case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
       {_result, 0} ->
@@ -208,6 +209,11 @@ defmodule Nerves.Artifact.Providers.Docker do
 
     mounts = ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl" | mounts]
     ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
+  end
+
+  defp ssh_agent() do
+    ssh_auth_sock = System.get_env("SSH_AUTH_SOCK")
+    ["-v", "#{ssh_auth_sock}:/ssh-agent", "-e", "SSH_AUTH_SOCK=/ssh-agent"]
   end
 
   defp build_paths(pkg) do
