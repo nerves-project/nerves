@@ -246,6 +246,18 @@ defmodule Nerves.Artifact do
 
   @doc """
   Expands the sites helpers from `artifact_sites` in the nerves_package config.
+
+  Artifact sites can pass options as a third parameter for adding headers
+  or query string parameters. For example, if you are trying to resolve
+  artifacts hosted using `:github_releases` in a private repo,
+  you can pass a personal access token into the sites helper.
+
+    {:github_releases, "my-organization/my_repository", query_params: %{"access_token" => System.get_env("GITHUB_ACCESS_TOKEN")}}
+
+  You can also use this to add an authorization header for files behind basic auth.
+    
+    {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
+
   """
   def expand_sites(pkg) do
     case pkg.config[:artifact_url] do
@@ -365,16 +377,18 @@ defmodule Nerves.Artifact do
 
   defp expand_site(_, _, _ \\ [])
 
-  defp expand_site({:github_releases, org_proj}, pkg, opts) do
+  defp expand_site({helper, prefix}, pkg, opts), do: expand_site({helper, prefix, []}, pkg, opts)
+
+  defp expand_site({:github_releases, org_proj, site_opts}, pkg, opts) do
     expand_site(
-      {:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/"},
+      {:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/", site_opts},
       pkg,
       opts
     )
   end
 
-  defp expand_site({:prefix, path}, pkg, opts) do
-    Path.join(path, download_name(pkg, opts) <> ext(pkg))
+  defp expand_site({:prefix, path, site_opts}, pkg, opts) do
+    {Path.join(path, download_name(pkg, opts) <> ext(pkg)), site_opts}
   end
 
   defp expand_site(loc, _pkg, _opts) when is_binary(loc),
@@ -384,9 +398,9 @@ defmodule Nerves.Artifact do
       #{inspect(loc)}
 
       Supported artifact sites:
-      {:github_releases, "orginization/project"}
-      {:prefix, "http://myserver.com/artifacts"}
-      {:prefix, "file:///my_artifacts/"}
-      {:prefix, "/users/my_user/artifacts/"}
+      {:github_releases, "orginization/project", _opts}
+      {:prefix, "http://myserver.com/artifacts", _opts}
+      {:prefix, "file:///my_artifacts/", _opts}
+      {:prefix, "/users/my_user/artifacts/", _opts}
       """)
 end

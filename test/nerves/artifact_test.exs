@@ -100,7 +100,7 @@ defmodule Nerves.ArtifactTest do
     checksum_long = Nerves.Artifact.checksum(pkg)
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [short, long] = Artifact.expand_sites(pkg)
+    [{short, _}, {long, _}] = Artifact.expand_sites(pkg)
 
     assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
     assert String.ends_with?(long, checksum_long <> Artifact.ext(pkg))

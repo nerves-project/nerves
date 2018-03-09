@@ -49,7 +49,7 @@ defmodule NervesTest.Case do
     try do
       File.cd!(dest, function)
     after
-      # unload_env()
+      unload_env()
     end
   end
 
