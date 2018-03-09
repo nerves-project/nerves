@@ -76,7 +76,7 @@ defmodule Nerves.Artifact.Providers.Docker do
   def build(pkg, _toolchain, _opts) do
     preflight(pkg)
 
-    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
+    {:ok, pid} = Nerves.Utils.Stream.start_link(file: build_log_path())
     stream = IO.stream(pid, :line)
 
     :ok = create_build(pkg, stream)
@@ -189,10 +189,25 @@ defmodule Nerves.Artifact.Providers.Docker do
 
       {_result, _} ->
         Mix.raise("""
-        Nerves Docker provider encountered an error.
-        See build.log for more details.
+        The Nerves Docker provider encountered an error while building:
+
+        -----
+        #{end_of_build_log()}
+        -----
+
+        See #{build_log_path()}.
         """)
     end
+  end
+
+  defp end_of_build_log() do
+    {lines, _rc} = System.cmd("tail", ["-16", build_log_path()])
+    lines
+  end
+
+  defp build_log_path() do
+    File.cwd!()
+    |> Path.join("build.log")
   end
 
   defp mounts(pkg) do
