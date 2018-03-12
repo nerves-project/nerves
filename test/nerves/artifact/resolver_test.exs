@@ -18,8 +18,8 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      sites = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(pkg, sites)
+      resolvers = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
     end)
   end
 
@@ -33,8 +33,8 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      sites = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(pkg, sites)
+      resolvers = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
     end)
   end
 
@@ -48,8 +48,8 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      sites = Artifact.expand_sites(pkg)
-      assert {:error, _} = Artifact.Resolver.get(pkg, sites)
+      resolvers = Artifact.expand_sites(pkg)
+      assert {:error, _reason} = Artifact.Resolver.get(resolvers, pkg)
     end)
   end
 
@@ -65,8 +65,8 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      sites = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(pkg, sites)
+      resolvers = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
     end)
   end
 
@@ -82,8 +82,8 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      sites = Artifact.expand_sites(pkg)
-      assert {:error, _} = Artifact.Resolver.get(pkg, sites)
+      resolvers = Artifact.expand_sites(pkg)
+      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
     end)
   end
 

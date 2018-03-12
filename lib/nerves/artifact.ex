@@ -4,7 +4,7 @@ defmodule Nerves.Artifact do
   specific toolchain.
 
   """
-  alias Nerves.Artifact.{Cache, Providers}
+  alias Nerves.Artifact.{Cache, Providers, Resolvers}
 
   @base_dir Path.expand("~/.nerves/artifacts")
   @checksum_short 7
@@ -377,30 +377,43 @@ defmodule Nerves.Artifact do
 
   defp expand_site(_, _, _ \\ [])
 
-  defp expand_site({helper, prefix}, pkg, opts), do: expand_site({helper, prefix, []}, pkg, opts)
-
-  defp expand_site({:github_releases, org_proj, site_opts}, pkg, opts) do
+  defp expand_site({:github_releases, org_proj}, pkg, opts) do
     expand_site(
-      {:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/", site_opts},
+      {:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/"},
       pkg,
       opts
     )
   end
 
-  defp expand_site({:prefix, path, site_opts}, pkg, opts) do
-    {Path.join(path, download_name(pkg, opts) <> ext(pkg)), site_opts}
+  defp expand_site({:prefix, url}, pkg, opts) do
+    expand_site({:prefix, url, []}, pkg, opts)
   end
 
-  defp expand_site(loc, _pkg, _opts) when is_binary(loc),
+  defp expand_site({:prefix, path, resolver_opts}, pkg, opts) do
+    path = Path.join(path, download_name(pkg, opts) <> ext(pkg))
+    {Resolvers.URI, {path, resolver_opts}}
+  end
+
+  defp expand_site({:github_api, org_proj, resolver_opts}, pkg, opts) do
+    resolver_opts =
+      Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
+
+    {Resolvers.GithubAPI, {org_proj, resolver_opts}}
+  end
+
+  defp expand_site(site, _pkg, _opts),
     do:
-      Nerves.Utils.Shell.warn("""
+      Mix.raise("""
       Unsupported artifact site
-      #{inspect(loc)}
+      #{inspect(site)}
 
       Supported artifact sites:
-      {:github_releases, "orginization/project", _opts}
-      {:prefix, "http://myserver.com/artifacts", _opts}
-      {:prefix, "file:///my_artifacts/", _opts}
-      {:prefix, "/users/my_user/artifacts/", _opts}
+      {:github_releases, "owner/repo"}
+      {:github_api, "owner/repo", username: "skroob", token: "1234567"}
+      {:prefix, "http://myserver.com/artifacts"}
+      {:prefix, "http://myserver.com/artifacts", headers: [{"Authorization", "Basic: 1234567=="}]}
+      {:prefix, "http://myserver.com/artifacts", query_params: %{"id" => "1234567"}}
+      {:prefix, "file:///my_artifacts/"}
+      {:prefix, "/users/my_user/artifacts/"}
       """)
 end

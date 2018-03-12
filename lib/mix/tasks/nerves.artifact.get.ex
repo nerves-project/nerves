@@ -34,8 +34,9 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
       %Nerves.Package{} = pkg ->
         case Artifact.Cache.get(pkg) do
           nil ->
-            sites = Artifact.expand_sites(pkg)
-            get_artifact(pkg, sites)
+            resolvers = Artifact.expand_sites(pkg)
+            Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
+            get_artifact(pkg, resolvers)
 
           _cache_path ->
             Nerves.Utils.Shell.success("  Cached #{app}")
@@ -46,12 +47,10 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     end
   end
 
-  defp get_artifact(pkg, []), do: Nerves.Utils.Shell.warn("  Skipping #{pkg.app} (missing url)")
+  defp get_artifact(pkg, []), do: Nerves.Utils.Shell.warn("  Skipping #{pkg.app}")
 
-  defp get_artifact(pkg, sites) do
-    Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
-
-    case Resolver.get(pkg, sites) do
+  defp get_artifact(pkg, resolvers) do
+    case Resolver.get(resolvers, pkg) do
       {:ok, archive} ->
         checksum = Artifact.checksum(pkg)
 

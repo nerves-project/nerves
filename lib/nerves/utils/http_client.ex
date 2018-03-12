@@ -23,10 +23,16 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def get(pid, %URI{} = uri, opts) do
-    GenServer.call(pid, {:get, uri, opts}, :infinity)
+    url =
+      uri
+      |> URI.to_string()
+      |> URI.encode()
+      |> String.replace("+", "%2B")
+
+    get(pid, url, opts)
   end
 
-  def get(pid, url, opts), do: get(pid, URI.parse(url), opts)
+  def get(pid, url, opts), do: GenServer.call(pid, {:get, url, opts}, :infinity)
 
   def init([]) do
     {:ok,
@@ -37,21 +43,19 @@ defmodule Nerves.Utils.HTTPClient do
        buffer_size: 0,
        filename: "",
        caller: nil,
-       number_of_redirects: 0
+       number_of_redirects: 0,
+       progress?: true,
+       opts: []
      }}
   end
 
-  def handle_call({:get, _uri, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
+  def handle_call({:get, _url, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
     GenServer.reply(s.caller, {:error, :too_many_redirects})
     {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
   end
 
-  def handle_call({:get, uri, opts}, from, s) do
-    url = 
-      uri
-      |> URI.to_string()
-      |> URI.encode()
-      |> String.replace("+", "%2B")
+  def handle_call({:get, url, opts}, from, s) do
+    progress? = Keyword.get(opts, :progress?, true)
 
     headers =
       Keyword.get(opts, :headers, [])
@@ -59,7 +63,10 @@ defmodule Nerves.Utils.HTTPClient do
         {to_charlist(k), to_charlist(v)}
       end)
 
-    headers = [{'Content-Type', 'application/octet-stream'} | headers]
+    headers = [
+      {'User-Agent', 'Nerves HTTP Client #{Nerves.version()}'},
+      {'Content-Type', 'application/octet-stream'} | headers
+    ]
 
     http_opts =
       [timeout: :infinity, autoredirect: false] ++
@@ -67,7 +74,7 @@ defmodule Nerves.Utils.HTTPClient do
 
     opts = [stream: :self, receiver: self(), sync: false]
     :httpc.request(:get, {String.to_charlist(url), headers}, http_opts, opts, :nerves)
-    {:noreply, %{s | url: url, caller: from}}
+    {:noreply, %{s | url: url, caller: from, opts: opts, progress?: progress?}}
   end
 
   def handle_info({:http, {_, :stream_start, headers}}, s) do
@@ -106,7 +113,7 @@ defmodule Nerves.Utils.HTTPClient do
     size = byte_size(data) + s.buffer_size
     buffer = s.buffer <> data
 
-    unless System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") do
+    if progress?(s) do
       put_progress(size, s.content_length)
     end
 
@@ -114,7 +121,7 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def handle_info({:http, {_, :stream_end, _headers}}, s) do
-    unless System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") do
+    if progress?(s) do
       IO.write(:stderr, "\n")
     end
 
@@ -125,8 +132,8 @@ defmodule Nerves.Utils.HTTPClient do
   def handle_info({:http, {_ref, {{_, status_code, _}, headers, _body}}}, s)
       when status_code in @redirect_status_codes do
     case Enum.find(headers, fn {key, _} -> key == 'location' end) do
-      {'location', next_url} ->
-        handle_call({:get, List.to_string(next_url)}, s.caller, %{
+      {'location', next_location} ->
+        handle_call({:get, List.to_string(next_location), headers: headers}, s.caller, %{
           s
           | buffer: "",
             buffer_size: 0,
@@ -174,5 +181,9 @@ defmodule Nerves.Utils.HTTPClient do
 
   defp bytes_to_mb(bytes) do
     trunc(bytes / 1024 / 1024)
+  end
+
+  defp progress?(%{progress?: progress?}) do
+    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil and progress?
   end
 end
