@@ -172,7 +172,8 @@ The following keys are supported:
     Supported artifact sites:
     
     ```elixir
-    {:github_releases, "orginization/project"}
+    {:github_releases, "organization/project"}
+    {:github_api, "organization/project", username: System.get_env("GITHUB_USER"), token: System.get_env("GITHUB_TOKEN"), tag: @version}
     {:prefix, "http://myserver.com/artifacts"}
     {:prefix, "file:///my_artifacts/"}
     {:prefix, "/users/my_user/artifacts/"}
@@ -180,6 +181,10 @@ The following keys are supported:
 
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
+
+    For an artifact site that uses `:github_api` besure to have `username`, `token`, and `tag`
+    fields are set as they are required. Otherwise, you will get an expection when trying to
+    download the aritfact.
 
     Artifact sites can pass options as a third parameter for adding headers
     or query string parameters. For example, if you are trying to resolve
