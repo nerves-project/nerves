@@ -2,6 +2,30 @@
 
 ## v1.0.0-rc.1
 
+This rc contains documentation cleanup and updates through out.
+
+* Enhancements
+  * Support forwarding the ssh-agent through Docker for the Nerves system shell.
+  * Allow headers and query params to be passed to the `:prefix` `artifact_sites`
+    helper. 
+    
+    Example:
+    `{:prefix, "https://my_server.com/", headers: [{"Authorization", "Basic 1234"}]}`
+    `{:prefix, "https://my_server.com/", query_params: %{"id" => "1234"}}`
+
+  * Added `github_api`to `artifact_sites` for accessing release artifacts on private
+    github repositories.
+
+    Example: 
+    `{:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}`
+
+* Bug Fixes
+  * Disable the nerves_package compiler if the `NERVES_ENV_DISABLED` is set.
+    This makes it easier to execute `mix` tasks without building the system.
+    
+    Example: 
+    `NERVES_ENV_DISABLED=1 mix docs`
+
 ## v1.0.0-rc.0
 
 Nerves no longer automatically compiles any `nerves_package` that is missing its
