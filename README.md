@@ -1,4 +1,5 @@
 # Nerves
+
 Craft and deploy bulletproof embedded software in Elixir
 
 [![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)
@@ -22,22 +23,21 @@ software dependencies.
 ### Generating a New Nerves Application
 
 ```bash
-$ mix nerves.new my_app
+mix nerves.new my_app
 ```
 
 ### Building Firmware
 
 ```bash
-$ export MIX_TARGET=rpi3
-$ mix deps.get      # Fetch the dependencies
-$ mix firmware      # Cross-compile dependencies and create a .fw file
-$ mix firmware.burn # Burn firmware to an inserted SD card
+export MIX_TARGET=rpi3
+mix deps.get      # Fetch the dependencies
+mix firmware      # Cross-compile dependencies and create a .fw file
+mix firmware.burn # Burn firmware to an inserted SD card
 ```
 
 **Note:** The `mix firmware.burn` target relies on the presence of `ssh-askpass`. Some
 users may need to export the `SUDO_ASKPASS` environment variable to point to their askpass
 binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
-
 
 ## Docs
 
@@ -80,7 +80,6 @@ contribute in various ways.
 Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/nerves-project#backer)]
 
 <a href="https://opencollective.com/nerves-project#backers" target="_blank"><img src="https://opencollective.com/nerves-project/backers.svg?width=890"></a>
-
 
 ## Sponsors
 

@@ -1,5 +1,7 @@
 # Changelog
 
+## v1.0.0-rc.1
+
 ## v1.0.0-rc.0
 
 Nerves no longer automatically compiles any `nerves_package` that is missing its
@@ -12,81 +14,81 @@ options are to resolve this. It could be retrying `mix deps.get` to download it
 again. If you want to force compilation to happen, add a `:nerves` option for
 the desired package in your top level project:
 
-  ```elixir
-    {:nerves_system_rpi0, "~> 1.0-rc", nerves: [compile: true]}
-  ```
+```elixir
+  {:nerves_system_rpi0, "~> 1.0-rc", nerves: [compile: true]}
+```
 
-  * Bug Fixes
-    * Mix raises a more informative error if the `nerves_package` compiler
-      attempts to run and the `nerves_bootstrap` application has not been
-      started.  This also produces more informative errors when trying to
-      compile from the top of an umbrella.
+* Bug Fixes
+  * Mix raises a more informative error if the `nerves_package` compiler
+    attempts to run and the `nerves_bootstrap` application has not been
+    started.  This also produces more informative errors when trying to
+    compile from the top of an umbrella.
 
 ## v0.11.0
 
-  * Bug Fixes
-    * Including the entire artifact checksum in artifact download file name was causing issues with
-      file encryption libraries. Fixed by changing the artifact download name to only
-      use the first 7 of the artifact checksum.
+* Bug Fixes
+  * Including the entire artifact checksum in artifact download file name was causing issues with
+    file encryption libraries. Fixed by changing the artifact download name to only
+    use the first 7 of the artifact checksum.
 
 ## v0.10.1
 
-  * Bug Fixes
-    * Ensure the artifact cache dir is clean and created before putting artifacts.
+* Bug Fixes
+  * Ensure the artifact cache dir is clean and created before putting artifacts.
 
 ## v0.10.0
 
-  * Enhancements
-    * Call `bootstrap/1` on any package that defines a platform
-    * Added Nerves.Utils.File.tar helper for creating archives
-    * Only apply the host tuple `portable` to packages with type `system`
-    * Packages other then toolchains and systems can override their artifact
-      paths using an env var of their app name. For example. a package called
-      `:host_tool` would be able to override the artifact path by setting
-      `HOST_TOOL` in the environment.
-    * Allow any package that declares a provider to create an artifact.
-    * Fixed up test fixtures and added integration test.
+* Enhancements
+  * Call `bootstrap/1` on any package that defines a platform
+  * Added Nerves.Utils.File.tar helper for creating archives
+  * Only apply the host tuple `portable` to packages with type `system`
+  * Packages other then toolchains and systems can override their artifact
+    paths using an env var of their app name. For example. a package called
+    `:host_tool` would be able to override the artifact path by setting
+    `HOST_TOOL` in the environment.
+  * Allow any package that declares a provider to create an artifact.
+  * Fixed up test fixtures and added integration test.
 
-  * Bug Fixes
-    * Do not raise when trying to make a directory when putting an artifact in
-      the global cache.
-    * Ensure the Nerves environment has been started when calling `nerves
-      artifact`
+* Bug Fixes
+  * Do not raise when trying to make a directory when putting an artifact in
+    the global cache.
+  * Ensure the Nerves environment has been started when calling `nerves
+    artifact`
 
 ## v0.9.4
 
-  * Bug Fixes
-    * Fix artifact archiver to use `Artifact.download_name/1` instead of
-      `Artifact.name/1`. Fixes issues with the Docker provider and
-      `mix nerves.artifact`
-    * Fix issue with `nerves.system.shell` not rendering properly
+* Bug Fixes
+  * Fix artifact archiver to use `Artifact.download_name/1` instead of
+    `Artifact.name/1`. Fixes issues with the Docker provider and
+    `mix nerves.artifact`
+  * Fix issue with `nerves.system.shell` not rendering properly
 
 ## v0.9.3
 
-  * Bug Fixes
-    * Artifact download_path should use download_name. This was causing a
-      mismatch between dl files from buildroot and the resolver causing it to
-      have to download them twice
-    * Fixed issue with compiling certain nerves packages when calling
-      `mix deps.compile`
+* Bug Fixes
+  * Artifact download_path should use download_name. This was causing a
+    mismatch between dl files from buildroot and the resolver causing it to
+    have to download them twice
+  * Fixed issue with compiling certain nerves packages when calling
+    `mix deps.compile`
 
 ## v0.9.2
 
-  * Bug Fixes
-    * Fixed issue where env var artifact path overides were being calculated
-      instead of honored.
+* Bug Fixes
+  * Fixed issue where env var artifact path overides were being calculated
+    instead of honored.
 
 ## v0.9.1
 
-  * Bug Fixes
-    * Fixed issue with artifact default path containing duplicate names
-    * `Nerves.Env.host_os` can be set from `$HOST_OS` for use with canadian
-      cross compile
-    * `Nerves.Env.host_arch` can be set from `$HOST_ARCH` for use with canadian
-      cross compile
-    * mkdir -p on `Artifact.base_dir` before trying to link to build path
-      artifacts
-    * raise if artifact_urls are not binaries.
+* Bug Fixes
+  * Fixed issue with artifact default path containing duplicate names
+  * `Nerves.Env.host_os` can be set from `$HOST_OS` for use with canadian
+    cross compile
+  * `Nerves.Env.host_arch` can be set from `$HOST_ARCH` for use with canadian
+    cross compile
+  * mkdir -p on `Artifact.base_dir` before trying to link to build path
+    artifacts
+  * raise if artifact_urls are not binaries.
 
 ## v0.9.0
 
@@ -166,7 +168,7 @@ Also, update your nerves dependency to:
     This issue was causing the release to contain compiled
     libraries from the host instead of the target.
     The error would look similar to this
-    ```
+    ```text
     Got:
     ELF 64-bit LSB relocatable, x86-64, version 1
 
@@ -188,7 +190,7 @@ Also, update your nerves dependency to:
 
 * Bug Fixes
   * Fixed an error in the `Nerves` Distillery plugin that was causing the following error message:
-    ```
+    ```text
     Plugin failed: no function clause matching in IO.chardata_to_string/1
     ```
 
@@ -282,12 +284,12 @@ Also, update your nerves dependency to:
 ## 0.5.2
 
 * BugFixes
-  * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
+  * Handle redirects manually as a fix to OTP 19.3 caused by [ERL-316](https://bugs.erlang.org/browse/ERL-316)
 
 ## 0.5.1
 
 * BugFixes
-  * Handle redirects manually as a fix to OTP 19.3 caused by https://bugs.erlang.org/browse/ERL-316
+  * Handle redirects manually as a fix to OTP 19.3 caused by [ERL-316](https://bugs.erlang.org/browse/ERL-316)
 
 ## 0.5.0
 
@@ -322,7 +324,6 @@ Also, update your nerves dependency to:
   * fix artifact http download manager to take as long as it needs unless idle for more than 2 minutes.
   * [Providers.Docker] Fixed IO stream parsing to handle occasions where ANSI codes are not being passed.
   * loosened dependency on distillery
-
 
 ## 0.4.5
 
