@@ -177,14 +177,16 @@ The following keys are supported:
     {:prefix, "http://myserver.com/artifacts"}
     {:prefix, "file:///my_artifacts/"}
     {:prefix, "/users/my_user/artifacts/"}
+    {:prefix, "http://myserver.com/artifacts", headers: [{"Authorization", "Basic 12345"}]}
+    {:prefix, "http://myserver.com/artifacts", query_params: %{"id" => "1234"}}
     ```
 
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
 
-    For an artifact site that uses `:github_api` besure to have `username`, `token`, and `tag`
-    fields are set as they are required. Otherwise, you will get an expection when trying to
-    download the aritfact.
+    For an artifact site that uses `:github_api` be sure to have `username`, `token`, and `tag`
+    fields are set as they are required. Otherwise, you will get an exception when trying to
+    download the artifact.
 
     Artifact sites can pass options as a third parameter for adding headers
     or query string parameters. For example, if you are trying to resolve
@@ -469,8 +471,10 @@ retrieved when calling `mix deps.get`. Artifacts will attempt to be retrieved
 using one of the helpers specified in the `artifact_sites` list in
 the `nerves_package` config. 
 
-There are currently two different helpers, `{:github_releases, "orginization/repo", _opts}`
-and `{:prefix, "url", _opts}`. `artifact_sites` only declare the path of the location to
+There are currently three different helpers, 
+`{:github_releases, "orginization/repo"}`, 
+`{:github_api, "orginization/repo", username: "", token: "", tag: ""}`, and 
+`{:prefix, "url", opts \\ []}` . `artifact_sites` only declare the path of the location to
 the artifact. This is because the name of the artifact is defined by Nerves and
 used to download the correct one. The artifact name for a Nerves system follows
 the structure `<name>-portable-<version>-<checksum>.tar.gz`. The checksum at
