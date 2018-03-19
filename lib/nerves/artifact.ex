@@ -409,7 +409,7 @@ defmodule Nerves.Artifact do
 
       Supported artifact sites:
       {:github_releases, "owner/repo"}
-      {:github_api, "owner/repo", username: "skroob", token: "1234567"}
+      {:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}
       {:prefix, "http://myserver.com/artifacts"}
       {:prefix, "http://myserver.com/artifacts", headers: [{"Authorization", "Basic: 1234567=="}]}
       {:prefix, "http://myserver.com/artifacts", query_params: %{"id" => "1234567"}}
