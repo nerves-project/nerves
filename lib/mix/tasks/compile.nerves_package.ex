@@ -13,26 +13,32 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
   def run(_args) do
     debug_info("Compile.NervesPackage start")
-    config = Mix.Project.config()
+    if Nerves.Env.enabled?() do
 
-    bootstrap_started?()
-    |> bootstrap_check()
+      config = Mix.Project.config()
 
-    Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
+      bootstrap_started?()
+      |> bootstrap_check()
 
-    package = Nerves.Env.package(config[:app])
-    toolchain = Nerves.Env.toolchain()
+      Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
 
-    ret =
-      if Nerves.Env.enabled?() and Nerves.Artifact.stale?(package) do
-        Nerves.Artifact.build(package, toolchain)
-        :ok
-      else
-        :noop
-      end
+      package = Nerves.Env.package(config[:app])
+      toolchain = Nerves.Env.toolchain()
 
-    debug_info("Compile.NervesPackage end")
-    ret
+      ret =
+        if Nerves.Artifact.stale?(package) do
+          Nerves.Artifact.build(package, toolchain)
+          :ok
+        else
+          :noop
+        end
+
+      debug_info("Compile.NervesPackage end")
+      ret
+    else
+      debug_info("Compile.NervesPackage disabled")
+      :noop
+    end
   end
 
   def bootstrap_check(true), do: :ok
