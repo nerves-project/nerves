@@ -67,7 +67,7 @@ defmodule Nerves.Mixfile do
   defp package do
     [
       maintainers: ["Justin Schneck", "Frank Hunleth", "Greg Mefford"],
-      files: ["lib", "LICENSE", "mix.exs", "README.md", "template", "scripts", "priv"],
+      files: ["CHANGELOG.md", "lib", "LICENSE", "mix.exs", "README.md", "template", "scripts", "priv"],
       licenses: ["Apache 2.0"],
       links: %{"Github" => "https://github.com/nerves-project/nerves"}
     ]
