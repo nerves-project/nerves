@@ -92,6 +92,9 @@ defmodule Mix.Tasks.Firmware do
     rootfs_overlay =
       case firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions] do
         nil -> []
+        overlays when is_list(overlays) ->
+          Enum.map(overlays, fn(overlay) -> ["-a", Path.join(File.cwd!(), overlay)] end)
+          |> List.flatten()
         overlay -> ["-a", Path.join(File.cwd!(), overlay)]
       end
 
