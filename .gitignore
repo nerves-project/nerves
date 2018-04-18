@@ -5,7 +5,7 @@
 erl_crash.dump
 *.ez
 /doc
-/tmp
+/test_tmp
 docs/cheatsheet/*
 !docs/cheatsheet/*.tex
 !docs/cheatsheet/*.eps

@@ -69,7 +69,7 @@ defmodule NervesTest.Case do
   end
 
   def tmp_path do
-    Path.expand("../tmp", __DIR__)
+    Path.expand("../../test_tmp", __DIR__)
   end
 
   def tmp_path(extension) do

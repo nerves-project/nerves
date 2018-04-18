@@ -1,8 +1,7 @@
 System.put_env("NERVES_PATH", File.cwd!())
 
 File.cwd!()
-|> Path.join("test")
-|> Path.join("tmp")
+|> Path.join("test_tmp")
 |> File.rm_rf()
 
 Application.start(:logger)
