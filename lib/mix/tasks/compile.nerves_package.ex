@@ -13,8 +13,8 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
   def run(_args) do
     debug_info("Compile.NervesPackage start")
-    if Nerves.Env.enabled?() do
 
+    if Nerves.Env.enabled?() do
       config = Mix.Project.config()
 
       bootstrap_started?()
