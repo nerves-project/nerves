@@ -34,9 +34,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
       %Nerves.Package{} = pkg ->
         case Artifact.Cache.get(pkg) do
           nil ->
-            resolvers = Artifact.expand_sites(pkg)
-            Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
-            get_artifact(pkg, resolvers)
+            get_artifact(pkg)
 
           _cache_path ->
             Nerves.Utils.Shell.success("  Cached #{app}")
@@ -47,22 +45,41 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     end
   end
 
+  defp get_artifact(pkg) do
+    archive = Artifact.download_path(pkg)
+    Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
+
+    if File.exists?(archive) do
+      Nerves.Utils.Shell.info("  => Trying #{archive}")
+      put_cache(pkg, archive)
+    else
+      resolvers = Artifact.expand_sites(pkg)
+      get_artifact(pkg, resolvers)
+    end
+  end
+
   defp get_artifact(pkg, []), do: Nerves.Utils.Shell.warn("  Skipping #{pkg.app}")
 
   defp get_artifact(pkg, resolvers) do
     case Resolver.get(resolvers, pkg) do
       {:ok, archive} ->
-        checksum = Artifact.checksum(pkg)
-
-        if checksum == Nerves.Artifact.checksum(pkg) do
-          Cache.put(pkg, archive)
-          Nerves.Utils.Shell.success("  => Success")
-        else
-          Nerves.Utils.Shell.error("  => Error: Checksums do not match")
-        end
+        put_cache(pkg, archive)
 
       {:error, reason} ->
         Nerves.Utils.Shell.error("  => #{reason}")
+    end
+  end
+
+  defp put_cache(pkg, archive) do
+    checksum = Artifact.checksum(pkg)
+
+    if checksum == Nerves.Artifact.checksum(pkg) do
+      Cache.put(pkg, archive)
+      Nerves.Utils.Shell.success("  => Success")
+      :ok
+    else
+      Nerves.Utils.Shell.error("  => Error: Checksums do not match")
+      :error
     end
   end
 end

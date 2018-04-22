@@ -32,4 +32,32 @@ defmodule Nerves.CacheTest do
       assert Cache.valid?(package)
     end)
   end
+
+  test "dl folder is queried prior to calling resolver" do
+    in_fixture("system", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      Nerves.Env.start()
+      package = Nerves.Env.package(:system)
+
+      dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
+      dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
+      File.mkdir_p(Nerves.Env.download_dir())
+
+      working_path = Path.join(File.cwd!(), "archive")
+      File.mkdir_p(working_path)
+
+      working_path
+      |> Path.join("CHECKSUM")
+      |> File.write(Nerves.Artifact.checksum(package))
+
+      Nerves.Utils.File.tar(working_path, dl_path)
+
+      Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
+      output = "  => Trying #{dl_path}"
+      assert_received({:mix_shell, :info, [^output]})
+    end)
+  end
 end
