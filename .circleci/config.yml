@@ -5,7 +5,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/elixir:1.5.1
+      - image: circleci/elixir:1.6.4
     working_directory: ~/repo
     environment:
       MIX_ENV: test
@@ -14,3 +14,4 @@ jobs:
       - run: mix local.hex --force && mix local.rebar --force
       - run: mix deps.get --only test
       - run: mix test
+      - run: mix format --check-formatted
