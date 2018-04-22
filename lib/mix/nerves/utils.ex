@@ -9,69 +9,74 @@ defmodule Mix.Nerves.Utils do
   end
 
   def preflight do
-    check_requirements()
+    {_, type} = :os.type()
+    check_requirements("fwup")
+    check_requirements("mksquashfs")
+    check_host_requirements(type)
     Mix.Task.run("nerves.loadpaths")
   end
 
-  def check_requirements do
-    {_, type} = :os.type()
-
-    which_or_where =
-      case type do
-        :nt -> "where"
-        _ -> "which"
-      end
-
-    case System.cmd(which_or_where, ["mksquashfs"]) do
-      {_, 0} ->
-        nil
-
-      _ ->
+  def check_requirements("mksquashfs") do
+    case System.find_executable("mksquashfs") do
+      nil ->
         Mix.raise("""
         Squash FS Tools are required to be installed on your system.
         Please see https://hexdocs.pm/nerves/installation.html#host-specific-tools
         for installation instructions
         """)
+
+      _ ->
+        :ok
     end
+  end
 
-    with {_, 0} <- System.cmd(which_or_where, ["fwup"]),
-         {vsn, 0} <- System.cmd("fwup", ["--version"]),
-         vsn = String.trim(vsn),
-         {:ok, req} = Version.parse_requirement(@fwup_semver),
-         true <- Version.match?(vsn, req) do
-    else
-      false ->
-        {vsn, 0} = System.cmd("fwup", ["--version"])
-
-        Mix.raise("""
-        fwup #{@fwup_semver} is required for Nerves.
-        You are running #{vsn}.
-        Please see https://hexdocs.pm/nerves/installation.html#fwup
-        for installation instructions
-        """)
-
-      {_, _} ->
+  def check_requirements("fwup") do
+    case System.find_executable("fwup") do
+      nil ->
         Mix.raise("""
         fwup is required to create and burn firmware.
         Please see https://hexdocs.pm/nerves/installation.html#fwup
         for installation instructions
         """)
-    end
 
-    check_host_requirements(type)
+      _ ->
+        with {vsn, 0} <- System.cmd("fwup", ["--version"]),
+             vsn = String.trim(vsn),
+             {:ok, req} = Version.parse_requirement(@fwup_semver),
+             true <- Version.match?(vsn, req) do
+          :ok
+        else
+          false ->
+            {vsn, 0} = System.cmd("fwup", ["--version"])
+
+            Mix.raise("""
+            fwup #{@fwup_semver} is required for Nerves.
+            You are running #{vsn}.
+            Please see https://hexdocs.pm/nerves/installation.html#fwup
+            for installation instructions
+            """)
+
+          error ->
+            Mix.raise("""
+            Nerves encountered an error while checking host requirements for fwup
+            #{inspect(error)}
+            Please open a bug report for this issue on github.com/nerves-project/nerves 
+            """)
+        end
+    end
   end
 
   def check_host_requirements(:darwin) do
-    case System.cmd("which", ["gstat"]) do
-      {_, 0} ->
-        nil
-
-      _ ->
+    case System.find_executable("gstat") do
+      nil ->
         Mix.raise("""
         gstat is required to create and burn firmware.
         Please see https://hexdocs.pm/nerves/installation.html#host-specific-tools
         for installation instructions
         """)
+
+      _ ->
+        :ok
     end
   end
 
