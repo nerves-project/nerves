@@ -49,12 +49,15 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     archive = Artifact.download_path(pkg)
     Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
 
-    if File.exists?(archive) do
+    with true <- File.exists?(archive),
+         :ok <- Nerves.Utils.File.validate(archive) do
       Nerves.Utils.Shell.info("  => Trying #{archive}")
       put_cache(pkg, archive)
     else
-      resolvers = Artifact.expand_sites(pkg)
-      get_artifact(pkg, resolvers)
+      _error ->
+        File.rm(archive)
+        resolvers = Artifact.expand_sites(pkg)
+        get_artifact(pkg, resolvers)
     end
   end
 
