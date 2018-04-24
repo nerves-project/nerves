@@ -60,4 +60,24 @@ defmodule Nerves.CacheTest do
       assert_received({:mix_shell, :info, [^output]})
     end)
   end
+
+  test "corrupted downloads are validated on get and removed" do
+    in_fixture("system", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      Nerves.Env.start()
+      package = Nerves.Env.package(:system)
+
+      dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
+      dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
+      File.mkdir_p(Nerves.Env.download_dir())
+
+      File.touch(dl_path)
+      assert File.exists?(dl_path)
+      Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
+      refute File.exists?(dl_path)
+    end)
+  end
 end
