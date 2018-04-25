@@ -19,7 +19,7 @@ defmodule SystemArtifact.Mixfile do
   defp nerves_package do
     [
       type: :system_artifact,
-      provider: Nerves.Artifact.Providers.Local,
+      build_runner: Nerves.Artifact.BuildRunners.Local,
       platform: SystemPlatform,
       platform_config: [
         defconfig: "nerves_defconfig"

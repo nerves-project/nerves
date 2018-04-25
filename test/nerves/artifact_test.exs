@@ -1,18 +1,18 @@
 defmodule Nerves.ArtifactTest do
   use NervesTest.Case, async: false
 
-  alias Nerves.Artifact.Providers, as: P
+  alias Nerves.Artifact.BuildRunners, as: P
   alias Nerves.Artifact
   alias Nerves.Env
 
-  test "Fetch provider overrides" do
-    in_fixture("package_provider_override", fn ->
+  test "Fetch build_runner overrides" do
+    in_fixture("package_build_runner_override", fn ->
       File.cwd!()
       |> Path.join("mix.exs")
       |> Code.require_file()
 
       Env.start()
-      assert Env.package(:package_provider_override).provider == {P.Docker, []}
+      assert Env.package(:package_build_runner_override).build_runner == {P.Docker, []}
     end)
   end
 

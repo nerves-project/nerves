@@ -1,4 +1,4 @@
-defmodule PackageProviderOverride.Fixture.Mixfile do
+defmodule PackageBuildRunnerOverride.Fixture.Mixfile do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
@@ -7,7 +7,7 @@ defmodule PackageProviderOverride.Fixture.Mixfile do
 
   def project do
     [
-      app: :package_provider_override,
+      app: :package_build_runner_override,
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
@@ -19,7 +19,7 @@ defmodule PackageProviderOverride.Fixture.Mixfile do
   defp nerves_package do
     [
       type: :package,
-      provider: Nerves.Artifact.Providers.Docker,
+      build_runner: Nerves.Artifact.BuildRunners.Docker,
       platform: Nerves.System.BR,
       platform_config: [
         defconfig: "nerves_defconfig"

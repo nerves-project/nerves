@@ -95,8 +95,8 @@ defmodule Nerves.System.BR do
   defp error_host_os(type) do
     {:error,
      """
-     Local provider is not available for host system: #{type}
-     Please use the Docker provider to build this package artifact
+     Local build_runner is not available for host system: #{type}
+     Please use the Docker build_runner to build this package artifact
      """}
   end
 end

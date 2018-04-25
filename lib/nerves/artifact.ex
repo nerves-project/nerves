@@ -4,7 +4,7 @@ defmodule Nerves.Artifact do
   specific toolchain.
 
   """
-  alias Nerves.Artifact.{Cache, Providers, Resolvers}
+  alias Nerves.Artifact.{Cache, BuildRunners, Resolvers}
 
   @base_dir Path.expand("~/.nerves/artifacts")
   @checksum_short 7
@@ -15,9 +15,9 @@ defmodule Nerves.Artifact do
   """
   @spec build(Nerves.Package.t(), Nerves.Package.t()) :: :ok
   def build(pkg, toolchain) do
-    case pkg.provider do
-      {provider, opts} ->
-        case provider.build(pkg, toolchain, opts) do
+    case pkg.build_runner do
+      {build_runner, opts} ->
+        case build_runner.build(pkg, toolchain, opts) do
           {:ok, path} ->
             Cache.put(pkg, path)
 
@@ -37,9 +37,9 @@ defmodule Nerves.Artifact do
   Produces an archive of the package artifact which can be fetched when 
   calling `nerves.artifact.get`.
   """
-  def archive(%{app: app, provider: nil}, _toolchain, _opts) do
+  def archive(%{app: app, build_runner: nil}, _toolchain, _opts) do
     Mix.raise("""
-    #{inspect(app)} does not declare a provider and therefore cannot
+    #{inspect(app)} does not declare a build_runner and therefore cannot
     be used to produce an artifact archive.
     """)
   end
@@ -48,10 +48,10 @@ defmodule Nerves.Artifact do
     Mix.shell().info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
 
-    case pkg.provider do
-      {provider, _opts} ->
+    case pkg.build_runner do
+      {build_runner, _opts} ->
         Code.ensure_compiled(pkg.platform)
-        {:ok, archive_path} = provider.archive(pkg, toolchain, opts)
+        {:ok, archive_path} = build_runner.archive(pkg, toolchain, opts)
         archive_path = Path.expand(archive_path)
 
         path =
@@ -66,24 +66,24 @@ defmodule Nerves.Artifact do
         {:ok, archive_path}
 
       _ ->
-        Mix.shell().info("No provider specified for #{pkg.app}")
+        Mix.shell().info("No build_runner specified for #{pkg.app}")
         :noop
     end
   end
 
   @doc """
-  Cleans the artifacts for the package providers of all packages.
+  Cleans the artifacts for the package build_runners of all packages.
   """
   @spec clean(Nerves.Package.t()) :: :ok | {:error, term}
   def clean(pkg) do
     Mix.shell().info("Cleaning Nerves Package #{pkg.app}")
 
-    case pkg.provider do
-      {provider, _opts} ->
-        provider.clean(pkg)
+    case pkg.build_runner do
+      {build_runner, _opts} ->
+        build_runner.clean(pkg)
 
       _ ->
-        Mix.shell().info("No provider specified for #{pkg.app}")
+        Mix.shell().info("No build_runner specified for #{pkg.app}")
         :noop
     end
   end
@@ -320,32 +320,32 @@ defmodule Nerves.Artifact do
   def ext(%{type: :toolchain}), do: ".tar.xz"
   def ext(_), do: ".tar.gz"
 
-  def provider(config) do
-    case config[:nerves_package][:provider] do
+  def build_runner(config) do
+    case config[:nerves_package][:build_runner] do
       nil ->
-        provider_type(config[:nerves_package][:type])
+        build_runner_type(config[:nerves_package][:type])
 
-      provider ->
-        provider_opts = config[:nerves_package][:provider_opts] || []
-        {provider, provider_opts}
+      build_runner ->
+        build_runner_opts = config[:nerves_package][:build_runner_opts] || []
+        {build_runner, build_runner_opts}
     end
   end
 
-  defp provider_type(:system_platform), do: nil
-  defp provider_type(:toolchain_platform), do: nil
-  defp provider_type(:toolchain), do: {Providers.Local, []}
+  defp build_runner_type(:system_platform), do: nil
+  defp build_runner_type(:toolchain_platform), do: nil
+  defp build_runner_type(:toolchain), do: {BuildRunners.Local, []}
 
-  defp provider_type(:system) do
+  defp build_runner_type(:system) do
     mod =
       case :os.type() do
-        {_, :linux} -> Providers.Local
-        _ -> Providers.Docker
+        {_, :linux} -> BuildRunners.Local
+        _ -> BuildRunners.Docker
       end
 
     {mod, []}
   end
 
-  defp provider_type(_), do: {Providers.Local, []}
+  defp build_runner_type(_), do: {BuildRunners.Local, []}
 
   defp expand_paths(paths, dir) do
     expand_dir = Path.expand(dir)

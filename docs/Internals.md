@@ -21,7 +21,7 @@ to be a "10,000 ft" overview.
             * Mix.Project.deps_paths
               * Package.config_path
               * Package.load_config
-                * provider()
+                * build_runner()
               * validate_packages()
     * Mix.Tasks.Deps.Compile Nerves.Env.system.app
     * Mix.Tasks.Compile.run(--no-deps-check) Only if parent == system_app
@@ -46,7 +46,7 @@ to be a "10,000 ft" overview.
   * Nerves.Env.start
   * Nerves.Env.enabled? and Nerves.Artifact.stale?(package)
     * Nerves.Package.artifact(package, toolchain)
-      * pkg.provider.artifact(pkg, toolchain, opts) [Nerves.Artifact.Providers.HTTP, Nerves.Artifact.Providers.Local]
+      * pkg.build_runner.artifact(pkg, toolchain, opts) [Nerves.Artifact.BuildRunners.HTTP, Nerves.Artifact.BuildRunners.Local]
 * firmware
 
 # Key Files/Variables

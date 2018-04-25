@@ -1,8 +1,8 @@
-defmodule Nerves.Artifact.Provider do
+defmodule Nerves.Artifact.BuildRunner do
   @moduledoc """
-  Defines the Nerves package provider behaviour
+  Defines the Nerves build runner behaviour
 
-  A package provider is a module that can take package source and produce
+  A build runner is a module that can take package source and produce
   artifacts.
   """
 

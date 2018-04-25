@@ -1,19 +1,19 @@
-defmodule Nerves.Artifact.Providers.Local do
+defmodule Nerves.Artifact.BuildRunners.Local do
   @moduledoc """
   Builds an artifact locally.
 
-  This provider will only function on certain Linux host configurations
+  This build_runner will only function on certain Linux host configurations
   """
 
   alias Nerves.Artifact
-  alias Nerves.Artifact.Provider
+  alias Nerves.Artifact.BuildRunner
 
-  @behaviour Provider
+  @behaviour BuildRunner
 
   @doc """
   Builds an artifact locally.
   """
-  @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: Provider.build_result()
+  @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: BuildRunner.build_result()
   def build(pkg, toolchain, opts) do
     pkg.platform.build(pkg, toolchain, opts)
   end
@@ -21,7 +21,7 @@ defmodule Nerves.Artifact.Providers.Local do
   @doc """
   Builds an artifact locally.
   """
-  @spec archive(Nerves.Package.t(), Nerves.Package.t(), term) :: Provider.archive_result()
+  @spec archive(Nerves.Package.t(), Nerves.Package.t(), term) :: BuildRunner.archive_result()
   def archive(pkg, toolchain, opts) do
     pkg.platform.archive(pkg, toolchain, opts)
   end
@@ -29,7 +29,7 @@ defmodule Nerves.Artifact.Providers.Local do
   @doc """
   Builds an artifact locally.
   """
-  @callback clean(package :: Nerves.Package.t()) :: Provider.clean_result()
+  @callback clean(package :: Nerves.Package.t()) :: BuildRunner.clean_result()
   def clean(pkg) do
     pkg.platform.clean(pkg)
   end
