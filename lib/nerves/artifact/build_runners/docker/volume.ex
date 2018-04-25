@@ -1,6 +1,6 @@
-defmodule Nerves.Artifact.Providers.Docker.Volume do
+defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
   alias Nerves.Artifact
-  alias Nerves.Artifact.Providers.Docker
+  alias Nerves.Artifact.BuildRunners.Docker
   import Docker.Utils
 
   def name(pkg) do
@@ -45,7 +45,7 @@ defmodule Nerves.Artifact.Providers.Docker.Volume do
 
       {_result, _} ->
         Mix.raise("""
-        Nerves Docker provider encountered an error while deleting volume #{volume_name}
+        Nerves Docker build_runner encountered an error while deleting volume #{volume_name}
         """)
     end
   end
@@ -59,7 +59,7 @@ defmodule Nerves.Artifact.Providers.Docker.Volume do
         true
 
       {<<"Cannot connect to the Docker daemon", _tail::binary>>, _} ->
-        Mix.raise("Nerves Docker provider is unable to connect to docker daemon")
+        Mix.raise("Nerves Docker build_runner is unable to connect to docker daemon")
 
       _ ->
         false
@@ -72,7 +72,7 @@ defmodule Nerves.Artifact.Providers.Docker.Volume do
 
     case System.cmd(cmd, args) do
       {_, 0} -> :noop
-      _ -> Mix.raise("Nerves Docker provider could not create docker volume #{volume_name}")
+      _ -> Mix.raise("Nerves Docker build_runner could not create docker volume #{volume_name}")
     end
   end
 end

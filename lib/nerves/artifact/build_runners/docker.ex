@@ -1,8 +1,8 @@
-defmodule Nerves.Artifact.Providers.Docker do
+defmodule Nerves.Artifact.BuildRunners.Docker do
   @moduledoc """
   Produce an artifact for a package using Docker.
 
-  The Nerves Docker artifact provider will use docker to create the artifact
+  The Nerves Docker artifact build_runner will use docker to create the artifact
   for the package. The output in Mix will be limited to the headlines from the
   process and the full build log can be found in the file `build.log` located
   root of the package path.
@@ -13,12 +13,12 @@ defmodule Nerves.Artifact.Providers.Docker do
   By default, containers will use the default image
   `nervesproject/nerves_system_br:latest`. Sometimes additional host tools
   are required to build a package. Therefore, packages can provide their own
-  images by specifying it in the package config under `:provider_config`.
+  images by specifying it in the package config under `:build_runner_config`.
   the file is specified as a tuple `{"path/to/Dockerfile", tag_name}`.
 
   Example:
 
-    provider_config: [
+    build_runner_config: [
       docker: {"Dockerfile", "my_system:0.1.0"}
     ]
 
@@ -52,14 +52,14 @@ defmodule Nerves.Artifact.Providers.Docker do
   Please refer to the Docker documentation for more information on how to
   do this.
 
-  When the provider is finished, the artifact is decompressed on the host at
+  When the build_runner is finished, the artifact is decompressed on the host at
   the packages defined artifact directory.
   """
 
-  @behaviour Nerves.Artifact.Provider
+  @behaviour Nerves.Artifact.BuildRunner
 
   alias Nerves.Artifact
-  alias Nerves.Artifact.Providers.Docker
+  alias Nerves.Artifact.BuildRunners.Docker
   import Docker.Utils
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or >= 17.0.0"
@@ -190,7 +190,7 @@ defmodule Nerves.Artifact.Providers.Docker do
 
       {_result, _} ->
         Mix.raise("""
-        The Nerves Docker provider encountered an error while building:
+        The Nerves Docker build_runner encountered an error while building:
 
         -----
         #{end_of_build_log()}
@@ -283,7 +283,7 @@ defmodule Nerves.Artifact.Providers.Docker do
 
   defp config(pkg) do
     {dockerfile, tag} =
-      (pkg.config[:provider_config] || [])
+      (pkg.config[:build_runner_config] || [])
       |> Keyword.get(:docker, {@dockerfile, @tag})
 
     dockerfile =

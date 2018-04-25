@@ -1,5 +1,5 @@
-defmodule Nerves.Artifact.Providers.Docker.Image do
-  alias Nerves.Artifact.Providers.Docker
+defmodule Nerves.Artifact.BuildRunners.Docker.Image do
+  alias Nerves.Artifact.BuildRunners.Docker
   import Docker.Utils
 
   def create(dockerfile, tag) do
@@ -8,13 +8,13 @@ defmodule Nerves.Artifact.Providers.Docker.Image do
     args = ["build", "--tag", "#{tag}", path]
     shell_info("Create image")
 
-    if Mix.shell().yes?("The Nerves Docker provider needs to create the image.\nProceed? ") do
+    if Mix.shell().yes?("The Nerves Docker build_runner needs to create the image.\nProceed? ") do
       case Mix.Nerves.Utils.shell(cmd, args) do
         {_, 0} -> :ok
-        _ -> Mix.raise("Nerves Docker provider could not create docker volume nerves_cache")
+        _ -> Mix.raise("Nerves Docker build_runner could not create docker volume nerves_cache")
       end
     else
-      Mix.raise("Unable to use Nerves Docker provider without image")
+      Mix.raise("Unable to use Nerves Docker build_runner without image")
     end
   end
 
@@ -25,7 +25,7 @@ defmodule Nerves.Artifact.Providers.Docker.Image do
 
     case System.cmd(cmd, args, stderr_to_stdout: true) do
       {<<"Cannot connect to the Docker daemon", _tail::binary>>, _} ->
-        Mix.raise("Nerves Docker provider is unable to connect to docker daemon")
+        Mix.raise("Nerves Docker build_runner is unable to connect to docker daemon")
 
       {_, 0} ->
         true
@@ -44,7 +44,7 @@ defmodule Nerves.Artifact.Providers.Docker.Image do
         false
 
       {<<"Cannot connect to the Docker daemon", _tail::binary>>, _} ->
-        Mix.raise("Nerves Docker provider is unable to connect to docker daemon")
+        Mix.raise("Nerves Docker build_runner is unable to connect to docker daemon")
 
       {_, 0} ->
         true

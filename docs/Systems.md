@@ -211,16 +211,16 @@ The following keys are supported:
     platform points to the Buildroot defconfig fragment file used to build the
     system.
 
-5. `provider`: Optional - The provider that should be used to build the artifact.
+5. `build_runner`: Optional - The build_runner that should be used to build the artifact.
 
-    If this key is not defined, Nerves will choose a default provider
+    If this key is not defined, Nerves will choose a default build_runner
     that should be used to build the artifact based on information about the host
     computer that you are building on. For example, Mac OS will use
-    `Nerves.Artifact.Providers.Docker` where as Linux will use
-    `Nerves.Artifact.Providers.Local`. Specifying a provider module in
-    the package config could be used to force the provider.
+    `Nerves.Artifact.BuildRunners.Docker` where as Linux will use
+    `Nerves.Artifact.BuildRunners.Local`. Specifying a build_runner module in
+    the package config could be used to force the build_runner.
 
-6. `provider_opts`: Optional - A keyword list of options to pass to the provider module.
+6. `build_runner_opts`: Optional - A keyword list of options to pass to the build_runner module.
 
 7. `checksum`: The list of files for which checksums are calculated and stored
     in the artifact cache.

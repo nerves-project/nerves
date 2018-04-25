@@ -8,7 +8,7 @@ defmodule Nerves.Package.Platform do
   is useful for constructing host tools to be used during the elixir compile
   phase.
 
-  You can implement both `Nerves.Package.Platform` and `Nerves.Artifact.Provider`
+  You can implement both `Nerves.Package.Platform` and `Nerves.Artifact.BuildRunner`
   in the same module with the using macro.
 
   Here is a simple example that touches a file in the `Artifact.build_path`
@@ -71,7 +71,7 @@ defmodule Nerves.Package.Platform do
 
   defmacro __using__(_) do
     quote do
-      @behaviour Nerves.Artifact.Provider
+      @behaviour Nerves.Artifact.BuildRunner
       @behaviour Nerves.Package.Platform
     end
   end

@@ -1,7 +1,7 @@
-defmodule Nerves.Provider.DockerTest do
+defmodule Nerves.BuildRunner.DockerTest do
   use NervesTest.Case, async: false
 
-  alias Nerves.Artifact.Providers.Docker
+  alias Nerves.Artifact.BuildRunners.Docker
 
   test "Generated docker container Id is valid" do
     id = Nerves.Utils.random_alpha_num(16)

@@ -81,7 +81,7 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Cleans the artifacts for the package providers of all specified packages.
+  Cleans the artifacts for the package build_runners of all specified packages.
   """
   @spec clean([Nerves.Package.t()]) :: :ok | {:error, term}
   def clean(pkgs) do

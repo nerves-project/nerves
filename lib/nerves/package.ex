@@ -13,7 +13,7 @@ defmodule Nerves.Package do
             type: nil,
             version: nil,
             platform: nil,
-            provider: nil,
+            build_runner: nil,
             compilers: [],
             dep_opts: [],
             config: []
@@ -34,7 +34,7 @@ defmodule Nerves.Package do
             | :hex
             | :git,
           platform: atom,
-          provider: atom,
+          build_runner: atom,
           compilers: [atom],
           dep_opts: Keyword.t(),
           version: Version.t(),
@@ -64,7 +64,7 @@ defmodule Nerves.Package do
     end
 
     platform = config[:nerves_package][:platform]
-    provider = Artifact.provider(config)
+    build_runner = Artifact.build_runner(config)
     config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
 
     dep_opts =
@@ -77,7 +77,7 @@ defmodule Nerves.Package do
       app: app,
       type: type,
       platform: platform,
-      provider: provider,
+      build_runner: build_runner,
       compilers: compilers,
       dep_opts: dep_opts,
       dep: dep_type(app),
@@ -101,7 +101,7 @@ defmodule Nerves.Package do
   end
 
   def shell(pkg) do
-    pkg.provider.shell(pkg)
+    pkg.build_runner.shell(pkg)
   end
 
   @doc """
