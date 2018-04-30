@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.0.0-rc.2
+
+This version renames the module `Nerves.Artifact.Provider` to
+`Nerves.Artifact.BuildRunner`. This change should only affect custom systems
+and host tools that override the defaults in `nerves_package` config.
+
+* Enhancements
+  * Allow specifying multiple rootfs_overlay directories in the config.
+  * Automatically remove corrupt files from the download directory.
+  * Updated System documentation.
+* Bug Fixes
+  * Check the download directory before attempting to download the artifact.
+  * Changed the host tool check to use `System.find_executable("command")` instead of 
+    calling out to `System.cmd("which", ["command"])`. This addressed an issue with 
+    NodeJS breaking anything that called into `which` resulting in an obscure error.
+
 ## v1.0.0-rc.1
 
 This rc contains documentation cleanup and updates through out.
