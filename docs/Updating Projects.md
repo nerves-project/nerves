@@ -291,3 +291,28 @@ is invoked by setting `MIX_TARGET` to value other then `host`. Update your
   end
 
 ```
+
+## Updating from v1.0.0-rc.0 to v1.0.0-rc.2
+
+
+### Updating Provider to BuildRunner
+
+**This only applies to custom systems and host tools**
+
+Nerves v1.0.0-rc.2 renames the module `Nerves.Artifact.Provider` to
+`Nerves.Artifact.BuildRunner`.
+
+The `nerves_package` config allowed the package to override 
+`provider` and `provider_opts`. These keys have been renamed to
+`build_runner` and `build_runner_opts`
+
+For example:
+```elixir
+  def nerves_package do
+    [
+      # ..
+      build_runner: Nerves.Artifact.BuildRunner.Docker,
+      # ..
+    ]
+  end
+```
