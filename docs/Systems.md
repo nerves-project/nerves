@@ -10,7 +10,7 @@ end up with something like the following in your `mix.exs` configuration:
   @target System.get_env("MIX_TARGET") || "host"
   # ...
   def deps do
-    [{:nerves, "~> 1.0-rc", runtime: false}] ++
+    [{:nerves, "~> 1.0", runtime: false}] ++
     deps(@target)
   end
 
@@ -22,8 +22,8 @@ end up with something like the following in your `mix.exs` configuration:
     ]
   end
 
-  def system("rpi"), do: {:nerves_system_rpi, "~> 1.0-rc", runtime: false}
-  def system("rpi0"), do: {:nerves_system_rpi0, "~> 1.0-rc", runtime: false}
+  def system("rpi"), do: {:nerves_system_rpi, "~> 1.0", runtime: false}
+  def system("rpi0"), do: {:nerves_system_rpi0, "~> 1.0", runtime: false}
   # ...
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 ```
@@ -95,9 +95,9 @@ end
 # ...
 defp deps do
   [
-    {:nerves, "~> 1.0-rc", runtime: false},
-    {:nerves_system_br, "~> 1.0-rc", runtime: false},
-    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 1.0-rc", runtime: false}
+    {:nerves, "~> 1.0", runtime: false},
+    {:nerves_system_br, "~> 1.0", runtime: false},
+    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 1.0", runtime: false}
   ]
 end
 # ...
@@ -341,7 +341,7 @@ project directory, like so:
 # your_project/mix.exs
 
   # ...
-  def system("rpi3"), do: [{:nerves_system_rpi3, "~> 1.0-rc", runtime: false}]
+  def system("rpi3"), do: [{:nerves_system_rpi3, "~> 1.0", runtime: false}]
   def system("custom_rpi3"), do: [{:custom_rpi3, path: "../custom_rpi3", runtime: false}]
   def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
 ```

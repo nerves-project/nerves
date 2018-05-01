@@ -7,7 +7,7 @@ defmodule SimpleAppArtifact.Fixture do
     [
       app: :simple_app_artifact,
       version: "0.1.0",
-      archives: [nerves_bootstrap: "~> 1.0-rc"],
+      archives: [nerves_bootstrap: "~> 1.0"],
       target: @target,
       aliases: aliases(),
       deps: deps()

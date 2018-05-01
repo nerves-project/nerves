@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.0
+
+* Bug Fixes
+  * `Nerves.Artifact.BuildRunners.Docker` was running as root and caused file
+    permission issues with the `deps` directory of the root `mix` project.
+    The `Docker` build runner now executes as the same user id and group id as
+    the host.
+
 ## v1.0.0-rc.2
 
 This version renames the module `Nerves.Artifact.Provider` to
