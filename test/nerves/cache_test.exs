@@ -80,4 +80,22 @@ defmodule Nerves.CacheTest do
       refute File.exists?(dl_path)
     end)
   end
+
+  test "skip fetching packages that have paths set in the env" do
+    in_fixture("system", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      Nerves.Env.start()
+
+      File.mkdir_p(Nerves.Env.download_dir())
+
+      System.put_env("NERVES_SYSTEM", Nerves.Env.download_dir())
+      Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
+      message = "\e[32m      " <> Nerves.Env.download_dir() <> "\e[0m"
+      assert_receive({:mix_shell, :info, [^message]}, 100)
+      System.delete_env("NERVES_SYSTEM")
+    end)
+  end
 end
