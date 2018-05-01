@@ -125,7 +125,13 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
     mounts = Enum.join(mounts(pkg), " ")
     ssh_agent = Enum.join(ssh_agent(), " ")
-    cmd = "docker run --rm -it -w #{@working_dir} #{mounts} #{ssh_agent} #{image}"
+
+    cmd =
+      "docker run --rm -it --user #{uid()}:#{gid()} -w #{@working_dir} #{mounts} #{ssh_agent} #{
+        image
+      }"
+
+    set_volume_permissions(pkg)
     Mix.Nerves.Shell.open(cmd, initial_input)
   end
 
@@ -171,6 +177,8 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   # Helpers
 
   defp run(pkg, cmd, stream) do
+    set_volume_permissions(pkg)
+
     {_dockerfile, image} = config(pkg)
 
     args =
@@ -181,7 +189,9 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         "-a",
         "stdout",
         "-a",
-        "stderr"
+        "stderr",
+        "--user",
+        "#{uid()}:#{gid()}"
       ] ++ mounts(pkg) ++ ssh_agent() ++ [image | cmd]
 
     case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
@@ -199,6 +209,44 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         See #{build_log_path()}.
         """)
     end
+  end
+
+  defp set_volume_permissions(pkg) do
+    {_dockerfile, image} = config(pkg)
+
+    # (chown) 
+    #   Set the permissions of the build volume
+    #   to match those of the host user:group.
+    # (--rm)
+    #   Remove the container when finished.
+    args =
+      [
+        "run",
+        "--rm",
+        "-w=#{@working_dir}"
+      ] ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", @working_dir]]
+
+    case Mix.Nerves.Utils.shell("docker", args) do
+      {_result, 0} ->
+        :ok
+
+      {result, _} ->
+        Mix.raise("""
+        The Nerves Docker build_runner encountered an error while setting permissions:
+
+        #{inspect(result)}
+        """)
+    end
+  end
+
+  defp uid() do
+    {uid, _} = System.cmd("id", ["-u"])
+    String.trim(uid)
+  end
+
+  defp gid() do
+    {gid, _} = System.cmd("id", ["-g"])
+    String.trim(gid)
   end
 
   defp end_of_build_log() do
