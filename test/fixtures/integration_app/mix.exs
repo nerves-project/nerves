@@ -7,7 +7,7 @@ defmodule IntegrationApp do
     [
       app: :example_app,
       version: "0.1.0",
-      archives: [nerves_bootstrap: "~> 1.0-rc"],
+      archives: [nerves_bootstrap: "~> 1.0"],
       target: @target,
       compilers: Mix.compilers() ++ [:host_tool],
       deps: deps(),

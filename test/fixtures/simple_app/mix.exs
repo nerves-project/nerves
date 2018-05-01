@@ -7,7 +7,7 @@ defmodule SimpleApp.Fixture do
     [
       app: :simple_app,
       version: "0.1.0",
-      archives: [nerves_bootstrap: "~> 1.0-rc"],
+      archives: [nerves_bootstrap: "~> 1.0"],
       target: @target,
       deps: deps(),
       aliases: Nerves.Bootstrap.add_aliases([])
