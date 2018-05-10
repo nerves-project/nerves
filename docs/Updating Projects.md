@@ -1,12 +1,14 @@
 # Updating Projects
 
 Please review this guide before updating your projects. Help is available via
-the #nerves channel on the elixir-lang slack and the Elixir forum.
+the #nerves channel on the elixir-lang slack and the Elixir forum. Please file
+bugs on GitHub.
 
 Contents:
 
-* [Updating from v0.8 to v0.9](#updating-from-v08-to-v09)
-* [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v09-to-v100-rc0)
+* [Updating from v0.8 to v0.9](#updating-from-v0-8-to-v0-9)
+* [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v0-9-to-v1-0-0-rc-0)
+* [Updating from v1.0.0-rc.0 to v1.0.0-rc.2](#updating-from-v1-0-0-rc-0-to-v1-0-0-rc-2)
 
 ## Updating from v0.8 to v0.9
 
@@ -37,7 +39,7 @@ mix archive.install hex nerves_bootstrap
 IMPORTANT: If you're upgrading to Nerves v1.0, this step has been superceded.
 
 Nerves requires that you add aliases to your project's `mix.exs` to pull in the
-firmware creation and crosscompilation logic. Previously, you needed to know
+firmware creation and compilation logic. Previously, you needed to know
 which aliases to override. Nerves v0.9 added a new alias. Rather than add this
 alias, we recommend using the new alias helper in your `mix.exs`. To do this,
 edit the target aliases function to look like this:
@@ -193,7 +195,7 @@ by editing the `:nerves_package` options of `Mix.project/0` for your custom
 system or toolchain to set the sites for which the artifact is available on.
 
 This can be passed as
-`{:github_releases, "<orginization>/<repository>"}`
+`{:github_releases, "<organization>/<repository>"}`
 or specified as url / path prefixes
 `{:prefix, "/path/to/artifact_dir"}`
 `{:prefix, http://artifact_server.com/artifacts}`
@@ -210,7 +212,7 @@ end
 ```
 
 The artifact resolver will attempt to fetch from each site listed until it
-successfully retreives an artifact or it reaches the end of the list.
+successfully retrieves an artifact or it reaches the end of the list.
 
 ## Updating from v0.9 to v1.0.0-rc.0
 
@@ -301,11 +303,12 @@ is invoked by setting `MIX_TARGET` to value other then `host`. Update your
 Nerves v1.0.0-rc.2 renames the module `Nerves.Artifact.Provider` to
 `Nerves.Artifact.BuildRunner`.
 
-The `nerves_package` config allowed the package to override 
+The `nerves_package` config allowed the package to override
 `provider` and `provider_opts`. These keys have been renamed to
 `build_runner` and `build_runner_opts`
 
 For example:
+
 ```elixir
   def nerves_package do
     [
