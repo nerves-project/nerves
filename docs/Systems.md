@@ -165,12 +165,11 @@ The following keys are supported:
     Options are: `system`, `system_compiler`, `system_platform`,
     `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
 
-2. `artifact_sites` (optional): Artifact sites are helpers that are useful for 
-    cleanly specifying locations where artifacts can be fetched. Artifact sites 
-    will be tried in order until one successfully downloads the artifact.
+2. `artifact_sites` (optional): Artifact sites specify how to download
+    artifacts. Sites are tried until one works.
 
     Supported artifact sites:
-    
+
     ```elixir
     {:github_releases, "organization/project"}
     {:github_api, "organization/project", username: System.get_env("GITHUB_USER"), token: System.get_env("GITHUB_TOKEN"), tag: @version}
@@ -198,7 +197,7 @@ The following keys are supported:
     ```
 
     You can also use this to add an authorization header for files behind basic auth.
-    
+
     ```elixir
     {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
     ```
