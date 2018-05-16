@@ -176,12 +176,11 @@ details!
 
 We want our instructions to be clear and user-friendly, even for people who are
 not familiar with using a command-line interface. We also want to be consistent
-within the Nerves documentation and with documentation in the broader community.
-Therefore, we will show an appropriate prompt (e.g. `$`, `#`, or `iex(1)>`)
-before the commands to be entered. This makes it slightly harder to
-copy-and-paste several commands from the browser to the terminal, but allows the
-reader to more easily differentiate what they need to type from what they should
-expect to see as output. For example:
+within the Nerves documentation and with documentation in the broader
+community.  Therefore, we will not show a prompt (e.g. `$`, `#`, or `iex(1)>`)
+before the commands to be entered. This makes it easier to copy-and-paste
+several commands from the browser to the terminal without the reader having to
+understand that they should not type the prompt itself.
 
 ```bash
 export MIX_TARGET=rpi3
