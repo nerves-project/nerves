@@ -59,10 +59,10 @@ before the vulnerability is disclosed publicly.
     is most relevant, it's OK to just open it in the main [nerves repository].
 
     If you have a question about how to use Nerves, we prefer that you use the
-    [Nerves section] on [Elixir Forum] or the #nerves channel on the [Elixir
+    [Nerves tag] on the [Elixir Forum] or the #nerves channel on the [Elixir
     Slack].
 
-3. Questions on [Elixir Forum] (ideally in the [Nerves section])
+3. Questions on [Elixir Forum] (ideally with the [Nerves tag])
 
     If questions and answers are captured in a forum like this, it makes them
     much easier for people to find later via search engine, as opposed to
@@ -90,7 +90,7 @@ before the vulnerability is disclosed publicly.
 [repositories]: https://github.com/nerves-project
 [nerves repository]: https://github.com/nerves-project/nerves
 [Elixir Forum]: https://elixirforum.com
-[Nerves section]: https://elixirforum.com/c/dedicated-sections/nerves
+[Nerves tag]: https://elixirforum.com/tags/nerves
 [ElixirStatus]: http://elixirstatus.com/
 [security@nerves-project.org]: mailto:security@nerves-project.org
 
@@ -100,7 +100,7 @@ It takes a lot of time and energy to understand the context of a problem and
 determine an appropriate solution. If you see a question posted on the [Elixir
 Forum], you can help by:
 
-* Making sure it gets marked as belonging to the [Nerves section]
+* Making sure it shows up with the [Nerves tag]
 * Asking clarifying questions to ensure that others will understand the context
 * Offering your own advice or solutions if you can
 * Pinging the core team in the #nerves-dev channel on Slack if it's stale
