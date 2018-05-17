@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Firmware do
   def run(args) do
     preflight()
     debug_info("Nerves Firmware Assembler")
+
     if "--image-path" in args do
       config = Mix.Project.config()
       images_path = images_path(config)
@@ -120,7 +121,6 @@ defmodule Mix.Tasks.Firmware do
   end
 
   defp standard_fwup_variables(config) do
-    config = Mix.Project.config()
     # Assuming the fwup.conf file respects these variable like the official
     # systems do, this will set the .fw metadata to what's in the mix.exs.
     [
@@ -131,13 +131,12 @@ defmodule Mix.Tasks.Firmware do
     ]
   end
 
-  defp images_path(config) do
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
+  def images_path(config) do
+    (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
+    |> Path.expand()
   end
 
-  defp fw_path(images_path, otp_app) do
+  def fw_path(images_path, otp_app) do
     Path.join("#{images_path}", "#{otp_app}.fw")
   end
 end
