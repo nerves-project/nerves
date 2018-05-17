@@ -48,7 +48,8 @@ defmodule Nerves.Mixfile do
         "docs/Systems.md",
         "docs/User Interfaces.md",
         "docs/Advanced Configuration.md",
-        "docs/Updating Projects.md"
+        "docs/Updating Projects.md",
+        "docs/Internals.md"
       ]
     ]
   end
