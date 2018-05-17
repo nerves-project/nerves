@@ -19,31 +19,35 @@ defmodule Mix.Tasks.Firmware do
     * `NERVES_TOOLCHAIN` - may be set to a local directory to specify the
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
-  def run(_args) do
+  def run(args) do
     preflight()
     debug_info("Nerves Firmware Assembler")
+    if "--image-path" in args do
+      config = Mix.Project.config()
+      images_path = images_path(config)
+      otp_app = config[:otp_app]
+      IO.inspect(fw_path(images_path, otp_app))
+    else
+      system_path = check_nerves_system_is_set!()
 
-    system_path = check_nerves_system_is_set!()
+      check_nerves_toolchain_is_set!()
 
-    check_nerves_toolchain_is_set!()
+      rel_config = Path.join([File.cwd!(), "rel", "config.exs"])
 
-    rel_config =
-      File.cwd!()
-      |> Path.join("rel/config.exs")
+      unless File.exists?(rel_config) do
+        Mix.raise("""
+          You are missing a release config file. Run  nerves.release.init task first
+        """)
+      end
 
-    unless File.exists?(rel_config) do
-      Mix.raise("""
-        You are missing a release config file. Run  nerves.release.init task first
-      """)
+      Mix.Task.run("compile", [])
+
+      Mix.Nerves.IO.shell_info("Building OTP Release...")
+
+      clean_release()
+      build_release()
+      build_firmware(system_path)
     end
-
-    Mix.Task.run("compile", [])
-
-    Mix.Nerves.IO.shell_info("Building OTP Release...")
-
-    clean_release()
-    build_release()
-    build_firmware(system_path)
   end
 
   def result({_, 0}), do: nil
@@ -69,17 +73,14 @@ defmodule Mix.Tasks.Firmware do
   defp build_firmware(system_path) do
     config = Mix.Project.config()
     otp_app = config[:app]
-
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
+    images_path = images_path(config)
 
     unless File.exists?(images_path) do
       File.mkdir_p(images_path)
     end
 
     firmware_config = Application.get_env(:nerves, :firmware)
-    rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
+    rel2fw_path = Path.join([system_path, "scripts", "rel2fw.sh"])
     cmd = "bash"
     args = [rel2fw_path]
 
@@ -108,8 +109,8 @@ defmodule Mix.Tasks.Firmware do
         fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
       end
 
-    fw = ["-f", "#{images_path}/#{otp_app}.fw"]
-    release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
+    fw = ["-f", fw_path(images_path, otp_app)]
+    release_path = Path.join([Mix.Project.build_path(), "rel", to_string(otp_app)])
     output = [release_path]
     args = args ++ fwup_conf ++ rootfs_overlay ++ fw ++ output
     env = standard_fwup_variables(config)
@@ -119,6 +120,7 @@ defmodule Mix.Tasks.Firmware do
   end
 
   defp standard_fwup_variables(config) do
+    config = Mix.Project.config()
     # Assuming the fwup.conf file respects these variable like the official
     # systems do, this will set the .fw metadata to what's in the mix.exs.
     [
@@ -127,5 +129,15 @@ defmodule Mix.Tasks.Firmware do
       {"NERVES_FW_DESCRIPTION", config[:description]},
       {"NERVES_FW_AUTHOR", config[:author]}
     ]
+  end
+
+  defp images_path(config) do
+    images_path =
+      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
+      |> Path.expand()
+  end
+
+  defp fw_path(images_path, otp_app) do
+    Path.join("#{images_path}", "#{otp_app}.fw")
   end
 end
