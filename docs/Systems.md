@@ -111,7 +111,7 @@ end
 
 Nerves systems have a few requirements in the mix file:
 
-1. The `compilers` must include `:nerves_system` compiler after `Mix.compilers`.
+1. The `compilers` must include `:nerves_package` compiler after `Mix.compilers`.
 2. There must be a dependency for the toolchain and the build platform.
 3. The `package` must specify all the required `files` so they are present when
    downloading from Hex.
