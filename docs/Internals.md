@@ -1,7 +1,7 @@
-# Internals
+# Nerves Internals
 
-The nerves bootstrapping process has several steps.  Its goal is to locate 
-the "system", compile it, and use the compiled system to setup the cross 
+The nerves bootstrapping process has several steps.  Its goal is to locate
+the "system", compile it, and use the compiled system to setup the cross
 compile environment.
 
 ## Call Tree
@@ -49,28 +49,28 @@ to be a "10,000 ft" overview.
       * pkg.build_runner.artifact(pkg, toolchain, opts) [Nerves.Artifact.BuildRunners.HTTP, Nerves.Artifact.BuildRunners.Local]
 * firmware
 
-# Key Files/Variables
+## Key Files/Variables
 
-The following are the key parts of the bootstrap.  Note that NERVES_SYSTEM and 
-NERVES_TOOLCHAIN can be defined before running `mix firmware` to point to a 
-trusted decompressed system or toolchain. This is useful in situations where 
+The following are the key parts of the bootstrap.  Note that NERVES_SYSTEM and
+NERVES_TOOLCHAIN can be defined before running `mix firmware` to point to a
+trusted decompressed system or toolchain. This is useful in situations where
 you produce a system directly using Buildroot and want to force Nerves to use it.
 
-NERVES_SYSTEM 
-  * Path to the nerves_system_* folder
+### NERVES_SYSTEM
+  * Path to the `nerves_system_*` folder
   * Has to be defined at Nerves.Env.bootstrap() or system blows up
   * Exists only if the system dependency is being included from a source other than hex.
     * When a system is being sourced from hex, it will attempt to place the uncompressed artifact in the global path located at ~/.nerves/artifacts or $NERVES_ARTIFACTS_DIR
 
-NERVES_TOOLCHAIN 
+### NERVES_TOOLCHAIN
   * Path to the toolchain
   * Has to defined at Nerves.Env.bootstrap() or systems blows up
 
-nerves_env.exs
+### nerves_env.exs
   * Sets the cross compile flags
   * NERVES_SYSTEM and NERVES_TOOLCHAIN must be defined prior
   * Everything thing run after will try to cross compile
 
-nerves_system/.nerves/artifacts/nerves_system_*
+### nerves_system/.nerves/artifacts/nerves_system_*
    * "package" directory
    * Gets fetched from nerves_env.exs artifact_url
