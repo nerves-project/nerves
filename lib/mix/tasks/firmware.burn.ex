@@ -59,6 +59,16 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
+    # Create a temporary .fw file that fwup.exe is able to access
+    fw = 
+      if is_wsl?() do
+        {win_path, wsl_path} = get_wsl_paths("#{otp_app}.fw")
+        File.copy(fw, wsl_path)
+        win_path
+      else 
+        fw 
+      end
+
     dev =
       case opts[:device] do
         nil -> prompt_dev()
@@ -66,6 +76,16 @@ defmodule Mix.Tasks.Firmware.Burn do
       end
 
     burn(fw, dev, opts, argv)
+
+    # Remove the temporary .fw file
+    if is_wsl?() do
+      drive_letter = 
+        Regex.run(~r/(.*?):/, fw) 
+        |> Enum.at(1) 
+        |> String.downcase()
+      fw = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
+      File.rm(fw)
+    end
   end
 
   defp burn(fw, dev, opts, argv) do
@@ -78,14 +98,19 @@ defmodule Mix.Tasks.Firmware.Burn do
           {"fwup", args}
 
         {_, :linux} ->
-          case File.stat(dev) do
-            {:ok, %File.Stat{access: :read_write}} ->
-              {"fwup", args}
+          if is_wsl?() do
+            ps_cmd = "Start-Process fwup -ArgumentList '#{Enum.join(args, " ")}' -Verb runAs -Wait"
+            {"powershell.exe", ["-Command", ps_cmd]}
+          else
+            case File.stat(dev) do
+              {:ok, %File.Stat{access: :read_write}} ->
+                {"fwup", args}
 
-            _ ->
-              ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
-              System.put_env("SUDO_ASKPASS", ask_pass)
-              {"sudo", ["fwup"] ++ args}
+             _ ->
+                ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
+                System.put_env("SUDO_ASKPASS", ask_pass)
+                {"sudo", ["fwup"] ++ args}
+            end
           end
 
         {_, :nt} ->
@@ -99,7 +124,21 @@ defmodule Mix.Tasks.Firmware.Burn do
   end
 
   defp get_devs do
-    {result, 0} = System.cmd("fwup", ["--detect"])
+    {result, 0} = 
+      if is_wsl?() do
+        {win_path, wsl_path} = get_wsl_paths("fwup_devs.txt")
+        System.cmd("powershell.exe", ["-Command", "Start-Process powershell.exe -Verb runAs -Wait -ArgumentList \"fwup.exe -D | set-content -encoding UTF8 #{win_path}\""])
+       
+        {:ok, devs} = File.read(wsl_path) 
+        devs = 
+          Regex.replace(~r/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u, devs, "")
+          |> String.replace("\r", "")
+
+        File.rm(wsl_path)
+        {devs, 0}
+      else
+        System.cmd("fwup", ["--detect"])
+      end
 
     if result == "" do
       Mix.raise("Could not auto detect your SD card")
@@ -159,5 +198,29 @@ defmodule Mix.Tasks.Firmware.Burn do
   defp bytes_to_gigabytes(bytes) do
     gb = bytes / 1024 / 1024 / 1024
     Float.round(gb, 2)
+  end
+
+  defp is_wsl? do
+    #using system.cmd("cat", ...) here is simpler
+    #https://stackoverflow.com/questions/29874941/elixir-file-read-returns-empty-data-when-accessing-proc-cpuinfo/29875499
+    if File.exists?("/proc/sys/kernel/osrelease") do
+      System.cmd("cat", ["/proc/sys/kernel/osrelease"]) 
+        |> elem(0)
+        |> (&Regex.match?(~r/Microsoft/, &1)).()
+    else
+      false
+    end
+  end
+
+  defp get_wsl_paths(file) do
+    {win_path, 0} = System.cmd("cmd.exe", ["/c", "cd"])
+    win_path = String.trim(win_path) <> "\\#{file}"
+    drive_letter = 
+      Regex.run(~r/(.*?):\\/, win_path)
+      |> Enum.at(1)
+      |> String.downcase()
+    wsl_path = "/mnt/" <> drive_letter <> "/" <> Regex.replace(~r/(.*?):\\/, win_path, "")
+    wsl_path = Regex.replace(~r/\\/, wsl_path, "/")
+    {win_path, wsl_path}
   end
 end
