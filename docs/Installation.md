@@ -91,7 +91,7 @@ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
 
 # If on Debian or Ubuntu, you'll want to install wx before running the next
-# line: sudo apt install libwxgtk-3.0-dev
+# line: sudo apt install libwxgtk3.0-dev
 asdf install erlang 20.2 # This takes a while
 asdf install elixir 1.6.2 # or later version
 asdf global erlang 20.2
