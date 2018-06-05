@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.1
+
+* Enhancements
+  * General documentation updates.
+* Bug fixes
+  * Do not fetch artifacts on deps.get if they are overridden using environment 
+    variables like `NERVES_SYSTEM=/path/to/system`.
+
 ## v1.0.0
 
 * Bug Fixes
