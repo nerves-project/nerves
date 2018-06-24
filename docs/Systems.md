@@ -436,19 +436,11 @@ appropriate steps below:
 
 2. After `make linux-menuconfig`:
 
-    Assuming you're using the Nerves System Shell via Docker on a non-Linux host
-    and your custom system source directory is called `custom_rpi3`, you'll need
-    to do something like the following (the version identifiers might be
-    different for you).
-
-    ```bash
-    make linux-savedefconfig
-    cp build/linux-04c8e47067d4873c584395e5cb260b4f170a99ea/.config /nerves/env/custom_rpi3/linux-4.9.defconfig
-    ```
-
-    If you're using Linux, the destination for the `cp` will simply be something
-    like `$(NERVES_DEFCONFIG_DIR)/linux-4.4.defconfig`.
-
+    Once done with configuring the kernel, you can save the Linux config to the
+    default configuration file using `make linux-update-defconfig`. The destination
+    file is `linux-4.9.defconfig` in your project's root (or whatever the kernel
+    version is you're working with).
+    
     > NOTE: If your system doesn't contain a custom Linux configuration yet,
     you'll need to update the Buildroot configuration (using `make menuconfig`)
     to point to the new Linux defconfig in your system directory. The path is
