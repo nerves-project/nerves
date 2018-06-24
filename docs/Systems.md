@@ -443,7 +443,7 @@ appropriate steps below:
 
     ```bash
     make linux-savedefconfig
-    cp build/linux-04c8e47067d4873c584395e5cb260b4f170a99ea/ /nerves/env/custom_rpi3/linux-4.4.defconfig
+    cp build/linux-04c8e47067d4873c584395e5cb260b4f170a99ea/.config /nerves/env/custom_rpi3/linux-4.9.defconfig
     ```
 
     If you're using Linux, the destination for the `cp` will simply be something
