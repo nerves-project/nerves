@@ -12,6 +12,23 @@ defmodule Nerves.Artifact.BuildRunners.Local do
 
   @doc """
   Builds an artifact locally.
+
+  Opts:
+    `make_args:` - Extra arguments to be passed to make. 
+    
+    For example:
+    
+    You can configure the number of parallel jobs that buildroot
+    can use for execution. This is useful for situations where you may
+    have a machine with a lot of CPUs but not enough ram.
+
+      # mix.exs
+      defp nerves_package do
+        [
+          # ...
+          build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
+        ]
+      end
   """
   @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: BuildRunner.build_result()
   def build(pkg, toolchain, opts) do

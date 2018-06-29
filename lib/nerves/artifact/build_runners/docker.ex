@@ -71,16 +71,33 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   @doc """
   Create an artifact for the package
+
+  Opts:
+    `make_args:` - Extra arguments to be passed to make. 
+    
+    For example:
+    
+    You can configure the number of parallel jobs that buildroot
+    can use for execution. This is useful for situations where you may
+    have a machine with a lot of CPUs but not enough ram.
+
+      # mix.exs
+      defp nerves_package do
+        [
+          # ...
+          build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
+        ]
+      end
   """
   @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: :ok
-  def build(pkg, _toolchain, _opts) do
+  def build(pkg, _toolchain, opts) do
     preflight(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: build_log_path())
     stream = IO.stream(pid, :line)
 
     :ok = create_build(pkg, stream)
-    :ok = make(pkg, stream)
+    :ok = make(pkg, stream, opts)
     Mix.shell().info("\n")
     :ok = make_artifact(pkg, stream)
     Mix.shell().info("\n")
@@ -153,8 +170,9 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     run(pkg, cmd, stream)
   end
 
-  defp make(pkg, stream) do
-    run(pkg, ["make"], stream)
+  defp make(pkg, stream, opts) do
+    make_args = Keyword.get(opts, :make_args, [])
+    run(pkg, ["make" | make_args], stream)
   end
 
   defp make_artifact(pkg, stream) do
