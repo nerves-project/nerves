@@ -53,7 +53,7 @@ defmodule Nerves.System.BR do
     make_archive(type, pkg, toolchain, opts)
   end
 
-  defp make(:linux, pkg, _toolchain, _opts) do
+  defp make(:linux, pkg, _toolchain, opts) do
     System.delete_env("BINDIR")
     dest = Artifact.build_path(pkg)
 
@@ -65,7 +65,9 @@ defmodule Nerves.System.BR do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)
 
-    case shell("make", [], cd: dest, stream: stream) do
+    make_args = Keyword.get(opts, :make_args, [])
+
+    case shell("make", make_args, cd: dest, stream: stream) do
       {_, 0} -> {:ok, dest}
       {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
     end

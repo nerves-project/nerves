@@ -221,6 +221,22 @@ The following keys are supported:
 
 6. `build_runner_opts`: Optional - A keyword list of options to pass to the build_runner module.
 
+    `make_args:` - Extra arguments to be passed to make. 
+    
+    For example:
+    
+    You can configure the number of parallel jobs that buildroot
+    can use for execution. This is useful for situations where you may
+    have a machine with a lot of CPUs but not enough ram.
+
+      # mix.exs
+      defp nerves_package do
+        [
+          # ...
+          build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
+        ]
+      end
+
 7. `checksum`: The list of files for which checksums are calculated and stored
     in the artifact cache.
 
