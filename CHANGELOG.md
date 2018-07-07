@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.1.0
+
+* Enhancements
+  * `mix firmware.burn` can run within Windows Subsystem for Linux
+  * Added `make_args` to `build_runner_opts`
+
+  For example:
+    
+    You can configure the number of parallel jobs that buildroot
+    can use for execution. This is useful for situations where you may
+    have a machine with a lot of CPUs but not enough ram.
+    
+      # mix.exs
+      defp nerves_package do
+        [
+          # ...
+          build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
+        ]
+      end
+
 ## v1.0.1
 
 * Enhancements
