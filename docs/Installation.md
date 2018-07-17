@@ -25,7 +25,7 @@ Just run the following:
 
 ```bash
 brew update
-brew install fwup squashfs coreutils
+brew install fwup squashfs coreutils xz
 ```
 
 Optionally, if you want to build custom Nerves Systems, you'll also need to
