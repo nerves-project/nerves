@@ -14,10 +14,10 @@ defmodule Nerves.Artifact.BuildRunners.Local do
   Builds an artifact locally.
 
   Opts:
-    `make_args:` - Extra arguments to be passed to make. 
-    
+    `make_args:` - Extra arguments to be passed to make.
+
     For example:
-    
+
     You can configure the number of parallel jobs that buildroot
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.

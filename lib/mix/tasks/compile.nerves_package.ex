@@ -48,14 +48,14 @@ defmodule Mix.Tasks.Compile.NervesPackage do
       cond do
         in_umbrella?(File.cwd!()) ->
           """
-          Compiling Nerves packages from the top of umbrella projects isn't supported. 
+          Compiling Nerves packages from the top of umbrella projects isn't supported.
           Please cd into the application directory and try again.
           """
 
         true ->
           """
           Compiling Nerves packages requires nerves_bootstrap to be started.
-          Please ensure that MIX_TARGET is set in your environment and that you have added 
+          Please ensure that MIX_TARGET is set in your environment and that you have added
           the proper aliases to your mix.exs file:
 
             def project do

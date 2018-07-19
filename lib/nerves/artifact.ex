@@ -34,7 +34,7 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Produces an archive of the package artifact which can be fetched when 
+  Produces an archive of the package artifact which can be fetched when
   calling `nerves.artifact.get`.
   """
   def archive(%{app: app, build_runner: nil}, _toolchain, _opts) do
@@ -158,7 +158,7 @@ defmodule Nerves.Artifact do
 
   @doc """
   Get the path where the global artifact will be linked to.
-  This path is typically a location within build_path, but can be 
+  This path is typically a location within build_path, but can be
   vary on different build platforms.
   """
   def build_path_link(pkg) do
@@ -255,7 +255,7 @@ defmodule Nerves.Artifact do
     {:github_releases, "my-organization/my_repository", query_params: %{"access_token" => System.get_env("GITHUB_ACCESS_TOKEN")}}
 
   You can also use this to add an authorization header for files behind basic auth.
-    
+
     {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
 
   """
@@ -301,7 +301,7 @@ defmodule Nerves.Artifact do
 
   @doc """
   Get the host_tuple for the package. Toolchains are specifically build to run
-  on a host for a target. Other packages are host agnostic for now. They are 
+  on a host for a target. Other packages are host agnostic for now. They are
   marked as `portable`.
   """
   def host_tuple(%{type: :system}) do

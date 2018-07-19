@@ -60,7 +60,7 @@ defmodule Mix.Nerves.Utils do
             Mix.raise("""
             Nerves encountered an error while checking host requirements for fwup
             #{inspect(error)}
-            Please open a bug report for this issue on github.com/nerves-project/nerves 
+            Please open a bug report for this issue on github.com/nerves-project/nerves
             """)
         end
     end

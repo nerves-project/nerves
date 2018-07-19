@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
     Create an artifact for a specified Nerves package.
 
     ## Command line options
-      
+
       `--path <path>`: The location where you want the archive to be placed.
         Default: $NERVES_DL_DIR || ~/.nerves/dl
 
@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
       $ mix nerves.artifact nerves_system_rpi0
 
-    If the command is called without the package name, 
+    If the command is called without the package name,
     Nerves.Project.config()[:app] will be used by default.
 
       $ mix nerves.artifact --path /tmp
@@ -30,7 +30,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   def run(argv) do
     # We need to make sure the the Nerves env has been set up.
-    # This allows the task to be called from a project level that 
+    # This allows the task to be called from a project level that
     # does not include aliases to nerves_bootstrap
     Mix.Task.run("nerves.precompile", [])
 
