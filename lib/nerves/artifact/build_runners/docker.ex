@@ -73,10 +73,10 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   Create an artifact for the package
 
   Opts:
-    `make_args:` - Extra arguments to be passed to make. 
-    
+    `make_args:` - Extra arguments to be passed to make.
+
     For example:
-    
+
     You can configure the number of parallel jobs that buildroot
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.
@@ -232,7 +232,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   defp set_volume_permissions(pkg) do
     {_dockerfile, image} = config(pkg)
 
-    # (chown) 
+    # (chown)
     #   Set the permissions of the build volume
     #   to match those of the host user:group.
     # (--rm)

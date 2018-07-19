@@ -6,10 +6,10 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
 
   @moduledoc """
     Fetch the artifacts from one of the artifact_sites
-    This task is typically called as part of the 
+    This task is typically called as part of the
     Nerves.Bootstrap aliases during `mix deps.get`
 
-    You can also call into this task by calling 
+    You can also call into this task by calling
     `mix nerves.deps.get`
 
     # Example

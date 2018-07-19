@@ -2,7 +2,7 @@ defmodule Nerves.Package.Platform do
   @moduledoc """
   Defines the Nerves package platform behaviour
 
-  This behaviour is implemented on a module that would be used to construct 
+  This behaviour is implemented on a module that would be used to construct
   an artifact for a nerves package. Nerves packages are prioritized to be
   compiled before any other dependencies, therefore, a package platform
   is useful for constructing host tools to be used during the elixir compile
@@ -26,7 +26,7 @@ defmodule Nerves.Package.Platform do
       build_path = Artifact.build_path(pkg)
       File.rm_rf!(build_path)
       File.mkdir_p!(build_path)
-      
+
       build_path
       |> Path.join("file")
       |> File.touch()
@@ -56,8 +56,8 @@ defmodule Nerves.Package.Platform do
 
   @doc """
    Bootstrap is called as the final phase of loading the Nerves environment.
-   It is used typically for setting / unsetting any system environment 
-   variables. For example, if we were building a C cross compiler, we would 
+   It is used typically for setting / unsetting any system environment
+   variables. For example, if we were building a C cross compiler, we would
    use the bootstrap phase to override CC to point to our compiler.
   """
   @callback bootstrap(Nerves.Package.t()) :: :ok | {:error, error :: term}
