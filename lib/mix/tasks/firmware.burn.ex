@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Firmware.Burn do
   use Mix.Task
   import Mix.Nerves.Utils
+  alias Nerves.Utils.WSL
 
   @switches [device: :string, task: :string]
   @aliases [d: :device, t: :task]
@@ -61,8 +62,8 @@ defmodule Mix.Tasks.Firmware.Burn do
 
     # Create a temporary .fw file that fwup.exe is able to access
     fw =
-      if is_wsl?() do
-        {win_path, wsl_path} = get_wsl_paths("#{otp_app}.fw")
+      if WSL.is_wsl?() do
+        {win_path, wsl_path} = WSL.get_wsl_paths("#{otp_app}.fw")
         File.copy(fw, wsl_path)
         win_path
       else
@@ -78,14 +79,8 @@ defmodule Mix.Tasks.Firmware.Burn do
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
-    if is_wsl?() do
-      drive_letter =
-        Regex.run(~r/(.*?):/, fw)
-        |> Enum.at(1)
-        |> String.downcase()
-
-      fw = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
-      File.rm(fw)
+    if WSL.is_wsl?() do
+      File.rm(WSL.convert_path_from_windows_to_wsl(fw))
     end
   end
 
@@ -99,11 +94,8 @@ defmodule Mix.Tasks.Firmware.Burn do
           {"fwup", args}
 
         {_, :linux} ->
-          if is_wsl?() do
-            ps_cmd =
-              "Start-Process fwup -ArgumentList '#{Enum.join(args, " ")}' -Verb runAs -Wait"
-
-            {"powershell.exe", ["-Command", ps_cmd]}
+          if WSL.is_wsl?() do
+            WSL.admin_powershell_command("fwup", Enum.join(args, " "))
           else
             case File.stat(dev) do
               {:ok, %File.Stat{access: :read_write}} ->
@@ -128,24 +120,8 @@ defmodule Mix.Tasks.Firmware.Burn do
 
   defp get_devs do
     {result, 0} =
-      if is_wsl?() do
-        {win_path, wsl_path} = get_wsl_paths("fwup_devs.txt")
-
-        System.cmd("powershell.exe", [
-          "-Command",
-          "Start-Process powershell.exe -Verb runAs -Wait -ArgumentList \"fwup.exe -D | set-content -encoding UTF8 #{
-            win_path
-          }\""
-        ])
-
-        {:ok, devs} = File.read(wsl_path)
-
-        devs =
-          Regex.replace(~r/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u, devs, "")
-          |> String.replace("\r", "")
-
-        File.rm(wsl_path)
-        {devs, 0}
+      if WSL.is_wsl?() do
+        WSL.get_fwup_devices()
       else
         System.cmd("fwup", ["--detect"])
       end
@@ -208,31 +184,5 @@ defmodule Mix.Tasks.Firmware.Burn do
   defp bytes_to_gigabytes(bytes) do
     gb = bytes / 1024 / 1024 / 1024
     Float.round(gb, 2)
-  end
-
-  defp is_wsl? do
-    # using system.cmd("cat", ...) here is simpler
-    # https://stackoverflow.com/questions/29874941/elixir-file-read-returns-empty-data-when-accessing-proc-cpuinfo/29875499
-    if File.exists?("/proc/sys/kernel/osrelease") do
-      System.cmd("cat", ["/proc/sys/kernel/osrelease"])
-      |> elem(0)
-      |> (&Regex.match?(~r/Microsoft/, &1)).()
-    else
-      false
-    end
-  end
-
-  defp get_wsl_paths(file) do
-    {win_path, 0} = System.cmd("cmd.exe", ["/c", "cd"])
-    win_path = String.trim(win_path) <> "\\#{file}"
-
-    drive_letter =
-      Regex.run(~r/(.*?):\\/, win_path)
-      |> Enum.at(1)
-      |> String.downcase()
-
-    wsl_path = "/mnt/" <> drive_letter <> "/" <> Regex.replace(~r/(.*?):\\/, win_path, "")
-    wsl_path = Regex.replace(~r/\\/, wsl_path, "/")
-    {win_path, wsl_path}
   end
 end
