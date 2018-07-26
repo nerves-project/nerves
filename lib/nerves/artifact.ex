@@ -5,6 +5,7 @@ defmodule Nerves.Artifact do
 
   """
   alias Nerves.Artifact.{Cache, BuildRunners, Resolvers}
+  alias Nerves.Utils.WSL
 
   @base_dir Path.expand("~/.nerves/artifacts")
   @checksum_short 7
@@ -337,9 +338,10 @@ defmodule Nerves.Artifact do
 
   defp build_runner_type(:system) do
     mod =
-      case :os.type() do
-        {_, :linux} -> BuildRunners.Local
-        _ -> BuildRunners.Docker
+      cond do
+        WSL.is_wsl?() -> BuildRunners.Docker
+        {_, :linux} = :os.type() -> BuildRunners.Local
+        true -> BuildRunners.Docker
       end
 
     {mod, []}
