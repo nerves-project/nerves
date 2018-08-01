@@ -63,10 +63,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   import Docker.Utils
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or >= 17.0.0"
-  @tag "nervesproject/nerves_system_br:latest"
 
-  @dockerfile File.cwd!()
-              |> Path.join("template/Dockerfile")
   @working_dir "/nerves/build"
 
   @doc """
@@ -350,13 +347,20 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   defp config(pkg) do
     {dockerfile, tag} =
       (pkg.config[:build_runner_config] || [])
-      |> Keyword.get(:docker, {@dockerfile, @tag})
+      |> Keyword.get(:docker, default_docker_config())
 
     dockerfile =
       dockerfile
       |> Path.relative_to_cwd()
       |> Path.expand()
 
+    {dockerfile, tag}
+  end
+
+  defp default_docker_config() do
+    [platform] = Nerves.Env.packages_by_type(:system_platform)
+    dockerfile = Path.join(platform.path, "support/docker/#{platform.app}")
+    tag = "nervesproject/#{platform.app}:#{platform.version}"
     {dockerfile, tag}
   end
 
