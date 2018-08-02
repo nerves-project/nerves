@@ -348,8 +348,6 @@ defmodule Nerves.Artifact do
   defp build_runner_type(_), do: {BuildRunners.Local, []}
 
   defp expand_paths(paths, dir) do
-    expand_dir = Path.expand(dir)
-
     paths
     |> Enum.map(&Path.join(dir, &1))
     |> Enum.flat_map(&Path.wildcard/1)
