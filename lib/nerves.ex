@@ -3,13 +3,14 @@ defmodule Nerves do
 
   def before_assembly(release, _opts) do
     if nerves_env_loaded?() do
+      vm_args = Map.get(release.profile, :vm_args) || "rel/vm.args"
+
       profile =
         release.profile
         |> Map.put(:dev_mode, false)
         |> Map.put(:include_src, false)
         |> Map.put(:include_erts, System.get_env("ERL_LIB_DIR"))
-        |> Map.put(:include_system_libs, System.get_env("ERL_SYSTEM_LIB_DIR"))
-        |> Map.put_new(:vm_args, "rel/vm.args")
+        |> Map.put(:vm_args, vm_args)
 
       %{release | profile: profile}
     else
@@ -37,6 +38,6 @@ defmodule Nerves do
   def elixir_version, do: unquote(System.version())
 
   def nerves_env_loaded? do
-    System.get_env("NERVES_PRECOMPILE") != nil
+    System.get_env("NERVES_ENV_BOOTSTRAP") != nil
   end
 end
