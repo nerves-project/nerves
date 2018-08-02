@@ -27,7 +27,7 @@ defmodule Nerves.Mixfile do
 
   defp deps do
     [
-      {:distillery, "~> 1.4"},
+      {:distillery, "~> 2.0"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.18.0", only: [:test, :dev]},
       {:nerves_bootstrap, "~> 1.0", only: [:test, :dev]},

@@ -40,7 +40,6 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run("compile", [])
 
     Mix.Nerves.IO.shell_info("Building OTP Release...")
-
     clean_release()
     build_release()
     build_firmware(system_path)
@@ -56,14 +55,14 @@ defmodule Mix.Tasks.Firmware do
 
   defp clean_release do
     try do
-      Mix.Task.run("release.clean", ["--implode", "--no-confirm"])
+      Mix.Task.run("release.clean", ["--silent", "--implode", "--no-confirm"])
     catch
       :exit, _ -> :noop
     end
   end
 
   defp build_release do
-    Mix.Task.run("release", ["--silent", "--no-tar"])
+    Mix.Task.run("release", ["--quiet", "--no-tar"])
   end
 
   defp build_firmware(system_path) do

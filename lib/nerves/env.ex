@@ -340,6 +340,8 @@ defmodule Nerves.Env do
       _ ->
         :noop
     end)
+
+    System.put_env("NERVES_ENV_BOOTSTRAP", "1")
   end
 
   @doc false
