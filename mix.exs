@@ -29,7 +29,7 @@ defmodule Nerves.Mixfile do
     [
       {:distillery, "~> 1.4"},
       {:jason, "~> 1.0", optional: true},
-      {:ex_doc, "~> 0.16", only: [:test, :dev]},
+      {:ex_doc, "~> 0.18.0", only: [:test, :dev]},
       {:nerves_bootstrap, "~> 1.0", only: [:test, :dev]},
       {:plug, "~> 1.4", only: :test},
       {:cowboy, "~> 1.1", only: :test}
