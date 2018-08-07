@@ -98,6 +98,116 @@ defmodule Mix.Nerves.Utils do
     System.get_env(var_name) || raise_env_var_missing(var_name)
   end
 
+  def get_devs do
+    {result, 0} =
+      if is_wsl?() do
+        {win_path, wsl_path} = get_wsl_paths("fwup_devs.txt")
+
+        System.cmd("powershell.exe", [
+          "-Command",
+          "Start-Process powershell.exe -Verb runAs -Wait -ArgumentList \"fwup.exe -D | set-content -encoding UTF8 #{
+            win_path
+          }\""
+        ])
+
+        {:ok, devs} = File.read(wsl_path)
+
+        devs =
+          Regex.replace(~r/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u, devs, "")
+          |> String.replace("\r", "")
+
+        File.rm(wsl_path)
+        {devs, 0}
+      else
+        System.cmd("fwup", ["--detect"])
+      end
+
+    if result == "" do
+      Mix.raise("Could not auto detect your SD card")
+    end
+
+    result
+    |> String.trim()
+    |> String.split("\n")
+    |> Enum.map(&String.split(&1, ","))
+  end
+
+  def prompt_dev() do
+    case get_devs() do
+      [[dev, bytes]] ->
+        choice =
+          Mix.shell().yes?("Use #{bytes_to_gigabytes(bytes)} GiB memory card found at #{dev}?")
+
+        if choice do
+          dev
+        else
+          Mix.raise("Aborted")
+        end
+
+      devs ->
+        choices =
+          devs
+          |> Enum.zip(0..length(devs))
+          |> Enum.reduce([], fn {[dev, bytes], idx}, acc ->
+            ["#{idx}) #{bytes_to_gigabytes(bytes)} GiB found at #{dev}" | acc]
+          end)
+          |> Enum.reverse()
+
+        choice =
+          Mix.shell().prompt(
+            "Discovered devices:\n#{Enum.join(choices, "\n")}\nWhich device do you want to burn to?"
+          )
+          |> String.trim()
+
+        idx =
+          case Integer.parse(choice) do
+            {idx, _} -> idx
+            _ -> Mix.raise("Invalid selection #{choice}")
+          end
+
+        case Enum.fetch(devs, idx) do
+          {:ok, [dev, _]} -> dev
+          _ -> Mix.raise("Invalid selection #{choice}")
+        end
+    end
+  end
+
+  def bytes_to_gigabytes(bytes) when is_binary(bytes) do
+    {bytes, _} = Integer.parse(bytes)
+    bytes_to_gigabytes(bytes)
+  end
+
+  def bytes_to_gigabytes(bytes) do
+    gb = bytes / 1024 / 1024 / 1024
+    Float.round(gb, 2)
+  end
+
+  def is_wsl? do
+    # using system.cmd("cat", ...) here is simpler
+    # https://stackoverflow.com/questions/29874941/elixir-file-read-returns-empty-data-when-accessing-proc-cpuinfo/29875499
+    if File.exists?("/proc/sys/kernel/osrelease") do
+      System.cmd("cat", ["/proc/sys/kernel/osrelease"])
+      |> elem(0)
+      |> (&Regex.match?(~r/Microsoft/, &1)).()
+    else
+      false
+    end
+  end
+
+  def get_wsl_paths(file) do
+    {win_path, 0} = System.cmd("cmd.exe", ["/c", "cd"])
+    win_path = String.trim(win_path) <> "\\#{file}"
+
+    drive_letter =
+      Regex.run(~r/(.*?):\\/, win_path)
+      |> Enum.at(1)
+      |> String.downcase()
+
+    wsl_path = "/mnt/" <> drive_letter <> "/" <> Regex.replace(~r/(.*?):\\/, win_path, "")
+    wsl_path = Regex.replace(~r/\\/, wsl_path, "/")
+    {win_path, wsl_path}
+  end
+
   defp raise_env_var_missing(name) do
     Mix.raise("""
     Environment variable $#{name} is not set.
