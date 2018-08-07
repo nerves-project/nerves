@@ -221,10 +221,10 @@ The following keys are supported:
 
 6. `build_runner_opts`: Optional - A keyword list of options to pass to the build_runner module.
 
-    `make_args:` - Extra arguments to be passed to make. 
-    
+    `make_args:` - Extra arguments to be passed to make.
+
     For example:
-    
+
     You can configure the number of parallel jobs that buildroot
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.
@@ -260,8 +260,11 @@ While you could design a system from scratch, it is easiest to copy and modify
 an existing one, renaming it to distinguish it from the official release. For
 example, if you're targeting a Raspberry Pi 3 board, do the following:
 
+Make sure not to forget the `-b` flag. Cloning/Forking directly from master is not
+considered stable.
+
 ```bash
-git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3
+git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.2.1
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -276,6 +279,7 @@ using GitHub:
 cd custom_rpi3
 git remote rename origin upstream
 git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
+git checkout -b master
 git push origin master
 ```
 
@@ -456,7 +460,7 @@ appropriate steps below:
     default configuration file using `make linux-update-defconfig`. The destination
     file is `linux-4.9.defconfig` in your project's root (or whatever the kernel
     version is you're working with).
-    
+
     > NOTE: If your system doesn't contain a custom Linux configuration yet,
     you'll need to update the Buildroot configuration (using `make menuconfig`)
     to point to the new Linux defconfig in your system directory. The path is
