@@ -74,7 +74,6 @@ defmodule Nerves.Mixfile do
         "LICENSE",
         "mix.exs",
         "README.md",
-        "template",
         "scripts",
         "priv"
       ],
