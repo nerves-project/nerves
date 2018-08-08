@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.1.1
+
+* Enhancements
+  * Updated docs to bump required versions of tools.
+
+* Bug Fixes
+  * Docker build runner
+    * Use the version of the `nerves_system_br` as the tag for the docker image
+      to pull by default.
+    * Create and set the user id and group id in the docker entrypoint.
+      This fixes issues with building buildroot packages that require
+      access to the users home folder.
+
 ## v1.1.0
 
 * Enhancements
