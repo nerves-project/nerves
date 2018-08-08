@@ -139,13 +139,13 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
     mounts = Enum.join(mounts(pkg), " ")
     ssh_agent = Enum.join(ssh_agent(), " ")
+    env_vars = Enum.join(env(), " ")
 
     cmd =
-      "docker run --rm -it --user #{uid()}:#{gid()} -w #{@working_dir} #{mounts} #{ssh_agent} #{
-        image
-      }"
+      "docker run --rm -it -w #{@working_dir} #{env_vars} #{mounts} #{ssh_agent} #{image} /bin/bash"
 
     set_volume_permissions(pkg)
+
     Mix.Nerves.Shell.open(cmd, initial_input)
   end
 
@@ -204,10 +204,8 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         "-a",
         "stdout",
         "-a",
-        "stderr",
-        "--user",
-        "#{uid()}:#{gid()}"
-      ] ++ mounts(pkg) ++ ssh_agent() ++ [image | cmd]
+        "stderr"
+      ] ++ env() ++ mounts(pkg) ++ ssh_agent() ++ [image | cmd]
 
     case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
       {_result, 0} ->
@@ -239,7 +237,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         "run",
         "--rm",
         "-w=#{@working_dir}"
-      ] ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", @working_dir]]
+      ] ++ env(:root) ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", @working_dir]]
 
     case Mix.Nerves.Utils.shell("docker", args) do
       {_result, 0} ->
@@ -252,6 +250,13 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         #{inspect(result)}
         """)
     end
+  end
+
+  defp env(), do: env(uid(), gid())
+  defp env(:root), do: env(0, 0)
+
+  defp env(uid, gid) do
+    ["--env", "UID=#{uid}", "--env", "GID=#{gid}"]
   end
 
   defp uid() do
