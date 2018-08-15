@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.2.0
+
+* Enhancements
+  * Added ability to override provisioning.conf in the project mix config.
+    This can be done by setting the key `provisioning`.
+
+    Example:
+
+      ```
+      config :nerves, :firmware,
+        provisioning: "config/provisioning.conf"
+
+      # or delgate it to an app that sets nerves_provisioning: "path/to/file"
+
+      config :nerves, :firmware,
+        provisioning: :nerves_hub
+      ```
+  * Bug Fixes
+    * Fix issue with setting provisioning environment vairables when calling
+      `mix firmware.burn` on Linux systems. Environment variables prefixed with
+      `NERVES_` and the variable `SERIAL_NUMBER` will be copied into the environment.
+
 ## v1.1.1
 
 * Enhancements
