@@ -112,7 +112,7 @@ defmodule Mix.Tasks.Firmware.Burn do
               _ ->
                 ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
                 System.put_env("SUDO_ASKPASS", ask_pass)
-                {"sudo", ["fwup"] ++ args}
+                {"sudo", provision_env() ++ ["fwup"] ++ args}
             end
           end
 
@@ -124,5 +124,17 @@ defmodule Mix.Tasks.Firmware.Burn do
       end
 
     shell(cmd, args)
+  end
+
+  # This is a fix for linux when running through sudo.
+  # Sudo will strip the environment and therefore any variables
+  # that are set during device provisioning.
+  def provision_env() do
+    System.get_env()
+    |> Enum.filter(fn {k, _} ->
+      String.starts_with?(k, "NERVES_") or String.equivalent?("SERIAL_NUMBER")
+    end)
+    |> Enum.map(fn {k, v} -> k <> "=" <> v end)
+    |> IO.inspect()
   end
 end
