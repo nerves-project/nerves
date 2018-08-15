@@ -208,6 +208,40 @@ defmodule Mix.Nerves.Utils do
     {win_path, wsl_path}
   end
 
+  def set_provisioning(nil), do: :ok
+
+  def set_provisioning(app) when is_atom(app) do
+    Application.load(app)
+
+    Application.get_env(app, :nerves_provisioning)
+    |> set_provisioning()
+  end
+
+  def set_provisioning(provisioning) when is_binary(provisioning) do
+    path = Path.expand(provisioning)
+    System.put_env("NERVES_PROVISIONING", path)
+  end
+
+  def set_provisioning(_) do
+    Mix.raise("""
+      Unexpected Mix config for :nerves, :firmware, :provisioning.
+      Provisioning should be a relative string path to a provisioning.conf
+      based off the root of the project or an atom of an application that 
+      provides a provisioning.conf.
+
+      For example:
+
+        config :nerves, :firmware,
+          provisioning: "config/provisioning.conf"
+
+      or
+
+        config :nerves, :firmware,
+          provisioning: :nerves_hub
+
+    """)
+  end
+
   defp raise_env_var_missing(name) do
     Mix.raise("""
     Environment variable $#{name} is not set.
