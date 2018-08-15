@@ -114,6 +114,8 @@ defmodule Mix.Tasks.Firmware do
     args = args ++ fwup_conf ++ rootfs_overlay ++ fw ++ output
     env = standard_fwup_variables(config)
 
+    set_provisioning(firmware_config[:provisioning])
+
     shell(cmd, args, env: env)
     |> result
   end

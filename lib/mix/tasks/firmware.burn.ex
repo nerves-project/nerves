@@ -42,6 +42,7 @@ defmodule Mix.Tasks.Firmware.Burn do
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
     config = Mix.Project.config()
+    firmware_config = Application.get_env(:nerves, :firmware)
     otp_app = config[:app]
     target = config[:target]
 
@@ -75,6 +76,7 @@ defmodule Mix.Tasks.Firmware.Burn do
         dev -> dev
       end
 
+    set_provisioning(firmware_config[:provisioning])
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
@@ -132,9 +134,8 @@ defmodule Mix.Tasks.Firmware.Burn do
   def provision_env() do
     System.get_env()
     |> Enum.filter(fn {k, _} ->
-      String.starts_with?(k, "NERVES_") or String.equivalent?("SERIAL_NUMBER")
+      String.starts_with?(k, "NERVES_") or String.equivalent?(k, "SERIAL_NUMBER")
     end)
     |> Enum.map(fn {k, v} -> k <> "=" <> v end)
-    |> IO.inspect()
   end
 end
