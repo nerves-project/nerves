@@ -9,6 +9,7 @@ Contents:
 * [Updating from v0.8 to v0.9](#updating-from-v0-8-to-v0-9)
 * [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v0-9-to-v1-0-0-rc-0)
 * [Updating from v1.0.0-rc.0 to v1.0.0-rc.2](#updating-from-v1-0-0-rc-0-to-v1-0-0-rc-2)
+* [Updating from ~> v1.0 to v1.3](#updating-from-~>-v1-0-to-v1-3-0)
 
 ## Updating from v0.8 to v0.9
 
@@ -318,3 +319,42 @@ For example:
     ]
   end
 ```
+
+## Updating from ~> v1.0 to v1.3.0
+
+### Modify the release config
+
+Nerves now runs as a distillery plugin instead of inside the `rel/config.exs`.
+
+You will need to change your `rel/config.exs`. Find the section near the bottom
+of the file that defines your application.
+
+Change this:
+
+```
+release :my_app do
+  set version: current_version(:my_app)
+  plugin Shoehorn
+  if System.get_env("NERVES_SYSTEM") do
+    set dev_mode: false
+    set include_src: false
+    set include_erts: System.get_env("ERL_LIB_DIR")
+    set include_system_libs: System.get_env("ERL_SYSTEM_LIB_DIR")
+    set vm_args: "rel/vm.args"
+  end
+end
+```
+
+To this:
+
+```
+release :my_app do
+  set version: current_version(:my_app)
+  plugin Shoehorn
+  plugin Nerves
+end
+```
+
+### Update shoehorn dependency
+
+You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
