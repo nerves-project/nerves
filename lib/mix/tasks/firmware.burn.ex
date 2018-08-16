@@ -46,15 +46,13 @@ defmodule Mix.Tasks.Firmware.Burn do
     otp_app = config[:app]
     target = config[:target]
 
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
+    images_path = Mix.Tasks.Firmware.images_path(config)
 
     check_nerves_system_is_set!()
 
     check_nerves_toolchain_is_set!()
 
-    fw = "#{images_path}/#{otp_app}.fw"
+    fw = Mix.Tasks.Firmware.fw_path(images_path, otp_app)
 
     unless File.exists?(fw) do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
