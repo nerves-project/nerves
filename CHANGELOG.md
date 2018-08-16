@@ -1,5 +1,45 @@
 # Changelog
 
+## v1.3.0
+
+This version adds support for Elixir ~> 1.7 which requires updates to your
+Mix project.
+
+
+**Modify the release config**
+
+It is required to modify the `rel/config.exs` file.
+
+Change this:
+
+```
+release :my_app do
+  set version: current_version(:my_app)
+  plugin Shoehorn
+  if System.get_env("NERVES_SYSTEM") do
+    set dev_mode: false
+    set include_src: false
+    set include_erts: System.get_env("ERL_LIB_DIR")
+    set include_system_libs: System.get_env("ERL_SYSTEM_LIB_DIR")
+    set vm_args: "rel/vm.args"
+  end
+end
+```
+
+To this:
+
+```
+release :my_app do
+  set version: current_version(:my_app)
+  plugin Shoehorn
+  plugin Nerves
+end
+```
+
+**Update shoehorn**
+
+You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
+
 ## v1.2.1
 
 * Enhancements
