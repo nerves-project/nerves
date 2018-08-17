@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.2.1
+
+* Enhancements
+  * Update minimum required version for fwup to at least 1.2.5
+
 ## v1.2.0
 
 * Enhancements
