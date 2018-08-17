@@ -1,5 +1,5 @@
 defmodule Mix.Nerves.Utils do
-  @fwup_semver "~> 0.15 or ~> 1.0.0-dev or ~> 1.0"
+  @fwup_semver "~> 1.2.5 or ~> 1.3"
 
   def shell(cmd, args, opts \\ []) do
     stream = opts[:stream] || IO.binstream(:standard_io, :line)
@@ -226,7 +226,7 @@ defmodule Mix.Nerves.Utils do
     Mix.raise("""
       Unexpected Mix config for :nerves, :firmware, :provisioning.
       Provisioning should be a relative string path to a provisioning.conf
-      based off the root of the project or an atom of an application that 
+      based off the root of the project or an atom of an application that
       provides a provisioning.conf.
 
       For example:
