@@ -6,10 +6,10 @@ bugs on GitHub.
 
 Contents:
 
-* [Updating from v0.8 to v0.9](#updating-from-v0-8-to-v0-9)
-* [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v0-9-to-v1-0-0-rc-0)
-* [Updating from v1.0.0-rc.0 to v1.0.0-rc.2](#updating-from-v1-0-0-rc-0-to-v1-0-0-rc-2)
-* [Updating from ~> v1.0 to v1.3](#updating-from-~>-v1-0-to-v1-3-0)
+* [Updating from v0.8 to v0.9](#updating-from-v08-to-v09)
+* [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v09-to-v100-rc0)
+* [Updating from v1.0.0-rc.0 to v1.0.0-rc.2](#updating-from-v100-rc0-to-v100-rc2)
+* [Updating from ~> v1.0 to v1.3](#updating-from--v10-to-v130)
 
 ## Updating from v0.8 to v0.9
 
