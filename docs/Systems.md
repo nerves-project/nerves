@@ -391,8 +391,7 @@ run the `mix nerves.system.shell` task, either from your project directory or
 from the custom system source directory.
 
 ```bash
-$ export MIX_TARGET=rpi3
-$ mix deps.get
+$ MIX_TARGET=rpi3 mix deps.get
 Mix environment
  MIX_TARGET:   rpi3
  MIX_ENV:      dev
