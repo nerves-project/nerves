@@ -387,8 +387,7 @@ Because Buildroot can only be used from Linux, Nerves provides an abstraction
 layer called the Nerves system configuration shell that allows the same
 procedure to be used on Linux and non-Linux development hosts by using a
 Linux-based Docker container on non-Linux platforms. To access this environment,
-run the `mix nerves.system.shell` task, either from your project directory or
-from the custom system source directory.
+run the `mix nerves.system.shell` task from the custom system source directory.
 
 ```bash
 $ MIX_TARGET=rpi3 mix deps.get
