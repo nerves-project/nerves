@@ -112,7 +112,7 @@ defmodule Mix.Tasks.Firmware.Burn do
                 {"fwup", args}
 
               _ ->
-                fwup = "which" |> System.cmd(["fwup"]) |> elem(0) |> String.trim()
+                fwup = System.find_executable("fwup")
                 ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
                 System.put_env("SUDO_ASKPASS", ask_pass)
                 {"sudo", provision_env() ++ [fwup] ++ args}
