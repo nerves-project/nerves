@@ -1,14 +1,13 @@
 ### Environment
 
-* Erlang version (`erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell`):
 * Elixir version (`elixir -v`):
-* Operating system:
-* Nerves Environment Info:
-  (`mix nerves.env --info`) or
-  General info about target / system / toolchain
+* Nerves environment: (`mix nerves.env --info`)
+* Additional information about your host, target hardware or environment that
+  may help
 
 ### Current behavior
 
-Include code samples, errors and stacktraces if appropriate.
+Include errors, stacktraces, screenshots or code that may help us reproduce the
+issue.
 
 ### Expected behavior
