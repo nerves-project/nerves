@@ -32,6 +32,10 @@ defmodule Nerves.Utils.File do
   defp result({reason, _}), do: {:error, reason}
 
   defp cmd(cmd, args) do
-    System.cmd(cmd, args, stderr_to_stdout: true)
+    if System.find_executable(cmd) do
+      System.cmd(cmd, args, stderr_to_stdout: true)
+    else
+      {"#{cmd} not found.  See README.md for Host Requirements", nil}
+    end
   end
 end
