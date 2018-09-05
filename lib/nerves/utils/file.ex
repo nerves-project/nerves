@@ -32,6 +32,10 @@ defmodule Nerves.Utils.File do
   defp result({reason, _}), do: {:error, reason}
 
   defp cmd(cmd, args) do
-    System.cmd(cmd, args, stderr_to_stdout: true)
+    if System.find_executable(cmd) do
+      System.cmd(cmd, args, stderr_to_stdout: true)
+    else
+      raise "Could not find '#{cmd}'. See https://hexdocs.pm/nerves/installation.html for required packages."
+    end
   end
 end
