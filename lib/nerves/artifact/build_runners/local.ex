@@ -57,11 +57,13 @@ defmodule Nerves.Artifact.BuildRunners.Local do
   @spec system_shell(Nerves.Package.t()) :: :ok
   def system_shell(pkg) do
     dest = Artifact.build_path(pkg)
+
     error = """
-    Could not find BASH executable. 
-    Make sure it is in your $PATH environment variable
+    Could not find bash or sh executable. 
+    Make sure one of them are in your $PATH environment variable
     """
-    shell = System.find_executable("bash") || Mix.raise(error)
+
+    shell = System.find_executable("bash") || System.find_executable("sh") || Mix.raise(error)
 
     script = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
     platform_config = pkg.config[:platform_config][:defconfig]
