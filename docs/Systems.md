@@ -390,8 +390,7 @@ Linux-based Docker container on non-Linux platforms. To access this environment,
 run the `mix nerves.system.shell` task from the custom system source directory.
 
 ```bash
-$ export MIX_TARGET=rpi3
-$ mix deps.get
+$ MIX_TARGET=rpi3 mix deps.get
 Mix environment
  MIX_TARGET:   rpi3
  MIX_ENV:      dev
