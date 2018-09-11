@@ -14,7 +14,8 @@ defmodule Nerves.Mixfile do
       description: description(),
       package: package(),
       aliases: [docs: ["docs", &copy_images/1]],
-      docs: docs()
+      docs: docs(),
+      dialyzer: [plt_add_apps: [:mix]]
     ]
   end
 
@@ -30,6 +31,7 @@ defmodule Nerves.Mixfile do
       {:distillery, "~> 2.0"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.19", only: [:test, :dev], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:test, :dev], runtime: false},
       {:nerves_bootstrap, "~> 1.0", only: [:test, :dev]},
       {:plug, "~> 1.4", only: :test},
       {:cowboy, "~> 1.1", only: :test}
