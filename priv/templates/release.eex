@@ -14,11 +14,11 @@ use Mix.Releases.Config,
 # and environment configuration is called a profile
 <% end %>
 environment :dev do
-  set cookie: <%= inspect(cookie) %>
+  set cookie: :"Unused with Nerves. See vm.args"
 end
 
 environment :prod do
-  set cookie: <%= inspect(cookie) %>
+  set cookie: :"Unused with Nerves. See vm.args"
 end
 <%= unless no_docs do %>
 # You may define one or more releases in this file.
