@@ -9,17 +9,20 @@ end up with something like the following in your `mix.exs` configuration:
   # ...
   @target System.get_env("MIX_TARGET") || "host"
   # ...
-  def deps do
-    [{:nerves, "~> 1.0", runtime: false}] ++
-    deps(@target)
+  defp deps do
+    [
+      {:nerves, "~> 1.3", runtime: false},
+      {:shoehorn, "~> 0.4"},
+      {:ring_logger, "~> 0.4"}
+    ] ++ deps(@target)
   end
 
-  # Specify target specific dependencies
-  def deps("host"), do: []
-  def deps(target) do
-    [ system(target),
-      # ...
-    ]
+  defp deps("host"), do: []
+
+  defp deps(target) do
+    [
+      {:nerves_runtime, "~> 0.6"}
+    ] ++ system(target)
   end
 
   def system("rpi"), do: {:nerves_system_rpi, "~> 1.0", runtime: false}
@@ -134,26 +137,17 @@ def project do
   ]
 end
 # ....
-def nerves_package do
+defp nerves_package do
   [
     type: :system,
     artifact_sites: [
-      {:github_releases, "nerves-project/#{@app}",
+      {:github_releases, "nerves-project/#{@app}"}
     ],
     platform: Nerves.System.BR,
     platform_config: [
       defconfig: "nerves_defconfig"
     ],
-    checksum: [
-      "nerves_defconfig",
-      "rootfs_overlay",
-      "linux-4.4.defconfig",
-      "fwup.conf",
-      "cmdline.txt",
-      "config.txt",
-      "post-createfs.sh",
-      "VERSION"
-    ]
+    checksum: package_files()
   ]
 end
 ```
@@ -289,26 +283,17 @@ one and won't try to download a cached artifact that doesn't exist yet:
 ```elixir
 # custom_rpi3/mix.exs
 # ...
-def nerves_package do
+defp nerves_package do
   [
     type: :system,
     # artifact_sites: [
-    #   {:github_releases, "nerves-project/#{@app}",
+    #   {:github_releases, "nerves-project/#{@app}"}
     # ],
     platform: Nerves.System.BR,
     platform_config: [
       defconfig: "nerves_defconfig"
     ],
-    checksum: [
-      "nerves_defconfig",
-      "rootfs_overlay",
-      "linux-4.4.defconfig",
-      "fwup.conf",
-      "cmdline.txt",
-      "config.txt",
-      "post-createfs.sh",
-      "VERSION"
-    ]
+    checksum: package_files()
   ]
 end
 # ...
@@ -320,20 +305,30 @@ end
 # =vvv= Update the module and application names
 defmodule CustomRpi3.MixProject do
 
+  @app :custom_rpi3
+  # =^^^=
+
   # ...
 
   def project do
     [
-      app: :custom_rpi3,
+      app: @app,
       version: @version,
       # ...
     ]
   end
-# =^^^=
 
-# ...
+  # ...
 
-# =vvv= Update the maintainer and project information
+  defp bootstrap(args) do
+    System.put_env("MIX_TARGET", "custom_rpi3") # <==== Update MIX_TARGET
+    Application.start(:nerves_bootstrap)
+    Mix.Task.run("loadconfig", args)
+  end
+
+  # ...
+
+  # =vvv= Update the maintainer and project information
   defp package do
     [
       maintainers: ["Your Name"],
@@ -341,7 +336,7 @@ defmodule CustomRpi3.MixProject do
       links: %{"Github" => "https://github.com/YourGitHubUserName/custom_rpi3"}
     ]
   end
-# =^^^=
+  # =^^^=
 end
 ```
 
@@ -390,18 +385,17 @@ Linux-based Docker container on non-Linux platforms. To access this environment,
 run the `mix nerves.system.shell` task from the custom system source directory.
 
 ```bash
-$ export MIX_TARGET=rpi3
 $ mix deps.get
 Mix environment
- MIX_TARGET:   rpi3
+ MIX_TARGET:   custom_rpi3
  MIX_ENV:      dev
 
 Running dependency resolution...
 Dependency resolution completed:
-<-SNIP->
+# <-SNIP->
 * Getting nerves (Hex package)
- Checking package (https://repo.hex.pm/tarballs/nerves-0.7.0.tar)
-<-SNIP->
+ Checking package (https://repo.hex.pm/tarballs/nerves-1.3.0.tar)
+# <-SNIP->
 
 $ mix nerves.system.shell
 Mix environment
@@ -522,8 +516,8 @@ creating the artifact.
 
 To construct a artifact, simply build the project and call `mix nerves.artifact`
 from within the directory of your custom Nerves system. For example, if your
-system name is `custom_system` and the version is `0.1.0` you will see a file
-similar to `custom_system-portable-0.1.0-ABCDEF0.tar.gz` in your current working
+system name is `custom_rpi3` and the version is `0.1.0` you will see a file
+similar to `custom_rpi3-portable-0.1.0-ABCDEF0.tar.gz` in your current working
 directory. This file should be placed in the location specified by the
-`artifact_sites`. If you are using the Github releases helper, you will need
+`artifact_sites`. If you are using the Github Releases helper, you will need
 to create a release from your tag on Github and then upload the file.
