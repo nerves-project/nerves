@@ -11,17 +11,26 @@ defmodule Mix.Tasks.Firmware do
   a Nerves system image, and creates a `.fw` file that may be written
   to an SDCard or sent to a device.
 
+  ## Command line options
+
+    * `--verbose` - produce detailed output about release assembly
+
   ## Environment variables
 
-    * `NERVES_SYSTEM` - may be set to a local directory to specify the Nerves
+    * `NERVES_SYSTEM`    - may be set to a local directory to specify the Nerves
       system image that is used
 
     * `NERVES_TOOLCHAIN` - may be set to a local directory to specify the
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
-  def run(_args) do
+
+  @switches [verbose: :boolean]
+
+  def run(args) do
     preflight()
     debug_info("Nerves Firmware Assembler")
+
+    {opts, _, _} = OptionParser.parse(args, switches: @switches)
 
     system_path = check_nerves_system_is_set!()
 
@@ -40,8 +49,8 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run("compile", [])
 
     Mix.Nerves.IO.shell_info("Building OTP Release...")
-    clean_release()
-    build_release()
+    clean_release(opts)
+    build_release(opts)
     build_firmware(system_path)
   end
 
@@ -53,16 +62,19 @@ defmodule Mix.Tasks.Firmware do
       Nerves encountered an error. #{inspect(result)}
       """)
 
-  defp clean_release do
+  defp clean_release(opts) do
+    verbosity = if opts[:verbose], do: "--verbose", else: "--silent"
+
     try do
-      Mix.Task.run("release.clean", ["--silent", "--implode", "--no-confirm"])
+      Mix.Task.run("release.clean", [verbosity, "--implode", "--no-confirm"])
     catch
       :exit, _ -> :noop
     end
   end
 
-  defp build_release do
-    Mix.Task.run("release", ["--quiet", "--no-tar"])
+  defp build_release(opts) do
+    verbosity = if opts[:verbose], do: "--verbose", else: "--quiet"
+    Mix.Task.run("release", [verbosity, "--no-tar"])
   end
 
   defp build_firmware(system_path) do
