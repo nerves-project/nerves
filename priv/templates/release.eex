@@ -1,12 +1,11 @@
 use Mix.Releases.Config,
-    # This sets the default release built by `mix release`
-    default_release: :default,
-    # This sets the default environment used by `mix release`
-    default_environment: :dev
+  # This sets the default release built by `mix release`
+  default_release: :default,
+  # This sets the default environment used by `mix release`
+  default_environment: :dev
 <%= unless no_docs do %>
 # For a full list of config options for both releases
-# and environments, visit https://hexdocs.pm/distillery/config/distillery.html
-<% end %>
+# and environments, visit https://hexdocs.pm/distillery/config/distillery.html<% end %>
 <%= unless no_docs do %>
 # You may define one or more environments in this file,
 # an environment's settings will override those of a release
@@ -14,11 +13,11 @@ use Mix.Releases.Config,
 # and environment configuration is called a profile
 <% end %>
 environment :dev do
-  set cookie: :"Unused with Nerves. See vm.args"
+  set(cookie: :"Unused with Nerves. See vm.args")
 end
 
 environment :prod do
-  set cookie: :"Unused with Nerves. See vm.args"
+  set(cookie: :"Unused with Nerves. See vm.args")
 end
 <%= unless no_docs do %>
 # You may define one or more releases in this file.
@@ -37,8 +36,7 @@ release :<%= Keyword.get(release, :release_name) %> do
   plugin Shoehorn
 end<% else %>
 release :<%= Keyword.get(release, :release_name) %> do
-  set version: current_version(:<%= Keyword.get(release, :release_name)%>)
-  plugin Nerves
-  plugin Shoehorn
-end<% end %>
-<% end %>
+  set(version: current_version(:<%= Keyword.get(release, :release_name)%>))
+  plugin(Nerves)
+  plugin(Shoehorn)
+end<% end %><% end %>
