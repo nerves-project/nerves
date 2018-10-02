@@ -1,10 +1,19 @@
 # Changelog
 
+## v1.3.1
+
+* Bug fixes
+  * Fix `fwup` invocations for NixOS users
+  * Add `--verbose` option on `mix firmware` to help debug OTP release
+    generation
+  * Force users to run Elixir 1.7.3 or later if using Elixir 1.7. This avoids
+    a known issue in Elixir 1.7.2 and Distillery 2.0.
+  * Remove unused cookies in default `rel/config.exs` files
+
 ## v1.3.0
 
 This version adds support for Elixir ~> 1.7 which requires updates to your
 Mix project.
-
 
 **Modify the release config**
 
@@ -12,7 +21,7 @@ It is required to modify the `rel/config.exs` file.
 
 Change this:
 
-```
+```elixir
 release :my_app do
   set version: current_version(:my_app)
   plugin Shoehorn
@@ -28,7 +37,7 @@ end
 
 To this:
 
-```
+```elixir
 release :my_app do
   set version: current_version(:my_app)
   plugin Shoehorn
@@ -53,11 +62,11 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
 
     Example:
 
-      ```
+      ```elixir
       config :nerves, :firmware,
         provisioning: "config/provisioning.conf"
 
-      # or delgate it to an app that sets nerves_provisioning: "path/to/file"
+      # or delegate it to an app that sets nerves_provisioning: "path/to/file"
 
       config :nerves, :firmware,
         provisioning: :nerves_hub
@@ -87,11 +96,11 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
   * Added `make_args` to `build_runner_opts`
 
   For example:
-    
+
     You can configure the number of parallel jobs that buildroot
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.
-    
+
       # mix.exs
       defp nerves_package do
         [
@@ -105,7 +114,7 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
 * Enhancements
   * General documentation updates.
 * Bug fixes
-  * Do not fetch artifacts on deps.get if they are overridden using environment 
+  * Do not fetch artifacts on deps.get if they are overridden using environment
     variables like `NERVES_SYSTEM=/path/to/system`.
 
 ## v1.0.0
@@ -128,8 +137,8 @@ and host tools that override the defaults in `nerves_package` config.
   * Updated System documentation.
 * Bug Fixes
   * Check the download directory before attempting to download the artifact.
-  * Changed the host tool check to use `System.find_executable("command")` instead of 
-    calling out to `System.cmd("which", ["command"])`. This addressed an issue with 
+  * Changed the host tool check to use `System.find_executable("command")` instead of
+    calling out to `System.cmd("which", ["command"])`. This addressed an issue with
     NodeJS breaking anything that called into `which` resulting in an obscure error.
 
 ## v1.0.0-rc.1
@@ -139,8 +148,8 @@ This rc contains documentation cleanup and updates through out.
 * Enhancements
   * Support forwarding the ssh-agent through Docker for the Nerves system shell.
   * Allow headers and query params to be passed to the `:prefix` `artifact_sites`
-    helper. 
-    
+    helper.
+
     Example:
     `{:prefix, "https://my_server.com/", headers: [{"Authorization", "Basic 1234"}]}`
     `{:prefix, "https://my_server.com/", query_params: %{"id" => "1234"}}`
@@ -148,14 +157,14 @@ This rc contains documentation cleanup and updates through out.
   * Added `github_api`to `artifact_sites` for accessing release artifacts on private
     github repositories.
 
-    Example: 
+    Example:
     `{:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}`
 
 * Bug Fixes
   * Disable the nerves_package compiler if the `NERVES_ENV_DISABLED` is set.
     This makes it easier to execute `mix` tasks without building the system.
-    
-    Example: 
+
+    Example:
     `NERVES_ENV_DISABLED=1 mix docs`
 
 ## v1.0.0-rc.0
