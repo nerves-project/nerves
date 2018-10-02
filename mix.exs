@@ -69,7 +69,6 @@ defmodule Nerves.Mixfile do
 
   defp package do
     [
-      maintainers: ["Justin Schneck", "Frank Hunleth", "Greg Mefford"],
       files: [
         "CHANGELOG.md",
         "lib",
