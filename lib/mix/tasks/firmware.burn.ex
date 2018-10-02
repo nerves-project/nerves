@@ -60,12 +60,17 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
-    # Create a temporary .fw file that fwup.exe is able to access
     fw =
       if is_wsl?() do
-        {win_path, wsl_path} = get_wsl_paths("#{otp_app}.fw")
-        File.copy(fw, wsl_path)
-        win_path
+        if wsl_path_accessible?(fw) do
+          {win_path, _wsl_path} = get_wsl_paths(fw)
+          win_path
+        else
+          # Create a temporary .fw file that fwup.exe is able to access
+          {win_path, wsl_path} = get_wsl_paths("#{otp_app}.fw")
+          File.copy(fw, wsl_path)
+          win_path
+        end
       else
         fw
       end
