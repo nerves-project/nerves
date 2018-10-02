@@ -194,18 +194,46 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
+  def has_wslpath?() do
+    System.find_executable("wslpath") != nil
+  end
+
+  def wsl_path_accessible?(file) do
+    if has_wslpath?() do
+      {_path, exitcode} = System.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true)
+      exitcode == 0
+    else
+      false
+    end
+  end
+
   def get_wsl_paths(file) do
-    {win_path, 0} = System.cmd("cmd.exe", ["/c", "cd"])
-    win_path = String.trim(win_path) <> "\\#{file}"
+    if has_wslpath?() do
+      # Use wslpath, available from Windows 10 1803
+      # https://superuser.com/questions/1113385/convert-windows-path-for-windows-ubuntu-bash
+      # -a    force result to absolute path format
+      # -u    translate from a Windows path to a WSL path (default)
+      # -w    translate from a WSL path to a Windows path
+      # -m    translate from a WSL path to a Windows path, with ‘/’ instead of ‘\\’
 
-    drive_letter =
-      Regex.run(~r/(.*?):\\/, win_path)
-      |> Enum.at(1)
-      |> String.downcase()
+      {win_path, 0} = System.cmd("wslpath", ["-w", "-a", file])
+      {wsl_path, 0} = System.cmd("wslpath", ["-u", "-a", file])
 
-    wsl_path = "/mnt/" <> drive_letter <> "/" <> Regex.replace(~r/(.*?):\\/, win_path, "")
-    wsl_path = Regex.replace(~r/\\/, wsl_path, "/")
-    {win_path, wsl_path}
+      {String.trim(win_path), String.trim(wsl_path)}
+    else
+      # Maintain support for Windows builds before 1803
+      {win_path, 0} = System.cmd("cmd.exe", ["/c", "cd"])
+      win_path = String.trim(win_path) <> "\\#{file}"
+
+      drive_letter =
+        Regex.run(~r/(.*?):\\/, win_path)
+        |> Enum.at(1)
+        |> String.downcase()
+
+      wsl_path = "/mnt/" <> drive_letter <> "/" <> Regex.replace(~r/(.*?):\\/, win_path, "")
+      wsl_path = Regex.replace(~r/\\/, wsl_path, "/")
+      {win_path, wsl_path}
+    end
   end
 
   def set_provisioning(nil), do: :ok
