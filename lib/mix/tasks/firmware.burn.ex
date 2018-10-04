@@ -60,20 +60,7 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
-    fw =
-      if is_wsl?() do
-        if wsl_path_accessible?(fw) do
-          {win_path, _wsl_path} = get_wsl_paths(fw)
-          win_path
-        else
-          # Create a temporary .fw file that fwup.exe is able to access
-          {win_path, wsl_path} = get_wsl_paths("#{otp_app}.fw")
-          File.copy(fw, wsl_path)
-          win_path
-        end
-      else
-        fw
-      end
+    {fw, firmware_location} = make_firmware_accessible(fw, is_wsl?())
 
     dev =
       case opts[:device] do
@@ -85,15 +72,41 @@ defmodule Mix.Tasks.Firmware.Burn do
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
-    if is_wsl?() do
+    cleanup_firmware(fw, is_wsl?(), firmware_location)
+  end
+
+  defp cleanup_firmware(fw, _is_wsl = true, :temporary_location) do
+    if has_wslpath?() do
+      {_win_path, wsl_path} = get_wsl_paths(fw)
+      File.rm(wsl_path)
+    else
       drive_letter =
         Regex.run(~r/(.*?):/, fw)
         |> Enum.at(1)
         |> String.downcase()
 
-      fw = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
-      File.rm(fw)
+      file_to_remove = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
+
+      File.rm(file_to_remove)
     end
+  end
+  defp cleanup_firmware(_, _, _), do: nil
+
+  defp make_firmware_accessible(fw, _is_wsl = true) do
+    if wsl_path_accessible?(fw) do
+      {win_path, _wsl_path} = get_wsl_paths(fw)
+      {win_path, :original_location}
+    else
+      # Create a temporary .fw file that fwup.exe is able to access
+      firmware_filename = Path.basename(fw)
+      {win_path, wsl_path} = get_wsl_paths(firmware_filename)
+      File.copy(fw, wsl_path)
+      {win_path, :temporary_location}
+    end
+  end
+
+  defp make_firmware_accessible(fw, _is_wsl) do
+    {fw, :original_location}
   end
 
   defp burn(fw, dev, opts, argv) do

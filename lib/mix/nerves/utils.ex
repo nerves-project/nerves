@@ -216,10 +216,19 @@ defmodule Mix.Nerves.Utils do
       # -w    translate from a WSL path to a Windows path
       # -m    translate from a WSL path to a Windows path, with ‘/’ instead of ‘\\’
 
-      {win_path, 0} = System.cmd("wslpath", ["-w", "-a", file])
-      {wsl_path, 0} = System.cmd("wslpath", ["-u", "-a", file])
+      win_path = with {path, 0} <- System.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true) do
+        String.trim(path)
+      else
+        _ -> ""
+      end
 
-      {String.trim(win_path), String.trim(wsl_path)}
+      wsl_path = with {path, 0} <- System.cmd("wslpath", ["-u", "-a", file], stderr_to_stdout: true) do
+        String.trim(path)
+      else
+        _ -> ""
+      end
+
+      {win_path, wsl_path}
     else
       # Maintain support for Windows builds before 1803
       {win_path, 0} = System.cmd("cmd.exe", ["/c", "cd"])
