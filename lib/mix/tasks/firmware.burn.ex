@@ -72,16 +72,25 @@ defmodule Mix.Tasks.Firmware.Burn do
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
-    if is_wsl?() do
+    cleanup_firmware(fw, is_wsl?(), firmware_location)
+  end
+
+  defp cleanup_firmware(fw, _is_wsl = true, :temporary_location) do
+    if has_wslpath?() do
+      {_win_path, wsl_path} = get_wsl_paths(fw)
+      File.rm(wsl_path)
+    else
       drive_letter =
         Regex.run(~r/(.*?):/, fw)
         |> Enum.at(1)
         |> String.downcase()
 
-      fw = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
-      File.rm(fw)
+      file_to_remove = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
+
+      File.rm(file_to_remove)
     end
   end
+  defp cleanup_firmware(_, _, _), do: nil
 
   defp make_firmware_accessible(fw, _is_wsl = true) do
     if wsl_path_accessible?(fw) do
