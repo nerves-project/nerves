@@ -60,20 +60,7 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
-    fw =
-      if is_wsl?() do
-        if wsl_path_accessible?(fw) do
-          {win_path, _wsl_path} = get_wsl_paths(fw)
-          win_path
-        else
-          # Create a temporary .fw file that fwup.exe is able to access
-          {win_path, wsl_path} = get_wsl_paths("#{otp_app}.fw")
-          File.copy(fw, wsl_path)
-          win_path
-        end
-      else
-        fw
-      end
+    {fw, firmware_location} = make_file_accessible(fw, is_wsl?(), has_wslpath?())
 
     dev =
       case opts[:device] do
@@ -85,15 +72,7 @@ defmodule Mix.Tasks.Firmware.Burn do
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
-    if is_wsl?() do
-      drive_letter =
-        Regex.run(~r/(.*?):/, fw)
-        |> Enum.at(1)
-        |> String.downcase()
-
-      fw = Regex.replace(~r/(.*?):/, fw, "/mnt/" <> drive_letter)
-      File.rm(fw)
-    end
+    cleanup_file(fw, firmware_location)
   end
 
   defp burn(fw, dev, opts, argv) do
