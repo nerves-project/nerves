@@ -72,12 +72,9 @@ defmodule Nerves.Env do
   """
   @spec change_target(String.t()) :: :no_return
   def change_target(target) do
-    unless System.get_env("NERVES_TARGET_CHANGE") do
-      System.put_env("MIX_TARGET", target)
-      System.put_env("NERVES_TARGET_CHANGE", "1")
-      :init.restart()
-      :timer.sleep(:infinity)
-    end
+    System.put_env("MIX_TARGET", target)
+    :init.restart()
+    :timer.sleep(:infinity)
   end
 
   @doc """
