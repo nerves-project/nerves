@@ -101,7 +101,8 @@ defmodule Nerves.MixUtilsTest do
       use_wslpath = false
       windows_inaccessible_path = "/home/name/project/firmware.fw"
 
-      {_path, location} = WSL.make_file_accessible(windows_inaccessible_path, running_on_wsl, use_wslpath)
+      {_path, location} =
+        WSL.make_file_accessible(windows_inaccessible_path, running_on_wsl, use_wslpath)
 
       assert location === :temporary_location
     end
@@ -113,7 +114,8 @@ defmodule Nerves.MixUtilsTest do
       use_wslpath = true
       windows_inaccessible_path = "/home/name/project/firmware.fw"
 
-      {_path, location} = WSL.make_file_accessible(windows_inaccessible_path, running_on_wsl, use_wslpath)
+      {_path, location} =
+        WSL.make_file_accessible(windows_inaccessible_path, running_on_wsl, use_wslpath)
 
       assert location === :temporary_location
     end
@@ -125,7 +127,8 @@ defmodule Nerves.MixUtilsTest do
       use_wslpath = false
       windows_accessible_path = "/mnt/c/project/firmware.fw"
 
-      {_path, location} = WSL.make_file_accessible(windows_accessible_path, running_on_wsl, use_wslpath)
+      {_path, location} =
+        WSL.make_file_accessible(windows_accessible_path, running_on_wsl, use_wslpath)
 
       assert location === :original_location
     end
@@ -137,7 +140,8 @@ defmodule Nerves.MixUtilsTest do
       use_wslpath = true
       windows_accessible_path = "/mnt/c/project/firmware.fw"
 
-      {_path, location} = WSL.make_file_accessible(windows_accessible_path, running_on_wsl, use_wslpath)
+      {_path, location} =
+        WSL.make_file_accessible(windows_accessible_path, running_on_wsl, use_wslpath)
 
       assert location === :original_location
     end
@@ -154,5 +158,4 @@ defmodule Nerves.MixUtilsTest do
       assert location === :original_location
     end
   end
-
 end

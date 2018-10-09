@@ -61,7 +61,8 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
-    {fw, firmware_location} = WSL.make_file_accessible(fw, WSL.running_on_wsl?(), WSL.has_wslpath?())
+    {fw, firmware_location} =
+      WSL.make_file_accessible(fw, WSL.running_on_wsl?(), WSL.has_wslpath?())
 
     dev =
       case opts[:device] do
