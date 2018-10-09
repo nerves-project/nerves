@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Firmware.Burn do
   use Mix.Task
   import Mix.Nerves.Utils
+  alias Nerves.Utils.WSL
 
   @switches [device: :string, task: :string]
   @aliases [d: :device, t: :task]
@@ -60,7 +61,7 @@ defmodule Mix.Tasks.Firmware.Burn do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
-    {fw, firmware_location} = make_file_accessible(fw, is_wsl?(), has_wslpath?())
+    {fw, firmware_location} = WSL.make_file_accessible(fw, WSL.running_on_wsl?(), WSL.has_wslpath?())
 
     dev =
       case opts[:device] do
@@ -72,7 +73,7 @@ defmodule Mix.Tasks.Firmware.Burn do
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
-    cleanup_file(fw, firmware_location)
+    WSL.cleanup_file(fw, firmware_location)
   end
 
   defp burn(fw, dev, opts, argv) do
@@ -85,11 +86,8 @@ defmodule Mix.Tasks.Firmware.Burn do
           {"fwup", args}
 
         {_, :linux} ->
-          if is_wsl?() do
-            ps_cmd =
-              "Start-Process fwup -ArgumentList '#{Enum.join(args, " ")}' -Verb runAs -Wait"
-
-            {"powershell.exe", ["-Command", ps_cmd]}
+          if WSL.running_on_wsl?() do
+            WSL.admin_powershell_command("fwup", Enum.join(args, " "))
           else
             case File.stat(dev) do
               {:ok, %File.Stat{access: :read_write}} ->
