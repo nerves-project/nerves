@@ -42,9 +42,11 @@ defmodule Nerves.TestServer.Router do
     end
   end
 
+  get "/corrupt/*_" do
+    send_file(conn, 200, System.get_env("TEST_ARTIFACT_TAR_CORRUPT"))
+  end
+
   match _ do
-    # IO.puts "Catch All"
-    # IO.inspect conn
     conn
     |> send_resp(404, "Not Found")
     |> Plug.Conn.halt()

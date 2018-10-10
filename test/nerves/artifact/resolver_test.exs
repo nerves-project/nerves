@@ -1,5 +1,5 @@
 defmodule Nerves.Artifact.ResolverTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case, async: true
 
   alias Nerves.Artifact
 
@@ -126,9 +126,62 @@ defmodule Nerves.Artifact.ResolverTest do
     end)
   end
 
+  test "download validations will raise" do
+    in_fixture("resolver", fn ->
+      set_artifact_path()
+
+      sites = [
+        {:prefix, "http://127.0.0.1:4000/corrupt/"}
+      ]
+
+      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
+
+      resolvers = Artifact.expand_sites(pkg)
+
+      assert_raise Mix.Error, fn ->
+        Artifact.Resolver.get(resolvers, pkg)
+      end
+    end)
+  end
+
+  test "download validations will not raise if eventually successful" do
+    in_fixture("resolver", fn ->
+      set_artifact_path()
+
+      sites = [
+        {:prefix, "http://127.0.0.1:4000/corrupt/"},
+        {:prefix, "http://127.0.0.1:4000/no_auth/"}
+      ]
+
+      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
+
+      resolvers = Artifact.expand_sites(pkg)
+
+      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+    end)
+  end
+
+  test "http resolver status codes are rendered" do
+    in_fixture("resolver", fn ->
+      sites = [
+        {:prefix, "http://127.0.0.1:4000/doe_not_exist/"}
+      ]
+
+      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
+
+      resolvers = Artifact.expand_sites(pkg)
+
+      assert {:error, _reason} = Artifact.Resolver.get(resolvers, pkg)
+      output = "\e[33m     Status 404 Not Found\e[0m"
+      assert_received({:mix_shell, :info, [^output]})
+    end)
+  end
+
   defp set_artifact_path() do
     # Test tar file for artifact test server
     artifact_tar = Path.join([File.cwd!(), "artifact.tar.gz"])
+    corrupt_artifact_tar = Path.join([File.cwd!(), "corrupt.tar.gz"])
     System.put_env("TEST_ARTIFACT_TAR", artifact_tar)
+    System.put_env("TEST_ARTIFACT_TAR_CORRUPT", corrupt_artifact_tar)
   end
 end

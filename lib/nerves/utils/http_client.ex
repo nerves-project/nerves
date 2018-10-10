@@ -129,7 +129,7 @@ defmodule Nerves.Utils.HTTPClient do
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
 
-  def handle_info({:http, {_ref, {{_, status_code, _}, headers, _body}}}, s)
+  def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
       when status_code in @redirect_status_codes do
     case Enum.find(headers, fn {key, _} -> key == 'location' end) do
       {'location', next_location} ->
@@ -141,13 +141,12 @@ defmodule Nerves.Utils.HTTPClient do
         })
 
       _ ->
-        GenServer.reply(s.caller, {:error, status_code})
+        GenServer.reply(s.caller, {:error, format_error(status_code, reason)})
     end
   end
 
   def handle_info({:http, {_ref, {{_, status_code, reason}, _headers, _body}}}, s) do
-    reason = "Status #{to_string(status_code)} #{to_string(reason)}"
-    GenServer.reply(s.caller, {:error, reason})
+    GenServer.reply(s.caller, {:error, format_error(status_code, reason)})
     {:noreply, s}
   end
 
@@ -163,6 +162,10 @@ defmodule Nerves.Utils.HTTPClient do
         bytes_to_mb(size)
       } / #{bytes_to_mb(max)}) MB"
     )
+  end
+
+  defp format_error(status_code, reason) do
+    "Status #{to_string(status_code)} #{to_string(reason)}"
   end
 
   defp start_httpc() do
