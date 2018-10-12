@@ -55,6 +55,9 @@ defmodule Mix.Tasks.Firmware.Burn do
 
     check_nerves_toolchain_is_set!()
 
+    # Make sure we build firmware before burning
+    Mix.Task.run("firmware")
+
     fw = "#{images_path}/#{otp_app}.fw"
 
     unless File.exists?(fw) do
