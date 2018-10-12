@@ -6,14 +6,11 @@ defmodule Mix.Tasks.Firmware.Burn do
   @switches [device: :string, task: :string]
   @aliases [d: :device, t: :task]
 
-  @shortdoc "Write a firmware image to an SDCard"
+  @shortdoc "Build a firmware bundle and write it to an SDCard"
 
   @moduledoc """
-  Writes the generated firmware image to an attached SDCard or file.
 
-  By default, this task detects attached SDCards and then invokes `fwup`
-  to overwrite the contents of the selected SDCard with the new image.
-  Data on the SDCard will be lost, so be careful.
+  This task calls `mix firmware` & `mix burn` to burn a new firmware to a SDCard
 
   ## Command line options
 
@@ -29,100 +26,26 @@ defmodule Mix.Tasks.Firmware.Burn do
       bootloaders and application data partitions. The `upgrade` task only
       modifies the parts of the SDCard required to run the new software.
 
+    * `--verbose` - produce detailed output about release assembly
+
+  ## Environment variables
+
+    * `NERVES_SYSTEM`    - may be set to a local directory to specify the Nerves
+      system image that is used
+
+    * `NERVES_TOOLCHAIN` - may be set to a local directory to specify the
+      Nerves toolchain (C/C++ crosscompiler) that is used
+
   ## Examples
 
   ```
-  # Upgrade the contents of the SDCard located at /dev/mmcblk0
-  mix firmware.burn --device /dev/mmcblk0 --task upgrade
+  # Upgrade the contents of the SDCard at /dev/mmcblk0 using the rpi0 system
+  NERVES_SYSTEM=rpi0 mix firmware.burn --device /dev/mmcblk0 --task upgrade
   ```
   """
-  def run(argv) do
-    preflight()
-    debug_info("Nerves Firmware Burn")
-
-    {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
-
-    config = Mix.Project.config()
-    firmware_config = Application.get_env(:nerves, :firmware)
-    otp_app = config[:app]
-    target = config[:target]
-
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
-
-    check_nerves_system_is_set!()
-
-    check_nerves_toolchain_is_set!()
-
-    # Make sure we build firmware before burning
-    Mix.Task.run("firmware")
-
-    fw = "#{images_path}/#{otp_app}.fw"
-
-    unless File.exists?(fw) do
-      Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
-    end
-
-    {fw, firmware_location} =
-      WSL.make_file_accessible(fw, WSL.running_on_wsl?(), WSL.has_wslpath?())
-
-    dev =
-      case opts[:device] do
-        nil -> prompt_dev()
-        dev -> dev
-      end
-
-    set_provisioning(firmware_config[:provisioning])
-    burn(fw, dev, opts, argv)
-
-    # Remove the temporary .fw file
-    WSL.cleanup_file(fw, firmware_location)
-  end
-
-  defp burn(fw, dev, opts, argv) do
-    task = opts[:task] || "complete"
-    args = ["-a", "-i", fw, "-t", task, "-d", dev] ++ argv
-
-    {cmd, args} =
-      case :os.type() do
-        {_, :darwin} ->
-          {"fwup", args}
-
-        {_, :linux} ->
-          if WSL.running_on_wsl?() do
-            WSL.admin_powershell_command("fwup", Enum.join(args, " "))
-          else
-            case File.stat(dev) do
-              {:ok, %File.Stat{access: :read_write}} ->
-                {"fwup", args}
-
-              _ ->
-                fwup = System.find_executable("fwup")
-                ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
-                System.put_env("SUDO_ASKPASS", ask_pass)
-                {"sudo", provision_env() ++ [fwup] ++ args}
-            end
-          end
-
-        {_, :nt} ->
-          {"fwup", args}
-
-        {_, type} ->
-          raise "Unable to burn firmware on your host #{inspect(type)}"
-      end
-
-    shell(cmd, args)
-  end
-
-  # This is a fix for linux when running through sudo.
-  # Sudo will strip the environment and therefore any variables
-  # that are set during device provisioning.
-  def provision_env() do
-    System.get_env()
-    |> Enum.filter(fn {k, _} ->
-      String.starts_with?(k, "NERVES_") or String.equivalent?(k, "SERIAL_NUMBER")
-    end)
-    |> Enum.map(fn {k, v} -> k <> "=" <> v end)
+  def run(args) do
+    # Simply delegate to the proper tasks
+    Mix.Task.run("firmware", args)
+    Mix.Task.run("burn", args)
   end
 end
