@@ -74,7 +74,7 @@ Now continue to the instructions for all platforms below.
 
 ## All platforms
 
-First, install the required versions of Erlang/OTP and Elixir using ADSF (see
+First, install the required versions of Erlang/OTP and Elixir using ASDF (see
 the [ASDF docs](https://github.com/asdf-vm/asdf/blob/master/README.md#setup) for
 more.
 

@@ -35,7 +35,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   Nerves will also mount the host NERVES_DL_DIR to save downloaded assets the
   build platform requires for producing the artifact.
-  This is mounted at `/nerves/dl`. This volume can significally reduce build
+  This is mounted at `/nerves/dl`. This volume can significantly reduce build
   times but has potential for corruption. If you suspect that your build is
   failing due to a faulty downloaded cached data, you can manually mount
   the offending container and remove the file from this location or delete the
@@ -48,7 +48,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   ## Cleanup
 
-  Perodically, you may want to destroy all unused volumes to clean up.
+  Periodically, you may want to destroy all unused volumes to clean up.
   Please refer to the Docker documentation for more information on how to
   do this.
 
