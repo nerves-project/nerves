@@ -49,7 +49,8 @@ sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpas
 
 If you're curious, `squashfs-tools` will be used by Nerves to create root
 filesystems and `ssh-askpass` will be used to ask for passwords when writing to
-MicroSD cards.
+MicroSD cards. Some Fedora users have reported that they had to create a symlink
+from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
 Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
 install firmware images. You can install `fwup` using the instructions found at
