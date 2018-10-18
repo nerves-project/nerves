@@ -83,13 +83,13 @@ import_config "../apps/fw/config/config.exs"
 
 ### Configure networking
 
-In order to start the network when `fw` boots, add `nerves_network` to the `bootloader` configuration in `config.exs`.
+In order to start the network when `fw` boots, add `nerves_network` to the `shoehorn` configuration in `config.exs`.
 
 ```elixir
 # fw/config/config.exs
 
 # ...
-config :bootloader,
+config :shoehorn,
   init: [:nerves_runtime, :nerves_network]
 # ...
 ```
