@@ -1,10 +1,5 @@
 defmodule Mix.Tasks.Firmware.Burn do
   use Mix.Task
-  import Mix.Nerves.Utils
-  alias Nerves.Utils.WSL
-
-  @switches [device: :string, task: :string]
-  @aliases [d: :device, t: :task]
 
   @shortdoc "Build a firmware bundle and write it to an SDCard"
 
