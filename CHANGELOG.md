@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.2
+
+* Bug fixes
+  * Improved handling for burning firmware with Windows Subsystem for Linux.
+  * `mix nerves.deps.get` will raise if a download was incomplete or corrupt
+    after trying all resolvers.
+  * `mix firmware.burn` will call `mix firmware` to ensure the firmware is the
+    latest.
+  * `mix burn` was added to allow for burning the latest built firmware without
+    calling `mix firmware`.
+
 ## v1.3.1
 
 * Bug fixes
