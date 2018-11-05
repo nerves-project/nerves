@@ -28,7 +28,7 @@ defmodule Nerves.Mixfile do
 
   defp deps do
     [
-      {:distillery, "~> 2.0"},
+      {:distillery, "2.0.10"},
       {:jason, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.19", only: [:test, :dev], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:test, :dev], runtime: false},
