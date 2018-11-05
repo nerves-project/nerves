@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.3
+
+* Bug fixes
+  * Lock dependency on distillery to `2.0.10` to work around:
+    https://github.com/bitwalker/distillery/issues/585
+
 ## v1.3.2
 
 * Bug fixes
