@@ -69,8 +69,9 @@ defmodule Nerves.Utils.HTTPClient do
     ]
 
     http_opts =
-      [timeout: :infinity, autoredirect: false] ++
-        Nerves.Utils.Proxy.config(url) ++ Keyword.get(opts, :http_opts, [])
+      [timeout: :infinity, autoredirect: false]
+      |> Keyword.merge(Nerves.Utils.Proxy.config(url))
+      |> Keyword.merge(Keyword.get(opts, :http_opts, []))
 
     opts = [stream: :self, receiver: self(), sync: false]
     :httpc.request(:get, {String.to_charlist(url), headers}, http_opts, opts, :nerves)
