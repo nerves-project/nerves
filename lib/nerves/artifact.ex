@@ -321,31 +321,26 @@ defmodule Nerves.Artifact do
   def ext(_), do: ".tar.gz"
 
   def build_runner(config) do
-    case config[:nerves_package][:build_runner] do
-      nil ->
-        build_runner_type(config[:nerves_package][:type])
+    opts = config[:nerves_package][:build_runner_opts] || []
 
-      build_runner ->
-        build_runner_opts = config[:nerves_package][:build_runner_opts] || []
-        {build_runner, build_runner_opts}
-    end
+    mod =
+      config[:nerves_package][:build_runner] || build_runner_type(config[:nerves_package][:type])
+
+    {mod, opts}
   end
 
   defp build_runner_type(:system_platform), do: nil
   defp build_runner_type(:toolchain_platform), do: nil
-  defp build_runner_type(:toolchain), do: {BuildRunners.Local, []}
+  defp build_runner_type(:toolchain), do: BuildRunners.Local
 
   defp build_runner_type(:system) do
-    mod =
-      case :os.type() do
-        {_, :linux} -> BuildRunners.Local
-        _ -> BuildRunners.Docker
-      end
-
-    {mod, []}
+    case :os.type() do
+      {_, :linux} -> BuildRunners.Local
+      _ -> BuildRunners.Docker
+    end
   end
 
-  defp build_runner_type(_), do: {BuildRunners.Local, []}
+  defp build_runner_type(_), do: BuildRunners.Local
 
   defp expand_paths(paths, dir) do
     paths

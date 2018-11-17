@@ -16,6 +16,17 @@ defmodule Nerves.ArtifactTest do
     end)
   end
 
+  test "build_runner_opts overrides" do
+    in_fixture("package_build_runner_opts", fn ->
+      File.cwd!()
+      |> Path.join("mix.exs")
+      |> Code.require_file()
+
+      Env.start()
+      assert {_, [make_args: []]} = Env.package(:package_build_runner_opts).build_runner
+    end)
+  end
+
   test "Resolve artifact path" do
     in_fixture("simple_app", fn ->
       packages = ~w(system toolchain)
