@@ -15,7 +15,7 @@ First, generate the two new apps in a containing folder:
 ```bash
 mkdir nervy && cd nervy
 mix nerves.new fw
-mix phx.new ui --no-ecto --no-brunch
+mix phx.new ui --no-ecto --no-webpack
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
@@ -46,7 +46,7 @@ Next, create your sub-applications for Nerves and for Phoenix:
 ```bash
 cd nervy/apps
 mix nerves.new fw
-mix phx.new ui --no-ecto --no-brunch
+mix phx.new ui --no-ecto --no-webpack
 ```
 
 Now, add the Phoenix `ui` app and the `nerves_network` library to the `fw` app as dependencies:
@@ -137,6 +137,8 @@ config :ui, UiWeb.Endpoint,
   render_errors: [view: UiWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Nerves.PubSub, adapter: Phoenix.PubSub.PG2],
   code_reloader: false
+
+config :phoenix, :json_library, Jason
 
 config :logger, level: :debug
 # ...
