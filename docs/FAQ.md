@@ -25,7 +25,7 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
 
     # Specify the UART port that the shell should use.
     #-c tty1
-    -c ttyS0
+    -c ttyAMA0
     ```
 
  4. Configure your project to replace this file in your firmware.
