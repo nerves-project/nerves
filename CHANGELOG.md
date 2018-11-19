@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.4
+
+* Bug fixes
+  * Fixed issue where specifying `build_runner_opts` without `build_runner`
+    would prevent `build_runner_opts` from being set.
+  * Allow `http_opts` to be merged in from the artifact site opts. This fixes
+    an issue with downloading artifacts from github enterprise by specifying
+    `[autoredirect: true]` in the artifact site opts.
+
 ## v1.3.3
 
 * Bug fixes
