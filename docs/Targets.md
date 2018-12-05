@@ -18,6 +18,10 @@ Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves
 QEMU Arm | [nerves_system_qemu_arm](https://github.com/nerves-project/nerves_system_qemu_arm) | `qemu_arm`
 Lego EV3 | [nerves_system_ev3](https://github.com/nerves-project/nerves_system_ev3) | `ev3`
 
+While we only officially support commonly available hardware, the community has
+added support for other boards. See
+[Nerves Systems on hex.pm](https://hex.pm/packages?search=depends%3Anerves_system_br)
+
 ## Supporting New Target Hardware
 
 If you're trying to support a new Target, there may be quite a bit more work involved, depending on how mature the support for that hardware is in the Buildroot community.
