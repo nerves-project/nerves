@@ -26,6 +26,7 @@ defmodule Mix.Tasks.Firmware do
 
   @switches [verbose: :boolean]
 
+  @impl true
   def run(args) do
     preflight()
     debug_info("Nerves Firmware Assembler")
@@ -54,6 +55,7 @@ defmodule Mix.Tasks.Firmware do
     build_firmware(system_path)
   end
 
+  @doc false
   def result({_, 0}), do: nil
 
   def result({result, _}),

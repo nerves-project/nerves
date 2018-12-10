@@ -5,20 +5,22 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   alias Nerves.Artifact.{Cache, Resolver}
 
   @moduledoc """
-    Fetch the artifacts from one of the artifact_sites
-    This task is typically called as part of the
-    Nerves.Bootstrap aliases during `mix deps.get`
+  Fetch the artifacts from one of the artifact_sites
+  This task is typically called as part of the
+  Nerves.Bootstrap aliases during `mix deps.get`
 
-    You can also call into this task by calling
-    `mix nerves.deps.get`
+  You can also call into this task by calling
+  `mix nerves.deps.get`
 
-    # Example
+  ## Examples
 
       $ mix nerves.artifact.get
+
   """
 
   @shortdoc "Nerves get artifacts"
 
+  @impl true
   def run(opts) do
     Mix.shell().info("Resolving Nerves artifacts...")
 
@@ -26,6 +28,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     |> Enum.each(&get(&1.app, opts))
   end
 
+  @doc false
   def get(app, _opts) do
     case Nerves.Env.package(app) do
       %Nerves.Package{type: type} when type in [:toolchain_platform, :system_platform] ->

@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Firmware.Image do
   If not supplied, the output image file will be based off the OTP application
   name.
 
-  ## Example
+  ## Examples
 
   ```
   # Create the image file
@@ -25,6 +25,8 @@ defmodule Mix.Tasks.Firmware.Image do
   dd if=my_image.img of=/dev/sdc bs=1M
   ```
   """
+
+  @impl true
   def run([file]) do
     preflight()
     debug_info("Nerves Firmware Image")
