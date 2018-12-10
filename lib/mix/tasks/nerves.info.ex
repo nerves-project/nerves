@@ -6,11 +6,14 @@ defmodule Mix.Tasks.Nerves.Info do
 
   @moduledoc """
   Prints Nerves system information.
+
       mix nerves.info
+
   """
 
   @switches [target: :string]
 
+  @impl true
   def run(argv) do
     debug_info("Info Start")
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)

@@ -4,7 +4,6 @@ defmodule Mix.Tasks.Firmware.Burn do
   @shortdoc "Build a firmware bundle and write it to an SDCard"
 
   @moduledoc """
-
   This task calls `mix firmware` & `mix burn` to burn a new firmware to a SDCard
 
   ## Command line options
@@ -38,6 +37,8 @@ defmodule Mix.Tasks.Firmware.Burn do
   NERVES_SYSTEM=rpi0 mix firmware.burn --device /dev/mmcblk0 --task upgrade
   ```
   """
+
+  @impl true
   def run(args) do
     # Simply delegate to the proper tasks
     Mix.Task.run("firmware", args)

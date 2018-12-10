@@ -6,21 +6,22 @@ defmodule Mix.Tasks.Nerves.Artifact do
   require Logger
 
   @moduledoc """
-    Create an artifact for a specified Nerves package.
+  Create an artifact for a specified Nerves package.
 
-    ## Command line options
+  ## Command line options
 
-      `--path <path>`: The location where you want the archive to be placed.
-        Default: $NERVES_DL_DIR || ~/.nerves/dl
+    * `--path <path>`: The location where you want the archive to be placed.
+      Default: `$NERVES_DL_DIR || ~/.nerves/dl`
 
-    ## Example
+  ## Examples
 
       $ mix nerves.artifact nerves_system_rpi0
 
-    If the command is called without the package name,
-    Nerves.Project.config()[:app] will be used by default.
+  If the command is called without the package name,
+  `Nerves.Project.config()[:app]` will be used by default.
 
       $ mix nerves.artifact --path /tmp
+
   """
 
   @shortdoc "Nerves create artifact"
@@ -28,6 +29,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   @switches [path: :string]
 
+  @impl true
   def run(argv) do
     # We need to make sure the the Nerves env has been set up.
     # This allows the task to be called from a project level that

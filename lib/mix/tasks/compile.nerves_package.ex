@@ -5,12 +5,13 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   require Logger
 
   @moduledoc """
-    Build a Nerves Artifact from a Nerves Package
+  Build a Nerves Artifact from a Nerves Package
   """
 
   @shortdoc "Nerves Package Compiler"
   @recursive true
 
+  @impl true
   def run(_args) do
     debug_info("Compile.NervesPackage start")
 
@@ -41,6 +42,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     end
   end
 
+  @doc false
   def bootstrap_check(true), do: :ok
 
   def bootstrap_check(false) do

@@ -36,6 +36,8 @@ defmodule Mix.Tasks.Burn do
   mix burn --device /dev/mmcblk0 --task upgrade
   ```
   """
+
+  @impl true
   def run(argv) do
     preflight()
     debug_info("Nerves Burn")
@@ -115,6 +117,7 @@ defmodule Mix.Tasks.Burn do
   # This is a fix for linux when running through sudo.
   # Sudo will strip the environment and therefore any variables
   # that are set during device provisioning.
+  @doc false
   def provision_env() do
     System.get_env()
     |> Enum.filter(fn {k, _} ->
