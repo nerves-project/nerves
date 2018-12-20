@@ -31,7 +31,7 @@ brew install fwup squashfs coreutils xz
 Optionally, if you want to build custom Nerves Systems, you'll also need to
 install [Docker for Mac](https://www.docker.com/docker-mac). After installing
 Docker for Mac, you will likely want to adjust the resource limits imposed on
-Docker, to allow it so successfully compile more complicated custom systems.
+Docker, to allow it to successfully compile more complicated custom systems.
 Click the Docker icon in the top menu bar, then click Preferences > Advanced and
 allow Docker to use all of your CPUs and as much RAM as you think is reasonable
 for your machine (at least 6 GB). The more resources it has access to, the
