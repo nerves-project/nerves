@@ -1,3 +1,9 @@
+otp_21_image: &otp_21_image
+  image: erlang:21.2.2
+
+otp_20_image: &otp_20_image
+  image: erlang:20.3.8
+
 install_elixir: &install_elixir
   run:
     name: Install Elixir
@@ -6,21 +12,86 @@ install_elixir: &install_elixir
       unzip -d /usr/local/elixir v$ELIXIR_VERSION.zip
       echo 'export PATH=/usr/local/elixir/bin:$PATH' >> $BASH_ENV
 
+install_hex_rebar: &install_hex_rebar
+  run:
+    name: Install hex and rebar
+    command: |
+      mix local.hex --force
+      mix local.rebar --force
+
+defaults: &defaults
+  working_directory: ~/repo
+
 version: 2
 jobs:
-  build:
+  build_elixir_1_8_otp_21:
     docker:
-      - image: erlang:21.2.2
-        environment:
-          ELIXIR_VERSION: 1.8.0-otp-21
-          LC_ALL: C.UTF-8
-    working_directory: ~/repo
+      - <<: *otp_21_image
     environment:
-      MIX_ENV: test
+      ELIXIR_VERSION: 1.8.0-otp-21
+      LC_ALL: C.UTF-8
+    <<: *defaults
     steps:
       - checkout
       - <<: *install_elixir
-      - run: mix local.hex --force && mix local.rebar --force
+      - <<: *install_hex_rebar
       - run: mix deps.get --only test
       - run: mix test
       - run: mix format --check-formatted
+      - run: mix docs
+      - run: mix hex.build
+
+  build_elixir_1_7_otp_21:
+    docker:
+      - <<: *otp_21_image
+    environment:
+      ELIXIR_VERSION: 1.7.4-otp-21
+      LC_ALL: C.UTF-8
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - run: mix deps.get --only test
+      - run: mix test
+
+  build_elixir_1_6_otp_21:
+    docker:
+      - <<: *otp_21_image
+    environment:
+      ELIXIR_VERSION: 1.6.6-otp-21
+      LC_ALL: C.UTF-8
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - run: mix deps.get --only test
+      - run: mix test
+
+  build_elixir_1_6_otp_20:
+    docker:
+      - <<: *otp_20_image
+    environment:
+      ELIXIR_VERSION: 1.6.6
+      LC_ALL: C.UTF-8
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - run: mix deps.get --only test
+      - run: mix test
+
+workflows:
+  version: 2
+  build_test:
+    jobs:
+      - build_elixir_1_8_otp_21:
+          context: org-global
+      - build_elixir_1_7_otp_21:
+          context: org-global
+      - build_elixir_1_6_otp_21:
+          context: org-global
+      - build_elixir_1_6_otp_20:
+          context: org-global
