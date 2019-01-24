@@ -1,14 +1,11 @@
 defmodule IntegrationApp do
   use Mix.Project
 
-  @target System.get_env("MIX_TARGET") || "system"
-
   def project do
     [
       app: :example_app,
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 1.0"],
-      target: @target,
       compilers: Mix.compilers() ++ [:host_tool],
       deps: deps(),
       aliases: Nerves.Bootstrap.add_aliases([])

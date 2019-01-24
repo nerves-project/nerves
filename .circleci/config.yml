@@ -1,16 +1,25 @@
-# Elixir CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-elixir/ for more details
+install_elixir: &install_elixir
+  run:
+    name: Install Elixir
+    command: |
+      wget https://repo.hex.pm/builds/elixir/v$ELIXIR_VERSION.zip
+      unzip -d /usr/local/elixir v$ELIXIR_VERSION.zip
+      echo 'export PATH=/usr/local/elixir/bin:$PATH' >> $BASH_ENV
+
 version: 2
 jobs:
   build:
     docker:
-      - image: circleci/elixir:1.7.3
+      - image: erlang:21.2.2
+        environment:
+          ELIXIR_VERSION: 1.8.0-otp-21
+          LC_ALL: C.UTF-8
     working_directory: ~/repo
     environment:
       MIX_ENV: test
     steps:
       - checkout
+      - <<: *install_elixir
       - run: mix local.hex --force && mix local.rebar --force
       - run: mix deps.get --only test
       - run: mix test
