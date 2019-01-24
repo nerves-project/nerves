@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Burn do
     config = Mix.Project.config()
     firmware_config = Application.get_env(:nerves, :firmware)
     otp_app = config[:app]
-    target = config[:target]
+    target = mix_target()
 
     images_path =
       (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))

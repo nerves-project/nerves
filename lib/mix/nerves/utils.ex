@@ -200,6 +200,15 @@ defmodule Mix.Nerves.Utils do
     """)
   end
 
+  def mix_target do
+    if function_exported?(Mix, :target, 0) do
+      apply(Mix, :target, [])
+    else
+      (System.get_env("MIX_TARGET") || "host")
+      |> String.to_atom()
+    end
+  end
+
   defp raise_env_var_missing(name) do
     Mix.raise("""
     Environment variable $#{name} is not set.
