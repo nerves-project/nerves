@@ -358,3 +358,155 @@ end
 ### Update shoehorn dependency
 
 You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
+
+## Updating from v1.3.x to v1.4.x
+
+### Update your mix.exs file
+
+Change module attribute `@targets` to `@all_targets`
+
+```elixir
+@target System.get_env("MIX_TARGET") || "host"
+```
+
+```elixir
+@all_targets [:rpi0, :rpi3, :rpi]
+```
+
+The `@all_targets` attribute is used to filter dependencies that are intended
+to run on all targets except `:host`. This list should contain the atoms of all
+possible targets your project supports.
+
+Remove the following lines from the `project/0` callback:
+
+```elixir
+  target: @target
+  deps_path: "deps/#{@target}"
+  build_path: "_build/#{@target}"
+  lockfile: "mix.lock.#{@target}"
+```
+
+Change `build_embedded` from
+
+```elixir
+build_embedded: @target != "host"
+```
+
+to
+
+```elixir
+build_embedded: Mix.target() != :host,
+```
+
+Consolidate dependencies to a single `deps/0` function.
+
+Dependencies would come from three functions.
+  * `deps()` - # Dependencies for all targets
+  * `deps(_target)` - Dependencies for all targets except :host
+  * `system(target)`- Dependencies for specific targets
+
+Starting with Elixir 1.8, dependencies are fetched and locked for all targets
+instead of having split directories and lock files. When compiling, Elixir still
+needs to know which dependencies are being used. This is configured per dependency
+by passing `targets: []` or specifying a single target `targets: :host`. After
+consolidating the dependencies, you will need to set this for each dependency
+that requires a specific target.
+
+Here is an example
+
+from:
+
+```elixir
+  # Run "mix help deps" to learn about dependencies.
+  # Dependencies for all targets
+  defp deps do
+    [
+      {:nerves, "~> 1.3", runtime: false},
+      {:shoehorn, "~> 0.4"},
+      {:ring_logger, "~> 0.6"},
+      {:toolshed, "~> 0.2"}
+    ] ++ deps(@target)
+  end
+
+  # Specify target specific dependencies
+  defp deps("host"), do: []
+
+  # Dependencies for all targets except :host
+  defp deps(target) do
+    [
+      {:nerves_runtime, "~> 0.6"},
+      {:nerves_init_gadget, "~> 0.4"}
+    ] ++ system(target)
+  end
+
+  # Dependencies for specific targets
+  defp system("rpi"), do: [{:nerves_system_rpi, "~> 1.5", runtime: false}]
+  defp system("rpi0"), do: [{:nerves_system_rpi0, "~> 1.5", runtime: false}]
+  defp system("rpi2"), do: [{:nerves_system_rpi2, "~> 1.5", runtime: false}]
+  defp system("rpi3"), do: [{:nerves_system_rpi3, "~> 1.5", runtime: false}]
+  defp system("bbb"), do: [{:nerves_system_bbb, "~> 2.0", runtime: false}]
+  defp system("x86_64"), do: [{:nerves_system_x86_64, "~> 1.5", runtime: false}]
+  defp system(target), do: Mix.raise("Unknown MIX_TARGET: #{target}")
+```
+
+to:
+
+```elixir
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      # Dependencies for all targets
+      {:nerves, "~> 1.4", runtime: false},
+      {:shoehorn, "~> 0.4"},
+      {:ring_logger, "~> 0.6"},
+      {:toolshed, "~> 0.2"},
+
+      # Dependencies for all targets except :host
+      {:nerves_runtime, "~> 0.6", targets: @all_targets},
+
+      # Dependencies for specific targets
+      {:nerves_system_rpi, "~> 1.5", runtime: false, targets: :rpi},
+      {:nerves_system_rpi0, "~> 1.5", runtime: false, targets: :rpi0},
+      {:nerves_system_rpi2, "~> 1.5", runtime: false, targets: :rpi2},
+      {:nerves_system_rpi3, "~> 1.5", runtime: false, targets: :rpi3},
+      {:nerves_system_rpi3a, "~> 1.5", runtime: false, targets: :rpi3a},
+      {:nerves_system_bbb, "~> 2.0", runtime: false, targets: :bbb},
+      {:nerves_system_x86_64, "~> 1.5", runtime: false, targets: :x86_64}
+    ]
+  end
+```
+
+### Update config.exs
+
+Your config may contain a line for optionally importing config for other targets.
+The mix target is no longer being stored in the `Mix.Project.config` and can be
+retrieved by calling `Mix.target()`.
+
+Update the existing config from
+
+```elixir
+import_config "#{Mix.Project.config[:target]}.exs
+```
+
+to
+
+```elixir
+import_config "#{Mix.target()}.exs"
+```
+
+### Update application.ex
+
+The project's application module also required accessing `Mix.target()` and needs
+to be updated.
+
+from:
+
+```elixir
+@target Mix.Project.config()[:target]
+```
+
+to:
+
+```elixir
+@target Mix.target()
+```
