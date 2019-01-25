@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.0
+
+Version v1.4.0 adds support for Elixir 1.8's new built-in support for mix
+targets. In Nerves, the `MIX_TARGET` was used to select the appropriate set of
+dependencies for a device. This lets you switch between building for different
+boards and your host. Elixir 1.8 pulls this support into `mix` and lets you
+annotate dependencies for which targets they should be used.
+
+See the [project update guide](https://hexdocs.pm/nerves/updating-projects.html#updating-from-v1-3-x-to-v1-4-x) to learn how to migrate your project.
+
 ## v1.3.4
 
 * Bug fixes
