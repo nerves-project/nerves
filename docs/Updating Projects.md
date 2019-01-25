@@ -173,7 +173,7 @@ this easier. Please update your CI scripts or build instructions to use this new
 method.
 
 Nerves makes it easier to predigest artifacts for systems and toolchains
-with the added mix task `mix nerves.artifact <app_name>` Ommitting `<app_name>`
+with the added mix task `mix nerves.artifact <app_name>`. Omitting `<app_name>`
 will default to the app name of the parent mix project. This is useful if
 you are calling `mix nerves.artifact` from within a custom system or toolchain
 project.
@@ -331,7 +331,7 @@ of the file that defines your application.
 
 Change this:
 
-```
+```elixir
 release :my_app do
   set version: current_version(:my_app)
   plugin Shoehorn
@@ -347,7 +347,7 @@ end
 
 To this:
 
-```
+```elixir
 release :my_app do
   set version: current_version(:my_app)
   plugin Shoehorn
@@ -361,9 +361,15 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
 
 ## Updating from v1.3.x to v1.4.x
 
+Version v1.4.0 adds support for Elixir 1.8's new built-in support for mix
+targets. In Nerves, the `MIX_TARGET` was used to select the appropriate set of
+dependencies for a device. This lets you switch between building for different
+boards and your host. Elixir 1.8 pulls this support into `mix` and lets you
+annotate dependencies for which targets they should be used.
+
 ### Update your mix.exs file
 
-Change module attribute `@targets` to `@all_targets`
+The `@target` is no longer used. Delete it and then add `@all_targets` like this:
 
 ```elixir
 @target System.get_env("MIX_TARGET") || "host"
@@ -373,11 +379,15 @@ Change module attribute `@targets` to `@all_targets`
 @all_targets [:rpi0, :rpi3, :rpi]
 ```
 
-The `@all_targets` attribute is used to filter dependencies that are intended
-to run on all targets except `:host`. This list should contain the atoms of all
-possible targets your project supports.
+The `@all_targets` alias will be convenient when updating the dependencies in
+your `mix.exs`. Set it to the target names that you use (in atom form). Like the
+previous use of `MIX_TARGET`, it didn't matter what you called the targets. It
+only mattered that you were consistent.
 
-Remove the following lines from the `project/0` callback:
+The `:host` target refers to compilation for your computer. It's the only
+special target and is used for running non-hardware-specific unit tests.
+
+Next, remove the following lines from the `project/0` callback (yay Elixir 1.8):
 
 ```elixir
   target: @target
@@ -398,23 +408,16 @@ to
 build_embedded: Mix.target() != :host,
 ```
 
-Consolidate dependencies to a single `deps/0` function.
+The next step is to consolidate your dependencies to one `deps/0` function.
+Nerves previously grouped dependencies and used pattern matches to pick the
+right ones for your device. Elixir 1.8 makes this unnecessary.
 
-Dependencies would come from three functions.
-  * `deps()` - # Dependencies for all targets
-  * `deps(_target)` - Dependencies for all targets except :host
-  * `system(target)`- Dependencies for specific targets
+Now Elixir can fetch and lock your dependencies for all targets. Previously, if
+you'd switch targets, your dependencies might change versions. No more!
 
-Starting with Elixir 1.8, dependencies are fetched and locked for all targets
-instead of having split directories and lock files. When compiling, Elixir still
-needs to know which dependencies are being used. This is configured per dependency
-by passing `targets: []` or specifying a single target `targets: :host`. After
-consolidating the dependencies, you will need to set this for each dependency
-that requires a specific target.
+Elixir 1.8 adds the `:targets` option on dependencies. Here's an example:
 
-Here is an example
-
-from:
+Before:
 
 ```elixir
   # Run "mix help deps" to learn about dependencies.
@@ -449,7 +452,7 @@ from:
   defp system(target), do: Mix.raise("Unknown MIX_TARGET: #{target}")
 ```
 
-to:
+After:
 
 ```elixir
   # Run "mix help deps" to learn about dependencies.
@@ -478,17 +481,15 @@ to:
 
 ### Update config.exs
 
-Your config may contain a line for optionally importing config for other targets.
-The mix target is no longer being stored in the `Mix.Project.config` and can be
-retrieved by calling `Mix.target()`.
-
-Update the existing config from
+Accessing the `MIX_TARGET` is done differently now. References in your
+`config.exs` to `Mix.Project.config[:target]` need to be `Mix.target()` now. For
+example, change this:
 
 ```elixir
 import_config "#{Mix.Project.config[:target]}.exs
 ```
 
-to
+to:
 
 ```elixir
 import_config "#{Mix.target()}.exs"
@@ -496,10 +497,9 @@ import_config "#{Mix.target()}.exs"
 
 ### Update application.ex
 
-The project's application module also required accessing `Mix.target()` and needs
-to be updated.
-
-from:
+Search your Elixir code for references to `Mix.Project.config()[:target]`. These
+need to change as well. It's not uncommon to have these in your `application.ex`
+to decide what to start in your main supervision tree. For example, change this:
 
 ```elixir
 @target Mix.Project.config()[:target]
