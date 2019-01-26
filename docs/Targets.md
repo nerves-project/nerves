@@ -18,7 +18,7 @@ Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves
 
 While we only officially support commonly available hardware, the community has
 added support for other boards. See
-[Nerves Systems on hex.pm](https://hex.pm/packages?search=depends%3Anerves_system_br)
+[Nerves Systems on hex.pm](https://hex.pm/packages?search=depends:nerves_system_br)
 
 ## Supporting New Target Hardware
 
