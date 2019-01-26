@@ -219,7 +219,7 @@ The following keys are supported:
 
     For example:
 
-    You can configure the number of parallel jobs that buildroot
+    You can configure the number of parallel jobs that Buildroot
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.
 
@@ -461,8 +461,8 @@ appropriate steps below:
 
 3. After `make busybox-menuconfig`:
 
-    Unfortunately, there's not currently an easy way to save a busybox defconfig.
-    What you have to do instead is save the full busybox config and configure it
+    Unfortunately, there's not currently an easy way to save a BusyBox defconfig.
+    What you have to do instead is save the full BusyBox config and configure it
     to be included in your `nerves_defconfig`.
 
     Assuming you're using the Nerves System Shell via Docker on a non-Linux host
@@ -558,8 +558,8 @@ using one of the helpers specified in the `artifact_sites` list in
 the `nerves_package` config.
 
 There are currently three different helpers,
-`{:github_releases, "orginization/repo"}`,
-`{:github_api, "orginization/repo", username: "", token: "", tag: ""}`, and
+`{:github_releases, "organization/repo"}`,
+`{:github_api, "organization/repo", username: "", token: "", tag: ""}`, and
 `{:prefix, "url", opts \\ []}` . `artifact_sites` only declare the path of the location to
 the artifact. This is because the name of the artifact is defined by Nerves and
 used to download the correct one. The artifact name for a Nerves system follows
