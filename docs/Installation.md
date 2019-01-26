@@ -80,7 +80,7 @@ the [ASDF docs](https://github.com/asdf-vm/asdf/blob/master/README.md#setup) for
 more.
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.5.1
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.6.3
 
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
@@ -88,15 +88,15 @@ echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
 source ~/.bash_profile
 
-asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
-asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+asdf plugin-add erlang
+asdf plugin-add elixir
 
 # If on Debian or Ubuntu, you'll want to install wx before running the next
 # line: sudo apt install libwxgtk3.0-dev
-asdf install erlang 21.1 # Any OTP 21 version should work
-asdf install elixir 1.7.3-otp-21
-asdf global erlang 21.1
-asdf global elixir 1.7.3-otp-21
+asdf install erlang 21.2.2 # Any OTP 21 version should work
+asdf install elixir 1.8.0-otp-21
+asdf global erlang 21.2.2
+asdf global elixir 1.8.0-otp-21
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
