@@ -328,10 +328,9 @@ defmodule CustomRpi3.MixProject do
 
   # ...
 
-  # =vvv= Update the maintainer and project information
+  # =vvv= Update project information
   defp package do
     [
-      maintainers: ["Your Name"],
       # ...
       links: %{"Github" => "https://github.com/YourGitHubUserName/custom_rpi3"}
     ]

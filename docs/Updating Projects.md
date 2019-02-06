@@ -139,7 +139,6 @@ Here's an example from `nerves-project/nerves_system_rpi0`:
 
   defp package do
     [
-      maintainers: ["Timothy Mecklem", "Frank Hunleth"],
       files: package_files(),
       licenses: ["Apache 2.0"],
       links: %{"Github" => "https://github.com/nerves-project/#{@app}"}
