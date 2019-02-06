@@ -318,15 +318,6 @@ defmodule CustomRpi3.MixProject do
     ]
   end
 
-  # ...
-
-  defp bootstrap(args) do
-    System.put_env("MIX_TARGET", "custom_rpi3") # <==== Update MIX_TARGET
-    Application.start(:nerves_bootstrap)
-    Mix.Task.run("loadconfig", args)
-  end
-
-  # ...
 
   # =vvv= Update project information
   defp package do
