@@ -305,6 +305,9 @@ defmodule Nerves.Env do
           Mix.shell().error("""
           #{k} is set to a path which does not exist:
           #{v}
+
+          Try running `mix deps.get` to see if this resolves the issue by
+          downloading the missing artifact.
           """)
 
           exit({:shutdown, 1})
