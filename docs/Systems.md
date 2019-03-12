@@ -304,9 +304,10 @@ end
 
 # =vvv= Update the module and application names
 defmodule CustomRpi3.MixProject do
+  use Mix.Project
 
-  @app :custom_rpi3
-  # =^^^=
+  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :bbb, :x86_64, :custom_rpi3]
+  #                                                               =^^^^^^^^^^=
 
   # ...
 
@@ -344,10 +345,18 @@ project directory, like so:
 ```elixir
 # your_project/mix.exs
 
-  # ...
-  def system("rpi3"), do: [{:nerves_system_rpi3, "~> 1.0", runtime: false}]
-  def system("custom_rpi3"), do: [{:custom_rpi3, path: "../custom_rpi3", runtime: false}]
-  def system(target), do: Mix.raise "Unknown MIX_TARGET: #{target}"
+  defp deps do
+    [
+      # Dependencies for all targets
+      # ...
+
+      # Dependencies for specific targets
+      {:nerves_system_rpi, "~> 1.6", runtime: false, targets: :rpi},
+      {:nerves_system_rpi0, "~> 1.6", runtime: false, targets: :rpi0},
+      # ...
+      {:custom_rpi3, path: "../custom_rpi3", runtime: false, targets: :custom_rpi3}
+    ]
+  end
 ```
 
 Set your `MIX_TARGET` to refer to your custom system and build your firmware.
