@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.4.1
+
+* Improvements
+  * Improve error message when artifacts can't be found
+
 ## v1.4.0
 
 Version v1.4.0 adds support for Elixir 1.8's new built-in support for mix
