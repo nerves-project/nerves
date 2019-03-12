@@ -28,7 +28,7 @@ jobs:
     docker:
       - <<: *otp_21_image
     environment:
-      ELIXIR_VERSION: 1.8.0-otp-21
+      ELIXIR_VERSION: 1.8.1-otp-21
       LC_ALL: C.UTF-8
     <<: *defaults
     steps:
