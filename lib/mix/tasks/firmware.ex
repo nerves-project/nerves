@@ -92,6 +92,15 @@ defmodule Mix.Tasks.Firmware do
     end
 
     firmware_config = Application.get_env(:nerves, :firmware)
+    rootfs_priorities_file = Path.join([Mix.Project.build_path(), "nerves", "rootfs.priorities"])
+
+    rootfs_priorities =
+      if File.exists?(rootfs_priorities_file) do
+        ["-p", rootfs_priorities_file]
+      else
+        []
+      end
+
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
     args = [rel2fw_path]
@@ -124,7 +133,7 @@ defmodule Mix.Tasks.Firmware do
     fw = ["-f", "#{images_path}/#{otp_app}.fw"]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
-    args = args ++ fwup_conf ++ rootfs_overlay ++ fw ++ output
+    args = args ++ fwup_conf ++ rootfs_overlay ++ fw ++ rootfs_priorities ++ output
     env = standard_fwup_variables(config)
 
     set_provisioning(firmware_config[:provisioning])
