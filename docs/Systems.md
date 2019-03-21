@@ -258,7 +258,7 @@ Make sure not to forget the `-b` flag. Cloning/Forking directly from master is n
 considered stable.
 
 ```bash
-git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.2.1
+git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.7.3
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -306,11 +306,6 @@ end
 defmodule CustomRpi3.MixProject do
   use Mix.Project
 
-  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :bbb, :x86_64, :custom_rpi3]
-  #                                                               =^^^^^^^^^^=
-
-  # ...
-
   def project do
     [
       app: @app,
@@ -342,8 +337,13 @@ project directory, like so:
 └── your_project
 ```
 
+
 ```elixir
-# your_project/mix.exs
+  #=vvv= Update your_project/mix.exs to accept your new :custom_rpi3 target
+
+  # ...
+  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :bbb, :x86_64, :custom_rpi3]
+  #                                                               =^^^^^^^^^^=
 
   defp deps do
     [
