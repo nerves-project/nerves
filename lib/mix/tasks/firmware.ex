@@ -92,14 +92,10 @@ defmodule Mix.Tasks.Firmware do
     end
 
     firmware_config = Application.get_env(:nerves, :firmware)
-    rootfs_priorities_file = Path.join([Mix.Project.build_path(), "nerves", "rootfs.priorities"])
 
     rootfs_priorities =
-      if File.exists?(rootfs_priorities_file) do
-        ["-p", rootfs_priorities_file]
-      else
-        []
-      end
+      Nerves.Env.package(:nerves_system_br)
+      |> rootfs_priorities()
 
     rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
     cmd = "bash"
@@ -152,4 +148,26 @@ defmodule Mix.Tasks.Firmware do
       {"NERVES_FW_AUTHOR", config[:author]}
     ]
   end
+
+  # Need to check min version for nerves_system_br to check if passing the
+  # rootfs priorities option is supported. This was added in the 1.7.1 release
+  # https://github.com/nerves-project/nerves_system_br/releases/tag/v1.7.1
+  defp rootfs_priorities(%Nerves.Package{app: :nerves_system_br, version: vsn}) do
+    case Version.compare(vsn, "1.7.1") do
+      r when r in [:gt, :eq] ->
+        rootfs_priorities_file =
+          Path.join([Mix.Project.build_path(), "nerves", "rootfs.priorities"])
+
+        if File.exists?(rootfs_priorities_file) do
+          ["-p", rootfs_priorities_file]
+        else
+          []
+        end
+
+      _ ->
+        []
+    end
+  end
+
+  defp rootfs_priorities(_), do: []
 end
