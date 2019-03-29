@@ -109,7 +109,8 @@ config :nerves_network, :default,
   wlan0: [
     ssid: System.get_env("NERVES_NETWORK_SSID"),
     psk: System.get_env("NERVES_NETWORK_PSK"),
-    key_mgmt: String.to_atom(System.get_env("NERVES_NETWORK_MGMT"))
+    key_mgmt: String.to_atom(System.get_env("NERVES_NETWORK_MGMT")),
+    scan_ssid: 1 #if your WiFi setup as hidden
   ],
   eth0: [
     ipv4_address_method: :dhcp
@@ -119,6 +120,8 @@ config :nerves_network, :default,
 ```
 
 For more network settings, see the [`nerves_network`](https://github.com/nerves-project/nerves_network) project.
+
+tips: if your wifi setup as hidden, your must set `scan_ssid: 1`
 
 ### Configure Phoenix
 
