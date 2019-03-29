@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.4.2
+
+* Improvements
+  * Generate rootfs.priorities file. This is used internally when constructing
+    the squashfs filesystem to arrange the contents in the order the files are
+    loaded at runtime which improves boot performance.
+
 ## v1.4.1
 
 * Improvements
