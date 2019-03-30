@@ -134,6 +134,114 @@ You can read about the other supported options in the [`fwup` documentation](htt
 Now that you have your SD card burned, you can insert it into your device and boot it up.
 For Raspberry Pi, be sure to connect it to an HDMI display and USB keyboard so you can see it boot to the IEx console.
 
+## Connecting to Your Nerves Target
+You can connect to an RPi0, RPi3A, and BBB with a USB cable. These Nerves targets can operate in Linux USB
+gadget mode, which means a network connection can be made with a USB cable between your host and target. The
+USB cable provides both power and network connectivity. This is a very convenient way to work with your target
+device.
+
+The RPi3B/B+ does not have USB gadget mode capability, but you can make a network connection using
+either wired or wireless Ethernet.
+
+### Attach a USB Cable to Your RPi0
+Connect a USB cable between your host and the RPi0 USB port closest to the middle of the board that is labeled
+"USB". This USB port, via the USB cable,  will provide both power to the board and a virtual Ethernet network
+connection.
+
+#### Test the Connection
+Once the target is powered up, test the connection from your host:
+
+```bash
+ping nerves.local
+```
+
+> Note: If this does not work it may be because your USB cable only has power lines. You need a cable with
+> both power and data lines, so try a different USB cable.
+
+> Note: `nerves.local` is an mDNS address. These examples were done with a Mac host, which has mDNS enabled
+> by default. Linux and Windows hosts may have to enable mDNS networking.
+
+#### Make the Network Connection
+To make a connection via the USB gadget mode virtual Ethernet interface:
+
+```bash
+ssh nerves.local
+```
+
+You should find yourself at the `iex(hello_nerves@nerves.local)1>` prompt. Enter the following command:
+
+```elixir
+h Toolshed
+```
+
+This displays the help for the [Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package, which contains
+many useful commands. Go ahead and try them out to explore your target's runtime environment.
+
+To end your ssh connection type: `~.`
+
+### RPi3B/B+ Wired and Wireless Ethernet Connection
+With the RPi3B/B+, you will need to make a wired or wireless Ethernet connection. This can be done with just a
+few changes to the standard `config/config.exs` generated in a new Nerves project.
+
+To use wired Ethernet change the `ifname:` and `address_method` keys:
+
+```elixir
+config :nerves_init_gadget,
+  mdns_domain: "nerves.local",
+  node_name: node_name,
+  node_host: :mdns_domain,
+  ifname: "eth0",
+  address_method: :dhcp
+```
+
+To use wireless change the `ifname:` and `address_method:` keys, and configure the wireless settings:
+
+```elixir
+config :nerves_init_gadget,
+  mdns_domain: "nerves.local",
+  node_name: node_name,
+  node_host: :mdns_domain,
+  ifname: "wlan0",
+  address_method: :dhcp
+
+# Configure wireless settings
+
+key_mgmt = System.get_env("NERVES_NETWORK_KEY_MGMT") || "WPA-PSK"
+
+config :nerves_network, :default,
+  wlan0: [
+    ssid: System.get_env("NERVES_NETWORK_SSID"),
+    psk: System.get_env("NERVES_NETWORK_PSK"),
+    key_mgmt: String.to_atom(key_mgmt)
+  ]
+```
+
+You can find additional information on USB gadget mode, wired, and wireless network connections in the Nerves
+[Hello Network](https://github.com/nerves-project/nerves_examples/tree/master/hello_network) example.
+
+### Alternate Connection Methods
+There are a couple alternate connection methods:
+
+#### Gadget Mode Virtual Serial Connection
+USB gadget mode also supplies a virtual serial connection. To use it enter:
+
+```bash
+screen /dev/usb* 115200     # replace "usb*" with the name of your host's USB port
+```
+
+You should be at an `iex(1)>` prompt. If not, try pressing `Enter` a few times.
+
+#### USB to TTL Serial Cable
+In addition to the wired and wireless connection method described above, targets without USB gadget mode can
+be accessed via a serial connection with an TTL cable. The TTL cable is connected between the host USB port
+and a couple of header pins on the target. We've had good luck with [this
+cable](https://www.adafruit.com/product/954) and the site also contains a
+[tutorial](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-5-using-a-console-cable/overview) on how
+to use it.
+
+You will also need to modify your Nerves configuration as described in the
+[Using a USB Serial Console](https://hexdocs.pm/nerves/faq.html#using-a-usb-serial-console) FAQ topic.
+
 ## Nerves Examples
 
 To get up and running quickly, you can check out our [collection of example projects](https://github.com/nerves-project/nerves_examples).
