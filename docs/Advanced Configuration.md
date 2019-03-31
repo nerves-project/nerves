@@ -102,6 +102,17 @@ It will be expanded into the current directory under `squashfs-root`
 Different targets have different boot partition contents. To overwrite files in
 the boot partition, you will need to use your own `fwup.conf` file:
 
+#### Copy `fwup.conf` to Your `config/` Directory
+```bash
+# Locate the fwup.conf files available in your deps directory
+find deps -name fwup.conf
+# Copy the one that matches your target to the config directory.
+cp deps/nerves_system_rpi0/fwup.conf config/
+# Also copy cmdline.txt as you'll need it below.
+cp deps/nerves_system_rpi0/cmdline.txt config/
+```
+
+#### Configure Your System to Use the Copied `fwup.conf`
 ```elixir
 # config/config.exs
 
@@ -109,6 +120,7 @@ config :nerves, :firmware,
   fwup_conf: "config/fwup.conf"
 ```
 
+#### Make Your Changes
 In your included `fwup.conf` file, you can use absolute paths or environment
 variables to point to the location of included files.
 
