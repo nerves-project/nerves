@@ -177,11 +177,7 @@ h Toolshed
 This displays the help for the [Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package, which contains
 many useful commands. Go ahead and try them out to explore your target's runtime environment.
 
-<<<<<<< HEAD
 To end your ssh connection type `exit`, or you can use the `ssh` command `<enter>~.`
-=======
-To end your ssh connection type: `~.`
->>>>>>> 869ec270d6410647a99d850107a7297ed21be6c8
 
 ### RPi3B/B+ Wired and Wireless Ethernet Connection
 With the RPi3B/B+, you will need to make a wired or wireless Ethernet connection. This can be done with just a
