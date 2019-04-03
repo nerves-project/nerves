@@ -34,7 +34,7 @@ defmodule Nerves.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.3", only: [:test, :dev], runtime: false},
       {:nerves_bootstrap, "~> 1.0", only: [:test, :dev]},
       {:plug, "~> 1.4", only: :test},
-      {:cowboy, "~> 1.1", only: :test}
+      {:plug_cowboy, "~> 1.0", only: :test}
     ]
   end
 
