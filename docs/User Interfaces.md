@@ -155,7 +155,7 @@ When developing your UI, you can simply run the Phoenix server from the UI appli
 
 ```bash
 cd path/to/ui
-mix phoenix.server
+mix phx.server
 ```
 
 When it's time to create your firmware:
