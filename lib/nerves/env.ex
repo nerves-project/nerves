@@ -391,7 +391,7 @@ defmodule Nerves.Env do
 
     Mix.raise("""
     Your mix project cannot contain more than one #{type} for the target.
-    Your dependancies for the target contian the following #{type}s:
+    Your dependencies for the target contain the following #{type}s:
     #{Enum.join(packages, ~s/ /)}
     """)
   end
