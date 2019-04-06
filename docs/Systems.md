@@ -223,13 +223,14 @@ The following keys are supported:
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.
 
-      # mix.exs
-      defp nerves_package do
-        [
-          # ...
-          build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
-        ]
-      end
+    ```elixir
+    defp nerves_package do
+      [
+        # ...
+        build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
+      ]
+    end
+    ```
 
 7. `checksum`: The list of files for which checksums are calculated and stored
     in the artifact cache.
