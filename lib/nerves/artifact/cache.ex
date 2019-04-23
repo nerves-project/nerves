@@ -20,11 +20,11 @@ defmodule Nerves.Artifact.Cache do
     File.rm_rf(dest)
 
     if String.ends_with?(path, ext) do
-      File.mkdir_p(dest)
+      File.mkdir_p!(dest)
       :ok = Nerves.Utils.File.untar(path, dest)
     else
       Path.dirname(dest)
-      |> File.mkdir_p()
+      |> File.mkdir_p!()
 
       File.ln_s!(path, dest)
     end
