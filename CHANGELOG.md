@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.4.3
+
+* Bug fixes
+  * Raise an exception if the artifact cache fails to create a directory
+  * Fixes `ArgumentError` when using OTP >= 21.3.0 and calling `mix nerves.system.shell`
+  * Fixes issue with `mix nerves.system.shell` using `asdf` >= 0.7.0 where the
+    path would contain `::` and Buildroot would raise the error:
+
+    ```text
+    You seem to have the current working directory in your
+    PATH environment variable. This doesn't work.
+    support/dependencies/dependencies.mk:21: recipe for target 'dependencies' failed
+    ```
+
 ## v1.4.2
 
 * Improvements
