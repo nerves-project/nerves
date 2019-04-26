@@ -24,7 +24,8 @@ defmodule Mix.Nerves.Shell do
         :binary,
         :eof,
         :stream,
-        :stderr_to_stdout
+        :stderr_to_stdout,
+        {:env, [{'PATH', sanitize_path()}]}
       ])
 
     # Tell the script command about the terminal dimensions
