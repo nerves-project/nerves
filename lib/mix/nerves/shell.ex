@@ -7,7 +7,7 @@ defmodule Mix.Nerves.Shell do
     # We use the tty_sl driver for input because it handles tty geometry and
     # streaming mode.
     stdin_port = Port.open({:spawn, "tty_sl -c -e"}, [:binary, :eof, :stream, :in])
-
+    Application.stop(:logger)
     # We run the command through the script command to emulate a pty
     cmd =
       "script -q /dev/null " <>
@@ -34,7 +34,7 @@ defmodule Mix.Nerves.Shell do
     stty sane rows #{h} cols #{w}; stty -echo
     export PS1=""; export PS2=""
     start() {
-    echo -e "\\e[17F\\e[0J\\e[1;7m\n  Preparing Nerves Shell  \\e[0m"
+    echo -e "\\e[25F\\e[0J\\e[1;7m\n  Preparing Nerves Shell  \\e[0m"
     echo -e "\\e]0;Nerves Shell\\a"
     export PS1="\\e[1;7m Nerves \\e[0;1m \\W > \\e[0m"
     export PS2="\\e[1;7m Nerves \\e[0;1m \\W ..\\e[0m"
@@ -68,11 +68,31 @@ defmodule Mix.Nerves.Shell do
     end
   end
 
+  defp sanitize_path() do
+    System.get_env("PATH")
+    |> String.replace("::", ":")
+    |> to_charlist()
+  end
+
+  # Starting in OTP 21.3.0, the CTRL_OP_GET_WINSIZE changes to be
+  #
+  # define(ERTS_TTYSL_DRV_CONTROL_MAGIC_NUMBER, 16#018b0900).
+  # define(CTRL_OP_GET_WINSIZE, (100 + ?ERTS_TTYSL_DRV_CONTROL_MAGIC_NUMBER)).
+  #
+  # See https://github.com/erlang/otp/commit/ad5822c6b1401111bbdbc5e77fe097a3f1b2b3cb
+
+  @erts_ttysl_drv_control_magic_number 0x018B0900
   @ctrl_op_get_winsize 100
+  @ctrl_op_get_winsize_otp_21_3 @ctrl_op_get_winsize + @erts_ttysl_drv_control_magic_number
 
   defp get_tty_geometry(tty_port) do
     geometry =
-      :erlang.port_control(tty_port, @ctrl_op_get_winsize, [])
+      try do
+        :erlang.port_control(tty_port, @ctrl_op_get_winsize, [])
+      rescue
+        e in ArgumentError ->
+          :erlang.port_control(tty_port, @ctrl_op_get_winsize_otp_21_3, [])
+      end
       |> :erlang.list_to_binary()
 
     <<w::native-integer-size(32), h::native-integer-size(32)>> = geometry
