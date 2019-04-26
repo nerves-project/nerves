@@ -91,7 +91,7 @@ defmodule Mix.Nerves.Shell do
       try do
         :erlang.port_control(tty_port, @ctrl_op_get_winsize, [])
       rescue
-        e in ArgumentError ->
+        _e in ArgumentError ->
           :erlang.port_control(tty_port, @ctrl_op_get_winsize_otp_21_3, [])
       end
       |> :erlang.list_to_binary()
