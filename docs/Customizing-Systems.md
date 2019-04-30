@@ -1,5 +1,8 @@
 # Customizing Your Own Nerves System
 
+Before following this guide, you should probably read about
+[The Anatomy of a Nerves System](https://hexdocs.pm/nerves/Systems.html)
+
 For some applications, the pre-built Nerves Systems won't meet your needs. For
 example, you may want to include additional Linux packages or run on hardware
 that isn't in the list of [Nerves-supported
@@ -10,6 +13,8 @@ the steps below to apply to whatever host platform you're using for development,
 as long as you have Docker for Mac or Docker for Windows installed on those
 platforms.
 
+## Getting Setup to Build a System
+
 While you could design a system from scratch, it is easiest to copy and modify
 an existing one, renaming it to distinguish it from the official release. For
 example, if you're targeting a Raspberry Pi 3 board, do the following:
@@ -18,7 +23,7 @@ Make sure not to forget the `-b` flag. Cloning/Forking directly from master is n
 considered stable.
 
 ```bash
-git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.7.3
+git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.7.1
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -37,54 +42,60 @@ git checkout -b master
 git push origin master
 ```
 
-Next, tweak the metadata for your system so it won't conflict with the official
-one and won't try to download a cached artifact that doesn't exist yet:
+Next, tweak the metadata of your Mix Project. Specifically update
+* The module name of the mix project at the top of the file
+* the value of `@app` to `custom_rpi3`
+* The `github_releases` in `artifact_sites`
+* the `links` in `package/0`
+
+See the [Official Mix.Project](https://hexdocs.pm/mix/Mix.Project.html) document
+for the structure of this file.
 
 ```elixir
 # custom_rpi3/mix.exs
-# ...
-defp nerves_package do
-  [
-    type: :system,
-    # artifact_sites: [
-    #   {:github_releases, "nerves-project/#{@app}"}
-    # ],
-    platform: Nerves.System.BR,
-    platform_config: [
-      defconfig: "nerves_defconfig"
-    ],
-    checksum: package_files()
-  ]
-end
-# ...
-```
-
-```elixir
-# custom_rpi3/mix.exs
-
-# =vvv= Update the module and application names
+# =vvv= make sure to rename the module name
+# defmodule NervesSystemRpi3.MixProject do
 defmodule CustomRpi3.MixProject do
   use Mix.Project
 
-  def project do
+  # =vvv= Rename `nerves_system_rpi3` here to `custom_rpi3`
+  # @app :nerves_system_rpi3
+  @app :custom_rpi3
+
+  # the project/0 function remains the same
+
+  defp nerves_package do
     [
-      app: @app,
-      version: @version,
-      # ...
+      type: :system,
+      artifact_sites: [
+      # =vvv= Set an artifact location to your github repository.
+      # See the Artifacts section later for more details on this.
+      #  {:github_releases, "nerves-project/#{@app}"}
+        {:github_releases, "YourGitHubUserName/#{@app}"}
+      ],
+      build_runner_opts: build_runner_opts(),
+      platform: Nerves.System.BR,
+      platform_config: [
+        defconfig: "nerves_defconfig"
+      ],
+      checksum: package_files()
     ]
   end
 
-
-  # =vvv= Update project information
   defp package do
     [
-      # ...
-      links: %{"Github" => "https://github.com/YourGitHubUserName/custom_rpi3"}
+      files: package_files(),
+      licenses: ["Apache 2.0"],
+      # =vvv= Update project information for hex.pm and hexdocs.
+      # links: %{"GitHub" => "https://github.com/nerves-project/#{@app}"}
+      links: %{"GitHub" => "https://github.com/YourGitHubUserName/#{@app}"}
     ]
   end
-  # =^^^=
-end
+
+  # =^^^= The rest of this file remains the same
 ```
+
+## Building the System
 
 Now that the custom system directory is prepared, you just need to point to it
 from your project's `mix.exs`. In this example, we assume that your
@@ -95,6 +106,13 @@ project directory, like so:
 ~/projects
 ├── custom_rpi3
 └── your_project
+```
+
+If you are starting a new project you can:
+
+```plain
+# Only generating one target. We will update `rpi3` to `custom_rpi3` next.
+mix nerves.new your_project --target rpi3
 ```
 
 
@@ -337,3 +355,54 @@ similar to `custom_rpi3-portable-0.1.0-ABCDEF0.tar.gz` in your current working
 directory. This file should be placed in the location specified by the
 `artifact_sites`. If you are using the Github Releases helper, you will need
 to create a release from your tag on Github and then upload the file.
+
+Now instead of using a `path` dependency in your main project, you can use
+a remote dependency.
+
+```elixir
+# Update the `custom_rpi3` dep in your `deps/0` function.
+{:custom_rpi3, github: "YourGitHubUserName/custom_rpi3", runtime: false, targets: :custom_rpi3}
+```
+
+Or you can [publish the system package to hex](https://hex.pm/docs/publish).
+You should not need to change anything in the `mix.exs` file at this point to do so.
+
+```plain
+mix hex.publish
+```
+
+Back in your main project update deps:
+```
+# make sure you check the version here.
+{:custom_rpi3, "~> 1.7", runtime: false, targets: :custom_rpi3}
+```
+
+## Custom System Maintenance
+After you'customizing a Nerves System, creating artifacts, and publishing
+the package, you will probably want to keep track of the latest updates to the
+original system. Assuming you followed the `git` section in the
+[Getting Started](Getting-Setup-to-Build-a-System) section, you will have
+a `upstream` remote. Check this by doing:
+
+```plain
+$ git remote -v
+origin	git@github.com:YourGitHubUserName/custom_rpi3.git (fetch)
+origin	git@github.com:YourGitHubUserName/custom_rpi3.git (push)
+upstream	https://github.com/nerves-project/nerves_system_rpi3.git (fetch)
+upstream	https://github.com/nerves-project/nerves_system_rpi3.git (push)
+```
+
+When you are ready to update your system (for example after Nerves publishes a
+new version) you can just merge that in. For example if you started with
+`nerves_system_rpi3` at `v1.7.1` and `v1.7.2` gets published.
+
+```plain
+$ git fetch --all
+$ git merge upstream/master
+# Solve any merge conflicts
+$ git push origin master
+```
+
+You can also use the GitHub interface to do this:
+
+https://github.com/YourGitHubUserName/nerves_system_rpi3/compare/master...nerves-project:master?expand=1
