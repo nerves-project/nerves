@@ -4,7 +4,13 @@ defmodule Mix.Nerves.Utils do
   def shell(cmd, args, opts \\ []) do
     stream = opts[:stream] || IO.binstream(:standard_io, :line)
     std_err = opts[:stderr_to_stdout] || true
-    opts = Keyword.drop(opts, [:into, :stderr_to_stdout, :stream])
+    env = Keyword.get(opts, :env, []) ++ [{"PATH", sanitize_path()}]
+
+    opts =
+      opts
+      |> Keyword.drop([:into, :stderr_to_stdout, :stream])
+      |> Keyword.put(:env, env)
+
     System.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 
@@ -207,6 +213,11 @@ defmodule Mix.Nerves.Utils do
       (System.get_env("MIX_TARGET") || "host")
       |> String.to_atom()
     end
+  end
+
+  def sanitize_path() do
+    System.get_env("PATH")
+    |> String.replace("::", ":")
   end
 
   defp raise_env_var_missing(name) do
