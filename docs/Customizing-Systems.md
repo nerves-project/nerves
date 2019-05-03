@@ -318,7 +318,7 @@ touch packages/libfoo/Config.in
 touch packages/libfoo/libfoo.mk
 ```
 
-At this point you should follow the Official Buildroot documentation for what
+At this point, you should follow the Official Buildroot documentation for what
 should be added to these files. Often the easiest route is to find a similar
 package in Buildroot and copy/paste the contains with appropriate renaming.
 
@@ -326,23 +326,26 @@ package in Buildroot and copy/paste the contains with appropriate renaming.
 
 Building a Nerves system can require a lot of system resources and often takes a
 long time to complete. Once you are satisfied with the configuration of your
-Nerves system and you are ready to make a release you can create an artifact.
+Nerves system and you are ready to make a release, you can create an artifact.
 An artifact is a pre-compiled version of your Nerves system that can be
 retrieved when calling `mix deps.get`. Artifacts will attempt to be retrieved
 using one of the helpers specified in the `artifact_sites` list in
 the `nerves_package` config.
 
-There are currently three different helpers,
-`{:github_releases, "organization/repo"}`,
-`{:github_api, "organization/repo", username: "", token: "", tag: ""}`, and
-`{:prefix, "url", opts \\ []}` . `artifact_sites` only declare the path of the location to
-the artifact. This is because the name of the artifact is defined by Nerves and
-used to download the correct one. The artifact name for a Nerves system follows
-the structure `<name>-portable-<version>-<checksum>.tar.gz`. The checksum at
-the end of the file is calculated based off the contents of the files and
-directories specified in the `checksum` list in the `nerves_package` configuration.
-It is important to note that if you modify contents of any of the `checksum` files
-or directories after creating the artifact, the artifact will not match and will
+There are currently three different helpers:
+
+* `{:github_releases, "organization/repo"}`
+* `{:github_api, "organization/repo", username: "", token: "", tag: ""}`
+* `{:prefix, "url", opts \\ []}`
+
+`artifact_sites` only declare the path of the location to the artifact. This is
+because the name of the artifact is defined by Nerves and used to download the
+correct one. The artifact name for a Nerves system follows the structure
+`<name>-portable-<version>-<checksum>.tar.gz`. The checksum at the end of the
+file is calculated based off the contents of the files and directories
+specified in the `checksum` list in the `nerves_package` configuration.  It is
+important to note that if you modify contents of any of the `checksum` files or
+directories after creating the artifact, the artifact will not match and will
 not be used. Therefore, you first need to define the `artifact_sites` before
 creating the artifact.
 
@@ -354,33 +357,35 @@ directory. This file should be placed in the location specified by the
 `artifact_sites`. If you are using the Github Releases helper, you will need
 to create a release from your tag on Github and then upload the file.
 
-Now instead of using a `path` dependency in your main project, you can use
-a remote dependency.
+Now, instead of using a `:path` dependency in your main project, you can use a
+`:github` dependency to make it easier to share with others.
 
 ```elixir
 # Update the `custom_rpi3` dep in your `deps/0` function.
 {:custom_rpi3, github: "YourGitHubUserName/custom_rpi3", runtime: false, targets: :custom_rpi3}
 ```
 
-Or you can [publish the system package to hex](https://hex.pm/docs/publish).
-You should not need to change anything in the `mix.exs` file at this point to do so.
+You can also [publish the system package to hex](https://hex.pm/docs/publish).
+You should not need to change anything in the `mix.exs` file at this point to
+do so.
 
 ```plain
 mix hex.publish
 ```
 
-Back in your main project update deps:
+Back in your main project, update deps:
 ```
 # make sure you check the version here.
 {:custom_rpi3, "~> 1.7", runtime: false, targets: :custom_rpi3}
 ```
 
 ## Custom System Maintenance
-After you'customizing a Nerves System, creating artifacts, and publishing
-the package, you will probably want to keep track of the latest updates to the
-original system. Assuming you followed the `git` section in the
-[Getting Started](Getting-Setup-to-Build-a-System) section, you will have
-a `upstream` remote. Check this by doing:
+
+After customizing a Nerves System, creating artifacts, and publishing the
+package, you will probably want to keep track of the latest updates to the
+original system. Assuming you followed the `git` section in the [Getting
+Started](Getting-Setup-to-Build-a-System) section, you will have a remote
+called `upstream`. Check this by doing:
 
 ```plain
 $ git remote -v
@@ -390,17 +395,18 @@ upstream	https://github.com/nerves-project/nerves_system_rpi3.git (fetch)
 upstream	https://github.com/nerves-project/nerves_system_rpi3.git (push)
 ```
 
-When you are ready to update your system (for example after Nerves publishes a
-new version) you can just merge that in. For example if you started with
-`nerves_system_rpi3` at `v1.7.1` and `v1.7.2` gets published.
+When you are ready to update your system (for example, after Nerves publishes a
+new version), you can just merge the `upstream` changes in. For example, if you
+started with `nerves_system_rpi3` at `v1.7.1`, when `v1.7.2` gets published,
+you can do the following to upgrade your custom system:
 
-```plain
-$ git fetch --all
-$ git merge upstream/master
+```bash
+git fetch --all
+git merge upstream/master
 # Solve any merge conflicts
-$ git push origin master
+git push origin master
 ```
 
 You can also use the GitHub interface to do this:
 
-https://github.com/YourGitHubUserName/nerves_system_rpi3/compare/master...nerves-project:master?expand=1
+https://github.com/YourGitHubUserName/custom_rpi3/compare/master...nerves-project:master?expand=1
