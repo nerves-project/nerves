@@ -25,7 +25,7 @@ defmodule Mix.Nerves.Shell do
         :eof,
         :stream,
         :stderr_to_stdout,
-        {:env, [{'PATH', sanitize_path()}]}
+        {:env, [{'PATH', Mix.Nerves.Utils.sanitize_path() |> to_charlist()}]}
       ])
 
     # Tell the script command about the terminal dimensions
@@ -67,12 +67,6 @@ defmodule Mix.Nerves.Shell do
       _message ->
         shell_loop(stdin_port, stdout_port, cmd_port)
     end
-  end
-
-  defp sanitize_path() do
-    System.get_env("PATH")
-    |> String.replace("::", ":")
-    |> to_charlist()
   end
 
   # Starting in OTP 21.3.0, the CTRL_OP_GET_WINSIZE changes to be
