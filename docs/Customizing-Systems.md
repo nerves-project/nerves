@@ -108,10 +108,10 @@ project directory, like so:
 └── your_project
 ```
 
-If you are starting a new project you can:
+If you are starting a new project, you can generate it to support just one
+target.  We will update `rpi3` to `custom_rpi3` next.
 
 ```plain
-# Only generating one target. We will update `rpi3` to `custom_rpi3` next.
 mix nerves.new your_project --target rpi3
 ```
 
@@ -120,8 +120,8 @@ mix nerves.new your_project --target rpi3
   #=vvv= Update your_project/mix.exs to accept your new :custom_rpi3 target
 
   # ...
-  @all_targets [:rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :bbb, :x86_64, :custom_rpi3]
-  #                                                               =^^^^^^^^^^=
+  @all_targets [:rpi3, :custom_rpi3]
+  #                    =^^^^^^^^^^=
 
   defp deps do
     [
@@ -129,10 +129,8 @@ mix nerves.new your_project --target rpi3
       # ...
 
       # Dependencies for specific targets
-      {:nerves_system_rpi, "~> 1.6", runtime: false, targets: :rpi},
-      {:nerves_system_rpi0, "~> 1.6", runtime: false, targets: :rpi0},
-      # ...
-      {:custom_rpi3, path: "../custom_rpi3", runtime: false, targets: :custom_rpi3}
+      {:nerves_system_rpi3, "~> 1.6", runtime: false, targets: :rpi},
+      {:custom_rpi3, path: "../custom_rpi3", runtime: false, targets: :custom_rpi3}, # <===
     ]
   end
 ```
