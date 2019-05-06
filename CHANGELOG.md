@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.4.4
+
+* Bug fixes
+  * This improves the path fix in v1.4.3 (see
+    https://github.com/nerves-project/nerves/issues/389) to cover the local
+    build runner as well.
+
 ## v1.4.3
 
 * Bug fixes
