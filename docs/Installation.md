@@ -75,12 +75,13 @@ Now continue to the instructions for all platforms below.
 
 ## All platforms
 
-First, install the required versions of Erlang/OTP and Elixir using ASDF (see
-the [ASDF docs](https://github.com/asdf-vm/asdf/blob/master/README.md#setup) for
-more.
+First, install the required versions of Erlang/OTP and Elixir. We highly
+recommend using ASDF since the versions in use will be under your control. See
+the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf-vm) for official
+documentation. Here's a summary of the install process:
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.6.3
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
 
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
@@ -93,9 +94,9 @@ asdf plugin-add elixir
 
 # If on Debian or Ubuntu, you'll want to install wx before running the next
 # line: sudo apt install libwxgtk3.0-dev
-asdf install erlang 21.2.2 # Any OTP 21 version should work
+asdf install erlang 21.3.6 # Any OTP 21 version should work
 asdf install elixir 1.8.1-otp-21
-asdf global erlang 21.2.2
+asdf global erlang 21.3.6
 asdf global elixir 1.8.1-otp-21
 ```
 
