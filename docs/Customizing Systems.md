@@ -1,7 +1,7 @@
 # Customizing Your Own Nerves System
 
 Before following this guide, you should probably read about
-[The Anatomy of a Nerves System](https://hexdocs.pm/nerves/Systems.html)
+[The Anatomy of a Nerves System](https://hexdocs.pm/nerves/systems.html)
 
 For some applications, the pre-built Nerves Systems won't meet your needs. For
 example, you may want to include additional Linux packages or run on hardware
