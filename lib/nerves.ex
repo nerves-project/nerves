@@ -167,7 +167,7 @@ defmodule Nerves do
       app_name = to_string(name)
       host_priv_dir = Path.join(path, "priv")
 
-      if File.dir?(host_priv_dir) do
+      if File.dir?(host_priv_dir) and not_empty_dir(host_priv_dir) do
         priv_dir =
           Path.join([target_release_path, "lib", app_name <> "-" <> to_string(vsn), "priv"])
 
@@ -201,4 +201,8 @@ defmodule Nerves do
 
   defp nerves_plugin({Nerves, _}), do: true
   defp nerves_plugin({_, _}), do: false
+
+  defp not_empty_dir(dir) do
+    File.ls(dir) == {:ok, []}
+  end
 end
