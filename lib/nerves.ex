@@ -203,6 +203,6 @@ defmodule Nerves do
   defp nerves_plugin({_, _}), do: false
 
   defp not_empty_dir(dir) do
-    File.ls(dir) == {:ok, []}
+    File.ls(dir) != {:ok, []}
   end
 end
