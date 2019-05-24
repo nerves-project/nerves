@@ -241,4 +241,4 @@ The following keys are supported:
 
 ## Customizing Your Own Nerves System
 
-[This document has been moved](https://hexdocs.pm/nerves/Customizing-Systems.html)
+[This document has been moved](https://hexdocs.pm/nerves/customizing-systems.html)
