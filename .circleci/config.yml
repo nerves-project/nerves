@@ -24,6 +24,23 @@ defaults: &defaults
 
 version: 2
 jobs:
+  build_elixir_1_9_otp_22:
+    docker:
+      - <<: *otp_21_image
+    environment:
+      ELIXIR_VERSION: 1.9.0-rc.0-otp-22
+      LC_ALL: C.UTF-8
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - run: mix deps.get --only test
+      - run: mix test
+      - run: mix format --check-formatted
+      - run: mix docs
+      - run: mix hex.build
+
   build_elixir_1_8_otp_21:
     docker:
       - <<: *otp_21_image
@@ -37,9 +54,6 @@ jobs:
       - <<: *install_hex_rebar
       - run: mix deps.get --only test
       - run: mix test
-      - run: mix format --check-formatted
-      - run: mix docs
-      - run: mix hex.build
 
   build_elixir_1_7_otp_21:
     docker:

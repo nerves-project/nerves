@@ -50,8 +50,14 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run("compile", [])
 
     Mix.Nerves.IO.shell_info("Building OTP Release...")
-    clean_release(opts)
-    build_release(opts)
+
+    if use_distillery?() do
+      clean_release(opts)
+      build_distillery_release(opts)
+    else
+      build_release()
+    end
+
     build_firmware(system_path)
   end
 
@@ -68,15 +74,19 @@ defmodule Mix.Tasks.Firmware do
     verbosity = if opts[:verbose], do: "--verbose", else: "--silent"
 
     try do
-      Mix.Task.run("release.clean", [verbosity, "--implode", "--no-confirm"])
+      Mix.Task.run("distillery.release.clean", [verbosity, "--implode", "--no-confirm"])
     catch
       :exit, _ -> :noop
     end
   end
 
-  defp build_release(opts) do
+  defp build_release() do
+    Mix.Task.run("release", [])
+  end
+
+  defp build_distillery_release(opts) do
     verbosity = if opts[:verbose], do: "--verbose", else: "--quiet"
-    Mix.Task.run("release", [verbosity, "--no-tar"])
+    Mix.Task.run("distillery.release", [verbosity, "--no-tar"])
   end
 
   defp build_firmware(system_path) do
@@ -170,4 +180,9 @@ defmodule Mix.Tasks.Firmware do
   end
 
   defp rootfs_priorities(_), do: []
+
+  defp use_distillery?() do
+    less_than_elixir_19 = Nerves.elixir_version() |> Version.compare("1.9.0") == :lt
+    less_than_elixir_19 && Code.ensure_loaded?(Mix.Tasks.Distillery.Release)
+  end
 end
