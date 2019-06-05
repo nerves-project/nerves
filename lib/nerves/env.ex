@@ -53,6 +53,14 @@ defmodule Nerves.Env do
   end
 
   @doc """
+  Check if the Nerves.Env is loaded
+  """
+  @spec loaded?() :: boolean
+  def loaded?() do
+    System.get_env("NERVES_ENV_BOOTSTRAP") != nil
+  end
+
+  @doc """
   The download location for artifacts.
 
   Placing an artifact tar in this location will bypass the need for it to
