@@ -101,7 +101,7 @@ defmodule Nerves.Utils.WSL do
   @spec valid_windows_path?(String.t()) :: boolean
   def valid_windows_path?(path) do
     # Match <drive_letter>: then \ or \\ and then one or more characters except line breaks
-    Regex.match?(~r/(^\w{1}:|^\\\\wsl\$)(\\\\|\\)(.+)/, path)
+    Regex.match?(~r/^(\w{1}:|\\\\[\w.$-]+)(\\\\|\\)(.+)/, path)
   end
 
   @doc """
