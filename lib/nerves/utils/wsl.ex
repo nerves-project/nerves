@@ -26,7 +26,7 @@ defmodule Nerves.Utils.WSL do
   def running_on_wsl?(osrelease_path \\ "/proc/sys/kernel/osrelease") do
     with true <- File.exists?(osrelease_path),
          {content, _} <- System.cmd("cat", [osrelease_path]) do
-      Regex.match?(~r/Microsoft/, content)
+      Regex.match?(~r/[Mm]icrosoft/, content)
     else
       _ ->
         false
