@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.5
+
+* Enhancements
+  * Updated docs.
+
+* Bug fixes
+  * Updated the requirement for `distillery` to `~> 2.0.12`. This fixes an issue
+    where `nerves` would downgrade to `1.4.0` when updating `shoehorn`.
+  * Empty `priv` directories are not added to the squashfs sort ordering list.
+
 ## v1.4.4
 
 * Bug fixes
