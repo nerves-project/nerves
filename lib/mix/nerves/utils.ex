@@ -220,6 +220,32 @@ defmodule Mix.Nerves.Utils do
     |> String.replace("::", ":")
   end
 
+  def parse_version(vsn) do
+    cond do
+      # Strict semver
+      Regex.match?(
+        ~r/^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/,
+        vsn
+      ) ->
+        Version.parse(vsn)
+
+      # x.x
+      Regex.match?(~r/^([0-9]+)\.([0-9]+)$/, vsn) ->
+        Version.parse(vsn <> ".0")
+
+      # x.x.x.x
+      Regex.match?(~r/^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/, vsn) ->
+        [major, minor, patch | _tail] = String.split(vsn, ".")
+
+        Enum.join([major, minor, patch], ".")
+        |> Version.parse()
+
+      # unknown
+      true ->
+        {:error, "Unable to Version.parse #{inspect(vsn)}"}
+    end
+  end
+
   defp raise_env_var_missing(name) do
     Mix.raise("""
     Environment variable $#{name} is not set.

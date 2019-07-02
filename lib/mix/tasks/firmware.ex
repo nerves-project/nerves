@@ -106,6 +106,8 @@ defmodule Mix.Tasks.Firmware do
     config = Mix.Project.config()
     otp_app = config[:app]
 
+    compiler_check()
+
     images_path =
       (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
       |> Path.expand()
@@ -197,5 +199,49 @@ defmodule Mix.Tasks.Firmware do
   defp use_distillery?() do
     less_than_elixir_19 = Nerves.elixir_version() |> Version.compare("1.9.0") == :lt
     less_than_elixir_19 && Code.ensure_loaded?(Mix.Tasks.Distillery.Release)
+  end
+
+  defp compiler_check() do
+    with {:ok, otpc} <- module_compiler_version(:code),
+         {:ok, otp_requirement} <- Version.parse_requirement("~> #{otpc.major}.#{otpc.minor}"),
+         {:ok, elixirc} <- module_compiler_version(Kernel) do
+      unless Version.match?(elixirc, otp_requirement) do
+        Mix.raise("""
+        The Erlang compiler that compiled Elixir is older than the compiler
+        used to compile OTP.
+
+        Elixir: #{elixirc.major}.#{elixirc.minor}.#{elixirc.patch}
+        OTP:    #{otpc.major}.#{otpc.minor}.#{otpc.patch}
+
+        Please use a version of Elixir that was compiled using the same major
+        version of OTP.
+
+        For example:
+
+        If your target is running OTP 22, you should use a version of Elixir
+        that was compiled using OTP 22.
+
+        If you're using asdf to manage Elixir versions, run:
+
+        asdf install elixir #{System.version()}-otp-#{otpc.major}
+        asdf global elixir #{System.version()}-otp-#{otpc.major}
+        """)
+      end
+    else
+      error ->
+        Mix.raise("""
+        Nerves was unable to verify the Erlang compiler version.
+        Error: #{error}
+        """)
+    end
+  end
+
+  def module_compiler_version(mod) do
+    with {:file, path} <- :code.is_loaded(mod),
+         {:ok, {_, [compile_info: compile_info]}} <- :beam_lib.chunks(path, [:compile_info]),
+         {:ok, vsn} <- Keyword.fetch(compile_info, :version),
+         vsn <- to_string(vsn) do
+      parse_version(vsn)
+    end
   end
 end
