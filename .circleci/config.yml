@@ -1,3 +1,6 @@
+otp_22_image: &otp_22_image
+  image: erlang:22.0.4
+
 otp_21_image: &otp_21_image
   image: erlang:21.2.2
 
@@ -26,9 +29,9 @@ version: 2
 jobs:
   build_elixir_1_9_otp_22:
     docker:
-      - <<: *otp_21_image
+      - <<: *otp_22_image
     environment:
-      ELIXIR_VERSION: 1.9.0-rc.0-otp-22
+      ELIXIR_VERSION: 1.9.0-otp-22
       LC_ALL: C.UTF-8
     <<: *defaults
     steps:
@@ -45,7 +48,7 @@ jobs:
     docker:
       - <<: *otp_21_image
     environment:
-      ELIXIR_VERSION: 1.8.1-otp-21
+      ELIXIR_VERSION: 1.8.2-otp-21
       LC_ALL: C.UTF-8
     <<: *defaults
     steps:
@@ -101,6 +104,8 @@ workflows:
   version: 2
   build_test:
     jobs:
+      - build_elixir_1_9_otp_22:
+          context: org-global
       - build_elixir_1_8_otp_21:
           context: org-global
       - build_elixir_1_7_otp_21:
