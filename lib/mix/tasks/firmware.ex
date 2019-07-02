@@ -37,14 +37,27 @@ defmodule Mix.Tasks.Firmware do
 
     check_nerves_toolchain_is_set!()
 
-    rel_config =
-      File.cwd!()
-      |> Path.join("rel/config.exs")
+    # Check for required files
+    if use_distillery?() do
+      rel_config =
+        File.cwd!()
+        |> Path.join("rel/config.exs")
 
-    unless File.exists?(rel_config) do
-      Mix.raise("""
-        You are missing a release config file. Run  nerves.release.init task first
-      """)
+      if !File.exists?(rel_config) do
+        Mix.raise("""
+          You are missing a release config file. Run  nerves.release.init task first
+        """)
+      end
+    else
+      vm_args =
+        File.cwd!()
+        |> Path.join("rel/vm.args.eex")
+
+      if !File.exists?(vm_args) do
+        Mix.raise("""
+          rel/vm.args needs to be moved to rel/vm.args.eex
+        """)
+      end
     end
 
     Mix.Task.run("compile", [])
@@ -52,7 +65,7 @@ defmodule Mix.Tasks.Firmware do
     Mix.Nerves.IO.shell_info("Building OTP Release...")
 
     if use_distillery?() do
-      clean_release(opts)
+      clean_distillery_release(opts)
       build_distillery_release(opts)
     else
       build_release()
@@ -70,7 +83,7 @@ defmodule Mix.Tasks.Firmware do
       Nerves encountered an error. #{inspect(result)}
       """)
 
-  defp clean_release(opts) do
+  defp clean_distillery_release(opts) do
     verbosity = if opts[:verbose], do: "--verbose", else: "--silent"
 
     try do

@@ -184,7 +184,7 @@ defmodule Nerves.Release do
   defp normalize_applications(applications) do
     Enum.map(applications, fn
       %{name: app, vsn: vsn, path: path} ->
-        {to_string(app), to_string(vsn), Path.expand(to_string(path)) |> IO.inspect()}
+        {to_string(app), to_string(vsn), Path.expand(to_string(path))}
 
       {app, opts} ->
         {to_string(app), to_string(opts[:vsn]), Path.expand(to_string(opts[:path]))}
