@@ -6,10 +6,12 @@ bugs on GitHub.
 
 Contents:
 
-* [Updating from v0.8 to v0.9](#updating-from-v08-to-v09)
-* [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v09-to-v100-rc0)
-* [Updating from v1.0.0-rc.0 to v1.0.0-rc.2](#updating-from-v100-rc0-to-v100-rc2)
-* [Updating from ~> v1.0 to v1.3](#updating-from--v10-to-v130)
+* [Updating from v0.8 to v0.9](#updating-from-v0-8-to-v0-9)
+* [Updating from v0.9 to v1.0.0-rc.0](#updating-from-v0-9-to-v1-0-0-rc-0)
+* [Updating from v1.0.0-rc.0 to v1.0.0-rc.2](#updating-from-v1-0-0-rc-0-to-v1-0-0-rc-2)
+* [Updating from v1.0 to v1.3](#updating-from-v1-0-to-v1-3)
+* [Updating from v1.3 to v1.4](#updating-from-v1-3-to-v1-4)
+* [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5)
 
 ## Updating from v0.8 to v0.9
 
@@ -37,7 +39,7 @@ mix archive.install hex nerves_bootstrap
 
 ### Update mix.exs aliases (old)
 
-IMPORTANT: If you're upgrading to Nerves v1.0, this step has been superceded.
+IMPORTANT: If you're upgrading to Nerves v1.0, this step has been superseded.
 
 Nerves requires that you add aliases to your project's `mix.exs` to pull in the
 firmware creation and compilation logic. Previously, you needed to know
@@ -123,9 +125,16 @@ Some Nerves dependencies reference a large precompiled version of their build
 products to significantly reduce compilation time. These are called artifacts
 and due to their size, they cannot be hosted on hex.pm. Nerves downloads these
 automatically as part of the dependency resolution process. It is critical that
-they match the corresponding source code and the previous method of checking version numbers was insufficient. Nerves v0.9.0 now uses a checksum of the projects source files. This works for all projects no matter what version control system they use or how they are stored.
+they match the corresponding source code and the previous method of checking
+version numbers was insufficient. Nerves v0.9.0 now uses a checksum of the
+projects source files. This works for all projects no matter what version
+control system they use or how they are stored.
 
-If you have created a custom Nerves system or toolchain, you will need to update your project's `mix.exs` to ensure that the checksum covers the right files. This is done using the `:checksum` key on the `nerves_package`. Since the files that you checksum are likely identical to those published on hex.pm, we recommend creating a `package_files/0` function that's used by both.
+If you have created a custom Nerves system or toolchain, you will need to update
+your project's `mix.exs` to ensure that the checksum covers the right files.
+This is done using the `:checksum` key on the `nerves_package`. Since the files
+that you checksum are likely identical to those published on hex.pm, we
+recommend creating a `package_files/0` function that's used by both.
 
 Here's an example from `nerves-project/nerves_system_rpi0`:
 
@@ -319,7 +328,7 @@ For example:
   end
 ```
 
-## Updating from ~> v1.0 to v1.3.0
+## Updating from v1.0 to v1.3
 
 ### Modify the release config
 
@@ -358,7 +367,7 @@ end
 
 You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
 
-## Updating from v1.3.x to v1.4.x
+## Updating from v1.3 to v1.4
 
 Version v1.4.0 adds support for Elixir 1.8's new built-in support for mix
 targets. In Nerves, the `MIX_TARGET` was used to select the appropriate set of
@@ -509,3 +518,161 @@ to:
 ```elixir
 @target Mix.target()
 ```
+
+## Updating from v1.4 to v1.5
+
+Nerves v1.5 adds support for [Elixir 1.9+
+releases](https://elixir-lang.org/blog/2019/06/24/elixir-v1-9-0-released/).
+Previous versions of Nerves only supported
+[Distillery](https://github.com/bitwalker/distillery) for OTP release creation.
+Nerves v1.5 still supports Distillery, but it is no longer included by default.
+Nerves v1.5 also still supports previous Elixir versions, so there is no need to
+update to Elixir 1.9.
+
+The most important part of the Nerves v1.5 upgrade process is to make sure that
+Nerves knows whether you want to use Elixir 1.9 releases or Distillery. Please
+find the subsection below that corresponds to your environment.
+
+### Elixir < 1.9.0
+
+If you're not updating to Elixir 1.9, then Distillery is your only option for
+OTP release creation and must be explicitly specified.
+The following steps will ensure that your project has the appropriate updates:
+
+First, make sure that your installed version of `nerves_bootstrap` is v1.5.1:
+
+```bash
+mix archive.install hex nerves_bootstrap 1.5.1
+```
+
+In your `mix.exs`, add distillery as a dependency of your project:
+
+```elixir
+{:distillery, "~> 2.1"}
+```
+
+Check that the `:shoehorn` dependency is `~> 0.6`:
+
+```elixir
+{:shoehorn, "~> 0.6"}
+```
+
+### Elixir ~> 1.9
+
+Update your installed version of `nerves_bootstrap` to `~> 1.6`
+
+```bash
+mix archive.install hex nerves_bootstrap "~> 1.6"
+```
+
+#### Update mix.exs
+
+Move the application name to a module attribute:
+
+```elixir
+@app :my_app
+
+def project do
+  [
+    app: @app
+    # ...
+  ]
+end
+```
+
+Add release config to the project config
+
+```elixir
+
+def project do
+  [
+    # ...
+    releases: [{@app, release()}]
+  ]
+end
+
+def release do
+  [
+    overwrite: true,
+    cookie: "#{@app}_cookie",
+    include_erts: &Nerves.Release.erts/0,
+    steps: [&Nerves.Release.init/1, :assemble]
+  ]
+end
+```
+
+Update the nerves dependency
+
+```elixir
+def deps
+  [
+    {:nerves, "~> 1.5.0", runtime: false},
+    # ...
+  ]
+end
+```
+
+Update the required archives:
+
+```elixir
+def project do
+  [
+    # ...
+    archives: [nerves_bootstrap: "~> 1.6"],
+  ]
+end
+```
+
+Add preferred cli target to the project config:
+
+```elixir
+def project do
+  [
+    # ...
+    preferred_cli_target: [run: :host, test: :host]
+  ]
+end
+```
+
+#### Update config/config.exs
+
+Create a new file `config/target.exs`
+
+Move configs for applications that are only available on the target to the
+`target.exs` file.
+
+Update `config.exs` to import `target.exs` if the target is not `host`.
+
+```elixir
+if Mix.target() != :host do
+  import_config "target.exs"
+end
+```
+
+#### vm.args
+
+Rename `rel/vm.args` to `rel/vm.args.eex`
+
+Update the line that sets the cookie to
+
+```elixir
+-setcookie <%= @release.options[:cookie] %>
+```
+
+#### Update Nerves systems
+
+Elixir 1.9+ releases are only compatible with systems that contain [`erlinit ~> 1.5`](https://github.com/nerves-project/erlinit/releases/tag/v1.5.0).
+You will need to update your Nerves system to one of the following versions
+
+```text
+nerves_system_rpi:    ~> 1.8
+nerves_system_rpi2:   ~> 1.8
+nerves_system_rpi3:   ~> 1.8
+nerves_system_rpi3a:  ~> 1.8
+nerves_system_rpi0:   ~> 1.8
+nerves_system_x86_64: ~> 1.8
+nerves_system_bbb:    ~> 2.3
+```
+
+If you are using a custom system, you will need to update `nerves_system_br` to
+ a version that is >= `1.8.1`.
