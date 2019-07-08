@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.5.0
+
+**Updating to Nerves v1.5.0 requires modifications to your project**
+See the [project update guide](https://hexdocs.pm/nerves/updating-projects.html#updating-from-v1-4-to-v1-5) to learn how to migrate your project.
+
+* Enhancements
+  * Added support for Elixir 1.9+ releases.
+
+* Bug fixes
+  * Do not include empty priv directories when constructing rootfs
+    priorities.
+
 ## v1.4.5
 
 * Enhancements
