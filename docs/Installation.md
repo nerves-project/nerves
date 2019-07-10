@@ -95,9 +95,9 @@ asdf plugin-add elixir
 # If on Debian or Ubuntu, you'll want to install wx before running the next
 # line: sudo apt install libwxgtk3.0-dev
 asdf install erlang 21.3.6 # Any OTP 21 version should work
-asdf install elixir 1.8.1-otp-21
+asdf install elixir 1.9.0-otp-21
 asdf global erlang 21.3.6
-asdf global elixir 1.8.1-otp-21
+asdf global elixir 1.9.0-otp-21
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
