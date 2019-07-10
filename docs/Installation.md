@@ -92,11 +92,18 @@ source ~/.bash_profile
 asdf plugin-add erlang
 asdf plugin-add elixir
 
+# Note #1:
 # If on Debian or Ubuntu, you'll want to install wx before running the next
 # line: sudo apt install libwxgtk3.0-dev
-asdf install erlang 21.3.6 # Any OTP 21 version should work
+
+# Note #2:
+# It's possible to use different Erlang and Elixir versions with Nerves. The
+# latest official Nerves systems are compatible with the versions below. In
+# general, differences in patch releases are harmless. Nerves detects
+# configurations that might not work at compile time.
+asdf install erlang 22.0.4
 asdf install elixir 1.9.0-otp-21
-asdf global erlang 21.3.6
+asdf global erlang 22.0.4
 asdf global elixir 1.9.0-otp-21
 ```
 
