@@ -531,19 +531,31 @@ update to Elixir 1.9.
 
 The most important part of the Nerves v1.5 upgrade process is to make sure that
 Nerves knows whether you want to use Elixir 1.9 releases or Distillery. Please
-find the subsection below that corresponds to your environment.
+find the subsections below that correspond to your environment.
 
-### Elixir < 1.9.0
+### Update nerves_bootstrap
 
-If you're not updating to Elixir 1.9, then Distillery is your only option for
-OTP release creation and must be explicitly specified.
-The following steps will ensure that your project has the appropriate updates:
-
-First, make sure that your installed version of `nerves_bootstrap` is v1.5.1:
+Nerves now requires `nerves_bootstrap` 1.5.1 and later. Assuming that you
+already have it installed, run:
 
 ```bash
-mix archive.install hex nerves_bootstrap 1.5.1
+mix local.nerves
 ```
+
+`nerves_bootstrap` v1.6.0 and later generate Elixir 1.9-based projects. This
+functionality does not affect existing projects if you are not updating your
+Elixir version. However, if you cannot update Elixir and still want to create
+new projects, force the `nerves_bootstrap` installation to `~> 1.5.0`:
+
+```bash
+mix archive.install hex nerves_bootstrap "~> 1.5.0"
+```
+
+### Update Elixir < 1.9.0 projects
+
+If you're not updating to Elixir 1.9, then Distillery is your only option for
+OTP release creation and must be explicitly specified. The following steps will
+ensure that your project has the appropriate updates:
 
 In your `mix.exs`, add distillery as a dependency of your project:
 
@@ -557,112 +569,108 @@ Check that the `:shoehorn` dependency is `~> 0.6`:
 {:shoehorn, "~> 0.6"}
 ```
 
-### Elixir ~> 1.9
+### Update Elixir ~> 1.9
 
-Update your installed version of `nerves_bootstrap` to `~> 1.6`
+First verify that you have `nerves_bootstrap` 1.6.0 or later installed:
 
 ```bash
-mix archive.install hex nerves_bootstrap "~> 1.6"
+$ mix archive
+* hex-0.20.1
+* nerves_bootstrap-1.6.0
 ```
 
-#### Update mix.exs
+The following instructions are for updating your project files to use Elixir 1.9
+releases. If you must use Distillery, see the instructions above for Elixir `<
+1.9.0` projects.
 
-Move the application name to a module attribute:
+#### mix.exs updates
 
-```elixir
-@app :my_app
+In your project's `mix.exs`, make the following edits:
 
-def project do
-  [
-    app: @app
-    # ...
-  ]
-end
-```
+1. Move the application name to a module attribute:
 
-Add release config to the project config
+    ```elixir
+    @app :my_app
 
-```elixir
+    def project do
+      [
+        app: @app
+        # ...
+      ]
+    end
+    ```
 
-def project do
-  [
-    # ...
-    releases: [{@app, release()}]
-  ]
-end
+2. Add release config to the project config:
 
-def release do
-  [
-    overwrite: true,
-    cookie: "#{@app}_cookie",
-    include_erts: &Nerves.Release.erts/0,
-    steps: [&Nerves.Release.init/1, :assemble]
-  ]
-end
-```
+    ```elixir
 
-Update the nerves dependency
+    def project do
+      [
+        # ...
+        releases: [{@app, release()}]
+      ]
+    end
 
-```elixir
-def deps
-  [
-    {:nerves, "~> 1.5.0", runtime: false},
-    # ...
-  ]
-end
-```
+    def release do
+      [
+        overwrite: true,
+        cookie: "#{@app}_cookie",
+        include_erts: &Nerves.Release.erts/0,
+        steps: [&Nerves.Release.init/1, :assemble]
+      ]
+    end
+    ```
 
-Update the required archives:
+3. Update the nerves dependency
 
-```elixir
-def project do
-  [
-    # ...
-    archives: [nerves_bootstrap: "~> 1.6"],
-  ]
-end
-```
+    ```elixir
+    def deps
+      [
+        {:nerves, "~> 1.5.0", runtime: false},
+        # ...
+      ]
+    end
+    ```
 
-Add preferred cli target to the project config:
+4. Update the required archives:
 
-```elixir
-def project do
-  [
-    # ...
-    preferred_cli_target: [run: :host, test: :host]
-  ]
-end
-```
+    ```elixir
+    def project do
+      [
+        # ...
+        archives: [nerves_bootstrap: "~> 1.6"],
+      ]
+    end
+    ```
 
-#### Update config/config.exs
+5. Add preferred cli target to the project config:
 
-Create a new file `config/target.exs`
+    ```elixir
+    def project do
+      [
+        # ...
+        preferred_cli_target: [run: :host, test: :host]
+      ]
+    end
+    ```
 
-Move configs for applications that are only available on the target to the
-`target.exs` file.
+#### vm.args updates
 
-Update `config.exs` to import `target.exs` if the target is not `host`.
+Next, rename `rel/vm.args` to `rel/vm.args.eex`
 
-```elixir
-if Mix.target() != :host do
-  import_config "target.exs"
-end
-```
-
-#### vm.args
-
-Rename `rel/vm.args` to `rel/vm.args.eex`
-
-Update the line that sets the cookie to
+Then update the line that sets the cookie to
 
 ```elixir
 -setcookie <%= @release.options[:cookie] %>
 ```
 
-#### Update Nerves systems
+#### Nerves system update
 
-Elixir 1.9+ releases are only compatible with systems that contain [`erlinit ~> 1.5`](https://github.com/nerves-project/erlinit/releases/tag/v1.5.0).
-You will need to update your Nerves system to one of the following versions
+Elixir 1.9+ releases are only compatible with systems that contain [`erlinit ~>
+1.5`](https://github.com/nerves-project/erlinit/releases/tag/v1.5.0).
+
+If you are using an official Nerves system, then make sure that you are using
+one of these versions:
 
 ```text
 nerves_system_rpi:    ~> 1.8
@@ -676,3 +684,23 @@ nerves_system_bbb:    ~> 2.3
 
 If you are using a custom system, you will need to update `nerves_system_br` to
  a version that is >= `1.8.1`.
+
+#### config.exs updates
+
+Nerves has been improving support for "host" builds of firmware projects. This
+makes it possible to unit test platform-independent code on your build machine.
+To take advantage of this, it's important to separate out the target-dependent
+sections of the `config.exs`. Here's one way of doing this:
+
+1. Create a new file `config/target.exs`
+
+2. Move configs for applications that are only available on the target to the
+`target.exs` file.
+
+3. Update `config.exs` to import `target.exs` if the target is not `host`.
+
+    ```elixir
+    if Mix.target() != :host do
+      import_config "target.exs"
+    end
+    ```
