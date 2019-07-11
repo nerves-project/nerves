@@ -563,11 +563,30 @@ In your `mix.exs`, add distillery as a dependency of your project:
 {:distillery, "~> 2.1"}
 ```
 
-Check that the `:shoehorn` dependency is `~> 0.6`:
+Distillery 2.1 moved code out of the `Mix.Releases` namespace. This requires a
+change to your project's `rel/config.exs`. Open `rel/config.exs` and look for
+the following line:
+
+```elixir
+use Mix.Releases.Config
+```
+
+Change it to:
+
+```elixir
+use Distillery.Releases.Config
+```
+
+Finally, check that the `:shoehorn` dependency is `~> 0.6`:
 
 ```elixir
 {:shoehorn, "~> 0.6"}
 ```
+
+Run `mix deps.get` and your project should continue to work.
+
+At this point, consider updating your Nerves system to the latest to pull in
+Linux, Erlang, and other C library and application updates.
 
 ### Update Elixir ~> 1.9
 
