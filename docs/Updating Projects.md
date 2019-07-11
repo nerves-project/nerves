@@ -621,12 +621,13 @@ In your project's `mix.exs`, make the following edits:
     end
     ```
 
-3. Update the nerves dependency
+3. Update the nerves and shoehorn dependencies
 
     ```elixir
     def deps
       [
         {:nerves, "~> 1.5.0", runtime: false},
+        {:shoehorn, "~> 0.6"},
         # ...
       ]
     end
