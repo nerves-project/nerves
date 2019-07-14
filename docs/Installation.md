@@ -85,9 +85,9 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
 
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
-echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bash_profile
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bash_profile # optional
-source ~/.bash_profile
+echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
+echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc # optional
+source ~/.bashrc
 
 asdf plugin-add erlang
 asdf plugin-add elixir
@@ -102,9 +102,9 @@ asdf plugin-add elixir
 # general, differences in patch releases are harmless. Nerves detects
 # configurations that might not work at compile time.
 asdf install erlang 22.0.4
-asdf install elixir 1.9.0-otp-21
+asdf install elixir 1.9.0-otp-22
 asdf global erlang 22.0.4
-asdf global elixir 1.9.0-otp-21
+asdf global elixir 1.9.0-otp-22
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
