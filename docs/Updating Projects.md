@@ -684,6 +684,16 @@ Then update the line that sets the cookie to
 -setcookie <%= @release.options[:cookie] %>
 ```
 
+#### Erase old Distillery files
+
+Since Distillery is no longer being used, erase any Distillery configuration
+files that are still around. For most Nerves users, run the following:
+
+```bash
+rm rel/config.exs
+rm rel/plugins/.gitignore
+```
+
 #### Nerves system update
 
 Elixir 1.9+ releases are only compatible with systems that contain [`erlinit ~>
