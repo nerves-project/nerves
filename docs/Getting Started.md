@@ -49,9 +49,7 @@ mix nerves.new hello_nerves
 ```
 
 Nerves will generate the required files and directory structure for your
-application.  After downloading the required dependencies, Nerves will generate
-a default release configuration file using the `mix nerves.release.init` task.
-If you chose not to fetch dependencies during project generation, you will need
+application. If you chose not to fetch dependencies during project generation, you will need
 to do that yourself.
 
 As described by the project generator, the next step is to change to the project
@@ -89,27 +87,6 @@ release).  The first time you ask any dependencies or your application to
 compile, Nerves will fetch the System and Toolchain from one of our cache
 mirrors.  These artifacts are cached locally in `~/.nerves/artifacts` so they
 can be shared across projects.
-
-### Generating a release config file
-
-You must generate a _release config file_ before generating a firmware bundle.
-Normally, it will be created for you by the `mix nerves.new` task, but if not,
-you will get a warning like this:
-
-```plain
-** (Mix)   You are missing a release config file. Run  nerves.release.init task first
-```
-
-You can generate the file using this Mix task:
-
-```bash
-mix nerves.release.init
-```
-
-> NOTE: `mix nerves.release.init` generates a **Nerves-specific release config file**.
-> There also exists a standard `mix release.init` generator, which is most likely not what you want.
-> If you experience errors like `init terminating in do_boot (cannot expand $ERTS_LIB_DIR in bootfile)`, you most likely used the standard config generator.
-> Try re-generating your release config using `mix nerves.release.init`.
 
 ### Create the firmware bundle
 
