@@ -196,11 +196,6 @@ defmodule Mix.Tasks.Firmware do
 
   defp rootfs_priorities(_), do: []
 
-  defp use_distillery?() do
-    less_than_elixir_19 = Nerves.elixir_version() |> Version.compare("1.9.0") == :lt
-    less_than_elixir_19 && Code.ensure_loaded?(Mix.Tasks.Distillery.Release)
-  end
-
   defp compiler_check() do
     with {:ok, otpc} <- module_compiler_version(:code),
          {:ok, otp_requirement} <- Version.parse_requirement("~> #{otpc.major}.#{otpc.minor}"),
