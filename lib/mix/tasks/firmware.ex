@@ -218,8 +218,8 @@ defmodule Mix.Tasks.Firmware do
 
         If you're using asdf to manage Elixir versions, run:
 
-        asdf install elixir #{System.version()}-otp-#{otpc.major}
-        asdf global elixir #{System.version()}-otp-#{otpc.major}
+        asdf install elixir #{System.version()}-otp-#{system_otp_release()}
+        asdf global elixir #{System.version()}-otp-#{system_otp_release()}
         """)
       end
     else
@@ -238,5 +238,10 @@ defmodule Mix.Tasks.Firmware do
          vsn <- to_string(vsn) do
       parse_version(vsn)
     end
+  end
+
+  def system_otp_release do
+    :erlang.system_info(:otp_release)
+    |> to_string()
   end
 end
