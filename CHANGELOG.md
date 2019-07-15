@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.1
+
+* Bug fixes
+  * Update compiler check on `mix firmware` to use the system OTP version
+    when recommending an Elixir install.
+  * Check if using Distillery when calling `mix nerves.release.init`.
+    This is no longer required for Elixir 1.9+ releases.
+
 ## v1.5.0
 
 **Updating to Nerves v1.5.0 requires modifications to your project**
