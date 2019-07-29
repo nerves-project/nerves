@@ -25,11 +25,7 @@ defmodule Mix.Nerves.Utils do
   def check_requirements("mksquashfs") do
     case System.find_executable("mksquashfs") do
       nil ->
-        Mix.raise("""
-        Squash FS Tools are required to be installed on your system.
-        Please see https://hexdocs.pm/nerves/installation.html#host-specific-tools
-        for installation instructions
-        """)
+        Mix.raise(missing_package_message("squashfs"))
 
       _ ->
         :ok
@@ -39,11 +35,7 @@ defmodule Mix.Nerves.Utils do
   def check_requirements("fwup") do
     case System.find_executable("fwup") do
       nil ->
-        Mix.raise("""
-        fwup is required to create and burn firmware.
-        Please see https://hexdocs.pm/nerves/installation.html#fwup
-        for installation instructions
-        """)
+        Mix.raise(missing_package_message("fwup"))
 
       _ ->
         with {vsn, 0} <- System.cmd("fwup", ["--version"]),
@@ -57,6 +49,7 @@ defmodule Mix.Nerves.Utils do
 
             Mix.raise("""
             fwup #{@fwup_semver} is required for Nerves.
+
             You are running #{vsn}.
             Please see https://hexdocs.pm/nerves/installation.html#fwup
             for installation instructions
@@ -75,11 +68,7 @@ defmodule Mix.Nerves.Utils do
   def check_host_requirements(:darwin) do
     case System.find_executable("gstat") do
       nil ->
-        Mix.raise("""
-        gstat is required to create and burn firmware.
-        Please see https://hexdocs.pm/nerves/installation.html#host-specific-tools
-        for installation instructions
-        """)
+        Mix.raise(missing_package_message("gstat (coreutils)"))
 
       _ ->
         :ok
@@ -87,6 +76,15 @@ defmodule Mix.Nerves.Utils do
   end
 
   def check_host_requirements(_), do: nil
+
+  defp missing_package_message(package) do
+    """
+    #{package} is required by the Nerves tooling.
+
+    Please see https://hexdocs.pm/nerves/installation.html#host-specific-tools
+    for installation instructions.
+    """
+  end
 
   def debug_info(msg) do
     if System.get_env("NERVES_DEBUG") == "1" do
