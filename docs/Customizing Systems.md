@@ -409,4 +409,6 @@ git push origin master
 
 You can also use the GitHub interface to do this:
 
+```text
 https://github.com/YourGitHubUserName/custom_rpi3/compare/master...nerves-project:master?expand=1
+```

@@ -252,12 +252,15 @@ defmodule Nerves.Artifact do
   artifacts hosted using `:github_releases` in a private repo,
   you can pass a personal access token into the sites helper.
 
-    {:github_releases, "my-organization/my_repository", query_params: %{"access_token" => System.get_env("GITHUB_ACCESS_TOKEN")}}
+  ```elixir
+  {:github_releases, "my-organization/my_repository", query_params: %{"access_token" => System.get_env("GITHUB_ACCESS_TOKEN")}}
+  ```
 
   You can also use this to add an authorization header for files behind basic auth.
 
-    {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
-
+  ```elixir
+  {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
+  ```
   """
   def expand_sites(pkg) do
     case pkg.config[:artifact_url] do
