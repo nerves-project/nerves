@@ -42,7 +42,8 @@ git checkout -b master
 git push origin master
 ```
 
-Next, tweak the metadata of your Mix Project. Specifically update
+Next, tweak the metadata of your Mix project by updating the following:
+
 * The module name of the mix project at the top of the file
 * the value of `@app` to `custom_rpi3`
 * The `github_releases` in `artifact_sites`
@@ -111,10 +112,9 @@ project directory, like so:
 If you are starting a new project, you can generate it to support just one
 target.  We will update `rpi3` to `custom_rpi3` next.
 
-```plain
+```bash
 mix nerves.new your_project --target rpi3
 ```
-
 
 ```elixir
   #=vvv= Update your_project/mix.exs to accept your new :custom_rpi3 target
@@ -374,7 +374,8 @@ mix hex.publish
 ```
 
 Back in your main project, update deps:
-```
+
+```elixir
 # make sure you check the version here.
 {:custom_rpi3, "~> 1.7", runtime: false, targets: :custom_rpi3}
 ```
@@ -389,10 +390,10 @@ called `upstream`. Check this by doing:
 
 ```plain
 $ git remote -v
-origin	git@github.com:YourGitHubUserName/custom_rpi3.git (fetch)
-origin	git@github.com:YourGitHubUserName/custom_rpi3.git (push)
-upstream	https://github.com/nerves-project/nerves_system_rpi3.git (fetch)
-upstream	https://github.com/nerves-project/nerves_system_rpi3.git (push)
+origin git@github.com:YourGitHubUserName/custom_rpi3.git (fetch)
+origin git@github.com:YourGitHubUserName/custom_rpi3.git (push)
+upstream https://github.com/nerves-project/nerves_system_rpi3.git (fetch)
+upstream https://github.com/nerves-project/nerves_system_rpi3.git (push)
 ```
 
 When you are ready to update your system (for example, after Nerves publishes a
