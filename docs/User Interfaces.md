@@ -110,7 +110,7 @@ import_config "../apps/my_app_firmware/config/config.exs"
 By default, the `my_app_firmware` project will include the `nerves_init_gadget`
 dependency, which simplifies the network setup and configuration process. The
 default configuration assumes that we will be using a target device that
-supports USB gadget devices (such as the Raspberry Pi Zero and Rapsberry Pi 3
+supports USB gadget devices (such as the Raspberry Pi Zero and Raspberry Pi 3
 A+). It configures the virtual Ethernet interface `usb0` to connect to the host
 computer over a USB cable by running a simple DHCP server on the device.
 
@@ -136,7 +136,7 @@ config :nerves_init_gadget,
 
 In order to deploy the `my_app_ui` Phoenix-based project along with the
 Nerves-based `my_app_firmware` project, we need to configure our Phoenix
-`Endpoint` using appropriate settings for deployment on an emdedded device.  If
+`Endpoint` using appropriate settings for deployment on an embedded device.  If
 we're using a poncho project structure, we'll need to keep in mind that the
 `my_app_ui` configuration won't be applied automatically, so we should either
 `import` it from there or duplicate the required configuration.
