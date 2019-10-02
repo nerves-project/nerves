@@ -177,17 +177,22 @@ The following keys are supported:
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
 
-    For an artifact site that uses `:github_api` be sure to have `username`, `token`, and `tag`
-    fields are set as they are required. Otherwise, you will get an exception when trying to
-    download the artifact.
-
-    Artifact sites can pass options as a third parameter for adding headers
-    or query string parameters. For example, if you are trying to resolve
-    artifacts hosted using `:github_releases` in a private repo,
-    you can pass a personal access token into the sites helper.
+    For an artifact site that uses GitHub Releases in a private repo, [create a
+    personal access token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
+    and use `:github_api` with `username`, `token`, and `tag` options:
 
     ```elixir
-    {:github_releases, "my-organization/my_repository", query_params: %{"access_token" => System.get_env("GITHUB_ACCESS_TOKEN")}}
+    {:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}
+    ```
+
+    Artifact sites can pass options as a third parameter for adding headers
+    or query string parameters.
+
+    ```elixir
+    {:prefix, "https://my-organization.com",
+      query_params: %{"id" => "1234567", "token" => "abcd"},
+      headers: [{"Content-Type", "application/octet-stream"}]
+    }
     ```
 
     You can also use this to add an authorization header for files behind basic auth.

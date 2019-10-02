@@ -249,11 +249,17 @@ defmodule Nerves.Artifact do
 
   Artifact sites can pass options as a third parameter for adding headers
   or query string parameters. For example, if you are trying to resolve
-  artifacts hosted using `:github_releases` in a private repo,
-  you can pass a personal access token into the sites helper.
+  artifacts hosted in a private Github repo, use `:github_api` and
+  pass a user, tag, and personal access token into the sites helper:
 
   ```elixir
-  {:github_releases, "my-organization/my_repository", query_params: %{"access_token" => System.get_env("GITHUB_ACCESS_TOKEN")}}
+  {:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}
+  ```
+
+  Or pass query parameters for the URL:
+
+  ```elixir
+  {:prefix, "https://my-organization.com", query_params: %{"id" => "1234567", "token" => "abcd"}}
   ```
 
   You can also use this to add an authorization header for files behind basic auth.
