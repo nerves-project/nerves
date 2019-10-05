@@ -249,7 +249,7 @@ You should be at an `iex(1)>` prompt. If not, try pressing `Enter` a few times.
 #### USB to TTL serial cable
 
 In addition to the wired and wireless connection method described above, targets
-without USB gadget mode can be accessed via a serial connection with an TTL
+without USB gadget mode can be accessed via a serial connection with a TTL
 cable. The TTL cable is connected between the host USB port and a couple of
 header pins on the target. We've had good luck with [this
 cable](https://www.adafruit.com/product/954) and the site also contains a
