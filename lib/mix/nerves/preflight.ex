@@ -1,28 +1,58 @@
 defmodule Mix.Nerves.Preflight do
+  alias Nerves.Utils.WSL
+
   @fwup_semver "~> 1.2.5 or ~> 1.3"
 
   def check! do
-    {_, type} = :os.type()
-    check_requirements("fwup")
-    ensure_available!("mksquashfs", package: "squashfs")
-    check_host_requirements(type)
+    :os.type()
+    |> case do
+      {_, :linux} -> if WSL.running_on_wsl?(), do: :wsl, else: :linux
+      {_, type} -> type
+    end
+    |> check_platform!()
+
     Mix.Task.run("nerves.loadpaths")
   end
 
-  defp check_requirements("fwup") do
-    ensure_available!("fwup")
+  # OSX
+  defp check_platform!(:darwin) do
+    ensure_fwup_version!()
+    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_available!("gstat", package: "gstat (coreutils)")
+  end
 
-    with {vsn, 0} <- System.cmd("fwup", ["--version"]),
+  # NOTE: We currently require fwup to be installed both in WSL and in Windows
+  # because the fwup.exe in Windows is used when burning firmware to a physical
+  # memory card, and fwup in WSL is used for most other operations.
+  #
+  # WSL 2 adds some new lower-level integrations that may eliminate the need
+  # for this in the future, but we'll need to do some more research.
+  defp check_platform!(:wsl) do
+    ensure_fwup_version!()
+    ensure_fwup_version!("fwup.exe")
+    ensure_available!("mksquashfs", package: "squashfs")
+  end
+
+  # Non-WSL Linux
+  defp check_platform!(_) do
+    ensure_fwup_version!()
+    ensure_available!("mksquashfs", package: "squashfs")
+  end
+
+  defp ensure_fwup_version!(fwup_bin \\ "fwup") do
+    ensure_available!(fwup_bin)
+
+    with {vsn, 0} <- System.cmd(fwup_bin, ["--version"]),
          vsn = String.trim(vsn),
          {:ok, req} = Version.parse_requirement(@fwup_semver),
          true <- Version.match?(vsn, req) do
       :ok
     else
       false ->
-        {vsn, 0} = System.cmd("fwup", ["--version"])
+        {vsn, 0} = System.cmd(fwup_bin, ["--version"])
 
         Mix.raise("""
-        fwup #{@fwup_semver} is required for Nerves.
+        #{fwup_bin} #{@fwup_semver} is required for Nerves.
 
         You are running #{vsn}.
         Please see https://hexdocs.pm/nerves/installation.html#fwup
@@ -37,12 +67,6 @@ defmodule Mix.Nerves.Preflight do
         """)
     end
   end
-
-  defp check_host_requirements(:darwin) do
-    ensure_available!("gstat", package: "gstat (coreutils)")
-  end
-
-  defp check_host_requirements(_), do: nil
 
   defp ensure_available!(executable, opts \\ []) do
     if System.find_executable(executable) do
