@@ -3,6 +3,23 @@ defmodule Nerves.MixUtilsTest do
 
   alias Nerves.Utils.WSL
 
+  test "valid_windows_path?/1 handles various Windows-specific paths properly" do
+    paths = [
+      {"C:\\", true},
+      {"c:\\\\projects", true},
+      {"\\\\myserver\\sharename\\", true},
+      {"\\\\1.2.3.4\\sharename\\", true},
+      {"\\\\wsl$\\Ubuntu-18.04\\home\\username", true},
+      {"C\\missing_colon", false},
+      {"\\\\\\triple\\leading\\slash", false},
+      {"/unix/path", false}
+    ]
+
+    Enum.each(paths, fn {path, windows?} ->
+      assert WSL.valid_windows_path?(path) == windows?
+    end)
+  end
+
   test "without wslpath, get_wsl_paths correctly converts a Windows accessible path" do
     use_wslpath = false
     windows_accessible_path = "/mnt/c/project/firmware.fw"
