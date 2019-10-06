@@ -99,15 +99,15 @@ defmodule Nerves.Utils.WSL do
   Returns true when the path matches various kinds of Windows-specific paths, like:
 
   ```
-  C:\
-  C:\projects
-  \\myserver\sharename\
-  \\wsl$\Ubuntu-18.04\home\username\my_project\
+  C:\\
+  C:\\projects
+  \\\\myserver\\sharename\\
+  \\\\wsl$\\Ubuntu-18.04\\home\\username\\my_project\\
   ```
   """
   @spec valid_windows_path?(String.t()) :: boolean
   def valid_windows_path?(path) do
-    Regex.match?(~r/^(\w{1}:|\\\\[\w.$-]+)(\\\\|\\)(.+)/, path)
+    Regex.match?(~r/^(\w:|\\\\[\w.$-]+)\\/, path)
   end
 
   @doc """
