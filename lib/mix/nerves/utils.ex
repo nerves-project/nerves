@@ -81,8 +81,8 @@ defmodule Mix.Nerves.Utils do
     """
     #{package} is required by the Nerves tooling.
 
-    Please see https://hexdocs.pm/nerves/installation.html#host-specific-tools
-    for installation instructions.
+    Please see https://hexdocs.pm/nerves/installation.html for installation
+    instructions.
     """
   end
 
