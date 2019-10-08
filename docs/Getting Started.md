@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Nerves defines an new way to build embedded systems using Elixir.  It is
+Nerves defines a new way to build embedded systems using Elixir.  It is
 specifically designed for embedded systems, not desktop or server systems.  You
 can think of Nerves as containing three parts:
 
