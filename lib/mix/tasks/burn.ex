@@ -92,14 +92,24 @@ defmodule Mix.Tasks.Burn do
           if WSL.running_on_wsl?() do
             WSL.admin_powershell_command("fwup", Enum.join(args, " "))
           else
+            fwup = System.find_executable("fwup")
+
             case File.stat(dev) do
               {:ok, %File.Stat{access: :read_write}} ->
                 {"fwup", args}
 
+              {:error, :enoent} ->
+                case File.touch(dev, System.os_time(:second)) do
+                  :ok ->
+                    {"fwup", args}
+
+                  {:error, :eacces} ->
+                    elevate_user()
+                    {"sudo", provision_env() ++ [fwup] ++ args}
+                end
+
               _ ->
-                fwup = System.find_executable("fwup")
-                ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
-                System.put_env("SUDO_ASKPASS", ask_pass)
+                elevate_user()
                 {"sudo", provision_env() ++ [fwup] ++ args}
             end
           end
@@ -112,6 +122,13 @@ defmodule Mix.Tasks.Burn do
       end
 
     shell(cmd, args)
+  end
+
+  # Requests an elevation of user through askpass
+  @doc false
+  def elevate_user() do
+    ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
+    System.put_env("SUDO_ASKPASS", ask_pass)
   end
 
   # This is a fix for linux when running through sudo.
