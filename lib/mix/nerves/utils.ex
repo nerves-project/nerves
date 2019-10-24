@@ -22,7 +22,7 @@ defmodule Mix.Nerves.Utils do
     Mix.Task.run("nerves.loadpaths")
   end
 
-  def check_requirements("mksquashfs") do
+  defp check_requirements("mksquashfs") do
     case System.find_executable("mksquashfs") do
       nil ->
         Mix.raise(missing_package_message("squashfs"))
@@ -32,7 +32,7 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
-  def check_requirements("fwup") do
+  defp check_requirements("fwup") do
     case System.find_executable("fwup") do
       nil ->
         Mix.raise(missing_package_message("fwup"))
@@ -65,7 +65,7 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
-  def check_host_requirements(:darwin) do
+  defp check_host_requirements(:darwin) do
     case System.find_executable("gstat") do
       nil ->
         Mix.raise(missing_package_message("gstat (coreutils)"))
@@ -75,7 +75,7 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
-  def check_host_requirements(_), do: nil
+  defp check_host_requirements(_), do: nil
 
   defp missing_package_message(package) do
     """
