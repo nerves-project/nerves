@@ -1,4 +1,6 @@
 defmodule Mix.Nerves.Utils do
+  alias Nerves.Utils.WSL
+
   @fwup_semver "~> 1.2.5 or ~> 1.3"
 
   def shell(cmd, args, opts \\ []) do
@@ -104,8 +106,8 @@ defmodule Mix.Nerves.Utils do
 
   def get_devs do
     {result, 0} =
-      if Nerves.Utils.WSL.running_on_wsl?() do
-        Nerves.Utils.WSL.get_fwup_devices()
+      if WSL.running_on_wsl?() do
+        WSL.get_fwup_devices()
       else
         System.cmd("fwup", ["--detect"])
       end
