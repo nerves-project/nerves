@@ -26,30 +26,31 @@ defmodule Mix.Nerves.Utils do
 
   defp check_requirements("fwup") do
     ensure_available!("fwup")
-        with {vsn, 0} <- System.cmd("fwup", ["--version"]),
-             vsn = String.trim(vsn),
-             {:ok, req} = Version.parse_requirement(@fwup_semver),
-             true <- Version.match?(vsn, req) do
-          :ok
-        else
-          false ->
-            {vsn, 0} = System.cmd("fwup", ["--version"])
 
-            Mix.raise("""
-            fwup #{@fwup_semver} is required for Nerves.
+    with {vsn, 0} <- System.cmd("fwup", ["--version"]),
+         vsn = String.trim(vsn),
+         {:ok, req} = Version.parse_requirement(@fwup_semver),
+         true <- Version.match?(vsn, req) do
+      :ok
+    else
+      false ->
+        {vsn, 0} = System.cmd("fwup", ["--version"])
 
-            You are running #{vsn}.
-            Please see https://hexdocs.pm/nerves/installation.html#fwup
-            for installation instructions
-            """)
+        Mix.raise("""
+        fwup #{@fwup_semver} is required for Nerves.
 
-          error ->
-            Mix.raise("""
-            Nerves encountered an error while checking host requirements for fwup
-            #{inspect(error)}
-            Please open a bug report for this issue on github.com/nerves-project/nerves
-            """)
-        end
+        You are running #{vsn}.
+        Please see https://hexdocs.pm/nerves/installation.html#fwup
+        for installation instructions
+        """)
+
+      error ->
+        Mix.raise("""
+        Nerves encountered an error while checking host requirements for fwup
+        #{inspect(error)}
+        Please open a bug report for this issue on github.com/nerves-project/nerves
+        """)
+    end
   end
 
   defp check_host_requirements(:darwin) do
