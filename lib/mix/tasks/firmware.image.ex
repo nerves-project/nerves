@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Firmware.Image do
   use Mix.Task
   import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
 
   @shortdoc "Create a firmware image file"
 
@@ -28,7 +29,7 @@ defmodule Mix.Tasks.Firmware.Image do
 
   @impl true
   def run([file]) do
-    preflight()
+    Preflight.check!()
     debug_info("Nerves Firmware Image")
 
     config = Mix.Project.config()

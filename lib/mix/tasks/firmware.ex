@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Firmware do
   use Mix.Task
   import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
 
   @shortdoc "Build a firmware bundle"
 
@@ -28,7 +29,7 @@ defmodule Mix.Tasks.Firmware do
 
   @impl true
   def run(args) do
-    preflight()
+    Preflight.check!()
     debug_info("Nerves Firmware Assembler")
 
     {opts, _, _} = OptionParser.parse(args, switches: @switches)

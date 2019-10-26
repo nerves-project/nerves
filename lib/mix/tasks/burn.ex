@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Burn do
   use Mix.Task
   import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
   alias Nerves.Utils.WSL
 
   @switches [device: :string, task: :string]
@@ -39,7 +40,7 @@ defmodule Mix.Tasks.Burn do
 
   @impl true
   def run(argv) do
-    preflight()
+    Preflight.check!()
     debug_info("Nerves Burn")
 
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
