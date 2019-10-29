@@ -40,11 +40,7 @@ defmodule NervesTest.Case do
 
     fixture_to_tmp(which, dest)
 
-    artifact_dir = Path.join(tmp_path(tmp), ".nerves/artifacts")
-    download_dir = Path.join(tmp_path(tmp), ".nerves/dl")
-
-    System.put_env("NERVES_ARTIFACTS_DIR", artifact_dir)
-    System.put_env("NERVES_DL_DIR", download_dir)
+    System.put_env("NERVES_DATA_DIR", tmp_path(tmp))
 
     try do
       File.cd!(dest, function)
