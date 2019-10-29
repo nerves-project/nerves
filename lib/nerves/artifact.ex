@@ -6,7 +6,7 @@ defmodule Nerves.Artifact do
   """
   alias Nerves.Artifact.{Cache, BuildRunners, Resolvers}
 
-  @base_dir Path.expand("~/.nerves/artifacts")
+  @path Path.expand("artifacts")
   @checksum_short 7
 
   @doc """
@@ -143,17 +143,14 @@ defmodule Nerves.Artifact do
   """
   @spec base_dir() :: String.t()
   def base_dir() do
-    System.get_env("NERVES_ARTIFACTS_DIR") || @base_dir
+    System.get_env("NERVES_ARTIFACTS_DIR") || Path.join(Nerves.Env.data_dir(), @path)
   end
 
   @doc """
   Get the path to where the artifact is built
   """
   def build_path(pkg) do
-    pkg.path
-    |> Path.join(".nerves")
-    |> Path.join("artifacts")
-    |> Path.join(name(pkg))
+    Path.join([pkg.path, ".nerves", "artifacts", name(pkg)])
   end
 
   @doc """

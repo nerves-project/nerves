@@ -61,15 +61,27 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  The download location for artifacts.
+  The download location for artifact downloads.
 
   Placing an artifact tar in this location will bypass the need for it to
   be downloaded.
   """
   @spec download_dir() :: path :: String.t()
   def download_dir do
-    (System.get_env("NERVES_DL_DIR") || "~/.nerves/dl")
+    (System.get_env("NERVES_DL_DIR") || Path.join(data_dir(), "dl"))
     |> Path.expand()
+  end
+
+  @doc """
+  The location for storing global nerves data
+  """
+  @spec data_dir() :: path :: String.t()
+  def data_dir do
+    case {System.get_env("NERVES_DATA_DIR"), System.get_env("XDG_DATA_HOME")} do
+      {directory, _} when is_binary(directory) -> directory
+      {nil, directory} when is_binary(directory) -> :filename.basedir(:user_data, "nerves")
+      {nil, nil} -> Path.expand("~/.nerves")
+    end
   end
 
   @doc """
@@ -336,7 +348,7 @@ defmodule Nerves.Env do
       platform.bootstrap(pkg)
     end
 
-    # Bootstrap all other packahes who define a platform
+    # Bootstrap all other packages who define a platform
     Nerves.Env.packages()
     |> Enum.reject(&(&1 == Nerves.Env.toolchain()))
     |> Enum.reject(&(&1 == Nerves.Env.system()))
