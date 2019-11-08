@@ -9,7 +9,6 @@ defmodule Nerves.Release do
     release = %{
       release
       | options: opts,
-        boot_scripts: %{},
         steps: release.steps ++ [&Nerves.Release.finalize/1]
     }
 
