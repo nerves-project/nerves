@@ -133,18 +133,27 @@ defmodule Mix.Tasks.Firmware do
       )
     end
 
-    rootfs_overlay =
+    build_rootfs_overlay = Path.join([Mix.Project.build_path(), "nerves", "rootfs_overlay"])
+    File.mkdir_p(build_rootfs_overlay)
+
+    write_erlinit_config(build_rootfs_overlay)
+
+    project_rootfs_overlay =
       case firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions] do
         nil ->
           []
 
         overlays when is_list(overlays) ->
-          Enum.map(overlays, fn overlay -> ["-a", Path.join(File.cwd!(), overlay)] end)
-          |> List.flatten()
+          overlays
 
         overlay ->
-          ["-a", Path.join(File.cwd!(), overlay)]
+          [Path.expand(overlay)]
       end
+
+    rootfs_overlays =
+      [build_rootfs_overlay | project_rootfs_overlay]
+      |> Enum.map(&["-a", &1])
+      |> List.flatten()
 
     fwup_conf =
       case firmware_config[:fwup_conf] do
@@ -155,7 +164,7 @@ defmodule Mix.Tasks.Firmware do
     fw = ["-f", "#{images_path}/#{otp_app}.fw"]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
-    args = args ++ fwup_conf ++ rootfs_overlay ++ fw ++ rootfs_priorities ++ output
+    args = args ++ fwup_conf ++ rootfs_overlays ++ fw ++ rootfs_priorities ++ output
     env = standard_fwup_variables(config)
 
     set_provisioning(firmware_config[:provisioning])
@@ -244,5 +253,29 @@ defmodule Mix.Tasks.Firmware do
   def system_otp_release do
     :erlang.system_info(:otp_release)
     |> to_string()
+  end
+
+  defp write_erlinit_config(build_overlay) do
+    with {:ok, user_opts} <- Application.fetch_env(:nerves, :erlinit),
+         {:ok, system_config_file} <- Nerves.Erlinit.system_config_file(Nerves.Env.system()),
+         {:ok, system_config_file} <- File.read(system_config_file),
+         system_opts <- Nerves.Erlinit.decode_config(system_config_file),
+         erlinit_opts <- Nerves.Erlinit.merge_opts(system_opts, user_opts),
+         erlinit_config <- Nerves.Erlinit.encode_config(erlinit_opts) do
+      erlinit_config_file = Path.join(build_overlay, "etc/erlinit.config")
+
+      Path.dirname(erlinit_config_file)
+      |> File.mkdir_p()
+
+      File.write(erlinit_config_file, erlinit_config)
+      {:ok, erlinit_config_file}
+    else
+      {:error, :no_config} ->
+        Nerves.Utils.Shell.warn("There was no system erlinit.config found")
+        :noop
+
+      _e ->
+        :noop
+    end
   end
 end
