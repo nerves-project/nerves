@@ -1,4 +1,11 @@
 defmodule Nerves.Erlinit do
+  @moduledoc """
+  Decode and encode erlinig.config files
+
+  This module is used to decode, merge, and encode multiple erlinit.config
+  files.
+  """
+
   @switches [
     boot: :string,
     ctty: :string,
@@ -40,6 +47,36 @@ defmodule Nerves.Erlinit do
     v: :verbose
   ]
 
+  @type t :: [
+          boot: Path.t(),
+          ctty: String.t(),
+          uniqueid_exec: String.t(),
+          env: String.t(),
+          gid: non_neg_integer(),
+          graceful_shutdown_timeout: non_neg_integer(),
+          hang_on_exit: boolean(),
+          hang_on_fatal: boolean(),
+          mount: String.t(),
+          hostname_pattern: String.t(),
+          pre_run_exec: String.t(),
+          poweroff_on_exit: boolean(),
+          poweroff_on_fatal: boolean(),
+          reboot_on_fatal: boolean(),
+          release_path: Path.t(),
+          run_on_exit: String.t(),
+          alternate_exec: String.t(),
+          print_timing: boolean(),
+          uid: non_neg_integer(),
+          update_clock: boolean(),
+          verbose: boolean(),
+          warn_unused_tty: boolean(),
+          working_directory: Path.t()
+        ]
+
+  @doc """
+  Return the path to the erlinit.config file provided by the Nerves System
+  """
+  @spec system_config_file(Nerves.Package.t()) :: {:ok, Path.t()} | {:error, :no_config}
   def system_config_file(%Nerves.Package{path: path}) do
     file = Path.join(path, "rootfs_overlay/etc/erlinit.config")
 
@@ -52,6 +89,10 @@ defmodule Nerves.Erlinit do
     end
   end
 
+  @doc """
+  Decode the data from the config into a keyword list
+  """
+  @spec decode_config(String.t()) :: t()
   def decode_config(config) do
     argv =
       config
@@ -64,6 +105,10 @@ defmodule Nerves.Erlinit do
     opts
   end
 
+  @doc """
+  Merge keyword options
+  """
+  @spec merge_opts(t(), t()) :: t()
   def merge_opts(old, new) do
     Enum.reduce(new, old, fn
       {k, nil}, acc ->
@@ -80,20 +125,24 @@ defmodule Nerves.Erlinit do
     end)
   end
 
+  @doc """
+  Encode the keyword list options into an erlinit.config file format
+  """
+  @spec encode_config(t()) :: String.t()
   def encode_config(config) do
     config
     |> Enum.map(&encode_line/1)
     |> Enum.join("\n")
   end
 
-  def encode_line({k, v}) do
+  defp encode_line({k, v}) do
     Keyword.get(@switches, k)
     |> encode_type(k, v)
   end
 
-  def encode_type(:boolean, _k, false), do: ""
-  def encode_type(:boolean, k, true), do: encode_key(k)
-  def encode_type(_, k, v), do: "#{encode_key(k)} #{v}"
+  defp encode_type(:boolean, _k, false), do: ""
+  defp encode_type(:boolean, k, true), do: encode_key(k)
+  defp encode_type(_, k, v), do: "#{encode_key(k)} #{v}"
 
-  def encode_key(key), do: "--" <> String.replace(to_string(key), "_", "-")
+  defp encode_key(key), do: "--" <> String.replace(to_string(key), "_", "-")
 end
