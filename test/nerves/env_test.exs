@@ -79,4 +79,61 @@ defmodule Nerves.EnvTest do
       assert Path.expand("~/.nerves") == Nerves.Env.data_dir()
     end
   end
+
+  describe "source_date_epoch" do
+    setup do
+      on_exit(fn ->
+        System.delete_env("SOURCE_DATE_EPOCH")
+        Application.delete_env(:nerves, :source_date_epoch)
+      end)
+    end
+
+    test "from environment" do
+      in_fixture("simple_app", fn ->
+        packages = ~w(system toolchain system_platform toolchain_platform)
+        System.put_env("SOURCE_DATE_EPOCH", "1234")
+        load_env(packages)
+        assert System.get_env("SOURCE_DATE_EPOCH") == "1234"
+      end)
+    end
+
+    test "from config" do
+      in_fixture("simple_app", fn ->
+        packages = ~w(system toolchain system_platform toolchain_platform)
+        Application.put_env(:nerves, :source_date_epoch, "1234")
+        load_env(packages)
+        assert System.get_env("SOURCE_DATE_EPOCH") == "1234"
+      end)
+    end
+
+    test "nil" do
+      in_fixture("simple_app", fn ->
+        packages = ~w(system toolchain system_platform toolchain_platform)
+        load_env(packages)
+        assert System.get_env("SOURCE_DATE_EPOCH") == nil
+      end)
+    end
+
+    test "invalid value" do
+      System.put_env("SOURCE_DATE_EPOCH", "foo")
+      assert {:error, _} = Nerves.Env.source_date_epoch()
+      System.put_env("SOURCE_DATE_EPOCH", "")
+      assert {:error, _} = Nerves.Env.source_date_epoch()
+      System.delete_env("SOURCE_DATE_EPOCH")
+      Application.put_env(:nerves, :source_date_epoch, "foo")
+      assert {:error, _} = Nerves.Env.source_date_epoch()
+      Application.put_env(:nerves, :source_date_epoch, "")
+      assert {:error, _} = Nerves.Env.source_date_epoch()
+    end
+
+    test "mix raises when invalid" do
+      in_fixture("simple_app", fn ->
+        System.put_env("SOURCE_DATE_EPOCH", "")
+
+        assert_raise Mix.Error, fn ->
+          Nerves.Env.start()
+        end
+      end)
+    end
+  end
 end
