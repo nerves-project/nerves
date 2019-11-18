@@ -110,4 +110,11 @@ defmodule Nerves.ErlinitTest do
       assert Erlinit.encode_config(merged_opts) =~ "--mount 1234"
     end)
   end
+
+  test "override ctty", context do
+    in_tmp(context.test, fn ->
+      erlinit_opts = Erlinit.decode_config(@example)
+      assert Erlinit.merge_opts(erlinit_opts, ctty: "1234")[:ctty] == "1234"
+    end)
+  end
 end
