@@ -17,6 +17,7 @@ defmodule Nerves.Env do
   """
   @spec start() :: Agent.on_start()
   def start do
+    set_source_date_epoch()
     Agent.start_link(fn -> load_packages() end, name: __MODULE__)
   end
 
@@ -383,6 +384,33 @@ defmodule Nerves.Env do
 
       system ->
         Nerves.Artifact.dir(system) || Nerves.Artifact.build_path(system)
+    end
+  end
+
+  def source_date_epoch() do
+    (System.get_env("SOURCE_DATE_EPOCH") || Application.get_env(:nerves, :source_date_epoch))
+    |> validate_source_date_epoch()
+  end
+
+  defp set_source_date_epoch() do
+    case source_date_epoch() do
+      {:ok, nil} -> :ok
+      {:ok, sde} -> System.put_env("SOURCE_DATE_EPOCH", sde)
+      {:error, error} -> Mix.raise(error)
+    end
+  end
+
+  defp validate_source_date_epoch(nil), do: {:ok, nil}
+  defp validate_source_date_epoch(sde) when is_integer(sde), do: {:ok, Integer.to_string(sde)}
+  defp validate_source_date_epoch(""), do: {:error, "SOURCE_DATE_EPOCH cannot be empty"}
+
+  defp validate_source_date_epoch(sde) when is_binary(sde) do
+    case Integer.parse(sde) do
+      {_sde, _rem} ->
+        {:ok, sde}
+
+      :error ->
+        {:error, "SOURCE_DATE_EPOCH should be a positive integer, received: #{inspect(sde)}"}
     end
   end
 
