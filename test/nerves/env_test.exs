@@ -61,20 +61,12 @@ defmodule Nerves.EnvTest do
   end
 
   describe "data_dir/0" do
-    test "prefers NERVES_DATA_DIR over XDG_DATA_HOME" do
-      System.put_env("NERVES_DATA_DIR", "nerves_data_dir")
+    test "XDG_DATA_HOME" do
       System.put_env("XDG_DATA_HOME", "xdg_data_home")
-      assert "nerves_data_dir" = Nerves.Env.data_dir()
-    end
-
-    test "falls back to XDG_DATA_HOME/nerves" do
-      System.delete_env("NERVES_DATA_DIR")
-      System.put_env("XDG_DATA_HOME", "xdg_data_home")
-      assert :filename.basedir(:user_data, "nerves") == Nerves.Env.data_dir()
+      assert "xdg_data_home/nerves" = Nerves.Env.data_dir()
     end
 
     test "falls back to $HOME/.nerves" do
-      System.delete_env("NERVES_DATA_DIR")
       System.delete_env("XDG_DATA_HOME")
       assert Path.expand("~/.nerves") == Nerves.Env.data_dir()
     end

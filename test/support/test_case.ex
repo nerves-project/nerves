@@ -40,7 +40,7 @@ defmodule NervesTest.Case do
 
     fixture_to_tmp(which, dest)
 
-    System.put_env("NERVES_DATA_DIR", tmp_path(tmp))
+    System.put_env("XDG_DATA_HOME", tmp_path(tmp))
 
     try do
       File.cd!(dest, function)
