@@ -1,5 +1,30 @@
 # Changelog
 
+## v1.5.2
+
+* Enhancements
+  * erlinit.config options can be overridden using the application config now.
+    For example, in your config.exs you can now add:
+
+    ```elixir
+    config :nerves, :erlinit,
+      ctty: "ttyAMA0"
+    ```
+  * Nerves tooling now supports setting the SOURCE_DATE_EPOCH environment
+    variable for reproducible builds during compilation via `:source_date_epoch`
+    in your application config. This removes timestamp differences between
+    builds. See [reproducible-builds.org](https://reproducible-builds.org/) for more information.
+  * Windows Subsystem for Linux improvements
+  * Support XDG_DATA_HOME. If XDG_DATA_HOME is set, Nerves will now store its
+    data under that directory.
+
+* Bug fixes
+  * Do not require sudo on `mix burn` if already privileged.
+  * Keep all boot scripts. Previously, extraneous boot scripts from the OTP
+    release process were removed. Keeping them makes it possible to start
+    Erlang slave nodes and support use cases where triggers at device boot
+    time launch different scripts.
+
 ## v1.5.1
 
 * Bug fixes
