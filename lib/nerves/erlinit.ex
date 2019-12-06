@@ -97,12 +97,30 @@ defmodule Nerves.Erlinit do
     argv =
       config
       |> String.split("\n")
+      |> Enum.map(&String.trim_leading/1)
       |> Enum.filter(&String.starts_with?(&1, "-"))
+      |> Enum.map(&trim_trailing_comments/1)
       |> Enum.map(&String.split(&1, " ", parts: 2))
       |> List.flatten()
+      |> Enum.map(&String.trim/1)
+      |> Enum.map(&trim_quoted_string/1)
 
     {opts, _, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
     opts
+  end
+
+  defp trim_quoted_string(<<?", rest::binary>>) do
+    content_len = byte_size(rest) - 1
+    <<content::binary-size(content_len), _>> = rest
+    content
+  end
+
+  defp trim_quoted_string(s), do: s
+
+  defp trim_trailing_comments(s) do
+    # Trim everything after a #. This is flawed since quoted '#'s should work,
+    # but I don't think that that exists in anything that erlinit can do...
+    String.split(s, "#", parts: 2) |> hd()
   end
 
   @doc """
@@ -132,17 +150,30 @@ defmodule Nerves.Erlinit do
   def encode_config(config) do
     config
     |> Enum.map(&encode_line/1)
-    |> Enum.join("\n")
+    |> IO.iodata_to_binary()
   end
 
   defp encode_line({k, v}) do
     Keyword.get(@switches, k)
-    |> encode_type(k, v)
+    |> encode_kv(k, v)
   end
 
-  defp encode_type(:boolean, _k, false), do: ""
-  defp encode_type(:boolean, k, true), do: encode_key(k)
-  defp encode_type(_, k, v), do: "#{encode_key(k)} #{v}"
+  defp encode_kv(:boolean, _k, false), do: []
+  defp encode_kv(:boolean, k, true), do: [encode_key(k), "\n"]
+
+  defp encode_kv(type, k, v) do
+    [encode_key(k), " ", encode_value(type, v), "\n"]
+  end
+
+  defp encode_value(:string, v) do
+    if String.contains?(v, " ") do
+      ["\"", v, "\""]
+    else
+      v
+    end
+  end
+
+  defp encode_value(_, v), do: to_string(v)
 
   defp encode_key(key), do: "--" <> String.replace(to_string(key), "_", "-")
 end
