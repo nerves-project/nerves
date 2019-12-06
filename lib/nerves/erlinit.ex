@@ -1,6 +1,6 @@
 defmodule Nerves.Erlinit do
   @moduledoc """
-  Decode and encode erlinig.config files
+  Decode and encode erlinit.config files
 
   This module is used to decode, merge, and encode multiple erlinit.config
   files.
