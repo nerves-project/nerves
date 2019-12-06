@@ -405,12 +405,12 @@ from the system. Here is an example of how you can change the `ctty` option
 from the `config/target.exs` file.
 
 ```elixir
-config :nerves, :erlinig,
+config :nerves, :erlinit,
   ctty: "ttyAMA0"
 ```
 
 Options that can only be specified once will overwrite the values specified in
-the `erlinig.config` provided by the system. Options that can be specified
+the `erlinit.config` provided by the system. Options that can be specified
 multiple times, such as `mount` and `env` will append to the original ones.
 If an `erlinit.config` file is provided in the project's `rootfs_overlay` it
 will override everything else.
