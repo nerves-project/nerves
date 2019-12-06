@@ -158,11 +158,13 @@ Once the target is powered up, test the connection from your host:
 ping nerves.local
 ```
 
-> Note: If this does not work it may be because your USB cable only has power lines. You need a cable with
-> both power and data lines, so try a different USB cable.
-
-> Note: `nerves.local` is an mDNS address. These examples were done with a Mac host, which has mDNS enabled
-> by default. Linux and Windows hosts may have to enable mDNS networking.
+> Note: If this does not work it may be because your USB cable only has power
+> lines. You need a cable with both power and data lines, so try a different USB
+> cable.
+>
+> Note: `nerves.local` is an mDNS address. These examples were done with a Mac
+> host, which has mDNS enabled by default. Linux and Windows hosts may have to
+> enable mDNS networking.
 
 #### Make the network connection
 

@@ -103,6 +103,7 @@ Different targets have different boot partition contents. To overwrite files in
 the boot partition, you will need to use your own `fwup.conf` file:
 
 #### Copy `fwup.conf` to Your `config/` Directory
+
 ```bash
 # Locate the fwup.conf files available in your deps directory
 find deps -name fwup.conf
@@ -113,6 +114,7 @@ cp deps/nerves_system_rpi0/cmdline.txt config/
 ```
 
 #### Configure Your System to Use the Copied `fwup.conf`
+
 ```elixir
 # config/config.exs
 
@@ -121,6 +123,7 @@ config :nerves, :firmware,
 ```
 
 #### Make Your Changes
+
 In your included `fwup.conf` file, you can use absolute paths or environment
 variables to point to the location of included files.
 
