@@ -79,7 +79,7 @@ defmodule Nerves.Env do
   @spec data_dir() :: path :: String.t()
   def data_dir do
     case System.get_env("XDG_DATA_HOME") do
-      directory when is_binary(directory) -> :filename.basedir(:user_data, "nerves")
+      directory when is_binary(directory) -> Path.join(directory, "nerves")
       nil -> Path.expand("~/.nerves")
     end
   end
