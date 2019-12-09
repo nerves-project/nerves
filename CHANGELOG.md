@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.3
+
+* Bug fixes
+  * Fix various erlinit option parsing/formatting issues.
+
 ## v1.5.2
 
 * Enhancements
