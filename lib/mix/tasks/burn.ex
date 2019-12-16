@@ -4,8 +4,8 @@ defmodule Mix.Tasks.Burn do
   alias Mix.Nerves.Preflight
   alias Nerves.Utils.WSL
 
-  @switches [device: :string, task: :string]
-  @aliases [d: :device, t: :task]
+  @switches [device: :string, task: :string, firmware: :string]
+  @aliases [d: :device, t: :task, i: :firmware]
 
   @shortdoc "Write a firmware image to an SDCard"
 
@@ -30,6 +30,9 @@ defmodule Mix.Tasks.Burn do
       bootloaders and application data partitions. The `upgrade` task only
       modifies the parts of the SDCard required to run the new software.
 
+    * `--firmware <name>` - (Optional) The path to the fw file to use.
+      Defaults to `<image_path>/<otp_app>.fw`
+
   ## Examples
 
   ```
@@ -45,20 +48,15 @@ defmodule Mix.Tasks.Burn do
 
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
-    config = Mix.Project.config()
     firmware_config = Application.get_env(:nerves, :firmware)
-    otp_app = config[:app]
-    target = mix_target()
 
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
+    target = mix_target()
 
     check_nerves_system_is_set!()
 
     check_nerves_toolchain_is_set!()
 
-    fw = "#{images_path}/#{otp_app}.fw"
+    fw = firmware_file(opts)
 
     unless File.exists?(fw) do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
@@ -142,5 +140,28 @@ defmodule Mix.Tasks.Burn do
       String.starts_with?(k, "NERVES_") or String.equivalent?(k, "SERIAL_NUMBER")
     end)
     |> Enum.map(fn {k, v} -> k <> "=" <> v end)
+  end
+
+  def firmware_file(opts) do
+    with {:ok, fw} <- Keyword.fetch(opts, :firmware),
+         fw <- Path.expand(fw),
+         true <- File.exists?(fw) do
+      fw
+    else
+      false ->
+        fw = Keyword.get(opts, :firmware)
+
+        Mix.raise("The firmware file #{fw} does not exist")
+
+      _ ->
+        config = Mix.Project.config()
+        otp_app = config[:app]
+
+        images_path =
+          (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
+          |> Path.expand()
+
+        "#{images_path}/#{otp_app}.fw"
+    end
   end
 end
