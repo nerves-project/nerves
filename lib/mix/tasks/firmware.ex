@@ -256,7 +256,7 @@ defmodule Mix.Tasks.Firmware do
   end
 
   defp write_erlinit_config(build_overlay) do
-    with {:ok, user_opts} <- Application.fetch_env(:nerves, :erlinit),
+    with user_opts <- Application.get_env(:nerves, :erlinit, []),
          {:ok, system_config_file} <- Nerves.Erlinit.system_config_file(Nerves.Env.system()),
          {:ok, system_config_file} <- File.read(system_config_file),
          system_opts <- Nerves.Erlinit.decode_config(system_config_file),
