@@ -185,4 +185,17 @@ defmodule Nerves.ErlinitTest do
              """
     end)
   end
+
+  test "file header" do
+    assert """
+           # Generated from rootfs_overlay/etc/erlinit.config
+           """ == Mix.Tasks.Firmware.erlinit_config_header([])
+  end
+
+  test "file header with overrides" do
+    assert """
+           # Generated from rootfs_overlay/etc/erlinit.config
+           # with overrides from the application config
+           """ == Mix.Tasks.Firmware.erlinit_config_header(foo: :bar)
+  end
 end

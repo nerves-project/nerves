@@ -267,7 +267,9 @@ defmodule Mix.Tasks.Firmware do
       Path.dirname(erlinit_config_file)
       |> File.mkdir_p()
 
-      File.write(erlinit_config_file, erlinit_config)
+      header = erlinit_config_header(user_opts)
+
+      File.write(erlinit_config_file, header <> erlinit_config)
       {:ok, erlinit_config_file}
     else
       {:error, :no_config} ->
@@ -277,5 +279,19 @@ defmodule Mix.Tasks.Firmware do
       _e ->
         :noop
     end
+  end
+
+  def erlinit_config_header(opts) do
+    """
+    # Generated from rootfs_overlay/etc/erlinit.config
+    """ <>
+      if opts != [] do
+        """
+        # with overrides from the application config
+        """
+      else
+        """
+        """
+      end
   end
 end
