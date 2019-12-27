@@ -39,6 +39,20 @@ faster you can compile a custom Nerves system.
 
 Now skip to the instructions for all platforms below.
 
+## Windows Subsystem for Linux (WSL)
+Make sure that your `/etc/wsl.conf` file looks something like the following. If the file does not exist yet, create it.
+
+```
+[interop]
+enabled=true # enable launch of Windows binaries
+appendWindowsPath=true # append Windows path to $PATH variable
+```
+
+If you changed the WSL config don't forget to reboot the WSL by running  `wsl --shutdown` in PowerShell and starting the WSL shell again.
+
+Now follow the Linux instructions below.
+> Note that you must follow both the Linux and the Windows `fwup` installation instructions.
+
 ## Linux
 
 First, install a few packages using your package manager:
