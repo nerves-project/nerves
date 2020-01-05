@@ -7,7 +7,7 @@ defmodule Mix.Nerves.Shell do
     # We use the tty_sl driver for input because it handles tty geometry and
     # streaming mode.
     stdin_port = Port.open({:spawn, "tty_sl -c -e"}, [:binary, :eof, :stream, :in])
-    Application.stop(:logger)
+    _ = Application.stop(:logger)
     # We run the command through the script command to emulate a pty
     cmd =
       "script -q /dev/null " <>

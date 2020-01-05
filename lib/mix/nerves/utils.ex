@@ -20,11 +20,13 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
+  @spec check_nerves_system_is_set!() :: String.t()
   def check_nerves_system_is_set! do
     var_name = "NERVES_SYSTEM"
     System.get_env(var_name) || raise_env_var_missing(var_name)
   end
 
+  @spec check_nerves_toolchain_is_set! :: String.t()
   def check_nerves_toolchain_is_set! do
     var_name = "NERVES_TOOLCHAIN"
     System.get_env(var_name) || raise_env_var_missing(var_name)
@@ -132,6 +134,7 @@ defmodule Mix.Nerves.Utils do
     """)
   end
 
+  @spec mix_target() :: atom()
   def mix_target do
     if function_exported?(Mix, :target, 0) do
       apply(Mix, :target, [])
@@ -146,6 +149,7 @@ defmodule Mix.Nerves.Utils do
     |> String.replace("::", ":")
   end
 
+  @spec parse_version(String.t()) :: {:error, String.t()} | {:ok, Version.t()}
   def parse_version(vsn) do
     cond do
       # Strict semver
@@ -153,18 +157,18 @@ defmodule Mix.Nerves.Utils do
         ~r/^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/,
         vsn
       ) ->
-        Version.parse(vsn)
+        {:ok, Version.parse!(vsn)}
 
       # x.x
       Regex.match?(~r/^([0-9]+)\.([0-9]+)$/, vsn) ->
-        Version.parse(vsn <> ".0")
+        {:ok, Version.parse!(vsn <> ".0")}
 
       # x.x.x.x
       Regex.match?(~r/^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/, vsn) ->
         [major, minor, patch | _tail] = String.split(vsn, ".")
 
-        Enum.join([major, minor, patch], ".")
-        |> Version.parse()
+        vsn = Enum.join([major, minor, patch], ".")
+        {:ok, Version.parse!(vsn)}
 
       # unknown
       true ->
@@ -177,6 +181,7 @@ defmodule Mix.Nerves.Utils do
     less_than_elixir_19 && Code.ensure_loaded?(Mix.Tasks.Distillery.Release)
   end
 
+  @spec raise_env_var_missing(String.t()) :: no_return()
   defp raise_env_var_missing(name) do
     Mix.raise("""
     Environment variable $#{name} is not set.
