@@ -32,6 +32,9 @@ defmodule Mix.Tasks.Firmware.Image do
     Preflight.check!()
     debug_info("Nerves Firmware Image")
 
+    # Call "mix firmware" to ensure that the firmware bundle is up-to-date
+    Mix.Task.run("firmware", [])
+
     config = Mix.Project.config()
     otp_app = config[:app]
     target = mix_target()
