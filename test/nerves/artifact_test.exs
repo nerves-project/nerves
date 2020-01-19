@@ -145,4 +145,16 @@ defmodule Nerves.ArtifactTest do
       assert :ok = Mix.Tasks.Nerves.Precompile.run([])
     end)
   end
+
+  describe "artifact base_path" do
+    test "XDG_DATA_HOME" do
+      System.put_env("XDG_DATA_HOME", "xdg_data_home")
+      assert "xdg_data_home/nerves/artifacts" = Nerves.Artifact.base_dir()
+    end
+
+    test "falls back to $HOME/.nerves" do
+      System.delete_env("XDG_DATA_HOME")
+      assert Path.expand("~/.nerves/artifacts") == Nerves.Artifact.base_dir()
+    end
+  end
 end
