@@ -6,7 +6,6 @@ defmodule Nerves.Artifact do
   """
   alias Nerves.Artifact.{Cache, BuildRunners, Resolvers}
 
-  @path Path.expand("artifacts")
   @checksum_short 7
 
   @doc """
@@ -143,7 +142,7 @@ defmodule Nerves.Artifact do
   """
   @spec base_dir() :: String.t()
   def base_dir() do
-    System.get_env("NERVES_ARTIFACTS_DIR") || Path.join(Nerves.Env.data_dir(), @path)
+    System.get_env("NERVES_ARTIFACTS_DIR") || Path.join(Nerves.Env.data_dir(), "artifacts")
   end
 
   @doc """
