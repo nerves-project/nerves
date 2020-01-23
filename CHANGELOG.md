@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.5.4
+
+* Enhancements
+  * Add `mix firmware.unpack` to unpack generated `.fw` files. This is useful
+    to inspect the contents of the target root filesystem and other .fw info
+    on the host.
+  * Update `mix burn` to accept the path to a `.fw` file with `--firmware | -i`.
+
+* Bug fixes
+  * Invoke `mix firmware` when calling `mix firmware.image`. This matches the
+    behavior of `mix firmware.burn`.
+  * Fix issue with artifact base_dir expansion. This fixes an issue where mix
+    would attempt to resolve the nerves dependency artifacts even though they
+    have already been downloaded.
+  * Always generate `erlinit.config`, even if there are no config override in
+    mix config. This fixes an issue where removing overrides from mix config
+    would not update the erlinit.config.
+
 ## v1.5.3
 
 * Bug fixes
