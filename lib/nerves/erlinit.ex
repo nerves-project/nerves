@@ -78,7 +78,8 @@ defmodule Nerves.Erlinit do
   """
   @spec system_config_file(Nerves.Package.t()) :: {:ok, Path.t()} | {:error, :no_config}
   def system_config_file(%Nerves.Package{path: path}) do
-    file = Path.join(path, "rootfs_overlay/etc/erlinit.config")
+    system_path = System.get_env("NERVES_SYSTEM") || path
+    file = Path.join(system_path, "rootfs_overlay/etc/erlinit.config")
 
     case File.exists?(file) do
       true ->
