@@ -154,14 +154,7 @@ defmodule Mix.Tasks.Burn do
         Mix.raise("The firmware file #{fw} does not exist")
 
       _ ->
-        config = Mix.Project.config()
-        otp_app = config[:app]
-
-        images_path =
-          (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-          |> Path.expand()
-
-        "#{images_path}/#{otp_app}.fw"
+        Nerves.Env.firmware_path()
     end
   end
 end

@@ -260,6 +260,30 @@ defmodule Nerves.Env do
   end
 
   @doc """
+  The path to where firmware build files are stored
+  This can be overridden in a Mix project by setting the `:images_path` key.
+
+    images_path: "/some/other/location"
+
+  Defaults to (build_path)/nerves/images
+  """
+  @spec images_path(keyword) :: String.t()
+  def images_path(config \\ mix_config()) do
+    (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
+    |> Path.expand()
+  end
+
+  @doc """
+  The path to the firmware file
+  """
+  @spec firmware_path(keyword) :: String.t()
+  def firmware_path(config \\ mix_config()) do
+    config
+    |> images_path()
+    |> Path.join("#{config[:app]}.fw")
+  end
+
+  @doc """
   Helper function for returning the system type package
   """
   @spec system() :: Nerves.Package.t()
@@ -458,5 +482,9 @@ defmodule Nerves.Env do
       _e ->
         File.exists?(Package.config_path(path))
     end
+  end
+
+  defp mix_config() do
+    Mix.Project.config()
   end
 end

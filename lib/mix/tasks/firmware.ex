@@ -108,15 +108,6 @@ defmodule Mix.Tasks.Firmware do
     otp_app = config[:app]
 
     compiler_check()
-
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
-
-    unless File.exists?(images_path) do
-      File.mkdir_p(images_path)
-    end
-
     firmware_config = Application.get_env(:nerves, :firmware)
 
     rootfs_priorities =
@@ -161,13 +152,17 @@ defmodule Mix.Tasks.Firmware do
         fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
       end
 
-    fw = ["-f", "#{images_path}/#{otp_app}.fw"]
+    fw = ["-f", Nerves.Env.firmware_path(config)]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
     args = args ++ fwup_conf ++ rootfs_overlays ++ fw ++ rootfs_priorities ++ output
     env = standard_fwup_variables(config)
 
     set_provisioning(firmware_config[:provisioning])
+
+    config
+    |> Nerves.Env.images_path()
+    |> File.mkdir_p()
 
     shell(cmd, args, env: env)
     |> result
