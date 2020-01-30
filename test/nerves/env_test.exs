@@ -128,4 +128,22 @@ defmodule Nerves.EnvTest do
       end)
     end
   end
+
+  describe "images_path" do
+    test "without overrides" do
+      in_fixture("simple_app", fn ->
+        assert Env.images_path() == Path.join([Mix.Project.build_path(), "nerves", "images"])
+      end)
+    end
+
+    test "override in mix config" do
+      in_fixture("simple_app", fn ->
+        config =
+          Mix.Project.config()
+          |> Keyword.put(:images_path, "/tmp")
+
+        assert Env.images_path(config) == "/tmp"
+      end)
+    end
+  end
 end
