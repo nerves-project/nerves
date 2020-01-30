@@ -187,7 +187,27 @@ defmodule Mix.Nerves.Utils do
     Environment variable $#{name} is not set.
 
     This variable is usually set for you by Nerves when you specify the
-    $MIX_TARGET. For examples please see
+    $MIX_TARGET. It is unusual to need to specify it yourself.
+
+    Some things to check:
+
+    1. In your `mix.exs`, is the value that you have in $MIX_TARGET in the
+      `@all_targets` list? If you're not using `@all_targets`, then the
+      $MIX_TARGET should appear in the `:targets` option for `:nerves_runtime`
+      and other packages that run on the target.
+
+    2. Do you have a dependency on a Nerves system for the target? For example,
+      `{:nerves_system_rpi0, "~> 1.8", runtime: false, targets: :rpi0}`
+
+    3. Is there a typo? For example, is $MIX_TARGET set to `rpi1` when it should
+      be `rpi`.
+
+    4. Is there a typo in the package name of the system? For example, if you
+      have a custom system, `:nerves_system_my_board`, does the spelling of the
+      system in the dependency in your `mix.exs` match the spelling in your
+      system project's `mix.exs`?
+
+    For build examples in the Nerves documentation, please see
     https://hexdocs.pm/nerves/getting-started.html#create-the-firmware-bundle
     """)
   end
