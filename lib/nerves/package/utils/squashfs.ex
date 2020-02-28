@@ -169,7 +169,7 @@ defmodule Nerves.Package.Utils.Squashfs do
   #   pseudofile_path = Path.join(stage_path, "pseudofile")
   #   File.write!(pseudofile_path, pseudofile)
   #
-  #   System.cmd("mksquashfs", [ststage, path, "-pf", pseudofile_path, "-noappend", "-no-recovery", "-no-progress"])
+  #   System.cmd("mksquashfs", [s.stage, path, "-pf", pseudofile_path, "-noappend", "-no-recovery", "-no-progress"])
   #
   #   #File.rm!(pseudofile_path)
   #

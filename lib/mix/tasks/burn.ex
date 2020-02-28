@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Burn do
     * `--task <name>` - apply the specified `fwup` task. See the `fwup.conf`
       file that was used to create the firmware image for options. By
       convention, the `complete` task writes everything to the SDCard including
-      bootloaders and application data partitions. The `upgrade` task only
+      bootloader and application data partitions. The `upgrade` task only
       modifies the parts of the SDCard required to run the new software.
 
     * `--firmware <name>` - (Optional) The path to the fw file to use.
