@@ -45,9 +45,9 @@ defmodule Mix.Tasks.Firmware.Metadata do
 
     target = mix_target()
 
-    check_nerves_system_is_set!()
+    _ = check_nerves_system_is_set!()
 
-    check_nerves_toolchain_is_set!()
+    _ = check_nerves_toolchain_is_set!()
 
     fw = firmware_file(opts)
 

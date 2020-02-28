@@ -70,7 +70,7 @@ defmodule Nerves.Release do
       |> Enum.join("\n")
 
     build_path = Path.join([Mix.Project.build_path(), "nerves"])
-    File.mkdir_p(build_path)
+    File.mkdir_p!(build_path)
 
     Path.join(build_path, "rootfs.priorities")
     |> File.write(priorities)

@@ -103,7 +103,7 @@ defmodule Mix.Nerves.Utils do
   def set_provisioning(nil), do: :ok
 
   def set_provisioning(app) when is_atom(app) do
-    Application.load(app)
+    _ = Application.load(app)
 
     Application.get_env(app, :nerves_provisioning)
     |> set_provisioning()

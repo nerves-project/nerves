@@ -90,7 +90,7 @@ defmodule Nerves.Env do
   This allows you to start in one target, like host, but then
   switch to a different target.
   """
-  @spec change_target(String.t()) :: :no_return
+  @spec change_target(String.t()) :: :ok
   def change_target(target) do
     System.put_env("MIX_TARGET", target)
     :init.restart()
@@ -100,7 +100,7 @@ defmodule Nerves.Env do
   @doc """
   Cleans the artifacts for the package build_runners of all specified packages.
   """
-  @spec clean([Nerves.Package.t()]) :: :ok | {:error, term}
+  @spec clean([Nerves.Package.t()]) :: :ok
   def clean(pkgs) do
     Enum.each(pkgs, &Artifact.clean/1)
   end
@@ -249,7 +249,7 @@ defmodule Nerves.Env do
   @doc """
   Lists packages by package type.
   """
-  @spec packages_by_type(type :: String.t()) :: [Nerves.Package.t()]
+  @spec packages_by_type(type :: atom()) :: [Nerves.Package.t()]
   def packages_by_type(type, packages \\ nil) do
     (packages || packages())
     |> Enum.filter(&(&1.type === type))
@@ -294,7 +294,7 @@ defmodule Nerves.Env do
   @doc """
   Helper function for returning the system_platform type package
   """
-  @spec system_platform() :: Nerves.Package.t()
+  @spec system_platform() :: module()
   def system_platform do
     system().platform
   end
