@@ -175,15 +175,11 @@ defmodule Nerves.Env do
     arch = List.first(arch)
 
     case arch do
-      <<"win", _tail::binary>> ->
-        "x86_64"
-
-      arch ->
-        if String.contains?(arch, "arm") do
-          "arm"
-        else
-          "x86_64"
-        end
+      <<"win", _rest::binary>> -> "x86_64"
+      <<"arm", _rest::binary>> -> "arm"
+      "aarch64" -> "aarch64"
+      "x86_64" -> "x86_64"
+      _anything_else -> "x86_64"
     end
   end
 

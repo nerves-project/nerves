@@ -23,6 +23,7 @@ defmodule Nerves.EnvTest do
     assert Env.parse_arch("win32") == "x86_64"
     assert Env.parse_arch("x86_64-apple-darwin14.1.0") == "x86_64"
     assert Env.parse_arch("armv7l-unknown-linux-gnueabihf") == "arm"
+    assert Env.parse_arch("aarch64-unknown-linux-gnu") == "aarch64"
     assert Env.parse_arch("unknown") == "x86_64"
   end
 
@@ -30,6 +31,8 @@ defmodule Nerves.EnvTest do
     assert Env.parse_platform("win32") == "win"
     assert Env.parse_platform("x86_64-apple-darwin14.1.0") == "darwin"
     assert Env.parse_platform("x86_64-unknown-linux-gnu") == "linux"
+    assert Env.parse_platform("armv7l-unknown-linux-gnueabihf") == "linux"
+    assert Env.parse_platform("aarch64-unknown-linux-gnu") == "linux"
 
     assert_raise Mix.Error, fn ->
       Env.parse_platform("unknown")
