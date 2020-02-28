@@ -33,7 +33,7 @@ defmodule Nerves.System.BR do
   Clean up all the build files
   """
   def clean(pkg) do
-    Artifact.Cache.delete(pkg)
+    _ = Artifact.Cache.delete(pkg)
 
     Artifact.build_path(pkg)
     |> File.rm_rf()

@@ -43,9 +43,9 @@ defmodule Mix.Tasks.Firmware.Image do
       (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
       |> Path.expand()
 
-    check_nerves_system_is_set!()
+    _ = check_nerves_system_is_set!()
 
-    check_nerves_toolchain_is_set!()
+    _ = check_nerves_toolchain_is_set!()
 
     fw = "#{images_path}/#{otp_app}.fw"
 
