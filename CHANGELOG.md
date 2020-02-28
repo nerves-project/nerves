@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.5
+
+* Enhancements
+  * Add `mix firmware.metadata` to easily print the metadata stored in generated
+    `.fw` files. This is useful for checking firmware UUIDs.
+  * Recognize aarch64 (64-bit ARM) hosts. Support isn't there for people using
+    aarch64 yet, but this is a necessary update to enable it.
+  * Error message improvements for undefined `NERVES_SYSTEM` issues
+
 ## v1.5.4
 
 * Enhancements
