@@ -2,18 +2,11 @@ defmodule Nerves.MixTest do
   use NervesTest.Case, async: false
 
   describe "mix burn" do
-    test "raise when passing firmware file that does not exist" do
-      in_fixture("simple_app", fn ->
-        System.put_env("MIX_TARGET", "target")
-
-        ~w(system toolchain system_platform toolchain_platform)
-        |> load_env()
-
+    test "raise when passing firmware file that does not exist", context do
+      in_tmp(context.test, fn ->
         assert_raise Mix.Error, fn ->
-          Mix.Tasks.Burn.run(["--firmware", "/tmp/does_not_exist"])
+          Mix.Tasks.Burn.firmware_file(firmware: "/tmp/does_not_exist")
         end
-
-        System.delete_env("MIX_TARGET")
       end)
     end
 
