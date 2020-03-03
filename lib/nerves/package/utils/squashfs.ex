@@ -145,6 +145,7 @@ defmodule Nerves.Package.Utils.Squashfs do
     ])
 
     File.rm_rf!(tmp_dir)
+
     # File.rm!(pseudofile_path)
 
     {:reply, {:ok, path}, s}
