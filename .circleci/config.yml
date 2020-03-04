@@ -4,9 +4,6 @@ otp_22_image: &otp_22_image
 otp_21_image: &otp_21_image
   image: erlang:21.3.8
 
-otp_20_image: &otp_20_image
-  image: erlang:20.3.8
-
 install_elixir: &install_elixir
   run:
     name: Install Elixir
@@ -86,34 +83,6 @@ jobs:
       - run: mix deps.get --only test
       - run: mix test
 
-  build_elixir_1_6_otp_21:
-    docker:
-      - <<: *otp_21_image
-    environment:
-      ELIXIR_VERSION: 1.6.6-otp-21
-      LC_ALL: C.UTF-8
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *install_elixir
-      - <<: *install_hex_rebar
-      - run: mix deps.get --only test
-      - run: mix test
-
-  build_elixir_1_6_otp_20:
-    docker:
-      - <<: *otp_20_image
-    environment:
-      ELIXIR_VERSION: 1.6.6
-      LC_ALL: C.UTF-8
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *install_elixir
-      - <<: *install_hex_rebar
-      - run: mix deps.get --only test
-      - run: mix test
-
 workflows:
   version: 2
   build_test:
@@ -125,8 +94,4 @@ workflows:
       - build_elixir_1_8_otp_21:
           context: org-global
       - build_elixir_1_7_otp_21:
-          context: org-global
-      - build_elixir_1_6_otp_21:
-          context: org-global
-      - build_elixir_1_6_otp_20:
           context: org-global
