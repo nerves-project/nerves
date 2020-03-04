@@ -10,10 +10,10 @@ Craft and deploy bulletproof embedded software in Elixir
 ## Host Requirements
 
 * Mac OS 10.10+
-* 64-bit Linux (tested on Debian / Ubuntu / Redhat / CentOS)
+* 64-bit Linux (tested on Debian / Ubuntu / Redhat / CentOS / Arch)
 * Windows 10 with [Windows Subsystem for Linux](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) (experimental)
 * Raspberry Pi 3 (experimental)
-* Elixir ~> 1.4
+* Elixir ~> 1.7
 
 See [Installation Docs](https://hexdocs.pm/nerves/installation.html) for
 software dependencies.
