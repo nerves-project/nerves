@@ -20,7 +20,7 @@ defmodule NervesTest.Case do
       Mix.env(:dev)
 
       if elixir_minor() > 8 do
-        Mix.target(:host)
+        apply(Mix, :target, [:host])
       end
 
       Mix.Task.clear()
