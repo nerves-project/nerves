@@ -17,19 +17,18 @@ defmodule Nerves do
     else
       _ ->
         Nerves.Utils.Shell.warn("""
-        Nerves #{version()} requires
-        Elixir:      #{@elixir_version_req}
-        OTP release: #{@otp_version_req}
+        Nerves #{version()} requires at least Elixir #{@elixir_version_req} and Erlang/OTP #{
+          @otp_version_req
+        }.
 
-        Your system has
-        Elixir:      #{elixir_version}
-        OTP release: #{otp_release}
+        Your system has Elixir #{elixir_version} and Erlang/OTP #{otp_release}.
 
-        Please resolve the issue by
-        * Installing a version of Elixir / OTP that is compatible with the
-          Minimal requirements.
-        * Pin your nerves and nerves_bootstrap dependencies to an older
-          version that supports your version of Elixir / OTP.
+        Please resolve this by either:
+
+        1. Installing a compatible version of Elixir and Erlang/OTP
+
+        2. Pinning your nerves and nerves_bootstrap dependencies to
+           older versions.
         """)
 
         :error
