@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.6.0
+
+Nerves 1.6.0 adds support for Elixir 1.10.
+
+As part of the update to Elixir 1.10, it became more difficult to support old
+Elixir and Erlang versions. Therefore, Nerves 1.6.0 requires at least Elixir
+v1.7.0 and Erlang/OTP 21. If your project requires an older version of Elixir or
+Erlang/OTP you can pin the version of `nerves` to an older version.
+
+For example, set your nerves dependency in your mix.exs to:
+
+    {:nerves, "~> 1.5.0", runtime: false},
+
+* Enhancements
+  * Add support for aarch64 host architecture.
+  * Add `mix firmware.metadata` for listing firmware metadata values.
+
 ## v1.5.4
 
 * Enhancements
