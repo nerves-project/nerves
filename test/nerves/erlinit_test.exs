@@ -198,18 +198,4 @@ defmodule Nerves.ErlinitTest do
            # with overrides from the application config
            """ == Mix.Tasks.Firmware.erlinit_config_header(foo: :bar)
   end
-
-  test "NERVES_SYSTEM env var overrides system erlinit path", context do
-    in_tmp(context.test, fn ->
-      path = "rootfs_overlay/etc" |> Path.expand()
-      File.mkdir_p!(path)
-
-      file = Path.join(path, "erlinit.config")
-      File.touch!(file)
-
-      System.put_env("NERVES_SYSTEM", File.cwd!())
-      assert {:ok, file} = Erlinit.system_config_file(%Nerves.Package{path: "foo"})
-      System.delete_env("NERVES_SYSTEM")
-    end)
-  end
 end
