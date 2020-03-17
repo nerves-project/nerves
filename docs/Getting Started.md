@@ -191,7 +191,7 @@ To end your ssh connection type `exit`, or you can use the `ssh` command
 ### Wireless and wired Ethernet connections
 The `config/config.exs` generated in a new Nerves project will setup connections
 for USB and Ethernet by default. Instructions on further configuring them, or to
-configure wireless connections, please refer to the [VintageNet](https://github.com/nerves-networking/vintage_net)
+configure wireless connections, please refer to [Configure networking](https://hexdocs.pm/nerves/user-interfaces.html#configure-networking) or [VintageNet](https://hexdocs.pm/vintage_net)
 documentation.
 
 ### Alternate connection methods
