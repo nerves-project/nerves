@@ -122,8 +122,11 @@ If you want to use some other network configuration, such as wired or wireless
 Ethernet, please refer to the [`nerves_pack` documentation] and the
 underlying [`vintage_net` documentation] as needed.
 
-[`nerves_pack` documentation]: https://hexdocs.pm/nerves_pack
-[`vintage_net` documentation]: https://hexdocs.pm/vintage_net
+[`nerves_pack`]: https://hexdocs.pm/nerves_pack
+[`VintageNetWifi`]: https://hexdocs.pm/vintage_net_wifi
+[`VintageNetEthernet`]: https://hexdocs.pm/vintage_net_ethernet
+[`VintageNetDirect`]: https://hexdocs.pm/vintage_net_direct
+[`VintageNetMobile`]: https://hexdocs.pm/vintage_net_mobile
 
 ### Configure Phoenix
 
