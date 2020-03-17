@@ -107,7 +107,7 @@ import_config "../apps/my_app_firmware/config/config.exs"
 
 ### Configure networking
 
-By default, the `my_app_firmware` project will include the `nerves_init_gadget`
+By default, the `my_app_firmware` project will include the `nerves_pack`
 dependency, which simplifies the network setup and configuration process. The
 default configuration assumes that we will be using a target device that
 supports USB gadget devices (such as the Raspberry Pi Zero and Raspberry Pi 3
@@ -115,22 +115,11 @@ A+). It configures the virtual Ethernet interface `usb0` to connect to the host
 computer over a USB cable by running a simple DHCP server on the device.
 
 If you want to use some other network configuration, such as wired or wireless
-Ethernet, please refer to the [`nerves_init_gadget` documentation] and the
-underlying [`nerves_network` documentation] as needed.
+Ethernet, please refer to the [`nerves_pack` documentation] and the
+underlying [`vintage_net` documentation] as needed.
 
-[`nerves_init_gadget` documentation]: https://hexdocs.pm/nerves_init_gadget
-[`nerves_network` documentation]: https://hexdocs.pm/nerves_network
-
-```elixir
-# my_app_firmware/config/config.exs
-
-config :nerves_init_gadget,
-  ifname: "usb0",
-  address_method: :dhcpd,
-  mdns_domain: "nerves.local",
-  node_name: node_name,
-  node_host: :mdns_domain
-```
+[`nerves_pack` documentation]: https://hexdocs.pm/nerves_pack
+[`vintage_net` documentation]: https://hexdocs.pm/vintage_net
 
 ### Configure Phoenix
 

@@ -188,50 +188,11 @@ environment.
 To end your ssh connection type `exit`, or you can use the `ssh` command
 `<enter>~.`
 
-### RPi3B/B+ wired and wireless Ethernet connections
-
-With the RPi3B/B+, you will need to make a wired or wireless Ethernet
-connection. This can be done with just a few changes to the standard
-`config/config.exs` generated in a new Nerves project.
-
-To use wired Ethernet change the `ifname:` and `address_method` keys:
-
-```elixir
-config :nerves_init_gadget,
-  mdns_domain: "nerves.local",
-  node_name: node_name,
-  node_host: :mdns_domain,
-  ifname: "eth0",
-  address_method: :dhcp
-```
-
-To use wireless change the `ifname:` and `address_method:` keys, and configure
-the wireless settings:
-
-```elixir
-config :nerves_init_gadget,
-  mdns_domain: "nerves.local",
-  node_name: node_name,
-  node_host: :mdns_domain,
-  ifname: "wlan0",
-  address_method: :dhcp
-
-# Configure wireless settings
-
-key_mgmt = System.get_env("NERVES_NETWORK_KEY_MGMT") || "WPA-PSK"
-
-config :nerves_network, :default,
-  wlan0: [
-    ssid: System.get_env("NERVES_NETWORK_SSID"),
-    psk: System.get_env("NERVES_NETWORK_PSK"),
-    key_mgmt: String.to_atom(key_mgmt)
-  ]
-```
-
-You can find additional information on USB gadget mode, wired, and wireless
-network connections in the Nerves [Hello
-Network](https://github.com/nerves-project/nerves_examples/tree/master/hello_network)
-example.
+### Wireless and wired Ethernet connections
+The `config/config.exs` generated in a new Nerves project will setup connections
+for USB and Ethernet by default. Instructions on further configuring them, or to
+configure wireless connections, please refer to the [VintageNet](https://github.com/nerves-networking/vintage_net)
+documentation.
 
 ### Alternate connection methods
 
