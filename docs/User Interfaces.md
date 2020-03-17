@@ -107,7 +107,7 @@ import_config "../apps/my_app_firmware/config/config.exs"
 
 ### Configure networking
 
-By default, the `my_app_firmware` project will include the `nerves_pack`
+By default, the `my_app_firmware` project will include the [`nerves_pack`]
 dependency, which simplifies the network setup and configuration process. At
 runtime, `nerves_pack` will detect all available interfaces that have not been
 configured and apply defaults for `usb*` and `eth*` interfaces.
