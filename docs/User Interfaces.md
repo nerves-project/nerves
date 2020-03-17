@@ -108,11 +108,15 @@ import_config "../apps/my_app_firmware/config/config.exs"
 ### Configure networking
 
 By default, the `my_app_firmware` project will include the `nerves_pack`
-dependency, which simplifies the network setup and configuration process. The
-default configuration assumes that we will be using a target device that
-supports USB gadget devices (such as the Raspberry Pi Zero and Raspberry Pi 3
-A+). It configures the virtual Ethernet interface `usb0` to connect to the host
-computer over a USB cable by running a simple DHCP server on the device.
+dependency, which simplifies the network setup and configuration process. At
+runtime, `nerves_pack` will detect all available interfaces that have not been
+configured and apply defaults for `usb*` and `eth*` interfaces.
+
+For `eth*` interfaces, the device attempts to connect to the network
+with DHCP using `ipv4` addressing.
+
+For `usb*` interfaces, it uses [`vintage_net_direct`] to run a simple DHCP server
+on the device and assign the host an IP address over a USB cable.
 
 If you want to use some other network configuration, such as wired or wireless
 Ethernet, please refer to the [`nerves_pack` documentation] and the
