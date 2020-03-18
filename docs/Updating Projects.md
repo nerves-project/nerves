@@ -12,6 +12,7 @@ Contents:
 * [Updating from v1.0 to v1.3](#updating-from-v1-0-to-v1-3)
 * [Updating from v1.3 to v1.4](#updating-from-v1-3-to-v1-4)
 * [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5)
+* [Updating from v1.5 to v1.6](#updating-from-v1-5-to-v1-6)
 
 ## Updating from v0.8 to v0.9
 
@@ -735,3 +736,29 @@ sections of the `config.exs`. Here's one way of doing this:
       import_config "target.exs"
     end
     ```
+
+## Updating from v1.5 to v1.6
+
+Nerves 1.6 adds support for Elixir 1.10. In truth, only the internals of the
+Nerves tooling were changed. As a result of this change, we made the decision to
+drop support for Elixir 1.6 and Erlang 20. If you are still using these older
+versions, you'll need to update to at least Elixir 1.7 and Erlang 21. Then
+update to Nerves 1.6.
+
+To update your projects to use Nerves 1.6, bump the `:nerves` dependency in your
+project's `mix.exs`:
+
+```elixir
+  defp deps do
+    [
+      ...
+      {:nerves, "~> 1.6.0", runtime: false},
+      ...
+    ]
+  end
+```
+
+Run `mix deps.get` and build as normal. You may also need to update your Nerves
+system to a newer official build. Many systems have dependency requirements on
+Nerves 1.5 that can be updated to Nerves 1.6 without issue. Please review the
+Nerves system release notes when you upgrade.
