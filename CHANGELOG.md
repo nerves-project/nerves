@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.6.1
+
+* Enhancements
+  * Updated documentation to reflect changes in [`nerves_bootstrap 1.8`](https://github.com/nerves-project/nerves_bootstrap/releases/tag/v1.8.0)
+    Updates references to `nerves_init_gadget` and replace with `nerves_pack`.
+    This change shifts new projects and main documentation to promote the use of
+    [`vintage_net`](https://github.com/nerves-networking/vintage_net) for device networking.
+  * Bump the host installed `fwup` version requirement to `~> 1.5`.
+
 ## v1.6.0
 
 Nerves 1.6.0 adds support for Elixir 1.10.
