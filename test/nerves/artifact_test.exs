@@ -1,5 +1,5 @@
 defmodule Nerves.ArtifactTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   alias Nerves.Artifact.BuildRunners, as: P
   alias Nerves.Artifact

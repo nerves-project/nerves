@@ -1,5 +1,5 @@
 defmodule Nerves.CacheTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   alias Nerves.Artifact
   alias Nerves.Artifact.Cache

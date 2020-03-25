@@ -27,7 +27,11 @@ defmodule Nerves.Env do
   """
   @spec stop() :: :ok
   def stop do
-    Agent.stop(__MODULE__)
+    if Process.whereis(__MODULE__) do
+      Agent.stop(__MODULE__)
+    else
+      :not_running
+    end
   end
 
   @doc """

@@ -1,5 +1,5 @@
 defmodule Nerves.IntegrationTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   @tag :integration
   test "bootstrap is called for other env packages" do

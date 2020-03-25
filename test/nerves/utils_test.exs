@@ -1,5 +1,5 @@
 defmodule Nerves.UtilsTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   # Special thanks to Hex
 
