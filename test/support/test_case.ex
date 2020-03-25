@@ -1,5 +1,5 @@
 defmodule NervesTest.Case do
-  use ExUnit.CaseTemplate
+  use ExUnit.CaseTemplate, async: false
 
   @compile {:no_warn_undefined, {Mix, :target, 0}}
   @compile {:no_warn_undefined, {Mix.State, :clear_cache, 0}}
@@ -14,6 +14,7 @@ defmodule NervesTest.Case do
 
   setup do
     Application.stop(:nerves_bootstrap)
+    original_env = System.get_env()
 
     on_exit(fn ->
       Application.start(:logger)
@@ -35,6 +36,8 @@ defmodule NervesTest.Case do
 
       Mix.ProjectStack.clear_stack()
       delete_tmp_paths()
+      reset_system_env(original_env)
+      Nerves.Env.stop()
 
       :ok
     end)
@@ -75,8 +78,6 @@ defmodule NervesTest.Case do
           file == [] or (is_list(file) and List.starts_with?(file, flag)) do
         purge([mod])
       end
-
-      System.delete_env("XDG_DATA_HOME")
 
       if elixir_minor() < 10 do
         unload_env()
@@ -157,6 +158,12 @@ defmodule NervesTest.Case do
           Agent.cast(Mix.ProjectStack, &%{&1 | cache: Map.delete(&1.cache, key)})
         end)
     end
+  end
+
+  defp reset_system_env(env) do
+    System.get_env()
+    |> Enum.reject(&Map.get(env, elem(&1, 0) != nil))
+    |> Enum.each(&System.put_env(elem(&1, 0), elem(&1, 1)))
   end
 
   defp delete_tmp_paths do

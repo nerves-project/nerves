@@ -1,5 +1,5 @@
 defmodule Nerves.EnvTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
   alias Nerves.Env
 
   test "system requirements" do

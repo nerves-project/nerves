@@ -1,5 +1,5 @@
 defmodule Nerves.BuildRunner.DockerTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   alias Nerves.Artifact.BuildRunners.Docker
 

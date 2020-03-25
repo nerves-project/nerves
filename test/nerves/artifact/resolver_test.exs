@@ -1,5 +1,5 @@
 defmodule Nerves.Artifact.ResolverTest do
-  use NervesTest.Case, async: true
+  use NervesTest.Case
 
   alias Nerves.Artifact
 

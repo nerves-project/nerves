@@ -1,5 +1,5 @@
 defmodule Nerves.ErlinitTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   alias Nerves.Erlinit
 

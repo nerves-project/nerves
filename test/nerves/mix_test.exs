@@ -1,5 +1,5 @@
 defmodule Nerves.MixTest do
-  use NervesTest.Case, async: false
+  use NervesTest.Case
 
   describe "mix burn" do
     test "raise when passing firmware file that does not exist", context do
