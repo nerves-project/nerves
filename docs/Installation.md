@@ -25,7 +25,7 @@ Just run the following:
 
 ```bash
 brew update
-brew install fwup squashfs coreutils xz
+brew install fwup squashfs coreutils xz pkg-config
 ```
 
 Optionally, if you want to build custom Nerves Systems, you'll also need to
@@ -44,7 +44,7 @@ Now skip to the instructions for all platforms below.
 First, install a few packages using your package manager:
 
 ```bash
-sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass
+sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config
 ```
 
 If you're curious, `squashfs-tools` will be used by Nerves to create root
