@@ -57,15 +57,10 @@ defmodule Mix.Tasks.Nerves.Artifact do
     package = Nerves.Env.package(package_name)
     toolchain = Nerves.Env.toolchain()
 
-    cond do
-      package == nil ->
-        Mix.raise("Could not find Nerves package #{package_name} in env")
-
-      Nerves.Artifact.stale?(package) ->
-        Mix.raise("Your package sources are stale. Please run mix compile first.")
-
-      true ->
-        Nerves.Artifact.archive(package, toolchain, opts)
+    if is_nil(package) do
+      Mix.raise("Could not find Nerves package #{package_name} in env")
+    else
+      Nerves.Artifact.archive(package, toolchain, opts)
     end
 
     debug_info("Nerves.Artifact end")
