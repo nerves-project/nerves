@@ -130,10 +130,14 @@ mix nerves.new your_project --target rpi3
 
       # Dependencies for specific targets
       {:nerves_system_rpi3, "~> 1.6", runtime: false, targets: :rpi},
-      {:custom_rpi3, path: "../custom_rpi3", runtime: false, targets: :custom_rpi3}, # <===
+      {:custom_rpi3, path: "../custom_rpi3", runtime: false, targets: :custom_rpi3, nerves: [compile: true]}, # <===
     ]
   end
 ```
+
+> NOTE: Including the `nerves: [compile: true]` option in your dependency will cause the system to be compiled
+> automatically. If you don't want this behavior, remove this option and you will need to manually compile the
+> system via the `mix compile` task before building firmware with it
 
 Set your `MIX_TARGET` to refer to your custom system and build your firmware.
 

@@ -347,15 +347,34 @@ defmodule Nerves.Env do
           Mix.shell().info("#{k} is unset")
 
         File.dir?(v) != true ->
-          Mix.shell().error("""
-          #{k} is set to a path which does not exist:
-          #{v}
+          with "NERVES_SYSTEM" <- k,
+               %{app: app, dep: :path} <- system() do
+            Mix.shell().info([
+              :yellow,
+              """
+              Local Nerves system detected but is not compiled:
 
-          Try running `mix deps.get` to see if this resolves the issue by
-          downloading the missing artifact.
-          """)
+                #{app}
+              """,
+              :reset
+            ])
 
-          exit({:shutdown, 1})
+            # Since this is a local system, let this be set
+            # so that the compilation check later on can handle if
+            # it should be compiled or not
+            System.put_env(k, v)
+          else
+            _err ->
+              Mix.shell().error("""
+              #{k} is set to a path which does not exist:
+              #{v}
+
+              Try running `mix deps.get` to see if this resolves the issue by
+              downloading the missing artifact.
+              """)
+
+              exit({:shutdown, 1})
+          end
 
         true ->
           System.put_env(k, v)

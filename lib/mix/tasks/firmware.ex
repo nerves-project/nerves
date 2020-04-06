@@ -61,6 +61,10 @@ defmodule Mix.Tasks.Firmware do
       end
     end
 
+    # By this point, paths have already been loaded.
+    # We just want to ensure any custom systems are compiled
+    # via the precompile checks
+    Mix.Task.run("nerves.precompile", ["--no-loadpaths"])
     Mix.Task.run("compile", [])
 
     Mix.Nerves.IO.shell_info("Building OTP Release...")
