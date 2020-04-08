@@ -44,7 +44,7 @@ Now skip to the instructions for all platforms below.
 First, install a few packages using your package manager:
 
 ```bash
-sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config
+sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl
 ```
 
 If you're curious, `squashfs-tools` will be used by Nerves to create root
