@@ -15,7 +15,8 @@ defmodule Mix.Tasks.Firmware do
   ## Command line options
 
     * `--verbose` - produce detailed output about release assembly
-
+    * `--output` - (Optional) The path to the .fw file used to write the patch
+      firmware. Defaults to `Nerves.Env.firmware_path/1`
   ## Environment variables
 
     * `NERVES_SYSTEM`    - may be set to a local directory to specify the Nerves
@@ -25,7 +26,7 @@ defmodule Mix.Tasks.Firmware do
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
 
-  @switches [verbose: :boolean]
+  @switches [verbose: :boolean, output: :string]
 
   @impl true
   def run(args) do
@@ -76,7 +77,9 @@ defmodule Mix.Tasks.Firmware do
       build_release()
     end
 
-    build_firmware(system_path)
+    config = Mix.Project.config()
+    fw_out = opts[:out] || Nerves.Env.firmware_path(config)
+    build_firmware(config, system_path, fw_out)
   end
 
   @doc false
@@ -107,10 +110,8 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run("distillery.release", [verbosity, "--no-tar"])
   end
 
-  defp build_firmware(system_path) do
-    config = Mix.Project.config()
+  defp build_firmware(config, system_path, fw_out) do
     otp_app = config[:app]
-
     compiler_check()
     firmware_config = Application.get_env(:nerves, :firmware)
 
@@ -156,7 +157,7 @@ defmodule Mix.Tasks.Firmware do
         fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
       end
 
-    fw = ["-f", Nerves.Env.firmware_path(config)]
+    fw = ["-f", fw_out]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
     args = args ++ fwup_conf ++ rootfs_overlays ++ fw ++ rootfs_priorities ++ output
