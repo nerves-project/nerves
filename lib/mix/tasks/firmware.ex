@@ -78,7 +78,7 @@ defmodule Mix.Tasks.Firmware do
     end
 
     config = Mix.Project.config()
-    fw_out = opts[:out] || Nerves.Env.firmware_path(config)
+    fw_out = opts[:output] || Nerves.Env.firmware_path(config)
     build_firmware(config, system_path, fw_out)
   end
 

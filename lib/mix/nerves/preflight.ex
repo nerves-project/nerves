@@ -39,12 +39,12 @@ defmodule Mix.Nerves.Preflight do
     ensure_available!("mksquashfs", package: "squashfs")
   end
 
-  defp ensure_fwup_version!(fwup_bin \\ "fwup") do
+  def ensure_fwup_version!(fwup_bin \\ "fwup", vsn_requirement \\ @fwup_semver) do
     ensure_available!(fwup_bin)
 
     with {vsn, 0} <- System.cmd(fwup_bin, ["--version"]),
          vsn = String.trim(vsn),
-         {:ok, req} = Version.parse_requirement(@fwup_semver),
+         {:ok, req} = Version.parse_requirement(vsn_requirement),
          true <- Version.match?(vsn, req) do
       :ok
     else
@@ -52,7 +52,7 @@ defmodule Mix.Nerves.Preflight do
         {vsn, 0} = System.cmd(fwup_bin, ["--version"])
 
         Mix.raise("""
-        #{fwup_bin} #{@fwup_semver} is required for Nerves.
+        #{fwup_bin} #{vsn_requirement} is required for Nerves.
 
         You are running #{vsn}.
         Please see https://hexdocs.pm/nerves/installation.html#fwup
@@ -68,7 +68,7 @@ defmodule Mix.Nerves.Preflight do
     end
   end
 
-  defp ensure_available!(executable, opts \\ []) do
+  def ensure_available!(executable, opts \\ []) do
     if System.find_executable(executable) do
       :ok
     else
