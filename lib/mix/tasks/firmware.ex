@@ -115,6 +115,8 @@ defmodule Mix.Tasks.Firmware do
     compiler_check()
     firmware_config = Application.get_env(:nerves, :firmware)
 
+    mksquashfs_flags(firmware_config[:mksquashfs_flags])
+
     rootfs_priorities =
       Nerves.Env.package(:nerves_system_br)
       |> rootfs_priorities()
@@ -293,5 +295,11 @@ defmodule Mix.Tasks.Firmware do
         """
         """
       end
+  end
+
+  defp mksquashfs_flags(nil), do: :noop
+
+  defp mksquashfs_flags(flags) do
+    System.put_env("NERVES_MKSQUASHFS_FLAGS", Enum.join(flags, " "))
   end
 end
