@@ -41,37 +41,26 @@ Now skip to the instructions for all platforms below.
 
 ## Windows
 
-Use Windows 10 version 2004 (or later) with WSL2.  Follow all Linux/Ubuntu
-instructions (assuming you're using an Ubuntu WSL2 distribution) to build and
-compile the code. Run the following commands in your WSL2 prompt (this assumes
-you're building for a Raspberry Pi 3).
+Nerves on Windows 10 requires version 18917 (or later) with Windows Subsystem
+for Linux 2 (WSL2) installed. See the [WSL2 install
+instructions](https://docs.microsoft.com/en-us/windows/wsl/wsl2-install) for
+more information. Once you have WSL2 support enabled you will need to install an
+instance of Linux. We recommend installing Ubuntu.
 
-```bash
-export MIX_TARGET=rpi3
-mix deps.get
-mix firmware
-```
+Next, follow the instructions for Linux inside your WSL2 linux installation to
+finish setting up the environment.
 
-If you can get all of those to run properly take the generated firmware file and
-from a _Windows_ *admin* prompt (e.g. PowerShell) you'll burn that firmware
-image to your SD card. First you'll need to install fwup
-([chocolatey](https://chocolatey.org/) is the recommended package manager for
-Windows).
+Finally, you'll need to install `fwup` using chocolatey. See the [chocolatey
+install guide](https://chocolatey.org/install) for help installing chocolatey on
+your system. With chocolatey installed, run the following from a Powershell:
 
 ```powershell
 choco install fwup /y
 ```
-Then you can run:
 
-```powershell
-fwup c:\path\to\firmware\file
-```
-
-That *should* automatically locate your SD card, format it and burn the image.
-
-In summary, for Windows you basically follow all the Linux instructions in WSL2
-except for burning the firmware. You build the firmware in WSL2, and then use
-fwup from Windows to burn the firmware to your SD card.
+When running on WSL2, Nerves uses the Linux version of `fwup` for building the
+firmware files and the Windows version of `fwup` for burning firmware to SD
+cards. It is important that you install `fwup ` in both environments.
 
 ## Linux
 
