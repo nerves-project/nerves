@@ -1,5 +1,5 @@
 otp_22_image: &otp_22_image
-  image: erlang:22.2.8
+  image: erlang:22.3.2
 
 otp_21_image: &otp_21_image
   image: erlang:21.3.8
