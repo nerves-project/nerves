@@ -39,6 +39,35 @@ faster you can compile a custom Nerves system.
 
 Now skip to the instructions for all platforms below.
 
+## Windows
+
+Use Windows 10 version 2004 (or later) with WSL2.  Follow all Linux/Ubuntu 
+instructions (assuming you're using an Ubuntu WSL2 distribution) to build and 
+compile the code.  Run the following commands in your WSL2 prompt (this assumes
+you're building for a Raspberry Pi 3).
+```bash
+export MIX_TARGET=rpi3
+mix deps.get
+mix firmware
+```
+
+If you can get all of those to run properly take the generated firmware file
+and from a _Windows_ *admin* prompt (e.g. PowerShell) you'll burn that firmware image 
+to your SD card.  First you'll need to install fwup ([chocolatey](https://chocolatey.org/) is the recommended 
+package manager for Windows).
+```powershell
+choco install fwup /y
+```
+Then you can run 
+```powershell
+fwup c:\path\to\firmware\file
+```
+That *should* automatically locate your SD card, format it and burn the image.  
+
+In summary, for Windows you basically follow all the Linux instructions in WSL2 except for 
+burning the firmware.  You build the firmware in WSL2, then use fwup from Windows to burn the 
+firmware to your SD card.
+
 ## Linux
 
 First, install a few packages using your package manager:
