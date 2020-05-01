@@ -23,7 +23,7 @@ Make sure not to forget the `-b` flag. Cloning/Forking directly from master is n
 considered stable.
 
 ```bash
-git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.7.1
+git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.11.1
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -46,8 +46,7 @@ Next, tweak the metadata of your Mix project by updating the following:
 
 * The module name of the mix project at the top of the file
 * the value of `@app` to `custom_rpi3`
-* The `github_releases` in `artifact_sites`
-* the `links` in `package/0`
+* the value of `@github_organization` to your GitHub user name or organization
 
 See the [Official Mix.Project](https://hexdocs.pm/mix/Mix.Project.html) document
 for the structure of this file.
@@ -59,41 +58,15 @@ for the structure of this file.
 defmodule CustomRpi3.MixProject do
   use Mix.Project
 
+  # =vvv= Rename `"nerves-project"` here to your user or ogranization name
+  # @github_orgranization "nerves-project"
+  @github_organization "YourGitHubUserOrOrganizationName"
   # =vvv= Rename `nerves_system_rpi3` here to `custom_rpi3`
   # @app :nerves_system_rpi3
   @app :custom_rpi3
+end
 
-  # the project/0 function remains the same
-
-  defp nerves_package do
-    [
-      type: :system,
-      artifact_sites: [
-      # =vvv= Set an artifact location to your github repository.
-      # See the Artifacts section later for more details on this.
-      #  {:github_releases, "nerves-project/#{@app}"}
-        {:github_releases, "YourGitHubUserName/#{@app}"}
-      ],
-      build_runner_opts: build_runner_opts(),
-      platform: Nerves.System.BR,
-      platform_config: [
-        defconfig: "nerves_defconfig"
-      ],
-      checksum: package_files()
-    ]
-  end
-
-  defp package do
-    [
-      files: package_files(),
-      licenses: ["Apache 2.0"],
-      # =vvv= Update project information for hex.pm and hexdocs.
-      # links: %{"GitHub" => "https://github.com/nerves-project/#{@app}"}
-      links: %{"GitHub" => "https://github.com/YourGitHubUserName/#{@app}"}
-    ]
-  end
-
-  # =^^^= The rest of this file remains the same
+# =^^^= The rest of this file remains the same
 ```
 
 ## Building the System
