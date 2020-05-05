@@ -98,9 +98,7 @@ defmodule Nerves.Artifact.ResolverTest do
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
       resolvers = Artifact.expand_sites(pkg)
 
-      assert_raise Mix.Error, fn ->
-        Artifact.Resolver.get(resolvers, pkg)
-      end
+      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
 
       sites = [
         {:github_api, "my_org/my_repo", token: "my_token"}
@@ -109,9 +107,7 @@ defmodule Nerves.Artifact.ResolverTest do
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
       resolvers = Artifact.expand_sites(pkg)
 
-      assert_raise Mix.Error, fn ->
-        Artifact.Resolver.get(resolvers, pkg)
-      end
+      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
 
       sites = [
         {:github_api, "my_org/my_repo", username: "my_username", token: "my_token"}
@@ -120,9 +116,7 @@ defmodule Nerves.Artifact.ResolverTest do
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
       resolvers = Artifact.expand_sites(pkg)
 
-      assert_raise Mix.Error, fn ->
-        Artifact.Resolver.get(resolvers, pkg)
-      end
+      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
     end)
   end
 

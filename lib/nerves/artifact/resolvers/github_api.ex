@@ -2,13 +2,31 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   @behaviour Nerves.Artifact.Resolver
 
   @base_url "https://api.github.com/"
+  @required_opts [:username, :token, :tag]
 
   alias Nerves.Utils
   alias Nerves.Utils.HTTPClient
 
   def get({org_proj, opts}) do
-    artifact_name = opts[:artifact_name]
+    case validate_opts(opts) do
+      {:ok, opts} ->
+        fetch_artifact(org_proj, opts)
 
+      {:error, missing} ->
+        missing = Enum.join(missing, ", ")
+        artifact_name = opts[:artifact_name]
+
+        error = """
+        Skipping: #{artifact_name}
+        Required options missing: [#{missing}]
+        """
+
+        {:error, error}
+    end
+  end
+
+  defp fetch_artifact(org_proj, opts) do
+    artifact_name = opts[:artifact_name]
     {:ok, http_pid} = HTTPClient.start_link()
     token = get_token(opts, artifact_name)
     username = get_username(opts, artifact_name)
@@ -33,6 +51,13 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
     Nerves.Utils.HTTPClient.stop(http_pid)
     result
+  end
+
+  defp validate_opts(opts) do
+    case Enum.split_with(@required_opts, &(&1 in opts)) do
+      {_, [_ | _] = missing} -> {:error, missing}
+      _ -> {:ok, opts}
+    end
   end
 
   defp get_asset_url(assets, artifact_name) do
