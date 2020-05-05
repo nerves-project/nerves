@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.6.2
+
+* Bug fixes
+  * Improve error message returned when calling `mix firmware` when the local
+    system artifact cannot be found and possibly needs to be built.
+
+  * GitHub API artifact resolver will no longer raise if missing required opts.
+
+  The GitHub API artifact resolver is useful when you want to enable access
+  to artifacts added to GitHub releases in private GitHub repositories.
+  Fetching an artifact from a private GitHub repo requires the passing
+  `username, token, tag` as options. If any of these options were omitted,
+  the resolver would raise and prevent compilation from continuing.
+  This is problematic when you are trying to actually compile the system
+  in CI. Artifact resolvers should make a best effort on downloading the
+  artifacts, and return `{:error, reason}` if they are unsuccessful. This
+  will allow the system to fall back to performing a compile.
+
 ## v1.6.1
 
 * Enhancements
