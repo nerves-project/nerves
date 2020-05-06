@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.3
+
+* Bug fixes
+  * Fix required key validation on github_api resolver.
+
 ## v1.6.2
 
 * Bug fixes
