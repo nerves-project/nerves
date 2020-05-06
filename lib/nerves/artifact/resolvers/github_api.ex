@@ -53,8 +53,10 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
     result
   end
 
-  defp validate_opts(opts) do
-    case Enum.split_with(@required_opts, &(&1 in opts)) do
+  def validate_opts(opts) do
+    keys = Keyword.keys(opts)
+
+    case Enum.split_with(@required_opts, &(&1 in keys)) do
       {_, [_ | _] = missing} -> {:error, missing}
       _ -> {:ok, opts}
     end
