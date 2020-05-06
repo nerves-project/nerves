@@ -120,6 +120,15 @@ defmodule Nerves.Artifact.ResolverTest do
     end)
   end
 
+  test "github api returns error when missing required options" do
+    assert {:error, _} = Artifact.Resolvers.GithubAPI.validate_opts([])
+    assert {:error, _} = Artifact.Resolvers.GithubAPI.validate_opts(username: "foo")
+    assert {:error, _} = Artifact.Resolvers.GithubAPI.validate_opts(username: "foo", token: "bar")
+
+    assert {:ok, _} =
+             Artifact.Resolvers.GithubAPI.validate_opts(username: "foo", token: "bar", tag: "baz")
+  end
+
   test "download validations will raise" do
     in_fixture("resolver", fn ->
       set_artifact_path()
