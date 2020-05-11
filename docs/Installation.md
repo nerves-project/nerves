@@ -66,13 +66,19 @@ cards. It is important that you install `fwup ` in both environments.
 
 First, install a few packages using your package manager:
 
+### For Debian based systems
 ```bash
 sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl
+```
+### For Arch based systems
+
+```bash
+yay -S base-devel ncurses5-compat-libs openssh-askpass git squashfs-tools curl
 ```
 
 If you're curious, `squashfs-tools` will be used by Nerves to create root
 filesystems and `ssh-askpass` will be used to ask for passwords when writing to
-MicroSD cards. Some Fedora users have reported that they had to create a symlink
+MicroSD cards. Some Fedora and Manjaro users have reported that they had to create a symlink
 from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
 Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
@@ -109,8 +115,13 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc # optional
+echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/
+.bashrc # optional
 source ~/.bashrc
+Ffor zsh based systems run the following
+echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.zshrc
+echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.zshrc
+source ~/.zshrc
 
 asdf plugin-add erlang
 asdf plugin-add elixir
@@ -118,6 +129,9 @@ asdf plugin-add elixir
 # Note #1:
 # If on Debian or Ubuntu, you'll want to install wx before running the next
 # line: sudo apt install libwxgtk3.0-dev
+# for arch based systems run the next
+# line: yay -S wxgtk2 fop jdk-openjdk unzip
+
 
 # Note #2:
 # It's possible to use different Erlang and Elixir versions with Nerves. The
