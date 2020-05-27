@@ -115,10 +115,9 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/
-.bashrc # optional
+echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc # optional
 source ~/.bashrc
-Ffor zsh based systems run the following
+# for zsh based systems run the following
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.zshrc
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.zshrc
 source ~/.zshrc
@@ -127,10 +126,10 @@ asdf plugin-add erlang
 asdf plugin-add elixir
 
 # Note #1:
-# If on Debian or Ubuntu, you'll want to install wx before running the next
-# line: sudo apt install libwxgtk3.0-dev
-# for arch based systems run the next
-# line: yay -S wxgtk2 fop jdk-openjdk unzip
+# If on Debian or Ubuntu, you'll want to install wx before running the next line:
+# sudo apt install libwxgtk3.0-dev
+# for arch based systems run the next line:
+# yay -S wxgtk2 fop jdk-openjdk unzip
 
 
 # Note #2:
