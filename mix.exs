@@ -30,7 +30,7 @@ defmodule Nerves.MixProject do
     [
       {:distillery, "~> 2.1", optional: true, runtime: false},
       {:jason, "~> 1.2", optional: true},
-      {:ex_doc, "~> 0.21", only: [:test, :dev], runtime: false},
+      {:ex_doc, "~> 0.22", only: [:test, :dev], runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
       {:nerves_bootstrap, "~> 1.8", only: [:test, :dev]},
       {:plug, "~> 1.10", only: :test},
