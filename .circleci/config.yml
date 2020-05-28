@@ -1,5 +1,5 @@
 otp_22_image: &otp_22_image
-  image: erlang:22.3.2
+  image: erlang:22.3.4.1
 
 otp_21_image: &otp_21_image
   image: erlang:21.3.8
@@ -28,7 +28,7 @@ jobs:
     docker:
       - <<: *otp_22_image
     environment:
-      ELIXIR_VERSION: 1.10.2-otp-22
+      ELIXIR_VERSION: 1.10.3-otp-22
       LC_ALL: C.UTF-8
     <<: *defaults
     steps:
