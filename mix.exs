@@ -1,13 +1,13 @@
-defmodule Nerves.Mixfile do
+defmodule Nerves.MixProject do
   use Mix.Project
+
+  @version "1.6.3"
+  @source_url "https://github.com/nerves-project/nerves"
 
   def project do
     [
       app: :nerves,
-      name: "Nerves",
-      source_url: "https://github.com/nerves-project/nerves",
-      homepage_url: "http://nerves-project.org/",
-      version: "1.6.3",
+      version: @version,
       elixir: "~> 1.7.3 or ~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
@@ -52,8 +52,12 @@ defmodule Nerves.Mixfile do
         "docs/Advanced Configuration.md",
         "docs/Updating Projects.md",
         "docs/Internals.md",
-        "docs/Customizing Systems.md"
-      ]
+        "docs/Customizing Systems.md",
+        "CHANGELOG.md"
+      ],
+      source_ref: "v#{@version}",
+      source_url: @source_url,
+      skip_undefined_reference_warnings_on: ["docs/Updating Projects.md", "CHANGELOG.md"]
     ]
   end
 
@@ -80,7 +84,7 @@ defmodule Nerves.Mixfile do
         "priv"
       ],
       licenses: ["Apache 2.0"],
-      links: %{"Github" => "https://github.com/nerves-project/nerves"}
+      links: %{"Home page" => "https://www.nerves-project.org/", "GitHub" => @source_url}
     ]
   end
 end
