@@ -67,9 +67,7 @@ defmodule Nerves.MixProject do
   end
 
   defp description do
-    """
-    Nerves - Create firmware for embedded devices like Raspberry Pi, BeagleBone Black, and more
-    """
+    "Craft and deploy bulletproof embedded software"
   end
 
   defp package do
