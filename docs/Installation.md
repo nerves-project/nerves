@@ -28,6 +28,14 @@ brew update
 brew install fwup squashfs coreutils xz pkg-config
 ```
 
+If you've already installed Erlang & Elixir using Homebrew, you'll need to 
+uninstall them to avoid clashes with the recommended ASDF installation.
+
+```bash
+brew uninstall elixir
+brew uninstall erlang
+```
+
 Optionally, if you want to build custom Nerves Systems, you'll also need to
 install [Docker for Mac](https://www.docker.com/docker-mac). After installing
 Docker for Mac, you will likely want to adjust the resource limits imposed on
