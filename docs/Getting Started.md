@@ -134,7 +134,7 @@ keyboard so you can see it boot to the IEx console.
 
 ## Connecting to your Nerves target
 
-You can connect to an RPi0, RPi3A, and BBB with a USB cable. These Nerves
+You can connect to an RPi0, RPi3A, and BBB with just a USB cable. These Nerves
 targets can operate in Linux USB gadget mode, which means a network connection
 can be made with a USB cable between your host and target. The USB cable
 provides both power and network connectivity. This is a very convenient way to
@@ -143,12 +143,17 @@ work with your target device.
 The RPi3B/B+ does not have USB gadget mode capability, but you can make a
 network connection using either wired or wireless Ethernet.
 
-### Attach a USB cable to the RPi0
+### Attach a USB cable to the RPi0 / RPi0W / RPi0WH
 
 Connect a USB cable between your host and the RPi0 USB port closest to the
 middle of the board that is labeled "USB". This USB port, via the USB cable,
 will provide both power to the board and a virtual Ethernet network
 connection.
+
+If you don't see any activity lights blinking on the board after plugging in
+your USB cable, something's not working right. So then, rather power up your 
+RPi0 using a dedicated power supply, and use your USB cable only for 
+communication.
 
 #### Test the connection
 
