@@ -28,7 +28,7 @@ brew update
 brew install fwup squashfs coreutils xz pkg-config
 ```
 
-If you've already installed Erlang & Elixir using Homebrew, you'll need to 
+If you've already installed Erlang & Elixir using Homebrew, you'll need to
 uninstall them to avoid clashes with the recommended ASDF installation.
 
 ```bash
@@ -118,7 +118,7 @@ the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf-vm) for official
 documentation. Here's a summary of the install process:
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.1
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.8
 
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
@@ -145,10 +145,10 @@ asdf plugin-add elixir
 # latest official Nerves systems are compatible with the versions below. In
 # general, differences in patch releases are harmless. Nerves detects
 # configurations that might not work at compile time.
-asdf install erlang 22.3.4.1
-asdf install elixir 1.10.3-otp-22
-asdf global erlang 22.3.4.1
-asdf global elixir 1.10.3-otp-22
+asdf install erlang 23.0.1
+asdf install elixir 1.10.3-otp-23
+asdf global erlang 23.0.1
+asdf global elixir 1.10.3-otp-23
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
