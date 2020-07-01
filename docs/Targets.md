@@ -31,7 +31,7 @@ If you can find an existing Buildroot configuration for your intended hardware a
 1. Follow their procedure and confirm your target boots (independent of Nerves).
 
 2. Figure out how to get everything working with the version of Buildroot Nerves uses.
-    See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/master/create-build.sh).
+    See [the `NERVES_BR_VERSION` variable in `create-build.sh`](https://github.com/nerves-project/nerves_system_br/blob/main/create-build.sh).
 
   * Look for packages and board configs can need to be copied into your System.
   * Look for patches to existing packages that are needed.

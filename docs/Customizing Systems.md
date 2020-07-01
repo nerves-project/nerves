@@ -19,11 +19,11 @@ While you could design a system from scratch, it is easiest to copy and modify
 an existing one, renaming it to distinguish it from the official release. For
 example, if you're targeting a Raspberry Pi 3 board, do the following:
 
-Make sure not to forget the `-b` flag. Cloning/Forking directly from master is not
-considered stable.
+Make sure not to forget the `-b` flag. Cloning/Forking directly from `main` is
+not considered stable.
 
 ```bash
-git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.11.1
+git clone https://github.com/nerves-project/nerves_system_rpi3.git custom_rpi3 -b v1.12.0
 ```
 
 The name of the system directory is up to you, but we will call it `custom_rpi3`
@@ -38,8 +38,8 @@ using GitHub:
 cd custom_rpi3
 git remote rename origin upstream
 git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
-git checkout -b master
-git push origin master
+git checkout -b main
+git push origin main
 ```
 
 Next, tweak the metadata of your Mix project by updating the following:
@@ -380,13 +380,13 @@ you can do the following to upgrade your custom system:
 
 ```bash
 git fetch --all
-git merge upstream/master
+git merge upstream/main
 # Solve any merge conflicts
-git push origin master
+git push origin main
 ```
 
 You can also use the GitHub interface to do this:
 
 ```text
-https://github.com/YourGitHubUserName/custom_rpi3/compare/master...nerves-project:master?expand=1
+https://github.com/YourGitHubUserName/custom_rpi3/compare/main...nerves-project:main?expand=1
 ```

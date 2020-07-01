@@ -2,7 +2,7 @@
 
 This is a collection of questions that often come up as people are getting started with Nerves.
 If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves_examples) and got stuck, hopefully one of the following answers will help.
-If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/master/docs).
+If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/main/docs).
 
 ## Using a USB Serial Console
 
@@ -12,7 +12,7 @@ This allows you to interact with the console of the target device using a termin
 
 To override the default, you need to locate the `erlinit.config` for the system you're using and modify it to replace the `-c` option to control the console.
 You can figure out what the correct value is by referring to the hardware description table in the README of your target's system repository.
-For example, for the Raspberry Pi 3 target, you can find the [hardware description README here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/README.md) and the [default `erlinit.config` here](https://github.com/nerves-project/nerves_system_rpi3/blob/master/rootfs_overlay/etc/erlinit.config).
+For example, for the Raspberry Pi 3 target, you can find the [hardware description README here](https://github.com/nerves-project/nerves_system_rpi3/blob/main/README.md) and the [default `erlinit.config` here](https://github.com/nerves-project/nerves_system_rpi3/blob/main/rootfs_overlay/etc/erlinit.config).
 
  1. Download the default `erlinit.config` file from the system repository for your target.
  2. Place it in your project folder under `rootfs_overlay/etc/erlinit.config`.

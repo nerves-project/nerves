@@ -396,7 +396,7 @@ The other option is to handle it in your Elixir code. This can be useful if you
 want to scan the disk for corruption and reformat or seed it. `erlinit` can only
 attempt to mount the partition. You may want to see [how `nerves_runtime` does
 this for the default application data
-partition](https://github.com/nerves-project/nerves_runtime/blob/master/lib/nerves_runtime/init.ex),
+partition](https://github.com/nerves-project/nerves_runtime/blob/main/lib/nerves_runtime/init.ex),
 extending it to meet your specific needs.
 
 ### Overriding erlinit.config from Mix Config

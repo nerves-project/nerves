@@ -105,7 +105,7 @@ sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python
 > For other host Linux distributions, you will need to install equivalent
 > packages, but we don't have the exact list documented. If you'd like to help
 > out, [send us an improvement to this
-> page](https://github.com/nerves-project/nerves/blob/master/docs/Installation.md)
+> page](https://github.com/nerves-project/nerves/blob/main/docs/Installation.md)
 > and let us know what worked for you!
 
 Now continue to the instructions for all platforms below.

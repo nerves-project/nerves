@@ -84,7 +84,7 @@ before the vulnerability is disclosed publicly.
 [our website]: http://www.nerves-project.org
 [Getting Started Guide]: https://hexdocs.pm/nerves/getting-started.html
 [Nerves system]: https://hexdocs.pm/nerves/systems.html
-[documentation source]: https://github.com/nerves-project/nerves/tree/master/docs
+[documentation source]: https://github.com/nerves-project/nerves/tree/main/docs
 [website source]: https://github.com/nerves-project/nerves-project.github.com
 [Triage process]: #issue-and-pull-request-triage
 [repositories]: https://github.com/nerves-project
