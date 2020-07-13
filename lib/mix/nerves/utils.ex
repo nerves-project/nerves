@@ -32,7 +32,7 @@ defmodule Mix.Nerves.Utils do
     System.get_env(var_name) || raise_env_var_missing(var_name)
   end
 
-  def get_devs do
+  defp get_devs do
     {result, 0} =
       if WSL.running_on_wsl?() do
         WSL.get_fwup_devices()
@@ -47,12 +47,17 @@ defmodule Mix.Nerves.Utils do
     result
     |> String.trim()
     |> String.split("\n")
-    |> Enum.map(&String.split(&1, ","))
+    |> Enum.map(&parse_dev/1)
+  end
+
+  defp parse_dev(line) do
+    [dev, bytes | _rest] = String.split(line, ",")
+    {dev, bytes}
   end
 
   def prompt_dev() do
     case get_devs() do
-      [[dev, bytes]] ->
+      [{dev, bytes}] ->
         choice =
           Mix.shell().yes?("Use #{bytes_to_gigabytes(bytes)} GiB memory card found at #{dev}?")
 
@@ -66,7 +71,7 @@ defmodule Mix.Nerves.Utils do
         choices =
           devs
           |> Enum.zip(0..length(devs))
-          |> Enum.reduce([], fn {[dev, bytes], idx}, acc ->
+          |> Enum.reduce([], fn {{dev, bytes}, idx}, acc ->
             ["#{idx}) #{bytes_to_gigabytes(bytes)} GiB found at #{dev}" | acc]
           end)
           |> Enum.reverse()
@@ -84,7 +89,7 @@ defmodule Mix.Nerves.Utils do
           end
 
         case Enum.fetch(devs, idx) do
-          {:ok, [dev, _]} -> dev
+          {:ok, {dev, _}} -> dev
           _ -> Mix.raise("Invalid selection #{choice}")
         end
     end
