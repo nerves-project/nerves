@@ -26,7 +26,7 @@ defmodule HostTool.Platform do
 
     File.ln_s!(priv_dir, build_path)
 
-    System.cmd("make", [])
+    Nerves.Port.cmd("make", [])
 
     {:ok, build_path}
   end

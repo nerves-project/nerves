@@ -6,3 +6,5 @@ erl_crash.dump
 *.ez
 /doc
 /test_tmp
+/muontrap-*.log
+test/fixtures/port/*.test

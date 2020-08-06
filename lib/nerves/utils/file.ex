@@ -33,7 +33,7 @@ defmodule Nerves.Utils.File do
 
   defp cmd(cmd, args) do
     if System.find_executable(cmd) do
-      System.cmd(cmd, args, stderr_to_stdout: true)
+      Nerves.Port.cmd(cmd, args, stderr_to_stdout: true)
     else
       raise "Could not find '#{cmd}'. See https://hexdocs.pm/nerves/installation.html for required packages."
     end

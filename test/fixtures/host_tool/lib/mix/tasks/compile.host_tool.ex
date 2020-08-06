@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Compile.HostTool do
       File.cwd!()
       |> Path.join("hello")
 
-    case System.cmd("host_tool", [file]) do
+    case Nerves.Port.cmd("host_tool", [file]) do
       {_, 0} ->
         :ok
 

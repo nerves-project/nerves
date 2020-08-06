@@ -25,7 +25,7 @@ defmodule Nerves.Utils.WSL do
   @spec running_on_wsl?(String.t()) :: boolean
   def running_on_wsl?(osrelease_path \\ "/proc/sys/kernel/osrelease") do
     with true <- File.exists?(osrelease_path),
-         {content, _} <- System.cmd("cat", [osrelease_path]) do
+         {content, _} <- Nerves.Port.cmd("cat", [osrelease_path]) do
       Regex.match?(~r/[Mm]icrosoft/, content)
     else
       _ ->
@@ -46,7 +46,7 @@ defmodule Nerves.Utils.WSL do
     powershell_args = "fwup.exe -D | set-content -encoding UTF8 #{win_path}"
 
     with {command, args} <- admin_powershell_command("powershell.exe", powershell_args),
-         {"", 0} <- System.cmd(command, args),
+         {"", 0} <- Nerves.Port.cmd(command, args),
          {:ok, devs} <- File.read(wsl_path) do
       devs =
         Regex.replace(~r/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u, devs, "")
@@ -78,7 +78,7 @@ defmodule Nerves.Utils.WSL do
   """
   @spec path_accessible_in_windows?(String.t(), boolean) :: boolean
   def path_accessible_in_windows?(file, _use_wslpath = true) do
-    {_path, exitcode} = System.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true)
+    {_path, exitcode} = Nerves.Port.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true)
     exitcode == 0
   end
 
@@ -91,7 +91,7 @@ defmodule Nerves.Utils.WSL do
   """
   @spec get_temp_file_location(String.t()) :: String.t()
   def get_temp_file_location(file) do
-    {win_path, 0} = System.cmd("cmd.exe", ["/c", "echo %TEMP%"])
+    {win_path, 0} = Nerves.Port.cmd("cmd.exe", ["/c", "echo %TEMP%"])
     "#{String.trim(win_path)}\\#{Path.basename(file)}"
   end
 
@@ -211,7 +211,7 @@ defmodule Nerves.Utils.WSL do
   """
   @spec execute_wslpath(String.t(), list) :: String.t() | nil
   def execute_wslpath(file, arguments) do
-    with {path, 0} <- System.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
+    with {path, 0} <- Nerves.Port.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
       String.trim(path)
     else
       {error, _} ->
