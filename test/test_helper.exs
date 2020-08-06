@@ -13,4 +13,7 @@ Mix.shell(Mix.Shell.Process)
 
 System.put_env("NERVES_LOG_DISABLE_PROGRESS_BAR", "1")
 
+# Clear the project stack in preperation for loading and unloading fixtures
+Mix.ProjectStack.clear_stack()
+
 ExUnit.start(exclude: [:skip])
