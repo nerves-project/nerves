@@ -4,6 +4,7 @@ defmodule NervesTest.Case do
   @compile {:no_warn_undefined, {Mix, :target, 0}}
   @compile {:no_warn_undefined, {Mix.State, :clear_cache, 0}}
   @compile {:no_warn_undefined, {Mix.ProjectStack, :clear_cache, 0}}
+  @timeout_before_close_check 20
 
   using do
     quote do
@@ -57,7 +58,13 @@ defmodule NervesTest.Case do
 
   def in_fixture(which, tmp, function) do
     src = fixture_path(which)
-    dest = tmp_path(String.replace(tmp, ":", "_"))
+
+    tmp_path =
+      tmp
+      |> String.replace(":", "_")
+      |> String.replace(" ", "_")
+
+    dest = tmp_path(tmp_path)
     flag = String.to_charlist(tmp_path())
 
     System.put_env("XDG_DATA_HOME", Path.join(dest, ".nerves"))
@@ -71,6 +78,7 @@ defmodule NervesTest.Case do
 
     try do
       File.cd!(dest, function)
+      :timer.sleep(10)
     after
       :code.set_path(get_path)
 
@@ -97,6 +105,11 @@ defmodule NervesTest.Case do
     File.rm_rf!(path)
     File.mkdir_p!(path)
     File.cd!(path, function)
+  end
+
+  @spec test_path(Path.t()) :: Path.t()
+  def test_path(cmd) do
+    Path.join([File.cwd!(), "test", cmd])
   end
 
   def fixture_path do
@@ -173,5 +186,34 @@ defmodule NervesTest.Case do
 
   defp elixir_minor() do
     System.version() |> Version.parse!() |> Map.get(:minor)
+  end
+
+  @spec is_os_pid_around?(non_neg_integer()) :: boolean
+  def is_os_pid_around?(os_pid) do
+    {_, rc} = System.cmd("ps", ["-p", "#{os_pid}"])
+    rc == 0
+  end
+
+  @spec assert_os_pid_running(non_neg_integer()) :: :ok
+  def assert_os_pid_running(os_pid) do
+    is_os_pid_around?(os_pid) || flunk("Expected OS pid #{os_pid} to still be running")
+    :ok
+  end
+
+  @spec assert_os_pid_exited(non_neg_integer()) :: :ok
+  def assert_os_pid_exited(os_pid) do
+    is_os_pid_around?(os_pid) && flunk("Expected OS pid #{os_pid} to be killed")
+    :ok
+  end
+
+  @spec os_pid(port()) :: non_neg_integer()
+  def os_pid(port) do
+    {:os_pid, os_pid} = Port.info(port, :os_pid)
+    os_pid
+  end
+
+  @spec wait_for_close_check(non_neg_integer()) :: :ok
+  def wait_for_close_check(timeout \\ @timeout_before_close_check) do
+    Process.sleep(timeout)
   end
 end

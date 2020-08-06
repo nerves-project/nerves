@@ -54,7 +54,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     cmd = "docker"
     args = ["volume", "ls", "-f", "name=#{volume_name}", "-q"]
 
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
+    case Nerves.Port.cmd(cmd, args, stderr_to_stdout: true) do
       {<<^volume_name, _tail::binary>>, 0} ->
         true
 
@@ -70,7 +70,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     cmd = "docker"
     args = ["volume", "create", "--name", volume_name]
 
-    case System.cmd(cmd, args) do
+    case Nerves.Port.cmd(cmd, args) do
       {_, 0} -> :noop
       _ -> Mix.raise("Nerves Docker build_runner could not create docker volume #{volume_name}")
     end

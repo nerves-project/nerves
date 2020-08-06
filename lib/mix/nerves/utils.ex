@@ -11,7 +11,7 @@ defmodule Mix.Nerves.Utils do
       |> Keyword.drop([:into, :stderr_to_stdout, :stream])
       |> Keyword.put(:env, env)
 
-    System.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
+    Nerves.Port.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 
   def debug_info(msg) do
@@ -37,7 +37,7 @@ defmodule Mix.Nerves.Utils do
       if WSL.running_on_wsl?() do
         WSL.get_fwup_devices()
       else
-        System.cmd("fwup", ["--detect"])
+        Nerves.Port.cmd("fwup", ["--detect"])
       end
 
     if result == "" do

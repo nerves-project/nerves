@@ -13,6 +13,10 @@ defmodule Nerves.MixProject do
       deps: deps(),
       description: description(),
       package: package(),
+      build_embedded: true,
+      compilers: [:elixir_make | Mix.compilers()],
+      make_targets: ["all"],
+      make_clean: ["clean"],
       aliases: [docs: ["docs", &copy_images/1]],
       docs: docs(),
       dialyzer: [plt_add_apps: [:mix]]
@@ -28,6 +32,7 @@ defmodule Nerves.MixProject do
 
   defp deps do
     [
+      {:elixir_make, "~> 0.6", runtime: false},
       {:distillery, "~> 2.1", optional: true, runtime: false},
       {:jason, "~> 1.2", optional: true},
       {:ex_doc, "~> 0.22", only: [:test, :dev], runtime: false},

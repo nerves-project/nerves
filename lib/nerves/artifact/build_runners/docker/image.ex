@@ -23,7 +23,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
     cmd = "docker"
     args = ["pull", "#{tag}"]
 
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
+    case Nerves.Port.cmd(cmd, args, stderr_to_stdout: true) do
       {<<"Cannot connect to the Docker daemon", _tail::binary>>, _} ->
         Mix.raise("Nerves Docker build_runner is unable to connect to docker daemon")
 
@@ -39,7 +39,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
     cmd = "docker"
     args = ["image", "ls", "#{tag}", "-q"]
 
-    case System.cmd(cmd, args, stderr_to_stdout: true) do
+    case Nerves.Port.cmd(cmd, args, stderr_to_stdout: true) do
       {"", _} ->
         false
 

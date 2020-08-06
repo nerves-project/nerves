@@ -15,7 +15,7 @@ defmodule Nerves.Package.Utils.Squashfs do
       Path.dirname(rootfs)
       |> Path.join("squashfs")
 
-    case System.cmd("unsquashfs", [rootfs, "-d", dir]) do
+    case Nerves.Port.cmd("unsquashfs", [rootfs, "-d", dir]) do
       {_result, 0} ->
         GenServer.start_link(__MODULE__, [rootfs, dir, params])
 
@@ -50,7 +50,7 @@ defmodule Nerves.Package.Utils.Squashfs do
   end
 
   defp unsquashfs(rootfs) do
-    case System.cmd("unsquashfs", ["-n", "-ll", rootfs]) do
+    case Nerves.Port.cmd("unsquashfs", ["-n", "-ll", rootfs]) do
       {result, 0} ->
         String.split(result, "\n")
         |> parse
@@ -134,7 +134,7 @@ defmodule Nerves.Package.Utils.Squashfs do
 
     IO.puts(path)
 
-    System.cmd("mksquashfs", [
+    Nerves.Port.cmd("mksquashfs", [
       tmp_dir,
       path,
       "-pf",
@@ -159,7 +159,7 @@ defmodule Nerves.Package.Utils.Squashfs do
   #
   #   unionfs = Path.join(stage_path, "union")
   #   Enum.each(fs, fn() ->
-  #     System.cmd("unsquashfs", ["-d", s.stage, "-f", fs])
+  #     Nerves.Port.cmd("unsquashfs", ["-d", s.stage, "-f", fs])
   #   end)
   #
   #   pseudofile = Enum.reduce(pseudofiles, "", fn(file, acc) ->
@@ -170,7 +170,7 @@ defmodule Nerves.Package.Utils.Squashfs do
   #   pseudofile_path = Path.join(stage_path, "pseudofile")
   #   File.write!(pseudofile_path, pseudofile)
   #
-  #   System.cmd("mksquashfs", [s.stage, path, "-pf", pseudofile_path, "-noappend", "-no-recovery", "-no-progress"])
+  #   Nerves.Port.cmd("mksquashfs", [s.stage, path, "-pf", pseudofile_path, "-noappend", "-no-recovery", "-no-progress"])
   #
   #   #File.rm!(pseudofile_path)
   #

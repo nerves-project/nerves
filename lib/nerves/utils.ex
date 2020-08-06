@@ -15,7 +15,7 @@ defmodule Nerves.Utils do
 
   def untar(file, destination \\ nil) do
     destination = destination || File.cwd!()
-    System.cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
+    Nerves.Port.cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
   end
 
   def json_decode(data) do
