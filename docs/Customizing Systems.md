@@ -362,7 +362,7 @@ Back in your main project, update deps:
 After customizing a Nerves System, creating artifacts, and publishing the
 package, you will probably want to keep track of the latest updates to the
 original system. Assuming you followed the `git` section in the [Getting
-Started](Getting-Setup-to-Build-a-System) section, you will have a remote
+Started](#getting-setup-to-build-a-system) section, you will have a remote
 called `upstream`. Check this by doing:
 
 ```plain
