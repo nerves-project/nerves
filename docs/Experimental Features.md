@@ -70,7 +70,7 @@ on-resource rootfs.img {
 Change the reference in the `upgrade.b` task:
 
 ```
-on-resource rootfs.img { raw_write(${ROOTFS_A_PART_OFFSET}) }
+on-resource rootfs.img { raw_write(${ROOTFS_B_PART_OFFSET}) }
 ```
 
 To:
