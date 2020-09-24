@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.6.4
+
+* Experimental features
+  * Added `mix firmware.patch` to locally create firmware patch files for
+    feature testing. This feature is under development.
+    See the [experimental features](https://github.com/nerves-project/nerves/blob/main/docs/Experimental%20Features.md) doc for more info.
+  * Added `:mksquashfs_flags` to the nerves firmware config to allow passing
+    additional flags to the `mksquashfs` call that produces the final rootfs.
+    If you are experimenting with creating patchable firmware, you should
+    use this feature to disable squashfs compression.
+
+    ```elixir
+    config :nerves, :firmware
+      mksquashfs_flags: ["-noI", "-noD", "-noF", "-noX"]
+    ```
+
+* Bug fixes
+  * Replace calls to `System.cmd` with a `Nerves.Port.cmd`. This code was
+    provided by `muontrap` and is used to clean up spawned system processes
+    when the vm exits.
+    This fixes issues with the docker build runner executing multiple times
+    and multiple calls to `mix firmware` after breaking out of the VM before
+    the first call finishes.
+  * Fix issue where SD card detection may fail while calling `mix burn` when`fwup`
+    returns additional fields.
+  * Clean the release directory when calling `mix firmware`. This prevents
+    OTP releases from accumulating unnecessary libraries and OTP applications
+    over time.
+
 ## v1.6.3
 
 * Bug fixes
