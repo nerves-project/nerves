@@ -85,7 +85,7 @@ defmodule Nerves.MixProject do
         "mix.exs",
         "README.md",
         "scripts",
-        "priv",
+        "priv/templates",
         "src",
         "Makefile"
       ],

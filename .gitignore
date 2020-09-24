@@ -8,3 +8,4 @@ erl_crash.dump
 /test_tmp
 /muontrap-*.log
 test/fixtures/port/*.test
+priv/port
