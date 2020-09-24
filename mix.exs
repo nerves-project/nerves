@@ -85,7 +85,9 @@ defmodule Nerves.MixProject do
         "mix.exs",
         "README.md",
         "scripts",
-        "priv"
+        "priv",
+        "src",
+        "Makefile"
       ],
       licenses: ["Apache 2.0"],
       links: %{"Home page" => "https://www.nerves-project.org/", "GitHub" => @source_url}
