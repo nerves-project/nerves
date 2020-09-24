@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.5
+
+* Bug fixes
+  * Fix issues with executing system commands on non mac hosts.
+
 ## v1.6.4
 
 * Experimental features
