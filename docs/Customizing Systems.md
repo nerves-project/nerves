@@ -154,9 +154,6 @@ Mix environment
  MIX_TARGET:   custom_rpi3
  MIX_ENV:      dev
 
-==> distillery
-Compiling 19 files (.ex)
-Generated distillery app
 ==> nerves
 Compiling 25 files (.ex)
 Generated nerves app

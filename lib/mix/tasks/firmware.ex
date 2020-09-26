@@ -39,27 +39,14 @@ defmodule Mix.Tasks.Firmware do
 
     check_nerves_toolchain_is_set!()
 
-    # Check for required files
-    if use_distillery?() do
-      rel_config =
-        File.cwd!()
-        |> Path.join("rel/config.exs")
+    vm_args =
+      File.cwd!()
+      |> Path.join("rel/vm.args.eex")
 
-      if !File.exists?(rel_config) do
-        Mix.raise("""
-          You are missing a release config file. Run  nerves.release.init task first
-        """)
-      end
-    else
-      vm_args =
-        File.cwd!()
-        |> Path.join("rel/vm.args.eex")
-
-      if !File.exists?(vm_args) do
-        Mix.raise("""
-          rel/vm.args needs to be moved to rel/vm.args.eex
-        """)
-      end
+    if !File.exists?(vm_args) do
+      Mix.raise("""
+        rel/vm.args needs to be moved to rel/vm.args.eex
+      """)
     end
 
     # By this point, paths have already been loaded.
@@ -70,12 +57,7 @@ defmodule Mix.Tasks.Firmware do
 
     Mix.Nerves.IO.shell_info("Building OTP Release...")
 
-    if use_distillery?() do
-      clean_distillery_release(opts)
-      build_distillery_release(opts)
-    else
-      build_release()
-    end
+    build_release()
 
     config = Mix.Project.config()
     fw_out = opts[:output] || Nerves.Env.firmware_path(config)
@@ -91,23 +73,8 @@ defmodule Mix.Tasks.Firmware do
       Nerves encountered an error. #{inspect(result)}
       """)
 
-  defp clean_distillery_release(opts) do
-    verbosity = if opts[:verbose], do: "--verbose", else: "--silent"
-
-    try do
-      Mix.Task.run("distillery.release.clean", [verbosity, "--implode", "--no-confirm"])
-    catch
-      :exit, _ -> :noop
-    end
-  end
-
   defp build_release() do
     Mix.Task.run("release", [])
-  end
-
-  defp build_distillery_release(opts) do
-    verbosity = if opts[:verbose], do: "--verbose", else: "--quiet"
-    Mix.Task.run("distillery.release", [verbosity, "--no-tar"])
   end
 
   defp build_firmware(config, system_path, fw_out) do
