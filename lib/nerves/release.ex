@@ -51,9 +51,6 @@ defmodule Nerves.Release do
   end
 
   def write_rootfs_priorities(applications, host_release_path, bootfile) do
-    # Distillery support
-    applications = normalize_applications(applications)
-
     target_release_path = @target_release_path
 
     {:script, _, boot_script} = :erlang.binary_to_term(bootfile)
@@ -91,15 +88,7 @@ defmodule Nerves.Release do
                 Enum.reduce(files, [], fn file, loaded ->
                   filename = to_string(file) <> ".beam"
 
-                  path =
-                    if String.starts_with?(path, "lib/") do
-                      # Distillery
-                      Path.join([path, filename])
-                    else
-                      # Elixir 1.9 releases
-                      Path.join(["lib", path, filename])
-                    end
-
+                  path = Path.join(["lib", path, filename])
                   host_path = Path.join(host_release_path, path) |> Path.expand()
 
                   if File.exists?(host_path) do
@@ -180,16 +169,6 @@ defmodule Nerves.Release do
 
   defp not_empty_dir(dir) do
     File.ls(dir) != {:ok, []}
-  end
-
-  defp normalize_applications(applications) do
-    Enum.map(applications, fn
-      %{name: app, vsn: vsn, path: path} ->
-        {to_string(app), to_string(vsn), Path.expand(to_string(path))}
-
-      {app, opts} ->
-        {to_string(app), to_string(opts[:vsn]), Path.expand(to_string(opts[:path]))}
-    end)
   end
 
   defp expand_target_path(target_release_path, path) do

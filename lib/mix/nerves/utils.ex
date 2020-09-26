@@ -181,11 +181,6 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
-  def use_distillery?() do
-    less_than_elixir_19 = Nerves.elixir_version() |> Version.compare("1.9.0") == :lt
-    less_than_elixir_19 && Code.ensure_loaded?(Mix.Tasks.Distillery.Release)
-  end
-
   @spec raise_env_var_missing(String.t()) :: no_return()
   defp raise_env_var_missing(name) do
     Mix.raise("""

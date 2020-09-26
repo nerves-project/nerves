@@ -33,7 +33,6 @@ defmodule Nerves.MixProject do
   defp deps do
     [
       {:elixir_make, "~> 0.6", runtime: false},
-      {:distillery, "~> 2.1", optional: true, runtime: false},
       {:jason, "~> 1.2", optional: true},
       {:ex_doc, "~> 0.22", only: [:test, :dev], runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
@@ -85,7 +84,6 @@ defmodule Nerves.MixProject do
         "mix.exs",
         "README.md",
         "scripts",
-        "priv/templates",
         "src",
         "Makefile"
       ],
