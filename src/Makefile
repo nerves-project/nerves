@@ -1,4 +1,8 @@
-# Makefile for building the nerves port process
+# Makefile for building the Nerves port monitor process
+#
+# This code is always run on the host as opposed to nearly everything else with
+# Nerves. As such, it explicitly references the host compiler
+# (non-crosscompiler)
 #
 # Makefile targets:
 #
@@ -7,19 +11,21 @@
 #
 # Variables to override:
 #
-# MIX_APP_PATH  path to the build directory
-# CC            C compiler. MUST be set if crosscompiling
-# CFLAGS        compiler flags for compiling all C files
-# LDFLAGS       linker flags for linking all binaries
+# MIX_APP_PATH       Path to the build directory
+# CC_FOR_BUILD       C compiler. MUST be set if crosscompiling
+# CFLAGS_FOR_BUILD   Optional compiler flags
+# LDFLAGS_FOR_BUILD  Optional linker flags
 
 PREFIX = $(MIX_APP_PATH)/priv
 BUILD  = $(MIX_APP_PATH)/obj
 
 PORT = $(PREFIX)/port
 
-LDFLAGS +=
-CFLAGS ?= -O2 -Wall -Wextra -Wno-unused-parameter
-CFLAGS += -std=c99 -D_GNU_SOURCE
+CC_FOR_BUILD ?= $(CC)
+
+LDFLAGS_FOR_BUILD +=
+CFLAGS_FOR_BUILD ?= -O2 -Wall -Wextra -Wno-unused-parameter
+CFLAGS_FOR_BUILD += -std=c99 -D_GNU_SOURCE
 
 #CFLAGS += -DDEBUG
 
@@ -36,10 +42,10 @@ install: $(PREFIX) $(BUILD) $(PORT)
 $(OBJ): Makefile
 
 $(BUILD)/%.o: %.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(CC_FOR_BUILD) -c $(CFLAGS_FOR_BUILD) -o $@ $<
 
 $(PORT): $(OBJ)
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CC_FOR_BUILD) $^ $(LDFLAGS_FOR_BUILD) -o $@
 
 $(PREFIX) $(BUILD):
 	mkdir -p $@
