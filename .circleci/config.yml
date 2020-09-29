@@ -22,6 +22,12 @@ install_hex_rebar: &install_hex_rebar
       mix local.hex --force
       mix local.rebar --force
 
+install_nerves_bootstrap: &install_nerves_bootstrap
+  run:
+    name: Install nerves_bootstrap
+    command: |
+      mix archive.install hex nerves_bootstrap
+
 defaults: &defaults
   working_directory: ~/repo
 
@@ -38,6 +44,7 @@ jobs:
       - checkout
       - <<: *install_elixir
       - <<: *install_hex_rebar
+      - <<: *install_nerves_bootstrap
       - run: mix deps.get --only test
       - run: mix test
       - run: mix format --check-formatted
@@ -55,6 +62,7 @@ jobs:
       - checkout
       - <<: *install_elixir
       - <<: *install_hex_rebar
+      - <<: *install_nerves_bootstrap
       - run: mix deps.get --only test
       - run: mix test
 
@@ -69,34 +77,7 @@ jobs:
       - checkout
       - <<: *install_elixir
       - <<: *install_hex_rebar
-      - run: mix deps.get --only test
-      - run: mix test
-
-  build_elixir_1_8_otp_21:
-    docker:
-      - <<: *otp_21_image
-    environment:
-      ELIXIR_VERSION: 1.8.2-otp-21
-      LC_ALL: C.UTF-8
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *install_elixir
-      - <<: *install_hex_rebar
-      - run: mix deps.get --only test
-      - run: mix test
-
-  build_elixir_1_7_otp_21:
-    docker:
-      - <<: *otp_21_image
-    environment:
-      ELIXIR_VERSION: 1.7.4-otp-21
-      LC_ALL: C.UTF-8
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *install_elixir
-      - <<: *install_hex_rebar
+      - <<: *install_nerves_bootstrap
       - run: mix deps.get --only test
       - run: mix test
 
@@ -109,8 +90,4 @@ workflows:
       - build_elixir_1_10_otp_22:
           context: org-global
       - build_elixir_1_9_otp_22:
-          context: org-global
-      - build_elixir_1_8_otp_21:
-          context: org-global
-      - build_elixir_1_7_otp_21:
           context: org-global

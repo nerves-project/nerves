@@ -53,6 +53,8 @@ defmodule Nerves.Release do
   def write_rootfs_priorities(applications, host_release_path, bootfile) do
     target_release_path = @target_release_path
 
+    applications = normalize_applications(applications)
+
     {:script, _, boot_script} = :erlang.binary_to_term(bootfile)
 
     target_beam_files = target_beam_files(boot_script, host_release_path, target_release_path)
@@ -175,5 +177,12 @@ defmodule Nerves.Release do
     Path.join(["/", target_release_path, path])
     |> Path.expand(target_release_path)
     |> String.trim_leading("/")
+  end
+
+  defp normalize_applications(applications) do
+    Enum.map(applications, fn
+      {app, opts} ->
+        {to_string(app), to_string(opts[:vsn]), Path.expand(to_string(opts[:path]))}
+    end)
   end
 end
