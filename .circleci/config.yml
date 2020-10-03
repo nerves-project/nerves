@@ -1,5 +1,5 @@
 otp_23_image: &otp_23_image
-  image: erlang:23.0.3
+  image: erlang:23.1
 
 otp_22_image: &otp_22_image
   image: erlang:22.3.4.5
@@ -33,6 +33,24 @@ defaults: &defaults
 
 version: 2
 jobs:
+  build_elixir_1_11_otp_23:
+    docker:
+      - <<: *otp_23_image
+    environment:
+      ELIXIR_VERSION: 1.11.0-rc.0-otp-23
+      LC_ALL: C.UTF-8
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_elixir
+      - <<: *install_hex_rebar
+      - <<: *install_nerves_bootstrap
+      - run: mix deps.get
+      - run: mix test
+      - run: mix format --check-formatted
+      - run: mix docs
+      - run: mix hex.build
+
   build_elixir_1_10_otp_23:
     docker:
       - <<: *otp_23_image
@@ -45,7 +63,7 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - <<: *install_nerves_bootstrap
-      - run: mix deps.get --only test
+      - run: mix deps.get
       - run: mix test
       - run: mix format --check-formatted
       - run: mix docs
@@ -63,7 +81,7 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - <<: *install_nerves_bootstrap
-      - run: mix deps.get --only test
+      - run: mix deps.get
       - run: mix test
 
   build_elixir_1_9_otp_22:
@@ -78,13 +96,15 @@ jobs:
       - <<: *install_elixir
       - <<: *install_hex_rebar
       - <<: *install_nerves_bootstrap
-      - run: mix deps.get --only test
+      - run: mix deps.get
       - run: mix test
 
 workflows:
   version: 2
   build_test:
     jobs:
+      - build_elixir_1_11_otp_23:
+          context: org-global
       - build_elixir_1_10_otp_23:
           context: org-global
       - build_elixir_1_10_otp_22:
