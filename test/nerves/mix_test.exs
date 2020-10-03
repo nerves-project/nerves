@@ -27,7 +27,7 @@ defmodule Nerves.MixTest do
         _ = load_env(packages)
 
         Mix.Tasks.Deps.Get.run([])
-       assert {_, 0} = Nerves.Port.cmd("mix", ["release"], [env: [{"MIX_TARGET", "target"}]])
+        assert {_, 0} = Nerves.Port.cmd("mix", ["release"], env: [{"MIX_TARGET", "target"}])
       end)
     end
   end

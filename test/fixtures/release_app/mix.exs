@@ -6,7 +6,7 @@ defmodule ReleaseApp.Fixture do
       app: :release_app,
       version: "0.1.0",
       deps: deps(),
-      releases: [{:release_app, release()}],
+      releases: [{:release_app, release()}]
     ]
   end
 
