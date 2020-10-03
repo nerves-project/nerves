@@ -18,17 +18,4 @@ defmodule Nerves.MixTest do
       end)
     end
   end
-
-  describe "mix firmware" do
-    test "can create a release", _context do
-      in_fixture("release_app", fn ->
-        packages = ~w(system toolchain system_platform toolchain_platform)
-
-        _ = load_env(packages)
-
-        Mix.Tasks.Deps.Get.run([])
-       assert {_, 0} = Nerves.Port.cmd("mix", ["release"], [env: [{"MIX_TARGET", "target"}]])
-      end)
-    end
-  end
 end
