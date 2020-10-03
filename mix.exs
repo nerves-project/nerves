@@ -19,7 +19,12 @@ defmodule Nerves.MixProject do
       make_clean: ["clean"],
       aliases: [docs: ["docs", &copy_images/1]],
       docs: docs(),
-      dialyzer: [plt_add_apps: [:mix]]
+      dialyzer: [plt_add_apps: [:mix]],
+      preferred_cli_env: %{
+        docs: :docs,
+        "hex.publish": :docs,
+        "hex.build": :docs
+      }
     ]
   end
 
@@ -34,9 +39,9 @@ defmodule Nerves.MixProject do
     [
       {:elixir_make, "~> 0.6", runtime: false},
       {:jason, "~> 1.2", optional: true},
-      {:ex_doc, "~> 0.22", only: [:test, :dev], runtime: false},
+      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
-      {:nerves_bootstrap, "~> 1.8", only: [:test, :dev]},
+      {:nerves_bootstrap, "~> 1.8", only: [:test, :dev, :docs]},
       {:plug, "~> 1.10", only: :test},
       {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test}
     ]
