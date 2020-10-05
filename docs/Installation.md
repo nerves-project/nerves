@@ -114,11 +114,11 @@ Now continue to the instructions for all platforms below.
 
 First, install the required versions of Erlang/OTP and Elixir. We highly
 recommend using ASDF since the versions in use will be under your control. See
-the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf-vm) for official
+the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf) for official
 documentation. Here's a summary of the install process:
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.7.8
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.0
 
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
