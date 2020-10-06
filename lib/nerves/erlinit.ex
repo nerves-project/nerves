@@ -105,7 +105,14 @@ defmodule Nerves.Erlinit do
       |> Enum.map(&String.trim/1)
       |> Enum.map(&trim_quoted_string/1)
 
-    {opts, _, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
+    # `allow_nonexistent_atoms: true` allows unknown erlinit options to pass through.
+    {opts, _, _} =
+      OptionParser.parse(argv,
+        switches: @switches,
+        aliases: @aliases,
+        allow_nonexistent_atoms: true
+      )
+
     opts
   end
 

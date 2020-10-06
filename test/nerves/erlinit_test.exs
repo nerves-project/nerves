@@ -80,6 +80,9 @@ defmodule Nerves.ErlinitTest do
   # shoehorn OTP release up first. If shoehorn isn't around, erlinit fails back
   # to the main OTP release.
   --boot shoehorn
+
+  # Test that unknown erlinit options are passed through unharmed
+  --unknown-erlinit-option 1234
   """
 
   test "parse example file", context do
@@ -108,7 +111,8 @@ defmodule Nerves.ErlinitTest do
                release_path: "/srv/erlang",
                uniqueid_exec: "/usr/bin/boardid",
                hostname_pattern: "nerves-%s",
-               boot: "shoehorn"
+               boot: "shoehorn",
+               unknown_erlinit_option: "1234"
              ]
     end)
   end
@@ -182,6 +186,7 @@ defmodule Nerves.ErlinitTest do
              --uniqueid-exec /usr/bin/boardid
              --hostname-pattern nerves-%s
              --boot shoehorn
+             --unknown-erlinit-option 1234
              """
     end)
   end
