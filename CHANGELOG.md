@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.7.0
+
+Nerves 1.7.0 removes support for creating OTP releases using Distillery and
+only supports using Elixir releases. As a result, the minimum supported version
+of Elixir is now version 1.9.
+
+Official Nerves systems now support applying firmware using patches. This
+greatly reduces the amount of data that required to push firmware updates
+to devices. The minimum requirement for fwup has been updated to 1.8
+to enable support for this feature.
+
+* Bug fixes
+  * Pass all unspecified erlinit args to the generator instead of silently
+    ignoring them.
+  * Use host CC when compiling the port.
+
 ## v1.6.5
 
 * Bug fixes
