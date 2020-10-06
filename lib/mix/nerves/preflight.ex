@@ -1,7 +1,7 @@
 defmodule Mix.Nerves.Preflight do
   alias Nerves.Utils.WSL
 
-  @fwup_semver "~> 1.5"
+  @fwup_semver "~> 1.8"
 
   def check! do
     :os.type()
