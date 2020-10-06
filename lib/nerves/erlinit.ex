@@ -30,7 +30,8 @@ defmodule Nerves.Erlinit do
     update_clock: :boolean,
     verbose: :boolean,
     warn_unused_tty: :boolean,
-    working_directory: :string
+    working_directory: :string,
+    shutdown_report: :string
   ]
 
   @aliases [
@@ -70,7 +71,8 @@ defmodule Nerves.Erlinit do
           update_clock: boolean(),
           verbose: boolean(),
           warn_unused_tty: boolean(),
-          working_directory: Path.t()
+          working_directory: Path.t(),
+          shutdown_report: Path.t()
         ]
 
   @doc """

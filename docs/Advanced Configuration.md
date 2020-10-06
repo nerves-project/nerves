@@ -444,7 +444,8 @@ The following is a list of all options that can be specified:
   update_clock: boolean(),
   verbose: boolean(),
   warn_unused_tty: boolean(),
-  working_directory: Path.t()
+  working_directory: Path.t(),
+  shutdown_report: Path.t()
 ]
 ```
 
