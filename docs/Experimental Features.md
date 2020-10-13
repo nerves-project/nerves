@@ -29,7 +29,6 @@ firmware will result in returning an error when attempting to apply it.
 Generating and applying firmware patch files will require that your host machine
 and your target have `fwup` >= 1.6.0 installed.
 
-
 ### Preparing your Nerves system
 
 Firmware update patches will require modifications to the `fwup.conf` of your
@@ -39,27 +38,27 @@ it is capable of applying firmware update patches.
 In your `fwup.conf`, find the references to `rootfs.img`, in typical systems
 there will be 4 references.
 
-  * `file-resource`:
-    Unchanged
-  * Inside the `complete` task:
-    Unchanged. When writing a complete firmware on to a new device. A patch
-    cannot be applied on the target.
-  * Inside the `upgrade.a` task:
-    When new firmware is written in to firmware slot `a`.
-  * Inside the `upgrade.b` task:
-    When new firmware is written in to firmware slot `b`.
+* `file-resource`:
+  Unchanged
+* Inside the `complete` task:
+  Unchanged. When writing a complete firmware on to a new device. A patch
+  cannot be applied on the target.
+* Inside the `upgrade.a` task:
+  When new firmware is written in to firmware slot `a`.
+* Inside the `upgrade.b` task:
+  When new firmware is written in to firmware slot `b`.
 
 We only need to modify the actions taken in the `upgrade.a` and `upgrade.b` steps.
 
 Change the reference in the `upgrade.a` task:
 
-```
+```text
 on-resource rootfs.img { raw_write(${ROOTFS_A_PART_OFFSET}) }
 ```
 
 To:
 
-```
+```text
 on-resource rootfs.img {
   delta-source-raw-offset=${ROOTFS_B_PART_OFFSET}
   delta-source-raw-count=${ROOTFS_B_PART_COUNT}
@@ -69,13 +68,13 @@ on-resource rootfs.img {
 
 Change the reference in the `upgrade.b` task:
 
-```
+```text
 on-resource rootfs.img { raw_write(${ROOTFS_B_PART_OFFSET}) }
 ```
 
 To:
 
-```
+```text
 on-resource rootfs.img {
   delta-source-raw-offset=${ROOTFS_A_PART_OFFSET}
   delta-source-raw-count=${ROOTFS_A_PART_COUNT}
@@ -88,7 +87,7 @@ You'll also need to ensure that your system is being build using
 attempt to apply a firmware patch to a device that does not support it, you
 will receive an error similar to the following:
 
-```
+```sh
 Running fwup...
 fwup: Upgrading partition B
 fwup: File 'rootfs.img' isn't expected size (7373 vs 49201152) and xdelta3 patch support not enabled on it. (Add delta-source-raw-offset or delta-source-raw-count at least)
@@ -133,14 +132,14 @@ listed in the `Preparing your project` section. Then, choose a target, in this
 example, I will be using a Raspberry Pi Zero W `rpi0` and building an app
 called `test_patch`.
 
-```
+```sh
 export MIX_TARGET=rpi0
 mix deps.get
 ```
 
 Create your initial firmware and burn it to an SD card
 
-```
+```sh
 mix firmware.burn
 ```
 
@@ -148,10 +147,10 @@ Connect the SD card and power on the device by connecting a micro USB cable to
 the host USB port on the Raspberry Pi. You can ssh into the device at
 `nerves.local` and you should get an IEX prompt.
 
-```
+```sh
 ssh nerves.local
 
-Interactive Elixir (1.10.3) - press Ctrl+C to exit (type h() ENTER for help)
+Interactive Elixir (1.10.4) - press Ctrl+C to exit (type h() ENTER for help)
 Toolshed imported. Run h(Toolshed) for more info.
 RingLogger is collecting log messages from Elixir and Linux. To see the
 messages, either attach the current IEx session to the logger:
@@ -181,7 +180,7 @@ Now lets generate a patch firmware.
 
 You should see output similar to the following:
 
-```
+```text
 Finished generating patch firmware
 
 Source
@@ -203,7 +202,7 @@ size: 4425660 bytes
 
 Lets update the device using the patch file.
 
-```
+```sh
 mix upload --firmware /path/to/test_patch/_build/rpi0_dev/nerves/images/patch.fw
 ```
 
