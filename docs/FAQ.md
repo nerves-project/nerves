@@ -71,8 +71,10 @@ You can also have the device drop into a shell when the Erlang VM crashes, allow
 
 ## Platform-Specific Hardware Support
 
-Some target hardware has particular features that can be used from your application, but they're not covered in the general Nerves documentation.
-In general, platform-specific features will be documented in the target's system documentation.
-You may also find what you need by looking at the [community-maintained list of libraries](http://nerves-project.org/libraries/) that work well with Nerves.
+Some target hardware has particular features that can be used from your
+application, but they're not covered in the general Nerves documentation.  In
+general, platform-specific features will be documented in the target's system
+documentation.  You may also find what you need by seaching
+[hex.pm](https://hex.pm) for libraries that use that feature.
 
 If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
