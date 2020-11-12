@@ -47,32 +47,24 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
   def bootstrap_check(false) do
     error =
-      cond do
-        in_umbrella?(File.cwd!()) ->
-          """
-          Compiling Nerves packages from the top of umbrella projects isn't supported.
-          Please cd into the application directory and try again.
+      """
+      Compiling Nerves packages requires nerves_bootstrap to be started, which ought to
+      happen in your generated `config.exs`. Please ensure that MIX_TARGET is set in your environment.
+      """ <>
+        if in_umbrella?(File.cwd!()) do
           """
 
-        true ->
-          """
-          Compiling Nerves packages requires nerves_bootstrap to be started.
-          Please ensure that MIX_TARGET is set in your environment and that you have added
-          the proper aliases to your mix.exs file:
+          When compiling from an Umbrella project you must also ensure:
 
-            def project do
-              [
-                # ...
-                aliases: [loadconfig: [&bootstrap/1]],
-              ]
-            end
+          * You are compiling from an application directory, not the root of the Umbrella
 
-            defp bootstrap(args) do
-              Application.start(:nerves_bootstrap)
-              Mix.Task.run("loadconfig", args)
-            end
+          * The Umbrella config (/config/config.exs) imports the generated Nerves config from your
+          Nerves application (import_config "../apps/your_nerves_app/config/config.exs")
+
           """
-      end
+        else
+          ""
+        end
 
     Mix.raise(error)
   end
