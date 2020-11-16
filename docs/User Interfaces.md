@@ -157,7 +157,7 @@ config :my_app_ui, MyAppUiWeb.Endpoint,
   load_from_system_env: false,
   # Start the server since we're running in a release instead of through `mix`
   server: true,
-  url: [host: "nerves.local", port: 80],
+  url: [host: "nerves.local", port: 80]
 ```
 
 There we have it! A Phoenix-based web application is now ready to run on our
