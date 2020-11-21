@@ -117,7 +117,8 @@ recommend using ASDF since the versions in use will be under your control. See
 the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf) for official
 documentation.
 
-IMPORTANT: Elixir 1.11 is not currently supported. Please be sure to use Elixir 1.10.
+IMPORTANT: Elixir 1.11.0 and 1.11.1 do not work with Nerves. Elixir 1.11.2 and
+later are fine. Elixir 1.10.x also works.
 
 Here's a summary of the install process:
 
@@ -149,10 +150,10 @@ asdf plugin-add elixir
 # latest official Nerves systems are compatible with the versions below. In
 # general, differences in patch releases are harmless. Nerves detects
 # configurations that might not work at compile time.
-asdf install erlang 23.0.4
-asdf install elixir 1.10.4-otp-23
-asdf global erlang 23.0.4
-asdf global elixir 1.10.4-otp-23
+asdf install erlang 23.1.4
+asdf install elixir 1.11.2-otp-23
+asdf global erlang 23.1.4
+asdf global elixir 1.11.2-otp-23
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
