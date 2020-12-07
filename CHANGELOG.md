@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.1
+
+* Enhancements
+  * Documentation and docker improvements for Windows Subsystem for Linux 2
+
 ## v1.7.0
 
 Nerves 1.7.0 removes support for creating OTP releases using Distillery and
