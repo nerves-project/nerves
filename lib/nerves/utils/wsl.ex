@@ -22,19 +22,17 @@ defmodule Nerves.Utils.WSL do
   @doc """
   Returns true if inside a WSL shell environment
   """
-  @spec running_on_wsl?(String.t()) :: boolean
-  def running_on_wsl?(osrelease_path \\ "/proc/sys/kernel/osrelease") do
-    with true <- File.exists?(osrelease_path),
-         {content, _} <- Nerves.Port.cmd("cat", [osrelease_path]) do
-      # Docker Desktop for Windows uses WSL 2 kernel as the back-end
-      # This line checks whether the env is Docker or WSL 2 shell
-      case !File.exists?("/.dockerenv") do
-        true -> Regex.match?(~r/[Mm]icrosoft/, content)
-        false -> false
-      end
-    else
-      _ ->
-        false
+  @spec running_on_wsl?() :: boolean
+  def running_on_wsl?() do
+    # Docker Desktop for Windows uses WSL 2 kernel as the back-end
+    # so also check whether the env is Docker
+    Regex.match?(~r/[Mm]icrosoft/, osrelease()) and not File.exists?("/.dockerenv")
+  end
+
+  defp osrelease() do
+    case File.read("/proc/sys/kernel/osrelease") do
+      {:ok, text} -> text
+      _ -> "unknown"
     end
   end
 
