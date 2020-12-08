@@ -18,9 +18,9 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   Example:
 
-    build_runner_config: [
-      docker: {"Dockerfile", "my_system:0.1.0"}
-    ]
+      build_runner_config: [
+        docker: {"Dockerfile", "my_system:0.1.0"}
+      ]
 
   ## Volumes and Cache
 
