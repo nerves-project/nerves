@@ -6,7 +6,7 @@ compile environment.
 
 ## Call Tree
 
-Below is a brief sketch of the call tree for the boostrap.  It is intended
+Below is a brief sketch of the call tree for the bootstrap.  It is intended
 to be a "10,000 ft" overview.
 
 ### mix firmware

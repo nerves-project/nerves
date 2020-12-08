@@ -7,7 +7,7 @@ consideration and or actively being developed.
 
 Firmware update files (`.fw`) contain everything your target needs to boot and
 run your application. Commonly, this single file package will contain your root
-filesystem, the linux kernel, a bootloader, and some extra files and metadata
+filesystem, the Linux kernel, a bootloader, and some extra files and metadata
 specific to your target. Packaging all these files together provides a convenient
 and reliable means of distributing firmware that can be used to boot new devices
 as well as upgrade existing ones. Unfortunately, this mechanism is not conducive
@@ -16,7 +16,7 @@ where the cost of every byte counts. This problem can be alleviated with firmwar
 patches.
 
 A firmware patch file's content structure is identical to that of a regular
-firmware update file, it contains your root file system, the linux kernel, and
+firmware update file, it contains your root file system, the Linux kernel, and
 so on. The main difference is that the contents of these files are no longer a
 bit for bit representation but instead the delta between two known versions of
 firmware. Currently, the system will only apply patches to the root file system,
@@ -210,7 +210,7 @@ The size difference between the `Target` output firmware size `22077072` and the
 patched firmware size `4425660` has a pretty significant size reduction. For
 such a small change, we might expect more. A lot of this size come from the
 files that are also included in the firmware that are not currently being patched
-such as the linux kernel and other files that do not change frequently.
-We anticipate that all other files wil offer similar support, but we started
+such as the Linux kernel and other files that do not change frequently.
+We anticipate that all other files will offer similar support, but we started
 with the first most impactful file, the SquashFS root filesystem, so we can begin
 testing this workflow using devices.
