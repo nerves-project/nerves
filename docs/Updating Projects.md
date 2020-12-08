@@ -665,7 +665,7 @@ In your project's `mix.exs`, make the following edits:
     end
     ```
 
-5. Add preferred cli target to the project config:
+5. Add preferred CLI target to the project config:
 
     ```elixir
     def project do

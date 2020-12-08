@@ -323,7 +323,7 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
         provisioning: :nerves_hub
       ```
   * Bug Fixes
-    * Fix issue with setting provisioning environment vairables when calling
+    * Fix issue with setting provisioning environment variables when calling
       `mix firmware.burn` on Linux systems. Environment variables prefixed with
       `NERVES_` and the variable `SERIAL_NUMBER` will be copied into the environment.
 

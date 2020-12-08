@@ -55,12 +55,12 @@ instructions](https://docs.microsoft.com/en-us/windows/wsl/wsl2-install) for
 more information. Once you have WSL2 support enabled you will need to install an
 instance of Linux. We recommend installing Ubuntu.
 
-Next, follow the instructions for Linux inside your WSL2 linux installation to
+Next, follow the instructions for Linux inside your WSL2 Linux installation to
 finish setting up the environment.
 
-Finally, you'll need to install `fwup` using chocolatey. See the [chocolatey
-install guide](https://chocolatey.org/install) for help installing chocolatey on
-your system. With chocolatey installed, run the following from a Powershell:
+Finally, you'll need to install `fwup` using Chocolatey. See the [chocolatey
+install guide](https://chocolatey.org/install) for help installing Chocolatey on
+your system. With Chocolatey installed, run the following from a Powershell:
 
 ```powershell
 choco install fwup /y
