@@ -6,6 +6,14 @@ defmodule Nerves.Release do
   def init(%{options: options} = release) do
     opts = Keyword.merge(options, release_opts())
 
+    vm_args = Mix.Release.rel_templates_path(release, "vm.args.eex")
+
+    if !File.exists?(vm_args) do
+      Mix.raise("""
+        rel/vm.args needs to be moved to #{vm_args}
+      """)
+    end
+
     release = %{
       release
       | options: opts,
