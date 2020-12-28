@@ -99,7 +99,7 @@ defmodule Mix.Tasks.Firmware do
     end
 
     build_rootfs_overlay = Path.join([Mix.Project.build_path(), "nerves", "rootfs_overlay"])
-    File.mkdir_p(build_rootfs_overlay)
+    File.mkdir_p!(build_rootfs_overlay)
 
     write_erlinit_config(build_rootfs_overlay)
 
@@ -136,7 +136,7 @@ defmodule Mix.Tasks.Firmware do
 
     config
     |> Nerves.Env.images_path()
-    |> File.mkdir_p()
+    |> File.mkdir_p!()
 
     shell(cmd, args, env: env)
     |> result
@@ -234,7 +234,7 @@ defmodule Mix.Tasks.Firmware do
       erlinit_config_file = Path.join(build_overlay, "etc/erlinit.config")
 
       Path.dirname(erlinit_config_file)
-      |> File.mkdir_p()
+      |> File.mkdir_p!()
 
       header = erlinit_config_header(user_opts)
 

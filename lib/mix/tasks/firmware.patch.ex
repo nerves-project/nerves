@@ -61,9 +61,9 @@ defmodule Mix.Tasks.Firmware.Patch do
     target_work_dir = Path.join(work_dir, "target")
     output_work_dir = Path.join(work_dir, "output")
 
-    File.mkdir_p(source_work_dir)
-    File.mkdir_p(target_work_dir)
-    File.mkdir_p(Path.join(output_work_dir, "data"))
+    File.mkdir_p!(source_work_dir)
+    File.mkdir_p!(target_work_dir)
+    File.mkdir_p!(Path.join(output_work_dir, "data"))
 
     {_, 0} = shell("unzip", ["-qq", source, "-d", source_work_dir])
     {_, 0} = shell("unzip", ["-qq", target, "-d", target_work_dir])

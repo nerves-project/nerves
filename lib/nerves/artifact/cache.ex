@@ -86,7 +86,7 @@ defmodule Nerves.Artifact.Cache do
 
     if valid_checksum?(pkg, checksum) do
       dest = path(pkg)
-      File.mkdir_p(Artifact.base_dir())
+      File.mkdir_p!(Artifact.base_dir())
       File.rm_rf!(dest)
       File.ln_s!(build_path_link, dest)
       true
