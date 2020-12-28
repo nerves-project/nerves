@@ -20,9 +20,9 @@ defmodule HostTool.Platform do
 
     build_path
     |> Path.dirname()
-    |> File.mkdir_p()
+    |> File.mkdir_p!()
 
-    File.mkdir_p(priv_dir)
+    File.mkdir_p!(priv_dir)
 
     File.ln_s!(priv_dir, build_path)
 

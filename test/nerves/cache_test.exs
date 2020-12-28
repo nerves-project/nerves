@@ -44,10 +44,10 @@ defmodule Nerves.CacheTest do
 
       dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
       dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
-      File.mkdir_p(Nerves.Env.download_dir())
+      File.mkdir_p!(Nerves.Env.download_dir())
 
       working_path = Path.join(File.cwd!(), "archive")
-      File.mkdir_p(working_path)
+      File.mkdir_p!(working_path)
 
       working_path
       |> Path.join("CHECKSUM")
@@ -72,7 +72,7 @@ defmodule Nerves.CacheTest do
 
       dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
       dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
-      File.mkdir_p(Nerves.Env.download_dir())
+      File.mkdir_p!(Nerves.Env.download_dir())
 
       File.touch(dl_path)
       assert File.exists?(dl_path)
@@ -89,7 +89,7 @@ defmodule Nerves.CacheTest do
 
       Nerves.Env.start()
 
-      File.mkdir_p(Nerves.Env.download_dir())
+      File.mkdir_p!(Nerves.Env.download_dir())
 
       System.put_env("NERVES_SYSTEM", Nerves.Env.download_dir())
       Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
