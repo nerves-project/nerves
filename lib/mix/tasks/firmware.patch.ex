@@ -75,7 +75,7 @@ defmodule Mix.Tasks.Firmware.Patch do
     {_, 0} = shell("xdelta3", ["-A", "-S", "-f", "-s", source_rootfs, target_rootfs, out_rootfs])
 
     File.mkdir_p!(Path.dirname(output))
-    File.cp!(source, output)
+    File.cp!(target, output)
 
     {_, 0} = shell("zip", ["-qq", output, "data/rootfs.img"], cd: output_work_dir)
 
