@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.7.2
+
+* Bug fixes
+  * Fix Elixir semvar requirements to produce warnings on unsupported versions.
+  * Produce better errors on HTTP timeouts
+
 ## v1.7.1
 
 * Enhancements
