@@ -214,3 +214,25 @@ such as the Linux kernel and other files that do not change frequently.
 We anticipate that all other files will offer similar support, but we started
 with the first most impactful file, the SquashFS root filesystem, so we can begin
 testing this workflow using devices.
+
+## Nerves package environment variables
+
+Packages can provide custom system environment variables to be exported when
+`Nerves.Env.bootstrap/0` is called. The initial use case for this feature is to
+export system specific information for llvm-based tools. Here is an example from
+`nerves_system_rpi0`
+
+```elixir
+  defp nerves_package do
+    [
+      # ...
+      env: [
+        {"TARGET_ARCH", "arm"},
+        {"TARGET_CPU", "arm1176jzf_s"},
+        {"TARGET_OS", "linux"},
+        {"TARGET_ABI", "gnueabi"}
+      ]
+      # ...
+    ]
+  end
+```

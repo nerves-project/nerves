@@ -23,6 +23,9 @@ defmodule System.Mixfile do
       platform_config: [
         defconfig: "nerves_defconfig"
       ],
+      env: [
+        {"FOO", "BAR"}
+      ],
       checksum: package_files()
     ]
   end

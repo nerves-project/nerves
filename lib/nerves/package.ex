@@ -10,6 +10,7 @@ defmodule Nerves.Package do
   defstruct app: nil,
             path: nil,
             dep: nil,
+            env: [],
             type: nil,
             version: nil,
             platform: nil,
@@ -24,6 +25,7 @@ defmodule Nerves.Package do
   @type t :: %__MODULE__{
           app: atom,
           path: binary,
+          env: Keyword.t(),
           type:
             :system
             | :package
@@ -53,6 +55,7 @@ defmodule Nerves.Package do
     version = config[:version]
     type = config[:nerves_package][:type]
     compilers = config[:compilers] || Mix.compilers()
+    env = config[:nerves_package][:env] || %{}
 
     unless type do
       Mix.shell().error(
@@ -76,6 +79,7 @@ defmodule Nerves.Package do
     %Package{
       app: app,
       type: type,
+      env: env,
       platform: platform,
       build_runner: build_runner,
       compilers: compilers,

@@ -335,6 +335,7 @@ defmodule Nerves.Env do
   def bootstrap do
     nerves_system_path = system_path()
     nerves_toolchain_path = toolchain_path()
+    packages = Nerves.Env.packages()
 
     [
       {"NERVES_SYSTEM", nerves_system_path},
@@ -392,8 +393,11 @@ defmodule Nerves.Env do
       platform.bootstrap(pkg)
     end
 
+    # Export nerves package env variables
+    Enum.map(packages, &export_package_env/1)
+
     # Bootstrap all other packages who define a platform
-    Nerves.Env.packages()
+    packages
     |> Enum.reject(&(&1 == Nerves.Env.toolchain()))
     |> Enum.reject(&(&1 == Nerves.Env.system()))
     |> Enum.reject(&(&1.platform == nil))
@@ -433,6 +437,10 @@ defmodule Nerves.Env do
   def source_date_epoch() do
     (System.get_env("SOURCE_DATE_EPOCH") || Application.get_env(:nerves, :source_date_epoch))
     |> validate_source_date_epoch()
+  end
+
+  def export_package_env(%Package{env: env}) do
+    System.put_env(env)
   end
 
   defp set_source_date_epoch() do
