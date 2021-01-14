@@ -157,4 +157,21 @@ defmodule Nerves.EnvTest do
       end)
     end
   end
+
+  describe "package env vars" do
+    test "exported at bootstrap" do
+      in_fixture("simple_app", fn ->
+        ~w(system toolchain system_platform toolchain_platform)
+        |> load_env
+
+        assert System.get_env("FOO") == nil
+
+        Nerves.Env.packages()
+        |> Enum.each(&Nerves.Env.export_package_env/1)
+
+        assert System.get_env("FOO") == "BAR"
+        System.delete_env("FOO")
+      end)
+    end
+  end
 end
