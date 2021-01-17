@@ -225,7 +225,7 @@ to "improper shutdowns". With embedded systems, it is assumed that power can be
 removed from the device at any time. This could be problematic if you are
 performing a write operation on the filesystem. Because the root filesystem is
 read-only, we also add a read/write partition by default, called `app_data` and
-mounted at `/root` (the `root` user's home directory). These settings are
+mounted at `/data` (the `root` user's home directory). These settings are
 defined in `etc/erlinit.config`.
 
 ```plain

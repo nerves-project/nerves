@@ -88,6 +88,9 @@ compile, Nerves will fetch the System and Toolchain from one of our cache
 mirrors.  These artifacts are cached locally in `~/.nerves/artifacts` so they
 can be shared across projects.
 
+For remote deployment information, see "How do I push firmware updates
+remotely?" in the [FAQ](FAQ.md#how-do-i-push-firmware-updates-remotely).
+
 ### Create the firmware bundle
 
 You can create the firmware bundle with the following command:

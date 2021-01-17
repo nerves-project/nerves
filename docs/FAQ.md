@@ -4,6 +4,23 @@ This is a collection of questions that often come up as people are getting start
 If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves_examples) and got stuck, hopefully one of the following answers will help.
 If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/main/docs).
 
+## Where can persistent data be stored?
+
+By default the `/data` partition both read/writeable and is not overwritten when new firmware is pushed to the device.
+
+## How can I apply a firmware update manually?
+
+```
+iex> cmd("fwup -i /data/known_good.fw --apply --task complete " <>
+  "--no-unmount -d #{Nerves.Runtime.KV.get("nerves_fw_devpath")}")
+```
+
+## How do I push firmware updates remotely?
+
+SSH is a good default for local development and is enabled by default (via `mix nerves.new`) with https://github.com/nerves-project/nerves_firmware_ssh
+
+For production environments you might also want to look at https://www.nerves-hub.org/ (either hosted or self-hosted)
+
 ## Using a USB Serial Console
 
 By default on the Raspberry Pi family of targets (except for the Raspberry Pi Zero), the `iex` console is displayed on the screen attached to the HDMI port, which tends to be easier for new people because they can simply connect their target device to a monitor or TV.
