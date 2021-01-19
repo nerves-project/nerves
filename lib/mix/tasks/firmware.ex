@@ -39,16 +39,6 @@ defmodule Mix.Tasks.Firmware do
 
     check_nerves_toolchain_is_set!()
 
-    vm_args =
-      File.cwd!()
-      |> Path.join("rel/vm.args.eex")
-
-    if !File.exists?(vm_args) do
-      Mix.raise("""
-        rel/vm.args needs to be moved to rel/vm.args.eex
-      """)
-    end
-
     # By this point, paths have already been loaded.
     # We just want to ensure any custom systems are compiled
     # via the precompile checks
