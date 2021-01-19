@@ -27,7 +27,6 @@ defmodule Nerves.Utils.HTTPClient do
       uri
       |> URI.to_string()
       |> URI.encode()
-      |> String.replace("+", "%2B")
 
     get(pid, url, opts)
   end
