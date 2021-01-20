@@ -6,18 +6,21 @@ If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](htt
 
 ## Where can persistent data be stored?
 
-By default the `/data` partition both read/writeable and is not overwritten when new firmware is pushed to the device.
+By default the `/data` partition both read/writeable and is not overwritten when new firmware is pushed to the device. However, if you are using `mix firmware.burn` then the entire SD card is being overwritten each time so you won't have any persistent data.
 
 ## How can I apply a firmware update manually?
 
+Assuming that you have already put a known good firmware inside "/data/known_good.fw" (perhaps with sftp) then you can run the following commands
+
 ```
-iex> cmd("fwup -i /data/known_good.fw --apply --task complete " <>
+iex> cmd("fwup -i /data/known_good.fw --apply --task upgrade " <>
   "--no-unmount -d #{Nerves.Runtime.KV.get("nerves_fw_devpath")}")
+iex> reboot
 ```
 
 ## How do I push firmware updates remotely?
 
-SSH is a good default for local development and is enabled by default (via `mix nerves.new`) with https://github.com/nerves-project/nerves_firmware_ssh
+SSH is a good default for local development and is enabled by default (via `mix nerves.new`) with https://github.com/nerves-project/nerves_ssh (note: previously https://github.com/nerves-project/nerves_firmware_ssh was enabled by default)
 
 For production environments you might also want to look at https://www.nerves-hub.org/ (either hosted or self-hosted)
 
