@@ -1,5 +1,5 @@
 otp_23_image: &otp_23_image
-  image: erlang:23.1
+  image: erlang:23.2.1
 
 otp_22_image: &otp_22_image
   image: erlang:22.3.4.5
@@ -37,7 +37,7 @@ jobs:
     docker:
       - <<: *otp_23_image
     environment:
-      ELIXIR_VERSION: 1.11.2-otp-23
+      ELIXIR_VERSION: 1.11.3-otp-23
       LC_ALL: C.UTF-8
     <<: *defaults
     steps:
@@ -64,8 +64,10 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_nerves_bootstrap
       - run: mix deps.get
+      - run: mix compile --warnings-as-errors
       - run: mix test
       - run: mix format --check-formatted
+      - run: mix deps.unlock --check-unused
       - run: mix docs
       - run: mix hex.build
 
