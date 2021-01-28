@@ -2,7 +2,6 @@ defmodule Nerves.Utils.HTTPClient do
   use GenServer
 
   @progress_steps 50
-  @redirect_status_codes [301, 302, 303, 307, 308]
 
   def start_link() do
     {:ok, _} = Application.ensure_all_started(:nerves)
@@ -43,15 +42,9 @@ defmodule Nerves.Utils.HTTPClient do
        buffer_size: 0,
        filename: "",
        caller: nil,
-       number_of_redirects: 0,
        progress?: true,
        opts: []
      }}
-  end
-
-  def handle_call({:get, _url, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
-    GenServer.reply(s.caller, {:error, :too_many_redirects})
-    {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
   end
 
   def handle_call({:get, url, opts}, from, s) do
@@ -69,7 +62,7 @@ defmodule Nerves.Utils.HTTPClient do
     ]
 
     http_opts =
-      [timeout: :infinity, autoredirect: false]
+      [timeout: :infinity, autoredirect: true]
       |> Keyword.merge(Nerves.Utils.Proxy.config(url))
       |> Keyword.merge(Keyword.get(opts, :http_opts, []))
 
@@ -132,22 +125,6 @@ defmodule Nerves.Utils.HTTPClient do
 
     GenServer.reply(s.caller, {:ok, s.buffer})
     {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
-  end
-
-  def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
-      when status_code in @redirect_status_codes do
-    case Enum.find(headers, fn {key, _} -> key == 'location' end) do
-      {'location', next_location} ->
-        handle_call({:get, List.to_string(next_location), headers: headers}, s.caller, %{
-          s
-          | buffer: "",
-            buffer_size: 0,
-            number_of_redirects: s.number_of_redirects + 1
-        })
-
-      _ ->
-        GenServer.reply(s.caller, {:error, format_error(status_code, reason)})
-    end
   end
 
   def handle_info({:http, {_ref, {{_, status_code, reason}, _headers, _body}}}, s) do
