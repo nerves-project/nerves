@@ -2,7 +2,6 @@ defmodule Nerves.Utils.HTTPClient do
   use GenServer
 
   @progress_steps 50
-  @redirect_status_codes [301, 302, 303, 307, 308]
 
   def start_link() do
     {:ok, _} = Application.ensure_all_started(:nerves)
@@ -45,7 +44,7 @@ defmodule Nerves.Utils.HTTPClient do
        caller: nil,
        number_of_redirects: 0,
        progress?: true,
-       opts: []
+       get_opts: []
      }}
   end
 
@@ -57,15 +56,11 @@ defmodule Nerves.Utils.HTTPClient do
   def handle_call({:get, url, opts}, from, s) do
     progress? = Keyword.get(opts, :progress?, true)
 
-    headers =
-      Keyword.get(opts, :headers, [])
-      |> Enum.map(fn {k, v} ->
-        {to_charlist(k), to_charlist(v)}
-      end)
+    user_headers = Keyword.get(opts, :headers, []) |> Enum.map(&tuple_to_charlist/1)
 
     headers = [
       {'User-Agent', 'Nerves HTTP Client #{Nerves.version()}'},
-      {'Content-Type', 'application/octet-stream'} | headers
+      {'Content-Type', 'application/octet-stream'} | user_headers
     ]
 
     http_opts =
@@ -73,9 +68,15 @@ defmodule Nerves.Utils.HTTPClient do
       |> Keyword.merge(Nerves.Utils.Proxy.config(url))
       |> Keyword.merge(Keyword.get(opts, :http_opts, []))
 
-    opts = [stream: :self, receiver: self(), sync: false]
-    :httpc.request(:get, {String.to_charlist(url), headers}, http_opts, opts, :nerves)
-    {:noreply, %{s | url: url, caller: from, opts: opts, progress?: progress?}}
+    :httpc.request(
+      :get,
+      {String.to_charlist(url), headers},
+      http_opts,
+      [stream: :self, receiver: self(), sync: false],
+      :nerves
+    )
+
+    {:noreply, %{s | url: url, caller: from, get_opts: opts, progress?: progress?}}
   end
 
   def handle_info({:http, {_ref, {:error, {:failed_connect, _}} = err}}, s) do
@@ -135,10 +136,12 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
-      when status_code in @redirect_status_codes do
+      when div(status_code, 100) == 3 do
     case Enum.find(headers, fn {key, _} -> key == 'location' end) do
       {'location', next_location} ->
-        handle_call({:get, List.to_string(next_location), headers: headers}, s.caller, %{
+        next_get_opts = Keyword.drop(s.get_opts, [:headers])
+
+        handle_call({:get, List.to_string(next_location), next_get_opts}, s.caller, %{
           s
           | buffer: "",
             buffer_size: 0,
@@ -193,5 +196,9 @@ defmodule Nerves.Utils.HTTPClient do
 
   defp progress?(%{progress?: progress?}) do
     System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil and progress?
+  end
+
+  defp tuple_to_charlist({k, v}) do
+    {to_charlist(k), to_charlist(v)}
   end
 end
