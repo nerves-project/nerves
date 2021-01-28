@@ -59,7 +59,7 @@ defmodule Nerves.Utils.HTTPClient do
     user_headers = Keyword.get(opts, :headers, []) |> Enum.map(&tuple_to_charlist/1)
 
     headers = [
-      {'User-Agent', 'Nerves HTTP Client #{Nerves.version()}'},
+      {'User-Agent', 'Nerves/#{Nerves.version()}'},
       {'Content-Type', 'application/octet-stream'} | user_headers
     ]
 
