@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.7.3
+
+* Bug fixes
+  * Fixes a hang when downloading artifacts from GitHub. The hang looked like
+    this and affected artifact downloads from public GitHub repositories:
+
+    ```sh
+    Resolving Nerves artifacts...
+      Resolving nerves_toolchain_xyz
+      => Trying https:...
+    ```
+
 ## v1.7.2
 
 * Bug fixes
