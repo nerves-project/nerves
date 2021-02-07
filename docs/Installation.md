@@ -91,7 +91,7 @@ from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
 Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
 install firmware images. You can install `fwup` using the instructions found at
-[Installation Page](https://github.com/fhunleth/fwup#installing). Installing the
+[Installation Page](https://github.com/fwup-home/fwup#installing). Installing the
 pre-built `.deb` or `.rpm` files is recommended.
 
 If you want to build custom Nerves Systems, you need a few more build tools. If

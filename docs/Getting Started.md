@@ -129,7 +129,7 @@ skip the confirmation that it is the correct device.
 mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
 ```
 
-You can read about the other supported options in the [`fwup` documentation](https://github.com/fhunleth/fwup#invoking).
+You can read about the other supported options in the [`fwup` documentation](https://github.com/fwup-home/fwup#invoking).
 
 Now that you have your SD card burned, you can insert it into your device and
 boot it up.  For Raspberry Pi, be sure to connect it to an HDMI display and USB
@@ -154,8 +154,8 @@ will provide both power to the board and a virtual Ethernet network
 connection.
 
 If you don't see any activity lights blinking on the board after plugging in
-your USB cable, something's not working right. So then, rather power up your 
-RPi0 using a dedicated power supply, and use your USB cable only for 
+your USB cable, something's not working right. So then, rather power up your
+RPi0 using a dedicated power supply, and use your USB cable only for
 communication.
 
 #### Test the connection
