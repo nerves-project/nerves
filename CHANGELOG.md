@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.4
+
+* Experimental features
+  * Packages can provide custom system environment variables to be exported.
+    The initial use case for this feature is to export system specific
+    information for llvm-based tools.
+
 ## v1.7.3
 
 * Bug fixes
