@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   @impl true
   def run(argv) do
-    # We need to make sure the the Nerves env has been set up.
+    # We need to make sure the Nerves env has been set up.
     # This allows the task to be called from a project level that
     # does not include aliases to nerves_bootstrap
     Mix.Task.run("nerves.precompile", [])

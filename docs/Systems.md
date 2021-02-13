@@ -41,7 +41,7 @@ them instead of having to compile them (which takes quite a while).
 
 ## Anatomy of a Nerves System
 
-Nerves system dependencies are a collection of configurations to be fed into the
+Nerves system dependencies are a collection of configurations to be fed into
 the system build platform. Currently, Nerves systems are all built using the
 Buildroot platform. The project structure of a Nerves system is as follows:
 
