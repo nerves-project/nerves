@@ -22,7 +22,7 @@
 ## v1.7.2
 
 * Bug fixes
-  * Fix Elixir semvar requirements to produce warnings on unsupported versions.
+  * Fix Elixir semver requirements to produce warnings on unsupported versions.
   * Produce better errors on HTTP timeouts
 
 ## v1.7.1
@@ -123,7 +123,9 @@ Erlang/OTP you can pin the version of `nerves` to an older version.
 
 For example, set your nerves dependency in your mix.exs to:
 
-    {:nerves, "~> 1.5.0", runtime: false},
+```elixir
+{:nerves, "~> 1.5.0", runtime: false},
+```
 
 * Enhancements
   * Add support for aarch64 host architecture.
@@ -162,6 +164,7 @@ For example, set your nerves dependency in your mix.exs to:
     config :nerves, :erlinit,
       ctty: "ttyAMA0"
     ```
+
   * Nerves tooling now supports setting the SOURCE_DATE_EPOCH environment
     variable for reproducible builds during compilation via `:source_date_epoch`
     in your application config. This removes timestamp differences between
@@ -347,6 +350,7 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
       config :nerves, :firmware,
         provisioning: :nerves_hub
       ```
+
   * Bug Fixes
     * Fix issue with setting provisioning environment variables when calling
       `mix firmware.burn` on Linux systems. Environment variables prefixed with
@@ -377,6 +381,7 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
     can use for execution. This is useful for situations where you may
     have a machine with a lot of CPUs but not enough ram.
 
+    ```elixir
       # mix.exs
       defp nerves_package do
         [
@@ -384,6 +389,7 @@ You will need to update your version of shoehorn to `{:shoehorn, "~> 0.4"}`.
           build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
         ]
       end
+    ```
 
 ## v1.0.1
 
@@ -579,6 +585,7 @@ Also, update your nerves dependency to:
     are helpers that are useful for cleanly specifying locations where artifacts
     can be fetched. If you are hosting your artifacts using Github releases
     you can specify it like this:
+
     ```elixir
     artifact_sites: [
       {:github_releases, "organization/project"}
@@ -587,12 +594,14 @@ Also, update your nerves dependency to:
 
     You can also specify your own custom server location by using the `:prefix`
     helper by passing a url or file path:
+
     ```elixir
     artifact_sites: [
       {:prefix, "/path/to/artifacts"}
       {:prefix, "https://my_bucket.s3-east.amazonaws.com/artifacts"}
     ]
     ```
+
     Artifact sites will be tried in order until one successfully downloads the
     artifact.
 * Bug Fixes
@@ -609,6 +618,7 @@ Also, update your nerves dependency to:
     This issue was causing the release to contain compiled
     libraries from the host instead of the target.
     The error would look similar to this
+
     ```text
     Got:
     ELF 64-bit LSB relocatable, x86-64, version 1
@@ -616,6 +626,7 @@ Also, update your nerves dependency to:
     If binary, expecting:
     ELF 32-bit LSB executable, ARM, EABI5 version 1, interpreter /lib/ld-linux.so.3, for GNU/Linux 4.1.39
     ```
+
     You can fix this by updating and regenerating the new project.
 
 ## v0.8.2
@@ -631,6 +642,7 @@ Also, update your nerves dependency to:
 
 * Bug Fixes
   * Fixed an error in the `Nerves` Distillery plugin that was causing the following error message:
+
     ```text
     Plugin failed: no function clause matching in IO.chardata_to_string/1
     ```
