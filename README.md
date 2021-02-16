@@ -55,6 +55,10 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 
 [Advanced Configuration](https://hexdocs.pm/nerves/advanced-configuration.html)
 
+[Compiling non-BEAM code](https://hexdocs.pm/nerves/compiling-non-beam-code.html)
+
+[Customizing Systems](https://hexdocs.pm/nerves/customizing-systems.html)
+
 ## Contributors
 
 This project exists thanks to all the people who contribute.
