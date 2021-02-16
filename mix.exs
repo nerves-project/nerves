@@ -58,6 +58,7 @@ defmodule Nerves.MixProject do
         "docs/Targets.md",
         "docs/Systems.md",
         "docs/User Interfaces.md",
+        "docs/Compiling Non-BEAM Code.md",
         "docs/Advanced Configuration.md",
         "docs/Updating Projects.md",
         "docs/Internals.md",
