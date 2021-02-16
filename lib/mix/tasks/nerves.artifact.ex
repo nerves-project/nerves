@@ -6,7 +6,11 @@ defmodule Mix.Tasks.Nerves.Artifact do
   require Logger
 
   @moduledoc """
-  Create an artifact for a specified Nerves package.
+  Creates a Nerves artifact for a Nerves system or toolchain
+
+  This compiles the system or toolchain and creates the tar ball containing the
+  result. One would normally post this to GitHub releases or another website so
+  that it can be downloaded when someone uses the system or toolchain.
 
   ## Command line options
 
@@ -24,7 +28,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   """
 
-  @shortdoc "Nerves create artifact"
+  @shortdoc "Creates system and toolchain artifacts for Nerves"
   @recursive true
 
   @switches [path: :string]
