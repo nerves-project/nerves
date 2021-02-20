@@ -58,6 +58,7 @@ Name               | Where set          | Description
 CROSSCOMPILE       | `nerves_system_br` | The path and prefix for the crosscompilers (e.g., "$CROSSCOMPILE-gcc" is the path to gcc)
 CC                 | `nerves_system_br` | The path to `gcc` for crosscompiling to the target
 CXX                | `nerves_system_br` | The path to `g++` for crosscompiling to the target
+CPPFLAGS           | `nerves_system_br` | Recommended C preprocessor flags
 CFLAGS             | `nerves_system_br` | Recommended C compilation flags
 CXXFLAGS           | `nerves_system_br` | Recommended C++ compilation flags
 LDFLAGS            | `nerves_system_br` | Recommended linker flags
