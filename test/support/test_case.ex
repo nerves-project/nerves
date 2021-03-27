@@ -188,22 +188,10 @@ defmodule NervesTest.Case do
     System.version() |> Version.parse!() |> Map.get(:minor)
   end
 
-  @spec is_os_pid_around?(non_neg_integer()) :: boolean
-  def is_os_pid_around?(os_pid) do
+  @spec os_process_alive?(non_neg_integer()) :: boolean
+  def os_process_alive?(os_pid) do
     {_, rc} = System.cmd("ps", ["-p", "#{os_pid}"])
     rc == 0
-  end
-
-  @spec assert_os_pid_running(non_neg_integer()) :: :ok
-  def assert_os_pid_running(os_pid) do
-    is_os_pid_around?(os_pid) || flunk("Expected OS pid #{os_pid} to still be running")
-    :ok
-  end
-
-  @spec assert_os_pid_exited(non_neg_integer()) :: :ok
-  def assert_os_pid_exited(os_pid) do
-    is_os_pid_around?(os_pid) && flunk("Expected OS pid #{os_pid} to be killed")
-    :ok
   end
 
   @spec os_pid(port()) :: non_neg_integer()

@@ -22,23 +22,23 @@ defmodule Nerves.PortTest do
     port = run_port(["./test/fixtures/port/do_nothing.test"])
 
     os_pid = os_pid(port)
-    assert_os_pid_running(os_pid)
+    assert os_process_alive?(os_pid)
 
     Port.close(port)
 
     wait_for_close_check()
-    assert_os_pid_exited(os_pid)
+    refute os_process_alive?(os_pid)
   end
 
   test "closing the port kills a process that ignores sigterm" do
     port = run_port(["--delay-to-sigkill", "1", "test/fixtures/port/ignore_sigterm.test"])
 
     os_pid = os_pid(port)
-    assert_os_pid_running(os_pid)
+    assert os_process_alive?(os_pid)
     Port.close(port)
 
     wait_for_close_check()
-    assert_os_pid_exited(os_pid)
+    refute os_process_alive?(os_pid)
   end
 
   test "delaying the SIGKILL" do
@@ -46,17 +46,17 @@ defmodule Nerves.PortTest do
 
     Process.sleep(10)
     os_pid = os_pid(port)
-    assert_os_pid_running(os_pid)
+    assert os_process_alive?(os_pid)
     Port.close(port)
 
     Process.sleep(100)
     # process should be around for 250ms, so it should be around here.
-    assert_os_pid_running(os_pid)
+    assert os_process_alive?(os_pid)
 
     Process.sleep(200)
 
     # Now it should be gone
-    assert_os_pid_exited(os_pid)
+    refute os_process_alive?(os_pid)
   end
 
   # The following tests are copied from System.cmd to help ensure that
