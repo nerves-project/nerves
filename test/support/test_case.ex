@@ -69,9 +69,9 @@ defmodule NervesTest.Case do
 
     System.put_env("XDG_DATA_HOME", Path.join(dest, ".nerves"))
 
-    File.rm_rf!(dest)
+    _ = File.rm_rf!(dest)
     File.mkdir_p!(dest)
-    File.cp_r!(src, dest)
+    _ = File.cp_r!(src, dest)
 
     get_path = :code.get_path()
     previous = :code.all_loaded()
@@ -80,7 +80,7 @@ defmodule NervesTest.Case do
       File.cd!(dest, function)
       :timer.sleep(10)
     after
-      :code.set_path(get_path)
+      true = :code.set_path(get_path)
 
       for {mod, file} <- :code.all_loaded() -- previous,
           file == [] or (is_list(file) and List.starts_with?(file, flag)) do
@@ -102,7 +102,7 @@ defmodule NervesTest.Case do
 
   def in_tmp(which, function) do
     path = tmp_path(which)
-    File.rm_rf!(path)
+    _ = File.rm_rf!(path)
     File.mkdir_p!(path)
     File.cd!(path, function)
   end
@@ -131,13 +131,13 @@ defmodule NervesTest.Case do
   def fixture_to_tmp(fixture, dest) do
     src = fixture_path(fixture)
 
-    File.rm_rf!(dest)
+    _ = File.rm_rf!(dest)
     File.mkdir_p!(dest)
     File.cp_r!(src, dest)
   end
 
   def load_env(packages \\ []) do
-    Application.ensure_all_started(:nerves_bootstrap)
+    {:ok, _} = Application.ensure_all_started(:nerves_bootstrap)
 
     packages =
       packages
@@ -148,11 +148,9 @@ defmodule NervesTest.Case do
       fixture_to_tmp(package, path)
     end)
 
-    File.cwd!()
-    |> Path.join("mix.exs")
-    |> Code.require_file()
+    _ = Code.require_file(Path.expand("mix.exs"))
 
-    Nerves.Env.start()
+    {:ok, _} = Nerves.Env.start()
     Nerves.Env.packages()
   end
 
@@ -181,7 +179,10 @@ defmodule NervesTest.Case do
 
   defp delete_tmp_paths do
     tmp = String.to_charlist(tmp_path())
-    for path <- :code.get_path(), :string.str(path, tmp) != 0, do: :code.del_path(path)
+
+    :code.get_path()
+    |> Enum.filter(fn path -> :string.str(path, tmp) != 0 end)
+    |> Enum.each(&:code.del_path/1)
   end
 
   defp elixir_minor() do
