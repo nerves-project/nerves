@@ -13,7 +13,8 @@ Mix.shell(Mix.Shell.Process)
 
 System.put_env("NERVES_LOG_DISABLE_PROGRESS_BAR", "1")
 
-# Clear the project stack in preperation for loading and unloading fixtures
+# Clear the project stack in preparation for loading and unloading fixtures
 Mix.ProjectStack.clear_stack()
 
-ExUnit.start(exclude: [:skip])
+# Long assert receive timeout is for CircleCI.
+ExUnit.start(exclude: [:skip], assert_receive_timeout: 500)
