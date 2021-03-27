@@ -19,12 +19,17 @@ defmodule Nerves.TestServer.Router do
       |> fetch_query_params()
       |> Map.get(:query_params)
 
-    if Map.get(query_params, "id", "") == "1234" do
-      send_file(conn, 200, System.get_env("TEST_ARTIFACT_TAR"))
-    else
-      conn
-      |> send_resp(401, "Unauthorized")
-      |> Plug.Conn.halt()
+    case Map.get(query_params, "id", "") do
+      "1234" ->
+        send_file(conn, 200, System.get_env("TEST_ARTIFACT_TAR"))
+
+      ":/?#[]@!$&'()&+,;=" ->
+        send_file(conn, 200, System.get_env("TEST_ARTIFACT_TAR"))
+
+      _ ->
+        conn
+        |> send_resp(401, "Unauthorized")
+        |> Plug.Conn.halt()
     end
   end
 
