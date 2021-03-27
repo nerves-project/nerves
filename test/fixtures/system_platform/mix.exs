@@ -1,4 +1,4 @@
-defmodule SystemPlatform.Mixfile do
+defmodule SystemPlatform.MixProject do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
