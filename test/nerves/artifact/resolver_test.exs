@@ -38,6 +38,22 @@ defmodule Nerves.Artifact.ResolverTest do
     end)
   end
 
+  test "artifact resolver can download using query param token auth with reserved chars" do
+    in_fixture("resolver", fn ->
+      set_artifact_path()
+
+      sites = [
+        {:prefix, "http://127.0.0.1:4000/token_auth/",
+         query_params: %{"id" => ":/?#[]@!$&'()&+,;="}}
+      ]
+
+      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
+
+      resolvers = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+    end)
+  end
+
   test "artifact resolver unauthorized using incorrect token auth" do
     in_fixture("resolver", fn ->
       set_artifact_path()
