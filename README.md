@@ -69,9 +69,9 @@ contribute in various ways.
 
 ## Gold Sponsors
 
-<a href="https://www.verypossible.com" target="_blank"><img width="250" height="120" src="https://www.nerves-project.org/hs-fs/hubfs/logo-word%20(2)-2.png?width=250&height=120&name=logo-word%20(2)-2.png"></a>
-
 <a href="https://www.smartrent.com" target="_blank"><img width="200" height="100" src="https://www.nerves-project.org/hubfs/Very%20Logos%20Smart%20Rent.png"></a>
+
+<a href="https://www.verypossible.com" target="_blank"><img width="250" height="120" src="https://www.nerves-project.org/hs-fs/hubfs/logo-word%20(2)-2.png?width=250&height=120&name=logo-word%20(2)-2.png"></a>
 
 [[Become a metal level sponsor]](http://nerves-project.org/sponsors)
 
@@ -96,4 +96,4 @@ Support this project by becoming a sponsor. Your logo will show up here with a l
 <a href="https://opencollective.com/nerves-project/sponsor/8/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/8/avatar.svg"></a>
 <a href="https://opencollective.com/nerves-project/sponsor/9/website" target="_blank"><img src="https://opencollective.com/nerves-project/sponsor/9/avatar.svg"></a>
 
-Copyright (C) 2015-2020 by the Nerves Project developers <nerves@nerves-project.org>
+Copyright (C) 2015-2021 by the Nerves Project developers <nerves@nerves-project.org>
