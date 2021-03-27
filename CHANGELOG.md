@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.6.7
 
 * Bug fixes
   * Fixes an issue where query parameters would be percent-encoded twice.
