@@ -23,6 +23,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
     Nerves.Utils.Shell.info("  Downloading artifacts from #{url}")
 
+    url = URI.encode(url)
+
     result =
       with {:ok, data} <- HTTPClient.get(http_pid, url, headers: [auth_header], progress?: false),
            %{"assets" => assets} <- Utils.json_decode(data),
