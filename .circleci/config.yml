@@ -53,25 +53,6 @@ jobs:
       - run: mix hex.build
       - run: mix test
 
-  build_elixir_1_10_otp_23:
-    docker:
-      - <<: *otp_23_image
-    environment:
-      ELIXIR_VERSION: 1.10.4-otp-23
-      LC_ALL: C.UTF-8
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *install_elixir
-      - <<: *install_hex_rebar
-      - <<: *install_nerves_bootstrap
-      - run: mix deps.get
-      - run: mix compile --warnings-as-errors
-      - run: mix test
-      - run: mix format --check-formatted
-      - run: mix docs
-      - run: mix hex.build
-
   build_elixir_1_10_otp_22:
     docker:
       - <<: *otp_22_image
@@ -107,8 +88,6 @@ workflows:
   build_test:
     jobs:
       - build_elixir_1_11_otp_23:
-          context: org-global
-      - build_elixir_1_10_otp_23:
           context: org-global
       - build_elixir_1_10_otp_22:
           context: org-global
