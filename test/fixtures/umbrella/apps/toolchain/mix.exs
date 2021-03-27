@@ -1,4 +1,4 @@
-defmodule Toolchain.Mixfile do
+defmodule Toolchain.MixProject do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")

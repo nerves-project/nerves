@@ -1,4 +1,4 @@
-defmodule PackageBuildRunnerOpts.Fixture.Mixfile do
+defmodule PackageBuildRunnerOpts.Fixture.MixProject do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")

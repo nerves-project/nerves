@@ -218,7 +218,7 @@ make them stand out from the rest of the output more prominently.
 ```elixir
 # custom_rpi3/mix.exs
 
-defmodule CustomRpi3.Mixfile do
+defmodule CustomRpi3.MixProject do
 
   # ...
 

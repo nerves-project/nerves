@@ -1,4 +1,4 @@
-defmodule HostTool.Mixfile do
+defmodule HostTool.MixProject do
   use Mix.Project
 
   def project do

@@ -1,4 +1,4 @@
-defmodule SystemArtifact.Mixfile do
+defmodule SystemArtifact.MixProject do
   use Mix.Project
 
   @version Path.join(__DIR__, "VERSION")
