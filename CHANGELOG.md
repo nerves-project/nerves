@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+* Bug fixes
+  * Fixes an issue where query parameters would be percent-encoded twice.
+    Packages that use `query_params` argument option to `artifact_sites` could
+    be impacted. For example, packages storing build artifacts in AWS S3
+    require the `X-Amz-Credential` query parameter key whose value
+    includes the reserved character `/`. This symbol is double encoded to
+    `%252F`. This failed on systems with Erlang OTP-23.2 and above.
+    See https://github.com/nerves-project/nerves/issues/604 for additional context.
+
 ## v1.7.4
 
 * Experimental features
