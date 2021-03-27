@@ -10,9 +10,16 @@ defmodule ToolchainPlatform.Mixfile do
       app: :toolchain_platform,
       version: @version,
       nerves_package: nerves_package(),
+      deps: deps(),
       deps_path: "../../deps",
       build_path: "../../_build",
       config_path: "../../config/config.exs"
+    ]
+  end
+
+  defp deps do
+    [
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
     ]
   end
 

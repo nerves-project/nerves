@@ -23,7 +23,7 @@ defmodule ToolchainPlatform.Mixfile do
 
   defp deps do
     [
-      # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
     ]
   end
 
