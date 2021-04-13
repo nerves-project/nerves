@@ -55,6 +55,8 @@ defmodule Nerves.CacheTest do
 
       Nerves.Utils.File.tar(working_path, dl_path)
 
+      System.delete_env("NERVES_SYSTEM")
+
       Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
       output = "  => Trying #{dl_path}"
       assert_receive {:mix_shell, :info, [^output]}

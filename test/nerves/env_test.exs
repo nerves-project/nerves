@@ -164,7 +164,7 @@ defmodule Nerves.EnvTest do
         ~w(system toolchain system_platform toolchain_platform)
         |> load_env
 
-        assert System.get_env("FOO") == nil
+        System.delete_env("FOO")
 
         Nerves.Env.packages()
         |> Enum.each(&Nerves.Env.export_package_env/1)
