@@ -71,7 +71,7 @@ contribute in various ways.
 
 <a href="https://www.smartrent.com" target="_blank"><img width="200" height="100" src="https://www.nerves-project.org/hubfs/Very%20Logos%20Smart%20Rent.png"></a>
 
-<a href="https://www.verypossible.com" target="_blank"><img width="250" height="120" src="https://www.nerves-project.org/hs-fs/hubfs/logo-word%20(2)-2.png?width=250&height=120&name=logo-word%20(2)-2.png"></a>
+<a href="https://www.verypossible.com" target="_blank"><img width="250" height="120" src="https://www.nerves-project.org/hubfs/black.svg"></a>
 
 [[Become a metal level sponsor]](http://nerves-project.org/sponsors)
 
