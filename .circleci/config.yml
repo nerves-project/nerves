@@ -37,7 +37,7 @@ jobs:
     docker:
       - <<: *otp_23_image
     environment:
-      ELIXIR_VERSION: 1.12.0-rc.1-otp-23
+      ELIXIR_VERSION: 1.12.1-otp-23
       LC_ALL: C.UTF-8
     <<: *defaults
     steps:
