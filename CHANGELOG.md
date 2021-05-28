@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.6
+
+* Enhancements
+  * Update supported Elixir version to include 1.12
+
 ## v1.7.5
 
 * Bug fixes
