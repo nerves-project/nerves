@@ -29,7 +29,7 @@ defmodule Nerves.MixProject do
   end
 
   def application do
-    [extra_applications: [:ssl, :inets]]
+    [extra_applications: [:ssl, :inets, :eex]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]

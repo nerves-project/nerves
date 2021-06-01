@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#
+# Helper script to get GDB running against an executable and a core dump.
+# Feel free to modify this file to suit your needs
+#
+# Usage:
+#   run-gdb.sh <path to core dump> [path to executable]
+#
+
+set -e
+
+help() {
+    echo
+    echo "run-gdb.sh <path to core dump> [path to executable]"
+    echo
+    echo "MIX_TARGET=$MIX_TARGET"
+    echo "MIX_ENV=$MIX_ENV"
+    exit 1
+}
+
+CORE=$1
+[ -f "$CORE" ] || (echo "Error: no core dump provided."; help)
+
+NERVES_SYSTEM="${NERVES_SYSTEM:=<%= @nerves_system %>}"
+[ -n "$NERVES_SYSTEM" ] || (echo "Error: missing environment variable $NERVES_SYSTEM"; help)
+[ -f "$NERVES_SYSTEM/nerves-env.sh" ] || (echo "Error: $NERVES_SYSTEM/nerves-env.sh not found"; help)
+source $NERVES_SYSTEM/nerves-env.sh
+
+EXE=$2
+[ -f $EXE ] || EXE="$ERTS_INCLUDE_DIR/../bin/beam.smp"
+
+[ -n "$NERVES_SDK_SYSROOT" ] || (echo "Error: missing environment variable $NERVES_SDK_SYSROOT"; help)
+[ -n "$ERTS_INCLUDE_DIR" ] || (echo "Error: missing environment variable $ERTS_INCLUDE_DIR"; help)
+
+[ -n "$CROSSCOMPILE" ] || (echo "Warning: missing environment variable $CROSSCOMPILE")
+GDB=$CROSSCOMPILE-gdb
+[ -f "$GDB" ] || (echo "Error: gdb is not available in this toolchain"; help)
+
+$GDB --core="$CORE" \
+     --nx \
+     --init-eval-command="set sysroot $NERVES_SDK_SYSROOT" \
+     $EXE
