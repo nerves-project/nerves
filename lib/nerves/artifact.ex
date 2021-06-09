@@ -137,8 +137,9 @@ defmodule Nerves.Artifact do
   @doc """
   Get the base dir for where an artifact for a package should be stored.
 
-  The base dir for an artifact will point
-  to the NERVES_ARTIFACTS_DIR or if undefined, `~/.nerves/artifacts`
+  The directory for artifacts will be found in the directory returned
+  by `Nerves.Env.data_dir/0` (i.e. `"#{Nerves.Env.data_dir()}/artifacts/"`).
+  This location can be overriden by the environment variable `NERVES_ARTIFACTS_DIR`.
   """
   @spec base_dir() :: String.t()
   def base_dir() do

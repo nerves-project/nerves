@@ -79,7 +79,12 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  The location for storing global nerves data
+  The location for storing global nerves data.
+
+  The base directory is normally set by the `XDG_DATA_HOME`
+  environment variable (i.e. `$XDG_DATA_HOME/nerves/`).
+  If `XDG_DATA_HOME` is unset, the user's home directory
+  is used (i.e. `$HOME/.nerves`).
   """
   @spec data_dir() :: path :: String.t()
   def data_dir do
