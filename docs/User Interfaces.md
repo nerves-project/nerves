@@ -115,12 +115,12 @@ configured and apply defaults for `usb*` and `eth*` interfaces.
 For `eth*` interfaces, the device attempts to connect to the network
 with DHCP using `ipv4` addressing.
 
-For `usb*` interfaces, it uses [`vintage_net_direct`] to run a simple DHCP server
+For `usb*` interfaces, it uses [`vintage_net_direct`](https://hexdocs.pm/vintage_net_direct/VintageNetDirect.html) to run a simple DHCP server
 on the device and assign the host an IP address over a USB cable.
 
 If you want to use some other network configuration, such as wired or wireless
-Ethernet, please refer to the [`nerves_pack` documentation] and the
-underlying [`vintage_net` documentation] as needed.
+Ethernet, please refer to the [`nerves_pack` documentation](https://hexdocs.pm/nerves_pack/readme.html) and the
+underlying [`vintage_net` documentation](https://hexdocs.pm/vintage_net/VintageNet.html) as needed.
 
 [`nerves_pack`]: https://hexdocs.pm/nerves_pack
 [`VintageNetWifi`]: https://hexdocs.pm/vintage_net_wifi
