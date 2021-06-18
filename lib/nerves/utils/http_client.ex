@@ -161,9 +161,7 @@ defmodule Nerves.Utils.HTTPClient do
 
     IO.write(
       :stderr,
-      "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{
-        bytes_to_mb(size)
-      } / #{bytes_to_mb(max)}) MB"
+      "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{bytes_to_mb(size)} / #{bytes_to_mb(max)}) MB"
     )
   end
 

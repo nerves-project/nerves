@@ -17,9 +17,7 @@ defmodule Nerves do
     else
       _ ->
         Nerves.Utils.Shell.warn("""
-        Nerves #{version()} requires at least Elixir #{@elixir_version_req} and Erlang/OTP #{
-          @otp_version_req
-        }.
+        Nerves #{version()} requires at least Elixir #{@elixir_version_req} and Erlang/OTP #{@otp_version_req}.
 
         Your system has Elixir #{elixir_version} and Erlang/OTP #{otp_release}.
 

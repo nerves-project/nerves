@@ -138,9 +138,7 @@ defmodule Nerves.Port do
     case :binary.match(binary, "\0") do
       {_, _} ->
         raise ArgumentError,
-              "cannot execute Nerves.Port.cmd/3 for program with null byte, got: #{
-                inspect(binary)
-              }"
+              "cannot execute Nerves.Port.cmd/3 for program with null byte, got: #{inspect(binary)}"
 
       :nomatch ->
         :ok

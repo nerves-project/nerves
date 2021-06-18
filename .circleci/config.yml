@@ -48,9 +48,10 @@ jobs:
       - run: mix deps.get
       - run: mix deps.unlock --check-unused
       - run: mix compile --warnings-as-errors
+      - run: mix test
+      - run: mix format --check-formatted
       - run: mix docs
       - run: mix hex.build
-      - run: mix test
 
   build_elixir_1_11_otp_23:
     docker:
@@ -65,11 +66,6 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_nerves_bootstrap
       - run: mix deps.get
-      - run: mix format --check-formatted
-      - run: mix deps.unlock --check-unused
-      - run: mix compile --warnings-as-errors
-      - run: mix docs
-      - run: mix hex.build
       - run: mix test
 
   build_elixir_1_10_otp_22:
