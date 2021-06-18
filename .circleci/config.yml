@@ -1,19 +1,9 @@
-otp_23_image: &otp_23_image
-  image: erlang:23.3
+version: 2
 
-otp_22_image: &otp_22_image
-  image: erlang:22.3.4.5
-
-otp_21_image: &otp_21_image
-  image: erlang:21.3.8.17
-
-install_elixir: &install_elixir
-  run:
-    name: Install Elixir
-    command: |
-      wget https://repo.hex.pm/builds/elixir/v$ELIXIR_VERSION.zip
-      unzip -d /usr/local/elixir v$ELIXIR_VERSION.zip
-      echo 'export PATH=/usr/local/elixir/bin:$PATH' >> $BASH_ENV
+defaults: &defaults
+  working_directory: ~/repo
+  environment:
+    LC_ALL: C.UTF-8
 
 install_hex_rebar: &install_hex_rebar
   run:
@@ -22,79 +12,68 @@ install_hex_rebar: &install_hex_rebar
       mix local.hex --force
       mix local.rebar --force
 
-install_nerves_bootstrap: &install_nerves_bootstrap
+install_system_deps: &install_system_deps
   run:
-    name: Install nerves_bootstrap
+    name: Install system dependencies
     command: |
-      mix archive.install hex nerves_bootstrap
+        apk add build-base procps
 
-defaults: &defaults
-  working_directory: ~/repo
-
-version: 2
 jobs:
-  build_elixir_1_12_otp_23:
+  build_elixir_1_12_otp_24:
     docker:
-      - <<: *otp_23_image
-    environment:
-      ELIXIR_VERSION: 1.12.1-otp-23
-      LC_ALL: C.UTF-8
+      - image: hexpm/elixir:1.12.1-erlang-24.0.2-alpine-3.13.3
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_elixir
       - <<: *install_hex_rebar
-      - <<: *install_nerves_bootstrap
+      - <<: *install_system_deps
+      - restore_cache:
+          keys:
+            - v1-mix-cache-{{ checksum "mix.lock" }}
       - run: mix deps.get
-      - run: mix deps.unlock --check-unused
-      - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
+      - run: mix deps.unlock --check-unused
       - run: mix docs
       - run: mix hex.build
       - run: mix test || mix test
+      # - run: mix credo -a
+      # - run: mix dialyzer
+      - save_cache:
+          key: v1-mix-cache-{{ checksum "mix.lock" }}
+          paths:
+            - _build
+            - deps
 
   build_elixir_1_11_otp_23:
     docker:
-      - <<: *otp_23_image
-    environment:
-      ELIXIR_VERSION: 1.11.4-otp-23
-      LC_ALL: C.UTF-8
+      - image: hexpm/elixir:1.11.4-erlang-23.3.4-alpine-3.13.3
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_elixir
       - <<: *install_hex_rebar
-      - <<: *install_nerves_bootstrap
+      - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test || mix test
 
-  build_elixir_1_10_otp_22:
+  build_elixir_1_10_otp_23:
     docker:
-      - <<: *otp_22_image
-    environment:
-      ELIXIR_VERSION: 1.10.4-otp-22
-      LC_ALL: C.UTF-8
+      - image: hexpm/elixir:1.10.4-erlang-23.3.4-alpine-3.13.3
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_elixir
       - <<: *install_hex_rebar
-      - <<: *install_nerves_bootstrap
+      - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test || mix test
 
   build_elixir_1_9_otp_22:
     docker:
-      - <<: *otp_22_image
-    environment:
-      ELIXIR_VERSION: 1.9.4-otp-22
-      LC_ALL: C.UTF-8
+      - image: hexpm/elixir:1.9.4-erlang-22.3.4.18-alpine-3.13.3
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_elixir
       - <<: *install_hex_rebar
-      - <<: *install_nerves_bootstrap
+      - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test || mix test
 
@@ -102,11 +81,7 @@ workflows:
   version: 2
   build_test:
     jobs:
-      - build_elixir_1_12_otp_23:
-          context: org-global
-      - build_elixir_1_11_otp_23:
-          context: org-global
-      - build_elixir_1_10_otp_22:
-          context: org-global
-      - build_elixir_1_9_otp_22:
-          context: org-global
+      - build_elixir_1_12_otp_24
+      - build_elixir_1_11_otp_23
+      - build_elixir_1_10_otp_23
+      - build_elixir_1_9_otp_22
