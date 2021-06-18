@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.7
+
+* Bug fixes
+  * Fix compiler version check error when using Erlang/OTP 24
+
 ## v1.7.6
 
 * Enhancements
