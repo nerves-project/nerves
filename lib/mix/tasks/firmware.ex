@@ -166,50 +166,51 @@ defmodule Mix.Tasks.Firmware do
   defp rootfs_priorities(_), do: []
 
   defp compiler_check() do
-    with {:ok, otpc} <- module_compiler_version(:code),
-         {:ok, otp_requirement} <- Version.parse_requirement("~> #{otpc.major}.#{otpc.minor}"),
-         {:ok, elixirc} <- module_compiler_version(Kernel) do
-      unless Version.match?(elixirc, otp_requirement) do
-        Mix.raise("""
-        The Erlang compiler that compiled Elixir is older than the compiler
-        used to compile OTP.
+    {:ok, otpc} = erlang_compiler_version()
+    {:ok, otp_requirement} = Version.parse_requirement("~> #{otpc.major}.#{otpc.minor}")
+    {:ok, elixirc} = elixir_compiler_version()
 
-        Elixir: #{elixirc.major}.#{elixirc.minor}.#{elixirc.patch}
-        OTP:    #{otpc.major}.#{otpc.minor}.#{otpc.patch}
+    unless Version.match?(elixirc, otp_requirement) do
+      Mix.raise("""
+      Elixir was compiled by a different version of the Erlang/OTP compiler
+      than is being used now. This may not work.
 
-        Please use a version of Elixir that was compiled using the same major
-        version of OTP.
+      Compiler used for Elixir: #{elixirc.major}.#{elixirc.minor}.#{elixirc.patch}
+      Current compiler:         #{otpc.major}.#{otpc.minor}.#{otpc.patch}
 
-        For example:
+      Please use a version of Elixir that was compiled using the same major
+      version.
 
-        If your target is running OTP 22, you should use a version of Elixir
-        that was compiled using OTP 22.
+      For example:
 
-        If you're using asdf to manage Elixir versions, run:
+      If your target is running OTP 24, you should use a version of Elixir
+      that was compiled using OTP 24.
 
-        asdf install elixir #{System.version()}-otp-#{system_otp_release()}
-        asdf global elixir #{System.version()}-otp-#{system_otp_release()}
-        """)
-      end
-    else
-      error ->
-        Mix.raise("""
-        Nerves was unable to verify the Erlang compiler version.
-        Error: #{error}
-        """)
+      If you're using asdf to manage Elixir versions, run:
+
+      asdf install elixir #{System.version()}-otp-#{system_otp_release()}
+      asdf global elixir #{System.version()}-otp-#{system_otp_release()}
+      """)
     end
   end
 
-  def module_compiler_version(mod) do
-    with {:file, path} <- :code.is_loaded(mod),
-         {:ok, {_, [compile_info: compile_info]}} <- :beam_lib.chunks(path, [:compile_info]),
-         {:ok, vsn} <- Keyword.fetch(compile_info, :version),
-         vsn <- to_string(vsn) do
-      parse_version(vsn)
-    end
+  defp erlang_compiler_version() do
+    Application.spec(:compiler, :vsn)
+    |> to_string()
+    |> parse_version()
   end
 
-  def system_otp_release do
+  defp elixir_compiler_version() do
+    {:file, path} = :code.is_loaded(Kernel)
+    {:ok, {_, [compile_info: compile_info]}} = :beam_lib.chunks(path, [:compile_info])
+    {:ok, vsn} = Keyword.fetch(compile_info, :version)
+
+    vsn
+    |> to_string()
+    |> parse_version()
+  end
+
+  def system_otp_release() do
     :erlang.system_info(:otp_release)
     |> to_string()
   end
