@@ -315,8 +315,16 @@ defmodule Nerves.Artifact do
   end
 
   def host_tuple(_pkg) do
-    Nerves.Env.host_os() <> "_" <> Nerves.Env.host_arch()
+    (Nerves.Env.host_os() <> "_" <> Nerves.Env.host_arch())
+    |> normalize_osx()
   end
+
+  # Workaround for OTP 24 returning 'aarch64-apple-darwin20.4.0'
+  # and OTP 23 and earlier returning 'arm-apple-darwin20.4.0'.
+  #
+  # The current Nerves tooling naming uses "arm".
+  defp normalize_osx("darwin_aarch64"), do: "darwin_arm"
+  defp normalize_osx(other), do: other
 
   @doc """
   Determines the extension for an artifact based off its type.
