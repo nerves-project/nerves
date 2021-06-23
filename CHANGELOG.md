@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.7.8
+
+* Bug fixes
+  * Fix toolchain downloads when using Erlang/OTP 24 on Apple M1 macs.
+
 ## v1.7.7
 
 * Bug fixes
