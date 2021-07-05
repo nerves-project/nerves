@@ -170,6 +170,11 @@ ping nerves.local
 > lines. You need a cable with both power and data lines, so try a different USB
 > cable.
 >
+> Note: If Windows `Device Manager`/`Network adapters` does not have a
+> `USB Ethernet/RNDIS Gadget` device, it might be caused by
+> [this](https://www.ghacks.net/2020/09/28/should-you-install-windows-10s-optional-driver-updates),
+> so install the optional `USB Ethernet/RNDIS Gadget` driver to fix it.
+>
 > Note: `nerves.local` is an mDNS address. These examples were done with a Mac
 > host, which has mDNS enabled by default. Linux and Windows hosts may have to
 > enable mDNS networking.
