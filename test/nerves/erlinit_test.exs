@@ -36,6 +36,9 @@ defmodule Nerves.ErlinitTest do
   # another mechanism to set the clock, but it won't be decades off.
   --update-clock
 
+  # Allow creation of core dumps w/ unlimited size
+  --limits core:unlimited:unlimited
+
   # Uncomment to hang the board rather than rebooting when Erlang exits
   # NOTE: Do not enable on production boards
   --hang-on-exit
@@ -96,6 +99,7 @@ defmodule Nerves.ErlinitTest do
                uid: 100,
                gid: 200,
                update_clock: true,
+               limits: "core:unlimited:unlimited",
                hang_on_exit: true,
                graceful_shutdown_timeout: 15000,
                run_on_exit: "/bin/sh",
@@ -171,6 +175,7 @@ defmodule Nerves.ErlinitTest do
              --uid 100
              --gid 200
              --update-clock
+             --limits core:unlimited:unlimited
              --hang-on-exit
              --graceful-shutdown-timeout 15000
              --run-on-exit /bin/sh
