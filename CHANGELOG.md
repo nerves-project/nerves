@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.7.9
+
+* Improvements
+  * Add helper script generator for using gdb to analyze core dumps. Nerves
+    systems ship with debug symbols (target images have these stripped) that can
+    be used to get stack traces and more from core dumps from the Erlang VM and
+    other C/C++ programs. See the [Debugging C in Nerves blog
+    post](https://embedded-elixir.com/post/2021-07-03-debugging-c/) for an example.
+  * Support the new `:limits` option in erlinit so that it's possible to set the
+    core dump limits (i.e., enable core dumps) before Erlang starts.
+
 ## v1.7.8
 
 * Bug fixes
