@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Firmware.Gen.Gdb do
 
   @moduledoc """
   Generates a helper shell script for using gdb to analyze core dumps
-  
+
   This script may be used on its own or used as a base for more complicated debugging.
   It saves the script to #{@script_name}.
   """
