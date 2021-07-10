@@ -67,21 +67,30 @@ This project exists thanks to all the people who contribute.
 Please see our [Contributing Guide](/.github/CONTRIBUTING.md) for details on how you can
 contribute in various ways.
 
-## Gold Sponsors
+## Metal Level Sponsors
+
+Metal level sponsors are companies that allow core team members to maintain and
+extend Nerves for a portion of each work week. Nerves is not a product of any
+one company. We also have a soft spot for supporting makers and hobbyists using
+the BEAM, and it would be difficult to do this without them.
 
 <a href="https://www.smartrent.com" target="_blank"><img width="200" height="100" src="https://www.nerves-project.org/hubfs/Very%20Logos%20Smart%20Rent.png"></a>
 
 <a href="https://www.verypossible.com" target="_blank"><img width="250" height="120" src="https://www.nerves-project.org/hubfs/black.svg"></a>
 
+<a href="https://www.binarynoggin.com" target="_blank"><img width="250" src="https://www.nerves-project.org/assets/BinaryNoggin_logo_250.png"></a>
+
 [[Become a metal level sponsor]](http://nerves-project.org/sponsors)
 
-## Backers
+## OpenCollective Backers
 
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/nerves-project#backer)]
+Thank you to all our monetary backers! Hardware costs money and without support,
+we wouldn't be able to support nearly as many devices. 🙏 [[Become a
+backer](https://opencollective.com/nerves-project#backer)]
 
 <a href="https://opencollective.com/nerves-project#backers" target="_blank"><img src="https://opencollective.com/nerves-project/backers.svg?width=890"></a>
 
-## Sponsors
+## OpenCollective Sponsors
 
 Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/nerves-project#sponsor)]
 
