@@ -43,9 +43,11 @@ install: $(PREFIX) $(BUILD) $(PORT)
 $(OBJ): Makefile
 
 $(BUILD)/%.o: src/%.c
+	@echo "HOST_CC $(notdir $@)"
 	$(CC_FOR_BUILD) -c $(CFLAGS_FOR_BUILD) -o $@ $<
 
 $(PORT): $(OBJ)
+	@echo "HOST_LD $(notdir $@)"
 	$(CC_FOR_BUILD) $^ $(LDFLAGS_FOR_BUILD) -o $@
 
 $(PREFIX) $(BUILD):
@@ -56,3 +58,6 @@ clean:
 	if [ -f test/fixtures/port/Makefile ]; then $(MAKE) -C test/fixtures/port clean; fi
 
 .PHONY: all clean calling_from_make install
+
+# Don't echo commands unless the caller exports "V=1"
+${V}.SILENT:
