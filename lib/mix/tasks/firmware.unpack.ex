@@ -10,10 +10,15 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
   ## Usage
 
-      mix firmware.unpack [output directory]
+      mix firmware.unpack [--output output directory] [--fw path to firmware]
 
-  If not supplied, the output directory will be based off the OTP application
-  name.
+  ## Command line options
+
+    * `--fw` - (Optional) The path to the .fw file for unpacking.
+      Defaults to `Nerves.Env.firmware_path/1`
+    * `--output` - (Optional) The output directory for the unpacked firmware.
+      Defaults to the name of the firmware bundle with the extension replaced
+      with `.unpacked`.
 
   ## Examples
 
@@ -21,57 +26,45 @@ defmodule Mix.Tasks.Firmware.Unpack do
   # Create a firmware bundle. It will be under the _build directory
   mix firmware
 
-  # Unpack it
-  mix firmware.unpack firmware_contents
+  # Unpack the built firmware
+  mix firmware.unpack --output firmware_contents
+
+  # Unpack a specified fw file
+  mix firmware.unpack --fw hello_nerves.fw
 
   # Inspect it
-  ls firmware_contents
+  ls hello_nerves.unpacked/
   ```
   """
 
+  @switches [output: :string, fw: :string]
+  @aliases [o: :output, f: :fw]
+
   @impl true
-  def run([output_path]) do
+  def run(args) do
     Preflight.check!()
     debug_info("Nerves Firmware Unpack")
 
     config = Mix.Project.config()
-    otp_app = config[:app]
-    target = mix_target()
 
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
+    {opts, _, _} = OptionParser.parse(args, strict: @switches, alies: @aliases)
+
+    fw = opts[:fw] || Nerves.Env.firmware_path(config)
+    output = opts[:output] || "#{Path.rootname(Path.basename(fw))}.unpacked"
 
     _ = check_nerves_system_is_set!()
 
     _ = check_nerves_toolchain_is_set!()
 
-    fw = "#{images_path}/#{otp_app}.fw"
-
     unless File.exists?(fw) do
-      Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
+      Mix.raise("""
+      Firmware not found.
+
+      Please supply a valid firmware path with `--fw` or run `mix firmware`
+      """)
     end
 
-    unpack(fw, output_path)
-  end
-
-  def run([]) do
-    config = Mix.Project.config()
-    otp_app = config[:app]
-    target = mix_target()
-
-    file = "#{otp_app}-#{target}"
-    run([file])
-  end
-
-  def run(_args) do
-    Mix.raise("""
-    mix firmware.unpack [output path]
-
-    See mix help firmware.unpack for more info
-    """)
-
-    Mix.Task.run("help", ["firmware.unpack"])
+    unpack(fw, output)
   end
 
   defp unpack(fw, output_path) do
