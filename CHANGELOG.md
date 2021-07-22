@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.7.10
+
+* Improvements
+  * Update `mix firmware.unpack` to be more flexible with input firmware and
+    output directories. If you're using `mix firmware.unpack` in a script, you
+    may need to update the script.
+  * Reduce C compiler build prints
+
 ## v1.7.9
 
 * Improvements
