@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
     {_, 0} = shell("unzip", [fw, "-d", abs_output_path])
 
-    {_, 0} = shell("unsquashfs", ["-d", rootfs_output_path, rootfs_image])
+    {_, 0} = shell("unsquashfs", ["-d", rootfs_output_path, "-no-xattrs", rootfs_image])
 
     :ok
   end
