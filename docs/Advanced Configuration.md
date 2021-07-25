@@ -450,3 +450,11 @@ The following is a list of all options that can be specified:
 ```
 
 See [erlinit](https://github.com/nerves-project/erlinit) for more information.
+
+## Configuring Kernel Parameters
+
+`sysctl` is used to modify kernel parameters at runtime. [`nerves_sytem_br`](https://github.com/nerves-project/nerves_system_br)
+provides a default `/etc/sysctl.conf` file that is loaded on application
+startup. You can modify the kernel parameters for your application or custom
+Nerves system by copying this default `sysctl.conf` file to your
+`rootfs_overlay/etc` directory and making the desired changes.
