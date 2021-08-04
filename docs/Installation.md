@@ -140,7 +140,10 @@ asdf plugin-add elixir
 
 # Note #1:
 # If on Debian or Ubuntu, you'll want to install wx before running the next line:
+# For Ubuntu versions before 20.04 run the next line:
 # sudo apt install libwxgtk3.0-dev
+# For Ubuntu 20.04 and up run the next line:
+# sudo apt install libwxgtk3.0-gtk3-dev
 # for arch based systems run the next line:
 # yay -S wxgtk2 fop jdk-openjdk unzip
 
