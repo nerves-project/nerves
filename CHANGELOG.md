@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.7.11
+
+* Bug fixes
+  * Don't set xattrs when running `mix firmware.unpack`. This fixes filesystem
+    permission errors during extraction for some users.
+
 ## v1.7.10
 
 * Improvements
