@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # noninteractive-build.sh \
 #  nerves_system_ev3-0.7.0.armv5tejl_unknown_linux_musleabi \
 #  /nerves/env/platform \
