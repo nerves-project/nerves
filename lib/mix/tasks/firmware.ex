@@ -55,13 +55,20 @@ defmodule Mix.Tasks.Firmware do
   end
 
   @doc false
-  def result({_, 0}), do: nil
+  def result({_, 0}) do
+    Mix.shell().info("""
+    Firmware built successfully! 🎉
 
-  def result({result, _}),
-    do:
-      Mix.raise("""
-      Nerves encountered an error. #{inspect(result)}
-      """)
+    Now you may install it to a MicroSD card using `mix burn` or upload it
+    to a device with `mix upload` or `mix firmware.gen.script`+`./upload.sh`.
+    """)
+  end
+
+  def result({result, _}) do
+    Mix.raise("""
+    Nerves encountered an error. #{inspect(result)}
+    """)
+  end
 
   defp build_release() do
     Mix.Task.run("release", [])
