@@ -12,7 +12,7 @@ By default the `/data` partition both read/writeable and is not overwritten when
 
 Assuming that you have already put a known good firmware inside "/data/known_good.fw" (perhaps with sftp) then you can run the following commands
 
-```
+```elixir
 iex> cmd("fwup -i /data/known_good.fw --apply --task upgrade " <>
   "--no-unmount -d #{Nerves.Runtime.KV.get("nerves_fw_devpath")}")
 iex> reboot
