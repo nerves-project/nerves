@@ -11,7 +11,7 @@ filesystem, the Linux kernel, a bootloader, and some extra files and metadata
 specific to your target. Packaging all these files together provides a convenient
 and reliable means of distributing firmware that can be used to boot new devices
 as well as upgrade existing ones. Unfortunately, this mechanism is not conducive
-to applying updates to devices that are use expensive metered network connections
+to applying updates to devices that use expensive metered network connections
 where the cost of every byte counts. This problem can be alleviated with firmware
 patches.
 
