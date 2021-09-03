@@ -153,9 +153,9 @@ asdf plugin-add elixir
 # latest official Nerves systems are compatible with the versions below. In
 # general, differences in patch releases are harmless. Nerves detects
 # configurations that might not work at compile time.
-asdf install erlang 24.0.3
+asdf install erlang 24.0.6
 asdf install elixir 1.12.2-otp-24
-asdf global erlang 24.0.3
+asdf global erlang 24.0.6
 asdf global elixir 1.12.2-otp-24
 ```
 
