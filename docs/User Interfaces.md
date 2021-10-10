@@ -17,14 +17,14 @@ project" structure. For the reasoning behind this, please see the original
 
 [blog post describing poncho projects]: https://embedded-elixir.com/post/2017-05-19-poncho-projects/
 
-#### Using a poncho project structure
+### Using a poncho project structure
 
 First, we generate the two new Mix projects in a containing directory:
 
 ```bash
 mkdir my_app && cd my_app
 mix nerves.new my_app_firmware
-mix phx.new my_app_ui --no-ecto --no-webpack
+mix phx.new my_app_ui --no-ecto --no-mailer
 ```
 
 Now, we add the Phoenix-based `my_app_ui` project to the `my_app_firmware`
@@ -32,14 +32,15 @@ project as a dependency, because we want to use the `my_app_firmware` project
 as a deployment wrapper around the `my_app_ui` project.
 
 ```elixir
-# my_app_firmware/mix.exs
+# my_app/my_app_firmware/mix.exs
 
 # ...
   defp deps do
     [
       # Dependencies for all targets
-      {:my_app_ui, path: "../my_app_ui"},
-      {:nerves, "~> 1.4", runtime: false},
+      {:nerves, "~> 1.7", runtime: false},
+      # ...
+      {:my_app_ui, path: "../my_app_ui", targets: @all_targets, env: Mix.env()},
       # ...
     ]
   end
@@ -49,7 +50,7 @@ as a deployment wrapper around the `my_app_ui` project.
 If we're using the poncho project structure, we can skip ahead to the section
 where we [configure networking](#configure-networking).
 
-#### Using an umbrella project structure
+### Using an umbrella project structure
 
 If we would rather use the umbrella project structure instead, we can do so as follows:
 
@@ -57,7 +58,7 @@ If we would rather use the umbrella project structure instead, we can do so as f
 mix new my_app --umbrella
 cd my_app/apps
 mix nerves.new my_app_firmware
-mix phx.new my_app_ui --no-ecto --no-webpack
+mix phx.new my_app_ui --no-ecto --no-mailer
 ```
 
 Then, we add the Phoenix `my_app_ui` project to the `my_app_firmware` project
@@ -70,15 +71,15 @@ as a dependency using the `in_umbrella` option instead of the `path` option:
   defp deps do
     [
       # Dependencies for all targets
-      {:my_app_ui, in_umbrella: true},
-      {:nerves, "~> 1.4", runtime: false},
+      {:nerves, "~> 1.7", runtime: false},
+      # ...
+      {:my_app_ui, in_umbrella: true, targets: @all_targets, env: Mix.env()},
       # ...
     ]
   end
 # ...
 ```
-
-##### Specifying configuration order
+#### Specifying configuration order
 
 By default when you use the umbrella project style, the top-level configuration
 loads the sub-project configurations in lexicographic order:
@@ -132,7 +133,7 @@ underlying [`vintage_net` documentation](https://hexdocs.pm/vintage_net/VintageN
 
 In order to deploy the `my_app_ui` Phoenix-based project along with the
 Nerves-based `my_app_firmware` project, we need to configure our Phoenix
-`Endpoint` using appropriate settings for deployment on an embedded device.  If
+`Endpoint` using appropriate settings for deployment on an embedded device. If
 we're using a poncho project structure, we'll need to keep in mind that the
 `my_app_ui` configuration won't be applied automatically, so we should either
 `import` it from there or duplicate the required configuration.
@@ -141,23 +142,27 @@ Assuming that we're using the poncho project structure, our configuration might
 look like this:
 
 ```elixir
-# my_app_firmware/config/config.exs
+# my_app_firmware/config/target.exs
 
-use Mix.Config
+import Config
 
-# When we deploy to a device, we use the "prod" configuration:
-import_config "../../my_app_ui/config/config.exs"
-import_config "../../my_app_ui/config/prod.exs"
-
+# as of phoenix 1.6.2
 config :my_app_ui, MyAppUiWeb.Endpoint,
-  # Nerves root filesystem is read-only, so disable the code reloader
-  code_reloader: false,
+  url: [host: "nerves.local"],
   http: [port: 80],
-  # Use compile-time Mix config instead of runtime environment variables
-  load_from_system_env: false,
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  secret_key_base: "HEY05EB1dFVSu6KykKHuS4rQPQzSHv4F7mGVB/gnDLrIu75wE/ytBXy2TaL3A6RA",
+  live_view: [signing_salt: "AAAABjEyERMkxgDh"],
+  check_origin: false,
+  render_errors: [view: MyAppUiWeb.ErrorView, accepts: ~w(html json), layout: false],
+  pubsub_server: Ui.PubSub,
   # Start the server since we're running in a release instead of through `mix`
   server: true,
-  url: [host: "nerves.local", port: 80]
+  # Nerves root filesystem is read-only, so disable the code reloader
+  code_reloader: false
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
 ```
 
 There we have it! A Phoenix-based web application is now ready to run on our
@@ -167,19 +172,34 @@ user interface code even without having physical hardware. We also minimize the
 hardware/software integration effort by managing both the core software and the
 firmware deployment infrastructure in a single poncho or umbrella project.
 
+### Develop the UI
+
 When developing the UI, we can simply run the Phoenix server from the
 `my_app_ui` project directory:
 
 ```bash
-cd path/to/ui
+cd path/to/my_app_ui
 iex -S mix phx.server
 ```
 
-When it's time to deploy firmware to our hardware, we can do it from the
-`my_app_firmware` project directory:
+### Deploy the firmware
+
+First we build our assets in the `my_app_ui` project directory and prepare them for deployment to the firmware:
 
 ```bash
-cd my_app_firmware
+cd path/to/my_app_ui
+
+# This needs to be repeated when you change dependencies for the UI.
+mix deps.get
+
+# This needs to be repeated when you change JS or CSS files.
+mix assets.deploy
+```
+
+When it's time to deploy firmware to our hardware, we can do it from the `my_app_firmware` project directory:
+
+```bash
+cd path/to/my_app_firmware
 export MIX_TARGET=rpi3
 mix deps.get
 mix firmware
