@@ -66,9 +66,10 @@ as a deployment wrapper around the `my_app_ui` project.
 # ...
 ```
 
-We need one adjustment in the UI project's `mix.exs`.  When `MIX_ENV` is `dev`,
-[`esbuild`] crashes the firmware project on load so we want to prevent `esbuild`
-from getting loaded at runtime on the firmware project.
+We need one adjustment to the UI project's `mix.exs`.  By default when `MIX_ENV`
+is `dev`, the default Phoenix setup runs [`esbuild`] to rebuild assets as needed.
+This doesn't work on target device, so we need to limit it to only run on the
+host:
 
 ```elixir
 # my_app/my_app_ui/mix.exs
