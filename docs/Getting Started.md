@@ -66,6 +66,9 @@ set.  This allows you quick access to use host-based tooling in the former and
 deploy updated firmware from the latter, all without having to modify the
 `MIX_TARGET` variable in your shell.
 
+> REMINDER: To choose the correct target for your specific device refer to the
+> [Targets Page](targets.html)
+
 ``` bash
 cd hello_nerves
 export MIX_TARGET=rpi3
