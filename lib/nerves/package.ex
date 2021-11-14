@@ -130,49 +130,18 @@ defmodule Nerves.Package do
       case project_config[:nerves_package] do
         nil ->
           # TODO: Deprecated. Clean up after 1.0
-          load_nerves_config(path)
-          config = Application.get_env(app, :nerves_env)
+          Mix.shell().raise("""
+          Nerves configuration has moved from nerves.exs to mix.exs.
 
-          Mix.shell().error("""
-          Nerves config has moved from nerves.exs to mix.exs.
-
-          For Example:
-
-          ## nerves.exs
-            config #{project_config[:app]}, :nerves_env,
-              type: #{config[:type]}
-              # ...
-
-          ## mix.exs
-
-            def project do
-              [app: #{project_config[:app]},
-               version: #{project_config[:version]},
-               nerves_package: nerves_package()
-               # ...
-              ]
-            end
-
-            def nerves_package do
-              [type: #{config[:type]}
-              # ...
-              ]
-            end
+          Use `mix nerves.new` to regenerate your project's mix.exs and merge
+          your code into the new project.
           """)
-
-          config
 
         nerves_package ->
           nerves_package
       end
 
     Keyword.put(project_config, :nerves_package, nerves_package)
-  end
-
-  defp load_nerves_config(path) do
-    config_path(path)
-    |> mix_config_eval!()
-    |> Mix.Config.persist()
   end
 
   defp dep_type(pkg) do
@@ -194,19 +163,6 @@ defmodule Nerves.Package do
           :path
         end
     end
-  end
-
-  # Elixir 1.7 deprecated Mix.Config.Read!/1
-  # Use Mix.Config.eval!/2 if available
-  defp mix_config_eval!(config) do
-    fun =
-      if :erlang.function_exported(Mix.Config, :eval!, 2) do
-        :eval!
-      else
-        :read!
-      end
-
-    apply(Mix.Config, fun, [config])
   end
 
   # Elixir 1.7 deprecated Mix.Dep.loaded/1
