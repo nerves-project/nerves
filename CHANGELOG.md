@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.12
+
+* Improvements
+  * Allow Elixir 1.13.0-rc.0 to be used to build projects. It looks like it
+    works fine and doesn't cause issues with Nerves.
+  * Add message after the build completes to let you know what to do next.
+
 ## v1.7.11
 
 * Bug fixes
