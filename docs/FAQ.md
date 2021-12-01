@@ -6,7 +6,27 @@ If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](htt
 
 ## Where can persistent data be stored?
 
-By default the `/data` partition both read/writeable and is not overwritten when new firmware is pushed to the device. However, if you are using `mix firmware.burn` then the entire SD card is being overwritten each time so you won't have any persistent data.
+For most use cases, the `/data` partition is the right place to store data.  It
+is initialized on first boot and is not overwritten when new firmware is pushed
+to the device.
+
+The `mix firmware.burn` task clears it out so that partition is guaranteed to be
+empty when the device boots. This is useful to ensure that the device is known
+state. There's a pattern for implementing a "Reset to factory defaults" feature
+by erasing the partition and rebooting.
+
+If you're updating firmware regularly by writing to a MicroSD card, try running
+`mix firmware.burn --task upgrade`. This won't reset the application data
+partition.
+
+Some Elixir libraries write to their `priv` directory by default. This won't
+work since all code and the `priv` directories are stored in a read-only file
+partition. Usually there's a way to override this default choice and specify a
+path to `/data` for that library to use.
+
+Factory calibration and other provisioning data is either stored in a custom
+file partition or in the U-Boot environment block. The latter is accessible via
+`Nerves.Runtime.KV` functions.
 
 ## How can I apply a firmware update manually?
 
