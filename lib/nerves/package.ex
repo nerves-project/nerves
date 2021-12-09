@@ -71,7 +71,7 @@ defmodule Nerves.Package do
     config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
 
     dep_opts =
-      mix_dep_load(env: Mix.env())
+      Mix.Dep.load_on_environment(env: Mix.env())
       |> Enum.find(%{}, &(&1.app == app))
       |> Map.get(:opts, [])
       |> Keyword.get(:nerves, [])
@@ -163,18 +163,5 @@ defmodule Nerves.Package do
           :path
         end
     end
-  end
-
-  # Elixir 1.7 deprecated Mix.Dep.loaded/1
-  # Use Mix.Dep.load_on_environment/1 if available
-  defp mix_dep_load(opts) do
-    fun =
-      if :erlang.function_exported(Mix.Dep, :load_on_environment, 1) do
-        :load_on_environment
-      else
-        :loaded
-      end
-
-    apply(Mix.Dep, fun, [opts])
   end
 end
