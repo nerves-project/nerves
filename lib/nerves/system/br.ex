@@ -12,6 +12,8 @@ defmodule Nerves.System.BR do
     path
     |> Path.join("nerves_env.exs")
     |> Code.require_file()
+
+    :ok
   end
 
   @doc """
@@ -25,6 +27,7 @@ defmodule Nerves.System.BR do
   @doc """
   Return the location in the build path to where the global artifact is linked.
   """
+  @spec build_path_link(Nerves.Package.t()) :: binary
   def build_path_link(pkg) do
     Artifact.build_path(pkg)
   end
@@ -32,11 +35,11 @@ defmodule Nerves.System.BR do
   @doc """
   Clean up all the build files
   """
+  @spec clean(Nerves.Package.t()) :: :ok
   def clean(pkg) do
     _ = Artifact.Cache.delete(pkg)
 
-    Artifact.build_path(pkg)
-    |> File.rm_rf()
+    _ = File.rm_rf(Artifact.build_path(pkg))
 
     Nerves.Env.package(:nerves_system_br)
     |> Map.get(:path)
