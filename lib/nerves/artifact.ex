@@ -149,6 +149,7 @@ defmodule Nerves.Artifact do
   @doc """
   Get the path to where the artifact is built
   """
+  @spec build_path(Nerves.Package.t()) :: binary
   def build_path(pkg) do
     Path.join([pkg.path, ".nerves", "artifacts", name(pkg)])
   end
