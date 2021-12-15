@@ -21,18 +21,7 @@ install_system_deps: &install_system_deps
 jobs:
   build_elixir_1_13_otp_24:
     docker:
-      - image: hexpm/elixir:1.13.0-erlang-24.1.7-alpine-3.14.2
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *install_hex_rebar
-      - <<: *install_system_deps
-      - run: mix deps.get
-      - run: mix test || mix test
-
-  build_elixir_1_12_otp_24:
-    docker:
-      - image: hexpm/elixir:1.12.3-erlang-24.1.5-alpine-3.14.2
+      - image: hexpm/elixir:1.13.1-erlang-24.1.7-alpine-3.14.2
     <<: *defaults
     steps:
       - checkout
@@ -54,6 +43,17 @@ jobs:
           paths:
             - _build
             - deps
+
+  build_elixir_1_12_otp_24:
+    docker:
+      - image: hexpm/elixir:1.12.3-erlang-24.1.5-alpine-3.14.2
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_hex_rebar
+      - <<: *install_system_deps
+      - run: mix deps.get
+      - run: mix test || mix test
 
   build_elixir_1_11_otp_23:
     docker:
