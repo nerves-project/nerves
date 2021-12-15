@@ -59,7 +59,17 @@ defmodule Nerves.Utils.HTTPClient do
     ]
 
     http_opts =
-      [timeout: :infinity, autoredirect: false]
+      [
+        timeout: :infinity,
+        autoredirect: false,
+        ssl: [
+          verify: :verify_peer,
+          cacertfile: CAStore.file_path(),
+          customize_hostname_check: [
+            {:match_fun, :public_key.pkix_verify_hostname_match_fun(:https)}
+          ]
+        ]
+      ]
       |> Keyword.merge(Nerves.Utils.Proxy.config(url))
       |> Keyword.merge(Keyword.get(opts, :http_opts, []))
 
