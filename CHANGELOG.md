@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.7.13
+
+* Improvements
+  * Verify the remote website when downloading artifacts. This fixes the warning
+    about unverified HTTPS connections.
+  * Fix error message printout when Nerves toolchain builds fail
+
 ## v1.7.12
 
 * Improvements
