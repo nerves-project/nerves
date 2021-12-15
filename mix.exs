@@ -95,8 +95,12 @@ defmodule Nerves.MixProject do
         "src",
         "Makefile"
       ],
-      licenses: ["Apache 2.0"],
-      links: %{"Home page" => "https://www.nerves-project.org/", "GitHub" => @source_url}
+      licenses: ["Apache-2.0"],
+      links: %{
+        "Home page" => "https://www.nerves-project.org/",
+        "GitHub" => @source_url,
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
+      }
     ]
   end
 end
