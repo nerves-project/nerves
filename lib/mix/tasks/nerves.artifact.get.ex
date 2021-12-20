@@ -8,7 +8,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
 
   @impl true
   def run(opts) do
-    Mix.shell().info("Resolving Nerves artifacts...")
+    Mix.shell().info("Checking for prebuilt Nerves artifacts...")
 
     Nerves.Env.packages()
     |> Enum.each(&get(&1.app, opts))
@@ -32,8 +32,9 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
             nil ->
               get_artifact(pkg)
 
-            _cache_path ->
-              Nerves.Utils.Shell.success("  Cached #{app}")
+            cache_path ->
+              Nerves.Utils.Shell.success("  Found #{app} in cache")
+              Nerves.Utils.Shell.info("    #{cache_path}")
           end
         end
 
@@ -44,7 +45,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
 
   defp get_artifact(pkg) do
     archive = Artifact.download_path(pkg)
-    Nerves.Utils.Shell.success("  Resolving #{pkg.app}")
+    Nerves.Utils.Shell.success("  Checking #{pkg.app}...")
 
     with true <- File.exists?(archive),
          :ok <- Nerves.Utils.File.validate(archive) do
@@ -66,7 +67,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
         put_cache(pkg, archive)
 
       {:error, reason} ->
-        Nerves.Utils.Shell.error("  => #{reason}")
+        Nerves.Utils.Shell.error("  => Prebuilt #{pkg.app} not found (#{reason})")
     end
   end
 
