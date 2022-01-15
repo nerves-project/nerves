@@ -73,6 +73,7 @@ ERL_INTERFACE_INCLUDE_DIR | `nerves_system_br` | erlang.mk variable for finding 
 PKG_CONFIG_SYSROOT_DIR | `nerves_system_br` | Sysroot for using `pkg-config` to find libraries in the Nerves system
 PKG_CONFIG_LIBDIR  | `nerves_system_br` | Metadata for `pkg-config` on the target
 QMAKESPEC          | `nerves_system_br` | If Qt is available, this points to the spec file
+CMAKE_TOOLCHAIN_FILE | `nerves_system_br` | To build CMake projects, configure CMake with `-DCMAKE_TOOLCHAIN_FILE="$(CMAKE_TOOLCHAIN_FILE)"`
 REBAR_TARGET_ARCH  | `nerves_system_br` | Set to the binutils prefix (e.g., `arm-linux-gnueabi`) for [rebar2](https://github.com/rebar/rebar)
 AR_FOR_BUILD       | `nerves_system_br` | The host's `ar`
 AS_FOR_BUILD       | `nerves_system_br` | The host's `as`
