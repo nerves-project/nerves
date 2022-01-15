@@ -55,40 +55,40 @@ and any code invoked from them. For example, these are frequently used in the
 
 Name               | Where set          | Description
 ------------------ | ------------------ | -----------
-CROSSCOMPILE       | `nerves_system_br` | The path and prefix for the crosscompilers (e.g., "$CROSSCOMPILE-gcc" is the path to gcc)
+AR_FOR_BUILD       | `nerves_system_br` | The host's `ar`
+AS_FOR_BUILD       | `nerves_system_br` | The host's `as`
 CC                 | `nerves_system_br` | The path to `gcc` for crosscompiling to the target
-CXX                | `nerves_system_br` | The path to `g++` for crosscompiling to the target
-CPPFLAGS           | `nerves_system_br` | Recommended C preprocessor flags
+CC_FOR_BUILD       | `nerves_system_br` | The host's `cc`
 CFLAGS             | `nerves_system_br` | Recommended C compilation flags
+CFLAGS_FOR_BUILD   | `nerves_system_br` | Recommended C compiler flags for the host
+CMAKE_TOOLCHAIN_FILE | `nerves_system_br` | To build CMake projects, configure CMake with `-DCMAKE_TOOLCHAIN_FILE="$(CMAKE_TOOLCHAIN_FILE)"`
+CPPFLAGS           | `nerves_system_br` | Recommended C preprocessor flags
+CPPFLAGS_FOR_BUILD | `nerves_system_br` | Recommended C preprocessor flags for the host
+CROSSCOMPILE       | `nerves_system_br` | The path and prefix for the crosscompilers (e.g., "$CROSSCOMPILE-gcc" is the path to gcc)
+CXX                | `nerves_system_br` | The path to `g++` for crosscompiling to the target
+CXX_FOR_BUILD      | `nerves_system_br` | The host's `g++`
 CXXFLAGS           | `nerves_system_br` | Recommended C++ compilation flags
-LDFLAGS            | `nerves_system_br` | Recommended linker flags
-STRIP              | `nerves_system_br` | The path to `strip` for target binaries (Nerves strips binaries by default)
+CXXFLAGS_FOR_BUILD | `nerves_system_br` | Recommended C++ compiler flags for the host
 ERL_CFLAGS         | `nerves_system_br` | Additional compilation flags for Erlang NIFs and ports
-ERL_LDFLAGS        | `nerves_system_br` | Additional linker flags for Erlang NIFs and ports
-ERL_EI_LIBDIR      | `nerves_system_br` | Rebar variable for finding erl interface libraries
 ERL_EI_INCLUDE_DIR | `nerves_system_br` | Rebar variable for finding erl interface include files
-ERTS_INCLUDE_DIR   | `nerves_system_br` | erlang.mk variable for finding erts include files
+ERL_EI_LIBDIR      | `nerves_system_br` | Rebar variable for finding erl interface libraries
 ERL_INTERFACE_LIB_DIR | `nerves_system_br` | erlang.mk variable for finding erl interface libraries
 ERL_INTERFACE_INCLUDE_DIR | `nerves_system_br` | erlang.mk variable for finding erl interface include files
+ERL_LDFLAGS        | `nerves_system_br` | Additional linker flags for Erlang NIFs and ports
+ERTS_INCLUDE_DIR   | `nerves_system_br` | erlang.mk variable for finding erts include files
+GCC_FOR_BUILD      | `nerves_system_br` | The host's `gcc`
+LD_FOR_BUILD       | `nerves_system_br` | The host's `ld`
+LDFLAGS            | `nerves_system_br` | Recommended linker flags
+LDFLAGS_FOR_BUILD  | `nerves_system_br` | Recommended linker flags for the host
 PKG_CONFIG_SYSROOT_DIR | `nerves_system_br` | Sysroot for using `pkg-config` to find libraries in the Nerves system
 PKG_CONFIG_LIBDIR  | `nerves_system_br` | Metadata for `pkg-config` on the target
 QMAKESPEC          | `nerves_system_br` | If Qt is available, this points to the spec file
-CMAKE_TOOLCHAIN_FILE | `nerves_system_br` | To build CMake projects, configure CMake with `-DCMAKE_TOOLCHAIN_FILE="$(CMAKE_TOOLCHAIN_FILE)"`
 REBAR_TARGET_ARCH  | `nerves_system_br` | Set to the binutils prefix (e.g., `arm-linux-gnueabi`) for [rebar2](https://github.com/rebar/rebar)
-AR_FOR_BUILD       | `nerves_system_br` | The host's `ar`
-AS_FOR_BUILD       | `nerves_system_br` | The host's `as`
-CC_FOR_BUILD       | `nerves_system_br` | The host's `cc`
-GCC_FOR_BUILD      | `nerves_system_br` | The host's `gcc`
-CXX_FOR_BUILD      | `nerves_system_br` | The host's `g++`
-LD_FOR_BUILD       | `nerves_system_br` | The host's `ld`
-CPPFLAGS_FOR_BUILD | `nerves_system_br` | Recommended C preprocessor flags for the host
-CFLAGS_FOR_BUILD   | `nerves_system_br` | Recommended C compiler flags for the host
-CXXFLAGS_FOR_BUILD | `nerves_system_br` | Recommended C++ compiler flags for the host
-LDFLAGS_FOR_BUILD  | `nerves_system_br` | Recommended linker flags for the host
-TARGET_CPU         | `nerves_system_*`  | The target CPU (e.g., `cortex_a7`)
-TARGET_ARCH        | `nerves_system_*`  | The target CPU architecture (e.g., `arm`, `aarch64`, `mipsel`, `x86_64`, `riscv64`)
-TARGET_OS          | `nerves_system_*`  | The target OS. Always `linux` for Nerves.
+STRIP              | `nerves_system_br` | The path to `strip` for target binaries (Nerves strips binaries by default)
 TARGET_ABI         | `nerves_system_*`  | The target ABI (e.g., `gnueabihf`, `musl`)
+TARGET_ARCH        | `nerves_system_*`  | The target CPU architecture (e.g., `arm`, `aarch64`, `mipsel`, `x86_64`, `riscv64`)
+TARGET_CPU         | `nerves_system_*`  | The target CPU (e.g., `cortex_a7`)
+TARGET_OS          | `nerves_system_*`  | The target OS. Always `linux` for Nerves.
 
 Also see the [`elixir_make`
 documentation](https://hexdocs.pm/elixir_make/Mix.Tasks.Compile.ElixirMake.html#module-default-environment-variables)
