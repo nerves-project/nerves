@@ -72,8 +72,6 @@ CXXFLAGS_FOR_BUILD | `nerves_system_br` | Recommended C++ compiler flags for the
 ERL_CFLAGS         | `nerves_system_br` | Additional compilation flags for Erlang NIFs and ports
 ERL_EI_INCLUDE_DIR | `nerves_system_br` | Rebar variable for finding erl interface include files
 ERL_EI_LIBDIR      | `nerves_system_br` | Rebar variable for finding erl interface libraries
-ERL_INTERFACE_LIB_DIR | `nerves_system_br` | erlang.mk variable for finding erl interface libraries
-ERL_INTERFACE_INCLUDE_DIR | `nerves_system_br` | erlang.mk variable for finding erl interface include files
 ERL_LDFLAGS        | `nerves_system_br` | Additional linker flags for Erlang NIFs and ports
 ERTS_INCLUDE_DIR   | `nerves_system_br` | erlang.mk variable for finding erts include files
 GCC_FOR_BUILD      | `nerves_system_br` | The host's `gcc`
