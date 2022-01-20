@@ -25,7 +25,16 @@ defmodule Mix.Nerves.Shell do
         :eof,
         :stream,
         :stderr_to_stdout,
-        {:env, [{'PATH', Mix.Nerves.Utils.sanitize_path() |> to_charlist()}]}
+        {:env,
+         [
+           {'PATH', Mix.Nerves.Utils.sanitize_path() |> to_charlist()},
+           # Unset these Env vars which are set by the host Erlang
+           # and might interfere with the build
+           {'BINDIR', ''},
+           {'MIX_HOME', ''},
+           {'PROGNAME', ''},
+           {'ROOTDIR', ''}
+         ]}
       ])
 
     # Tell the script command about the terminal dimensions
