@@ -149,6 +149,12 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
+  @doc """
+  Return the sanitized version of the PATH variable
+
+  This removes empty PATH entries to avoid tool confusion.
+  """
+  @spec sanitize_path :: binary()
   def sanitize_path() do
     System.get_env("PATH")
     |> String.replace("::", ":")
