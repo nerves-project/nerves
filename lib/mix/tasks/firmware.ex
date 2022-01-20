@@ -204,7 +204,7 @@ defmodule Mix.Tasks.Firmware do
   defp erlang_compiler_version() do
     Application.spec(:compiler, :vsn)
     |> to_string()
-    |> parse_version()
+    |> parse_otp_version()
   end
 
   defp elixir_compiler_version() do
@@ -214,7 +214,7 @@ defmodule Mix.Tasks.Firmware do
 
     vsn
     |> to_string()
-    |> parse_version()
+    |> parse_otp_version()
   end
 
   def system_otp_release() do
