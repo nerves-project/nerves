@@ -6,9 +6,11 @@ The [Phoenix] web framework makes an excellent companion to [Nerves]-based devic
 that need to serve content over HTTP directly from the device. For example, a
 device with no display might provide administration and configuration
 interfaces intended to be accessed from a computer or mobile device.
+[Hello Phoenix] is an example of structuring a project as described here.
 
 [Nerves]: https://www.nerves-project.org/
 [Phoenix]: http://www.phoenixframework.org/
+[Hello Phoenix]: https://github.com/nerves-project/nerves_examples/tree/main/hello_phoenix
 
 ### Choosing a project structure
 
