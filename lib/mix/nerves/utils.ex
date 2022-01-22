@@ -160,31 +160,52 @@ defmodule Mix.Nerves.Utils do
     |> String.replace("::", ":")
   end
 
-  @spec parse_version(String.t()) :: {:error, String.t()} | {:ok, Version.t()}
-  def parse_version(vsn) do
-    cond do
-      # Strict semver
-      Regex.match?(
-        ~r/^((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/,
-        vsn
-      ) ->
-        {:ok, Version.parse!(vsn)}
+  @doc """
+  Parse OTP versions
 
-      # x.x
-      Regex.match?(~r/^([0-9]+)\.([0-9]+)$/, vsn) ->
-        {:ok, Version.parse!(vsn <> ".0")}
+  OTP versions can have anywhere from 2 to 5 parts. Normalize this into
+  a 3-part version for convenience. This is a lossy operation, but it
+  doesn't matter because the checks aren't needed in this project.
 
-      # x.x.x.x
-      Regex.match?(~r/^([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$/, vsn) ->
-        [major, minor, patch | _tail] = String.split(vsn, ".")
+  ```elixir
+  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("24.2")
+  iex> version
+  #Version<24.2.0>
 
-        vsn = Enum.join([major, minor, patch], ".")
-        {:ok, Version.parse!(vsn)}
+  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("23.3.4")
+  iex> version
+  #Version<23.3.4>
 
-      # unknown
-      true ->
-        {:error, "Unable to Version.parse #{inspect(vsn)}"}
+  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("18.3.4.1.1")
+  iex> version
+  #Version<18.3.4>
+
+  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("23.0-rc1")
+  iex> version
+  #Version<23.0.0-rc1>
+
+  iex> Mix.Nerves.Utils.parse_otp_version("invalid")
+  {:error, "Unexpected OTP version: \\"invalid\\""}
+  ```
+  """
+  @spec parse_otp_version(String.t()) :: {:error, String.t()} | {:ok, Version.t()}
+  def parse_otp_version(vsn) do
+    case Regex.run(~r/^([0-9.]+)(-[0-9a-zA-Z]+)?$/, vsn) do
+      [_, version] -> normalize_version(version, "")
+      [_, version, pre] -> normalize_version(version, pre)
+      _ -> {:error, "Unexpected OTP version: #{inspect(vsn)}"}
     end
+  end
+
+  defp normalize_version(version, pre) do
+    {major, minor, patch} =
+      case String.split(version, ".") do
+        [major] -> {major, 0, 0}
+        [major, minor] -> {major, minor, 0}
+        [major, minor, patch | _] -> {major, minor, patch}
+      end
+
+    Version.parse("#{major}.#{minor}.#{patch}#{pre}")
   end
 
   @spec raise_env_var_missing(String.t()) :: no_return()
