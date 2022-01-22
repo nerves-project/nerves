@@ -165,7 +165,7 @@ defmodule Mix.Nerves.Utils do
 
   OTP versions can have anywhere from 2 to 5 parts. Normalize this into
   a 3-part version for convenience. This is a lossy operation, but it
-  doesn't matter the the checks needed in this project.
+  doesn't matter because the checks aren't needed in this project.
 
   ```elixir
   iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("24.2")
