@@ -259,3 +259,8 @@ export MIX_TARGET=rpi3
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
+
+<p align="center">
+Is something wrong? [Edit this page on GitHub].
+</p>
+[Edit this page on GitHub]: https://github.com/nerves-project/nerves/edit/main/docs/Getting%20Started.md
