@@ -387,3 +387,10 @@ You can also use the GitHub interface to do this:
 ```text
 https://github.com/YourGitHubUserName/custom_rpi3/compare/main...nerves-project:main?expand=1
 ```
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Customizing%20Systems.md">
+Edit this page on GitHub
+</a>
+</p>

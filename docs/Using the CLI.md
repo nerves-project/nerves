@@ -364,3 +364,10 @@ application, it may be better to not use Nerves.
 [Raspberry Pi OS](https://www.raspberrypi.org/), and other embedded Linux
 projects run Erlang and Elixir too. Many Nerves-related libraries work well
 outside of Nerves.
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Using%20the%20CLI.md">
+Edit this page on GitHub
+</a>
+</p>

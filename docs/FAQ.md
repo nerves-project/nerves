@@ -118,3 +118,10 @@ documentation.  You may also find what you need by searching
 [hex.pm](https://hex.pm) for libraries that use that feature.
 
 If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/FAQ.md">
+Edit this page on GitHub
+</a>
+</p>

@@ -158,3 +158,10 @@ works well with Nerves and embedded Linux, see the [circuits_i2c
 Makefile](https://github.com/elixir-circuits/circuits_i2c/blob/main/Makefile).
 Also consider [zigler](https://github.com/ityonemo/zigler) for a safer
 alternative to C and C++ that works with Nerves.
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Compiling%20Non-BEAM%20Code.md">
+Edit this page on GitHub
+</a>
+</p>

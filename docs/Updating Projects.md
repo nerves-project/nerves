@@ -762,3 +762,10 @@ Run `mix deps.get` and build as normal. You may also need to update your Nerves
 system to a newer official build. Many systems have dependency requirements on
 Nerves 1.5 that can be updated to Nerves 1.6 without issue. Please review the
 Nerves system release notes when you upgrade.
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Updating%20Projects.md">
+Edit this page on GitHub
+</a>
+</p>

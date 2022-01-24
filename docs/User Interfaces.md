@@ -198,3 +198,10 @@ mix firmware
 # (Connect the SD card)
 mix firmware.burn
 ```
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/User%20Interfaces.md">
+Edit this page on GitHub
+</a>
+</p>

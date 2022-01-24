@@ -68,3 +68,9 @@ System as follows:
 > NOTE: You probably want to disable any userland packages that may be included
 > by default to avoid distraction.
 
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Targets.md">
+Edit this page on GitHub
+</a>
+</p>

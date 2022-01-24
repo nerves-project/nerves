@@ -179,3 +179,10 @@ to create new Nerves projects. To install the `nerves_bootstrap` archive:
 ```bash
 mix archive.install hex nerves_bootstrap
 ```
+
+<p align="center">
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Installation.md">
+Edit this page on GitHub
+</a>
+</p>
