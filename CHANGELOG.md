@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.7.14
+
+* Improvements
+  * Unset environment variables set by Erlang that can confuse some C/C++
+    libraries when building.
+  * Add experimental support for `TARGET_GCC_FLAGS` for enabling CPU-specific
+    features in NIFs and ports via Nerves package definitions. This is similar
+    in intent to `TARGET_CPU`, etc.
+
 ## v1.7.13
 
 * Improvements

@@ -1,7 +1,7 @@
 defmodule Nerves.MixProject do
   use Mix.Project
 
-  @version "1.7.13"
+  @version "1.7.14"
   @source_url "https://github.com/nerves-project/nerves"
 
   def project do
