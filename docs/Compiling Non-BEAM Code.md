@@ -86,6 +86,7 @@ STRIP                  | All                            | The path to `strip` fo
 TARGET_ABI             | See below                      | The target ABI (e.g., `gnueabihf`, `musl`)
 TARGET_ARCH            | See below                      | The target CPU architecture (e.g., `arm`, `aarch64`, `mipsel`, `x86_64`, `riscv64`)
 TARGET_CPU             | See below                      | The target CPU (e.g., `cortex_a7`)
+TARGET_GCC_FLAGS       | See below                      | Additional options to be passed to `gcc`. For example, enable CPU-specific features or force ASLR or stack smash protections
 TARGET_OS              | See below                      | The target OS. Always `linux` for Nerves.
 
 Also see the [`elixir_make`
@@ -125,6 +126,16 @@ Raspberry Pi Zero:
     ]
   end
 ```
+
+While the `TARGET_*` environment variables are mostly geared for non-gcc
+compilers, it's useful to add custom flags to gcc invocations as well. The
+`TARGET_GCC_FLAGS` option supports this. The Nerves tooling will prepend the
+contents of `TARGET_GCC_FLAGS` to the `CFLAGS` and `CXXFLAGS` used when
+compiling NIFs and ports. This can be used to enable features like ARM NEON
+support that would otherwise be off when using crosscompiler toolchain defaults.
+Most users don't need to concern themselves with `TARGET_GCC_FLAGS`. If you are
+creating a custom system, not setting `TARGET_GCC_FLAGS` is almost always fine,
+but will result in NIFs and ports being built with generic compiler options.
 
 ## Library recommendations
 

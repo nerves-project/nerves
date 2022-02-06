@@ -164,13 +164,18 @@ defmodule Nerves.EnvTest do
         ~w(system toolchain system_platform toolchain_platform)
         |> load_env
 
-        System.delete_env("FOO")
+        System.delete_env("TARGET_CPU")
+        System.delete_env("TARGET_GCC_FLAGS")
 
         Nerves.Env.packages()
         |> Enum.each(&Nerves.Env.export_package_env/1)
 
-        assert System.get_env("FOO") == "BAR"
-        System.delete_env("FOO")
+        assert System.get_env("TARGET_CPU") == "a_cpu"
+        assert String.starts_with?(System.get_env("CFLAGS"), "--testing")
+        assert String.starts_with?(System.get_env("CXXFLAGS"), "--testing")
+
+        System.delete_env("TARGET_CPU")
+        System.delete_env("TARGET_GCC_FLAGS")
       end)
     end
   end

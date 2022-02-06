@@ -24,7 +24,8 @@ defmodule System.MixProject do
         defconfig: "nerves_defconfig"
       ],
       env: [
-        {"FOO", "BAR"}
+        {"TARGET_CPU", "a_cpu"},
+        {"TARGET_GCC_FLAGS", "--testing"}
       ],
       checksum: package_files()
     ]

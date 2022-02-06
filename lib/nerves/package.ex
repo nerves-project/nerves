@@ -89,6 +89,22 @@ defmodule Nerves.Package do
       version: version,
       config: config
     }
+    |> process_target_gcc_flags()
+  end
+
+  defp process_target_gcc_flags(package) do
+    case Map.get(package.env, "TARGET_GCC_FLAGS") do
+      nil ->
+        package
+
+      flags when is_binary(flags) ->
+        new_env =
+          package.env
+          |> Map.put("CFLAGS", flags <> System.get_env("CFLAGS", ""))
+          |> Map.put("CXXFLAGS", flags <> System.get_env("CXXFLAGS", ""))
+
+        %{package | env: new_env}
+    end
   end
 
   @doc """
