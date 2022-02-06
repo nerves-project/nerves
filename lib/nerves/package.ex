@@ -55,7 +55,7 @@ defmodule Nerves.Package do
     version = config[:version]
     type = config[:nerves_package][:type]
     compilers = config[:compilers] || Mix.compilers()
-    env = config[:nerves_package][:env] || %{}
+    env = Map.new(config[:nerves_package][:env] || %{})
 
     unless type do
       Mix.shell().error(
