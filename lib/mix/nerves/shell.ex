@@ -30,10 +30,10 @@ defmodule Mix.Nerves.Shell do
            {'PATH', Mix.Nerves.Utils.sanitize_path() |> to_charlist()},
            # Unset these Env vars which are set by the host Erlang
            # and might interfere with the build
-           {'BINDIR', ''},
-           {'MIX_HOME', ''},
-           {'PROGNAME', ''},
-           {'ROOTDIR', ''}
+           {'BINDIR', false},
+           {'MIX_HOME', false},
+           {'PROGNAME', false},
+           {'ROOTDIR', false}
          ]}
       ])
 
