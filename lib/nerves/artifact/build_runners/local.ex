@@ -59,7 +59,7 @@ defmodule Nerves.Artifact.BuildRunners.Local do
     dest = Artifact.build_path(pkg)
 
     error = """
-    Could not find bash or sh executable. 
+    Could not find bash or sh executable.
     Make sure one of them are in your $PATH environment variable
     """
 
