@@ -444,9 +444,20 @@ defmodule Nerves.Env do
     |> validate_source_date_epoch()
   end
 
+  @spec export_package_env(Package.t()) :: :ok
   def export_package_env(%Package{env: env}) do
-    System.put_env(env)
+    env
+    |> process_target_gcc_flags()
+    |> System.put_env()
   end
+
+  defp process_target_gcc_flags(%{"TARGET_GCC_FLAGS" => flags} = env) do
+    env
+    |> Map.put("CFLAGS", flags <> System.get_env("CFLAGS", ""))
+    |> Map.put("CXXFLAGS", flags <> System.get_env("CXXFLAGS", ""))
+  end
+
+  defp process_target_gcc_flags(env), do: env
 
   defp set_source_date_epoch() do
     case source_date_epoch() do
