@@ -46,27 +46,21 @@ defmodule Nerves.Artifact do
     Mix.shell().info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
 
-    case pkg.build_runner do
-      {build_runner, _opts} ->
-        Code.ensure_compiled(pkg.platform)
-        {:ok, archive_path} = build_runner.archive(pkg, toolchain, opts)
-        archive_path = Path.expand(archive_path)
+    {build_runner, _opts} = pkg.build_runner
+    Code.ensure_compiled(pkg.platform)
+    {:ok, archive_path} = build_runner.archive(pkg, toolchain, opts)
+    archive_path = Path.expand(archive_path)
 
-        path =
-          opts[:path]
-          |> Path.expand()
-          |> Path.join(download_name(pkg) <> ext(pkg))
+    path =
+      opts[:path]
+      |> Path.expand()
+      |> Path.join(download_name(pkg) <> ext(pkg))
 
-        if path != archive_path do
-          File.cp!(archive_path, path)
-        end
-
-        {:ok, archive_path}
-
-      _ ->
-        Mix.shell().info("No build_runner specified for #{pkg.app}")
-        :noop
+    if path != archive_path do
+      File.cp!(archive_path, path)
     end
+
+    {:ok, archive_path}
   end
 
   @doc """
