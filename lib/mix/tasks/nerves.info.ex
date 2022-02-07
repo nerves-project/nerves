@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Nerves.Info do
 
   @switches [target: :string]
 
-  @impl true
+  @impl Mix.Task
   def run(argv) do
     debug_info("Info Start")
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)

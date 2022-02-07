@@ -38,7 +38,7 @@ defmodule Mix.Tasks.Firmware.Burn do
   ```
   """
 
-  @impl true
+  @impl Mix.Task
   def run(args) do
     # Simply delegate to the proper tasks
     Mix.Task.run("firmware", args)

@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Firmware.Image do
   ```
   """
 
-  @impl true
+  @impl Mix.Task
   def run([file]) do
     Preflight.check!()
     debug_info("Nerves Firmware Image")

@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Firmware.Metadata do
   ```
   """
 
-  @impl true
+  @impl Mix.Task
   def run(argv) do
     Preflight.check!()
     debug_info("Nerves Metadata")

@@ -33,7 +33,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   @switches [path: :string]
 
-  @impl true
+  @impl Mix.Task
   def run(argv) do
     # We need to make sure the Nerves env has been set up.
     # This allows the task to be called from a project level that

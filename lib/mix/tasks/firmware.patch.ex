@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Firmware.Patch do
 
   @switches [source: :string, target: :string, output: :string]
 
-  @impl true
+  @impl Mix.Task
   def run(args) do
     work_dir = Path.join(Nerves.Env.images_path(), "patch")
     File.rm_rf!(work_dir)

@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
 
   @moduledoc false
 
-  @impl true
+  @impl Mix.Task
   def run(opts) do
     Mix.shell().info("Checking for prebuilt Nerves artifacts...")
 

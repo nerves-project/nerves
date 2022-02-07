@@ -11,7 +11,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   @shortdoc "Nerves Package Compiler"
   @recursive true
 
-  @impl true
+  @impl Mix.Task
   def run(_args) do
     debug_info("Compile.NervesPackage start")
 

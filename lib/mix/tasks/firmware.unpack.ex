@@ -40,7 +40,7 @@ defmodule Mix.Tasks.Firmware.Unpack do
   @switches [output: :string, fw: :string]
   @aliases [o: :output, f: :fw]
 
-  @impl true
+  @impl Mix.Task
   def run(args) do
     Preflight.check!()
     debug_info("Nerves Firmware Unpack")
