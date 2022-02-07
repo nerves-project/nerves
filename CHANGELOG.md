@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.7.15
+
+* Bug fix
+  * Fix `TARGET_GCC_FLAGS` issue that inadvertently removed `CFLAGS` options on
+    Nerves systems that used it.
+
 ## v1.7.14
 
 * Improvements
