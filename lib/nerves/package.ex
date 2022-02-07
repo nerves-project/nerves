@@ -24,7 +24,7 @@ defmodule Nerves.Package do
   @type t :: %__MODULE__{
           app: atom,
           path: binary,
-          env: Keyword.t(),
+          env: %{String.t() => String.t()},
           type:
             :system
             | :package
