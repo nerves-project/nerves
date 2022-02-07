@@ -50,33 +50,34 @@ defmodule Nerves.Erlinit do
     v: :verbose
   ]
 
-  @type t :: [
-          boot: Path.t(),
-          ctty: String.t(),
-          uniqueid_exec: String.t(),
-          env: String.t(),
-          gid: non_neg_integer(),
-          graceful_shutdown_timeout: non_neg_integer(),
-          hang_on_exit: boolean(),
-          hang_on_fatal: boolean(),
-          limits: String.t(),
-          mount: String.t(),
-          hostname_pattern: String.t(),
-          pre_run_exec: String.t(),
-          poweroff_on_exit: boolean(),
-          poweroff_on_fatal: boolean(),
-          reboot_on_fatal: boolean(),
-          release_path: Path.t(),
-          run_on_exit: String.t(),
-          alternate_exec: String.t(),
-          print_timing: boolean(),
-          uid: non_neg_integer(),
-          update_clock: boolean(),
-          verbose: boolean(),
-          warn_unused_tty: boolean(),
-          working_directory: Path.t(),
-          shutdown_report: Path.t()
-        ]
+  @type option() ::
+          {:boot, Path.t()}
+          | {:ctty, String.t()}
+          | {:uniqueid_exec, String.t()}
+          | {:env, String.t()}
+          | {:gid, non_neg_integer()}
+          | {:graceful_shutdown_timeout, non_neg_integer()}
+          | {:hang_on_exit, boolean()}
+          | {:hang_on_fatal, boolean()}
+          | {:limits, String.t()}
+          | {:mount, String.t()}
+          | {:hostname_pattern, String.t()}
+          | {:pre_run_exec, String.t()}
+          | {:poweroff_on_exit, boolean()}
+          | {:poweroff_on_fatal, boolean()}
+          | {:reboot_on_fatal, boolean()}
+          | {:release_path, Path.t()}
+          | {:run_on_exit, String.t()}
+          | {:alternate_exec, String.t()}
+          | {:print_timing, boolean()}
+          | {:uid, non_neg_integer()}
+          | {:update_clock, boolean()}
+          | {:verbose, boolean()}
+          | {:warn_unused_tty, boolean()}
+          | {:working_directory, Path.t()}
+          | {:shutdown_report, Path.t()}
+
+  @type t :: [option()]
 
   @doc """
   Return the path to the erlinit.config file provided by the Nerves System

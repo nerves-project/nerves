@@ -316,6 +316,7 @@ defmodule Nerves.Artifact do
   def ext(%{type: :toolchain}), do: ".tar.xz"
   def ext(_), do: ".tar.gz"
 
+  @spec build_runner(keyword()) :: {module(), keyword()}
   def build_runner(config) do
     opts = config[:nerves_package][:build_runner_opts] || []
 

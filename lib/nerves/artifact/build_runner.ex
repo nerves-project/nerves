@@ -10,9 +10,10 @@ defmodule Nerves.Artifact.BuildRunner do
   @type archive_result :: {:ok, path :: String.t()} | {:error, reason :: term}
   @type clean_result :: :ok | {:error, reason :: term}
 
-  @callback build(package :: Nerves.Package.t(), toolchain :: atom, opts :: term) :: build_result
+  @callback build(package :: Nerves.Package.t(), toolchain :: Nerves.Package.t(), opts :: term) ::
+              build_result
 
-  @callback archive(package :: Nerves.Package.t(), toolchain :: atom, opts :: term) ::
+  @callback archive(package :: Nerves.Package.t(), toolchain :: Nerves.Package.t(), opts :: term) ::
               archive_result
 
   @callback clean(package :: Nerves.Package.t()) :: clean_result
