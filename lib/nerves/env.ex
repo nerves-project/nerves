@@ -133,17 +133,13 @@ defmodule Nerves.Env do
 
       case Enum.find(packages, &(&1.app == app)) do
         nil ->
-          case Package.load_config({app, path}) do
-            %Package{} = package ->
-              Agent.update(__MODULE__, fn packages ->
-                [package | packages]
-              end)
+          %Package{} = package = Package.load_config({app, path})
 
-              {:ok, package}
+          Agent.update(__MODULE__, fn packages ->
+            [package | packages]
+          end)
 
-            error ->
-              error
-          end
+          {:ok, package}
 
         package ->
           {:ok, package}
@@ -425,7 +421,7 @@ defmodule Nerves.Env do
         nil
 
       toolchain ->
-        Nerves.Artifact.dir(toolchain) || Nerves.Artifact.build_path(toolchain)
+        Nerves.Artifact.dir(toolchain)
     end
   end
 
@@ -436,7 +432,7 @@ defmodule Nerves.Env do
         nil
 
       system ->
-        Nerves.Artifact.dir(system) || Nerves.Artifact.build_path(system)
+        Nerves.Artifact.dir(system)
     end
   end
 
