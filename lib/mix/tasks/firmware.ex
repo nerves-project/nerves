@@ -174,16 +174,15 @@ defmodule Mix.Tasks.Firmware do
 
   defp compiler_check() do
     {:ok, otpc} = erlang_compiler_version()
-    {:ok, otp_requirement} = Version.parse_requirement("~> #{otpc.major}.#{otpc.minor}")
     {:ok, elixirc} = elixir_compiler_version()
 
-    unless Version.match?(elixirc, otp_requirement) do
+    if otpc.major != elixirc.major do
       Mix.raise("""
       Elixir was compiled by a different version of the Erlang/OTP compiler
       than is being used now. This may not work.
 
-      Compiler used for Elixir: #{elixirc.major}.#{elixirc.minor}.#{elixirc.patch}
-      Current compiler:         #{otpc.major}.#{otpc.minor}.#{otpc.patch}
+      Erlang compiler used for Elixir: #{elixirc.major}.#{elixirc.minor}.#{elixirc.patch}
+      Current Erlang compiler:         #{otpc.major}.#{otpc.minor}.#{otpc.patch}
 
       Please use a version of Elixir that was compiled using the same major
       version.
