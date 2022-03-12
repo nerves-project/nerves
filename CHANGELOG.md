@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.7.16
+
+* Bug fix
+  * Fix Erlang compiler check so that Erlang/OTP 24.3 does not trigger an error
+    when building projects.
+
 ## v1.7.15
 
 * Bug fix
