@@ -13,6 +13,7 @@ Contents:
 * [Updating from v1.3 to v1.4](#updating-from-v1-3-to-v1-4)
 * [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5)
 * [Updating from v1.5 to v1.6](#updating-from-v1-5-to-v1-6)
+* [Updating from v1.6 to v1.7](#updating-from-v1-6-to-v1-7)
 
 ## Updating from v0.8 to v0.9
 
@@ -762,6 +763,12 @@ Run `mix deps.get` and build as normal. You may also need to update your Nerves
 system to a newer official build. Many systems have dependency requirements on
 Nerves 1.5 that can be updated to Nerves 1.6 without issue. Please review the
 Nerves system release notes when you upgrade.
+
+## Updating from v1.6 to v1.7
+
+The only backwards incompatible change in Nerves 1.7 is to remove Distillery
+support. See [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5) for how
+to move to mix releases.
 
 <p align="center">
 Is something wrong?
