@@ -261,6 +261,8 @@ mix do deps.get, firmware, firmware.burn
 ```
 
 <p align="center">
-Is something wrong? [Edit this page on GitHub].
+Is something wrong?
+<a href="https://github.com/nerves-project/nerves/edit/main/docs/Getting%20Started.md">
+Edit this page on GitHub
+</a>
 </p>
-[Edit this page on GitHub]: https://github.com/nerves-project/nerves/edit/main/docs/Getting%20Started.md
