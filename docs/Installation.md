@@ -142,13 +142,12 @@ Please notes that you may need to adjust the `SUDO_ASKPASS` environment
 variable to include the correct path to the askpass program of your choice. A
 known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`
 
-> For other host Linux distributions, you will need to install equivalent
-> packages, but we don't have the exact list documented. If you'd like to help
-> out, [send us an improvement to this
-> page](https://github.com/nerves-project/nerves/blob/main/docs/Installation.md)
-> and let us know what worked for you!
+### Other Linux distributions
 
-Now continue to the instructions for all platforms below.
+For other distributions, try adapting one of the sections above.
+
+When you have it working, please consider [sending us an improvement to this
+page](https://github.com/nerves-project/nerves/blob/main/docs/Installation.md).
 
 ## All platforms
 
