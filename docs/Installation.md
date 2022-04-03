@@ -102,6 +102,46 @@ need to build a custom system. On Debian and Ubuntu, run the following:
 sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python
 ```
 
+### For NixOS or Nix package manager
+
+Create a `shell.nix` file with the following contents:
+
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+
+with pkgs;
+
+mkShell {
+  name = "nervesShell";
+  buildInputs = [
+    autoconf
+    automake
+    curl
+    erlangR24
+    fwup
+    git
+    pkgs.beam.packages.erlangR24.elixir
+    rebar3
+    squashfsTools
+    x11_ssh_askpass
+  ];
+  shellHook = ''
+    SUDO_ASKPASS=${pkgs.x11_ssh_askpass}/libexec/x11-ssh-askpass
+  '';
+}
+```
+
+Use `nix-shell shell.nix` to start a shell with all the Nerves dependencies
+needed for building firmware.
+
+If instead, you'd like to install the dependencies on your host system, you can
+include the same packages listed under `buildInputs` in the
+`environment.systemPackages` section of your NixOS `configuration.nix` file.
+
+Please notes that you may need to adjust the `SUDO_ASKPASS` environment
+variable to include the correct path to the askpass program of your choice. A
+known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`
+
 > For other host Linux distributions, you will need to install equivalent
 > packages, but we don't have the exact list documented. If you'd like to help
 > out, [send us an improvement to this
