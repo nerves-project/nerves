@@ -23,7 +23,7 @@ defmodule Nerves.Artifact do
           {:error, error} ->
             Mix.raise("""
             Nerves encountered an error while constructing the artifact
-            #{inspect(error)}
+            #{if String.valid?(error), do: error, else: inspect(error)}
             """)
         end
 
