@@ -1,10 +1,10 @@
 defmodule Mix.Tasks.Burn do
   use Mix.Task
   import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
+  alias Mix.Nerves.{FwupStream, Preflight}
   alias Nerves.Utils.WSL
 
-  @switches [device: :string, task: :string, firmware: :string]
+  @switches [device: :string, task: :string, firmware: :string, overwrite: :boolean]
   @aliases [d: :device, t: :task, i: :firmware]
 
   @shortdoc "Write a firmware image to an SDCard"
@@ -13,8 +13,9 @@ defmodule Mix.Tasks.Burn do
   Writes the generated firmware image to an attached SDCard or file.
 
   By default, this task detects attached SDCards and then invokes `fwup`
-  to overwrite the contents of the selected SDCard with the new image.
-  Data on the SDCard will be lost, so be careful.
+  to upgrade the contents of the selected SDCard with the new image.
+  If the upgrade to the next parition fails, it will then attempt to
+  completely overwrite the SDCard with the new image.
 
   ## Command line options
 
@@ -29,9 +30,13 @@ defmodule Mix.Tasks.Burn do
       convention, the `complete` task writes everything to the SDCard including
       bootloader and application data partitions. The `upgrade` task only
       modifies the parts of the SDCard required to run the new software.
+      Defaults to `upgrade`
 
     * `--firmware <name>` - (Optional) The path to the fw file to use.
       Defaults to `<image_path>/<otp_app>.fw`
+
+    * `--overwrite` - (Optional) Overwrite the contents of the SDCard by
+      forcing the `complete` task. Defaults to `false`
 
   ## Examples
 
@@ -71,56 +76,39 @@ defmodule Mix.Tasks.Burn do
         dev -> dev
       end
 
+    task = if opts[:overwrite], do: "complete", else: opts[:task] || "upgrade"
+
     set_provisioning(firmware_config[:provisioning])
-    burn(fw, dev, opts, argv)
+
+    burn(fw, dev, task, argv)
 
     # Remove the temporary .fw file
     WSL.cleanup_file(fw, firmware_location)
   end
 
-  defp burn(fw, dev, opts, argv) do
-    task = opts[:task] || "complete"
+  defp burn(fw, dev, task, argv) do
     args = ["-a", "-i", fw, "-t", task, "-d", dev] ++ argv
 
-    {cmd, args} =
-      case :os.type() do
-        {_, :darwin} ->
-          {"fwup", args}
+    os = get_os!()
 
-        {_, :linux} ->
-          if WSL.running_on_wsl?() do
-            WSL.admin_powershell_command("fwup", Enum.join(args, " "))
-          else
-            fwup = System.find_executable("fwup")
+    {cmd, args} = cmd_and_args_for_os(os, args, dev)
 
-            case File.stat(dev) do
-              {:ok, %File.Stat{access: :read_write}} ->
-                {"fwup", args}
+    shell(cmd, args, stream: FwupStream.new())
+    |> format_result(task)
+    |> case do
+      :failed_not_upgradable ->
+        Mix.shell().info("""
+        #{IO.ANSI.yellow()}
+        Device #{dev} either doesn't have firmware on it or has incompatible firmware.
+        Going to burn the whole MicroSD card so that it's in a factory-default state.
+        #{IO.ANSI.default_color()}
+        """)
 
-              {:error, :enoent} ->
-                case File.touch(dev, System.os_time(:second)) do
-                  :ok ->
-                    {"fwup", args}
+        burn(fw, dev, "complete", argv)
 
-                  {:error, :eacces} ->
-                    elevate_user()
-                    {"sudo", provision_env() ++ [fwup] ++ args}
-                end
-
-              _ ->
-                elevate_user()
-                {"sudo", provision_env() ++ [fwup] ++ args}
-            end
-          end
-
-        {_, :nt} ->
-          {"fwup", args}
-
-        {_, type} ->
-          raise "Unable to burn firmware on your host #{inspect(type)}"
-      end
-
-    shell(cmd, args)
+      result ->
+        result
+    end
   end
 
   # Requests an elevation of user through askpass
@@ -157,4 +145,58 @@ defmodule Mix.Tasks.Burn do
         Nerves.Env.firmware_path()
     end
   end
+
+  defp get_os!() do
+    case :os.type() do
+      {_, :linux} ->
+        if WSL.running_on_wsl?(), do: :wsl, else: :linux
+
+      {_, os} when os in [:darwin, :nt] ->
+        os
+
+      {_, os} ->
+        raise "Unable to burn firmware on your host #{inspect(os)}"
+    end
+  end
+
+  defp cmd_and_args_for_os(:linux, args, dev) do
+    fwup = System.find_executable("fwup")
+
+    case File.stat(dev) do
+      {:ok, %File.Stat{access: :read_write}} ->
+        {"fwup", args}
+
+      {:error, :enoent} ->
+        case File.touch(dev, System.os_time(:second)) do
+          :ok ->
+            {"fwup", args}
+
+          {:error, :eacces} ->
+            elevate_user()
+            {"sudo", provision_env() ++ [fwup] ++ args}
+        end
+
+      _ ->
+        elevate_user()
+        {"sudo", provision_env() ++ [fwup] ++ args}
+    end
+  end
+
+  defp cmd_and_args_for_os(:wsl, args, _dev) do
+    WSL.admin_powershell_command("fwup", Enum.join(args, " "))
+  end
+
+  defp cmd_and_args_for_os(_os, args, _dev), do: {"fwup", args}
+
+  defp format_result({_, 0}, _task), do: :ok
+
+  defp format_result({%FwupStream{output: o}, _}, "upgrade") do
+    if o =~ ~r/fwup: Expecting platform=#{mix_target()} and/ do
+      :failed_not_upgradable
+    else
+      :failed
+    end
+  end
+
+  defp format_result(_result, _task), do: :failed
 end
