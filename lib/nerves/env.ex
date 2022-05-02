@@ -399,7 +399,7 @@ defmodule Nerves.Env do
     end
 
     # Export nerves package env variables
-    Enum.map(packages, &export_package_env/1)
+    Enum.each(packages, &export_package_env/1)
 
     # Bootstrap all other packages who define a platform
     packages
