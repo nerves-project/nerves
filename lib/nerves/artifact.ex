@@ -82,7 +82,7 @@ defmodule Nerves.Artifact do
 
       _ ->
         Mix.shell().info("No build_runner specified for #{pkg.app}")
-        :noop
+        {:error, :no_build_runner}
     end
   end
 

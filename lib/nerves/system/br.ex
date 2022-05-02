@@ -10,6 +10,7 @@ defmodule Nerves.System.BR do
   @doc """
   Called as the last step of bootstrapping the Nerves env.
   """
+  @impl Nerves.Package.Platform
   def bootstrap(%{path: path}) do
     path
     |> Path.join("nerves_env.exs")
@@ -21,6 +22,7 @@ defmodule Nerves.System.BR do
   @doc """
   Build the artifact
   """
+  @impl Nerves.Artifact.BuildRunner
   def build(pkg, toolchain, opts) do
     {_, type} = :os.type()
     make(type, pkg, toolchain, opts)
@@ -29,7 +31,7 @@ defmodule Nerves.System.BR do
   @doc """
   Return the location in the build path to where the global artifact is linked.
   """
-  @spec build_path_link(Nerves.Package.t()) :: binary
+  @impl Nerves.Package.Platform
   def build_path_link(pkg) do
     Artifact.build_path(pkg)
   end
@@ -37,7 +39,7 @@ defmodule Nerves.System.BR do
   @doc """
   Clean up all the build files
   """
-  @spec clean(Nerves.Package.t()) :: :ok
+  @impl Nerves.Artifact.BuildRunner
   def clean(pkg) do
     _ = Artifact.Cache.delete(pkg)
 
@@ -53,6 +55,7 @@ defmodule Nerves.System.BR do
   @doc """
   Create an archive of the artifact
   """
+  @impl Nerves.Artifact.BuildRunner
   def archive(pkg, toolchain, opts) do
     {_, type} = :os.type()
     make_archive(type, pkg, toolchain, opts)

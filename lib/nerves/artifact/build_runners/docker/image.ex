@@ -1,7 +1,6 @@
 defmodule Nerves.Artifact.BuildRunners.Docker.Image do
   @moduledoc false
-  alias Nerves.Artifact.BuildRunners.Docker
-  import Docker.Utils
+  import Nerves.Artifact.BuildRunners.Docker.Utils
 
   def create(dockerfile, tag) do
     cmd = "docker"

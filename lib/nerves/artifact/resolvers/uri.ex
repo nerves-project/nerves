@@ -7,6 +7,7 @@ defmodule Nerves.Artifact.Resolvers.URI do
   @doc """
   Download the artifact from an http location
   """
+  @impl Nerves.Artifact.Resolver
   def get({location, opts}) do
     Nerves.Utils.Shell.info("  => Trying #{location}")
 

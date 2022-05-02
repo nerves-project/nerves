@@ -4,11 +4,9 @@ defmodule Nerves.Artifact.BuildRunners.Local do
 
   This build_runner will only function on certain Linux host configurations
   """
+  @behaviour Nerves.Artifact.BuildRunner
 
   alias Nerves.Artifact
-  alias Nerves.Artifact.BuildRunner
-
-  @behaviour BuildRunner
 
   @doc """
   Builds an artifact locally.
@@ -30,7 +28,7 @@ defmodule Nerves.Artifact.BuildRunners.Local do
         ]
       end
   """
-  @spec build(Nerves.Package.t(), Nerves.Package.t(), term) :: BuildRunner.build_result()
+  @impl Nerves.Artifact.BuildRunner
   def build(pkg, toolchain, opts) do
     pkg.platform.build(pkg, toolchain, opts)
   end
@@ -38,7 +36,7 @@ defmodule Nerves.Artifact.BuildRunners.Local do
   @doc """
   Builds an artifact locally.
   """
-  @spec archive(Nerves.Package.t(), Nerves.Package.t(), term) :: BuildRunner.archive_result()
+  @impl Nerves.Artifact.BuildRunner
   def archive(pkg, toolchain, opts) do
     pkg.platform.archive(pkg, toolchain, opts)
   end
@@ -46,7 +44,7 @@ defmodule Nerves.Artifact.BuildRunners.Local do
   @doc """
   Builds an artifact locally.
   """
-  @callback clean(package :: Nerves.Package.t()) :: BuildRunner.clean_result()
+  @impl Nerves.Artifact.BuildRunner
   def clean(pkg) do
     pkg.platform.clean(pkg)
   end
