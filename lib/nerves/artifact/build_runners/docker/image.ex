@@ -1,4 +1,5 @@
 defmodule Nerves.Artifact.BuildRunners.Docker.Image do
+  @moduledoc false
   alias Nerves.Artifact.BuildRunners.Docker
   import Docker.Utils
 

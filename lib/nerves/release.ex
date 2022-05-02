@@ -1,4 +1,5 @@
 defmodule Nerves.Release do
+  @moduledoc false
   # No leading '/' here since this is passed to mksquashfs and it
   # doesn't like the leading slash.
   @target_release_path "srv/erlang"

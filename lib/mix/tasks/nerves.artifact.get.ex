@@ -1,10 +1,9 @@
 defmodule Mix.Tasks.Nerves.Artifact.Get do
+  @moduledoc false
   use Mix.Task
 
   alias Nerves.Artifact
   alias Nerves.Artifact.{Cache, Resolver}
-
-  @moduledoc false
 
   @impl Mix.Task
   def run(opts) do

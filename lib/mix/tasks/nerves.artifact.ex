@@ -1,10 +1,5 @@
 defmodule Mix.Tasks.Nerves.Artifact do
-  use Mix.Task
-
-  import Mix.Nerves.IO
-
-  require Logger
-
+  @shortdoc "Creates system and toolchain artifacts for Nerves"
   @moduledoc """
   Creates a Nerves artifact for a Nerves system or toolchain
 
@@ -27,8 +22,12 @@ defmodule Mix.Tasks.Nerves.Artifact do
       $ mix nerves.artifact --path /tmp
 
   """
+  use Mix.Task
 
-  @shortdoc "Creates system and toolchain artifacts for Nerves"
+  import Mix.Nerves.IO
+
+  require Logger
+
   @recursive true
 
   @switches [path: :string]

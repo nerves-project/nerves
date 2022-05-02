@@ -1,4 +1,5 @@
 defmodule Nerves.Artifact.Resolvers.GithubAPI do
+  @moduledoc false
   @behaviour Nerves.Artifact.Resolver
 
   @base_url "https://api.github.com/"

@@ -1,7 +1,4 @@
 defmodule Mix.Tasks.Nerves.Info do
-  use Mix.Task
-  import Mix.Nerves.IO
-
   @shortdoc "Prints Nerves information"
 
   @moduledoc """
@@ -10,6 +7,8 @@ defmodule Mix.Tasks.Nerves.Info do
       mix nerves.info
 
   """
+  use Mix.Task
+  import Mix.Nerves.IO
 
   @switches [target: :string]
 

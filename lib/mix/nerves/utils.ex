@@ -1,4 +1,5 @@
 defmodule Mix.Nerves.Utils do
+  @moduledoc false
   alias Nerves.Utils.WSL
 
   def shell(cmd, args, opts \\ []) do

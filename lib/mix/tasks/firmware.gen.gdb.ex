@@ -1,19 +1,17 @@
 defmodule Mix.Tasks.Firmware.Gen.Gdb do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-
-  @script_name "gdb.sh"
-
   @shortdoc "Generates a helper shell script for using gdb to analyze core dumps"
-
   @moduledoc """
   Generates a helper shell script for using gdb to analyze core dumps
 
   This script may be used on its own or used as a base for more complicated debugging.
-  It saves the script to #{@script_name}.
+  It saves the script to gdb.sh.
   """
-  @spec run(keyword()) :: :ok
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
+  @script_name "gdb.sh"
+
+  @impl Mix.Task
   def run(_args) do
     Preflight.check!()
     system_path = check_nerves_system_is_set!()

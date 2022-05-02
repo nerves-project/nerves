@@ -1,11 +1,4 @@
 defmodule Mix.Tasks.Firmware.Metadata do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-
-  @switches [firmware: :string]
-  @aliases [i: :firmware]
-
   @shortdoc "Print out metadata for the current firmware"
 
   @moduledoc """
@@ -35,6 +28,12 @@ defmodule Mix.Tasks.Firmware.Metadata do
   meta-uuid="62f80587-ce82-59c4-4200-9c92df9849fd"
   ```
   """
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
+
+  @switches [firmware: :string]
+  @aliases [i: :firmware]
 
   @impl Mix.Task
   def run(argv) do

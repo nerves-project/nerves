@@ -1,8 +1,4 @@
 defmodule Mix.Tasks.Firmware.Image do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-
   @shortdoc "Create a firmware image file"
 
   @moduledoc """
@@ -26,6 +22,9 @@ defmodule Mix.Tasks.Firmware.Image do
   dd if=my_image.img of=/dev/sdc bs=1M
   ```
   """
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
 
   @impl Mix.Task
   def run([file]) do

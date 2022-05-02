@@ -1,12 +1,4 @@
 defmodule Mix.Tasks.Burn do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-  alias Nerves.Utils.WSL
-
-  @switches [device: :string, task: :string, firmware: :string]
-  @aliases [d: :device, t: :task, i: :firmware]
-
   @shortdoc "Write a firmware image to an SDCard"
 
   @moduledoc """
@@ -40,6 +32,13 @@ defmodule Mix.Tasks.Burn do
   mix burn --device /dev/mmcblk0 --task upgrade
   ```
   """
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
+  alias Nerves.Utils.WSL
+
+  @switches [device: :string, task: :string, firmware: :string]
+  @aliases [d: :device, t: :task, i: :firmware]
 
   @impl Mix.Task
   def run(argv) do

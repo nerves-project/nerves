@@ -1,4 +1,6 @@
 defmodule Nerves do
+  @moduledoc false
+
   @elixir_version_req ">= 1.7.0"
   @otp_version_req ">= 21.0.0"
 

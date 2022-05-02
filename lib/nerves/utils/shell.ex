@@ -1,4 +1,5 @@
 defmodule Nerves.Utils.Shell do
+  @moduledoc false
   def warn(message) do
     Mix.shell().info([IO.ANSI.yellow(), message, IO.ANSI.reset()])
   end

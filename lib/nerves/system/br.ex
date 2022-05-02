@@ -1,9 +1,11 @@
 defmodule Nerves.System.BR do
+  @moduledoc """
+  Package builder for Buildroot-based Nerves systems
+  """
   use Nerves.Package.Platform
 
-  alias Nerves.Artifact
-
   import Mix.Nerves.Utils
+  alias Nerves.Artifact
 
   @doc """
   Called as the last step of bootstrapping the Nerves env.

@@ -1,4 +1,5 @@
 defmodule HostTool.Platform do
+  @moduledoc false
   use Nerves.Package.Platform
 
   alias Nerves.Artifact

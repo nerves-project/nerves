@@ -1,4 +1,5 @@
 defmodule Nerves.Utils do
+  @moduledoc false
   @alphanum 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
 
   @json_codec Jason

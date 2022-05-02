@@ -1,4 +1,5 @@
 defmodule SystemPlatform do
+  @moduledoc false
   use Nerves.Package.Platform
   alias Nerves.Artifact
 

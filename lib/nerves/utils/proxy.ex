@@ -1,4 +1,5 @@
 defmodule Nerves.Utils.Proxy do
+  @moduledoc false
   # Special thanks to Hex.
 
   def config(url) do

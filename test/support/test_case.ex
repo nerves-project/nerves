@@ -1,4 +1,6 @@
 defmodule NervesTest.Case do
+  @moduledoc false
+
   use ExUnit.CaseTemplate, async: false
 
   @compile {:no_warn_undefined, {Mix, :target, 0}}

@@ -1,4 +1,6 @@
 defmodule Nerves.Utils.File do
+  @moduledoc false
+
   def untar(file, destination \\ nil) do
     destination = destination || File.cwd!()
 

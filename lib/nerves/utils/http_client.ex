@@ -1,4 +1,5 @@
 defmodule Nerves.Utils.HTTPClient do
+  @moduledoc false
   use GenServer
 
   @progress_steps 50

@@ -1,8 +1,4 @@
 defmodule Mix.Tasks.Firmware.Unpack do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-
   @shortdoc "Unpack a firmware bundle for inspection"
 
   @moduledoc """
@@ -36,6 +32,9 @@ defmodule Mix.Tasks.Firmware.Unpack do
   ls hello_nerves.unpacked/
   ```
   """
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
 
   @switches [output: :string, fw: :string]
   @aliases [o: :output, f: :fw]

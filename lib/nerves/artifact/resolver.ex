@@ -1,4 +1,6 @@
 defmodule Nerves.Artifact.Resolver do
+  @moduledoc false
+
   @callback get(term) :: {:ok, data :: String.t()} | {:error, term}
 
   @spec get(term, pkg :: Nerves.Package.t()) :: {:ok, file :: String.t()} | {:error, term}

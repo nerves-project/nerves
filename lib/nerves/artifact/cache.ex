@@ -1,4 +1,5 @@
 defmodule Nerves.Artifact.Cache do
+  @moduledoc false
   alias Nerves.Artifact
 
   @checksum "CHECKSUM"

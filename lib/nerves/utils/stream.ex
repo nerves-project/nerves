@@ -1,4 +1,5 @@
 defmodule Nerves.Utils.Stream do
+  @moduledoc false
   use GenServer
 
   @timer 10_000

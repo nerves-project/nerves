@@ -1,8 +1,4 @@
 defmodule Mix.Tasks.Firmware do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-
   @shortdoc "Build a firmware bundle"
 
   @moduledoc """
@@ -25,6 +21,9 @@ defmodule Mix.Tasks.Firmware do
     * `NERVES_TOOLCHAIN` - may be set to a local directory to specify the
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Mix.Nerves.Preflight
 
   @switches [verbose: :boolean, output: :string]
 

@@ -1,4 +1,5 @@
 defmodule Mix.Nerves.Preflight do
+  @moduledoc false
   alias Nerves.Utils.WSL
 
   @fwup_semver "~> 1.8"

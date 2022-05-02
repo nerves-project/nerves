@@ -1,12 +1,5 @@
 defmodule Mix.Tasks.Firmware.Patch do
-  use Mix.Task
-  import Mix.Nerves.Utils
-  alias Nerves.Utils.Shell
-  alias Mix.Nerves.Preflight
-
   @shortdoc "Build a firmware patch"
-
-  @fwup_semver "~> 1.6 or ~> 1.6.0-dev"
 
   @moduledoc """
   Generate a firmware patch from a source and target firmware and output a new
@@ -23,6 +16,12 @@ defmodule Mix.Tasks.Firmware.Patch do
     * `--output` - (Optional) The path to the .fw file used to write the patch
       firmware. Defaults to `Nerves.Env.firmware_path/1`
   """
+  use Mix.Task
+  import Mix.Nerves.Utils
+  alias Nerves.Utils.Shell
+  alias Mix.Nerves.Preflight
+
+  @fwup_semver "~> 1.6 or ~> 1.6.0-dev"
 
   @switches [source: :string, target: :string, output: :string]
 

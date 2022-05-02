@@ -1,14 +1,13 @@
 defmodule Mix.Tasks.Compile.NervesPackage do
+  @shortdoc "Nerves Package Compiler"
+  @moduledoc """
+  Build a Nerves Artifact from a Nerves Package
+  """
   use Mix.Task
   import Mix.Nerves.IO
 
   require Logger
 
-  @moduledoc """
-  Build a Nerves Artifact from a Nerves Package
-  """
-
-  @shortdoc "Nerves Package Compiler"
   @recursive true
 
   @impl Mix.Task

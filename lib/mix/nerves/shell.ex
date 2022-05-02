@@ -1,4 +1,5 @@
 defmodule Mix.Nerves.Shell do
+  @moduledoc false
   def open(command, initial_input \\ []) do
     # We need to get raw binary access to the stdout file descriptor
     # so we can directly pass through control characters output by the command

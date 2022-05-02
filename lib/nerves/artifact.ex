@@ -2,7 +2,6 @@ defmodule Nerves.Artifact do
   @moduledoc """
   Package artifacts are the product of compiling a package with a
   specific toolchain.
-
   """
   alias Nerves.Artifact.{Cache, BuildRunners, Resolvers}
 

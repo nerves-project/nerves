@@ -1,4 +1,5 @@
 defmodule Nerves.Package.Utils.Squashfs do
+  @moduledoc false
   use GenServer
 
   require Logger
