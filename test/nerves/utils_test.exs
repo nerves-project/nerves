@@ -66,7 +66,11 @@ defmodule Nerves.UtilsTest do
       cwd = File.cwd!()
       archive_path = Path.join(cwd, "archive.tar.gz")
 
-      :os.cmd('dd if=/dev/urandom bs=1024 count=1 of=#{archive_path}')
+      {_, 0} =
+        System.cmd("dd", ["if=/dev/urandom", "bs=1024", "count=1", "of=#{archive_path}"],
+          stderr_to_stdout: true
+        )
+
       assert {:error, _} = Utils.File.validate(archive_path)
     end)
   end
