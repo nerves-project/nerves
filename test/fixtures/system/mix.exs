@@ -5,7 +5,7 @@ defmodule System.MixProject do
            |> File.read!()
            |> String.trim()
 
-  def project do
+  def project() do
     [
       app: :system,
       version: @version,
@@ -15,7 +15,7 @@ defmodule System.MixProject do
     ]
   end
 
-  defp nerves_package do
+  defp nerves_package() do
     [
       type: :system,
       build_runner: Nerves.Artifact.BuildRunners.Local,
@@ -31,7 +31,7 @@ defmodule System.MixProject do
     ]
   end
 
-  defp deps do
+  defp deps() do
     [
       # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
       {:toolchain, path: "../toolchain"},
@@ -39,7 +39,7 @@ defmodule System.MixProject do
     ]
   end
 
-  defp package_files do
+  defp package_files() do
     [
       "mix.exs",
       "nerves_defconfig",

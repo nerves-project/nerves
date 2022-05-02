@@ -112,7 +112,7 @@ defmodule NervesTest.Case do
     Path.join([File.cwd!(), "test", cmd])
   end
 
-  def fixture_path do
+  def fixture_path() do
     Path.expand("../fixtures", __DIR__)
   end
 
@@ -120,7 +120,7 @@ defmodule NervesTest.Case do
     Path.join(fixture_path(), extension)
   end
 
-  def tmp_path do
+  def tmp_path() do
     Path.expand("../../test_tmp", __DIR__)
   end
 
@@ -177,7 +177,7 @@ defmodule NervesTest.Case do
     |> Enum.each(&System.put_env(elem(&1, 0), elem(&1, 1)))
   end
 
-  defp delete_tmp_paths do
+  defp delete_tmp_paths() do
     tmp = String.to_charlist(tmp_path())
 
     :code.get_path()

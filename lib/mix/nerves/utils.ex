@@ -21,18 +21,18 @@ defmodule Mix.Nerves.Utils do
   end
 
   @spec check_nerves_system_is_set!() :: String.t()
-  def check_nerves_system_is_set! do
+  def check_nerves_system_is_set!() do
     var_name = "NERVES_SYSTEM"
     System.get_env(var_name) || raise_env_var_missing(var_name)
   end
 
-  @spec check_nerves_toolchain_is_set! :: String.t()
-  def check_nerves_toolchain_is_set! do
+  @spec check_nerves_toolchain_is_set!() :: String.t()
+  def check_nerves_toolchain_is_set!() do
     var_name = "NERVES_TOOLCHAIN"
     System.get_env(var_name) || raise_env_var_missing(var_name)
   end
 
-  defp get_devs do
+  defp get_devs() do
     {result, 0} =
       if WSL.running_on_wsl?() do
         WSL.get_fwup_devices()
@@ -140,7 +140,7 @@ defmodule Mix.Nerves.Utils do
   end
 
   @spec mix_target() :: atom()
-  def mix_target do
+  def mix_target() do
     if function_exported?(Mix, :target, 0) do
       apply(Mix, :target, [])
     else

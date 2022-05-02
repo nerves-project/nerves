@@ -1,7 +1,7 @@
 defmodule Umbrella.MixProject do
   use Mix.Project
 
-  def project do
+  def project() do
     [
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
@@ -14,7 +14,7 @@ defmodule Umbrella.MixProject do
   # the apps folder.
   #
   # Run "mix help deps" for examples and options.
-  defp deps do
+  defp deps() do
     []
   end
 end

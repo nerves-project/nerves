@@ -16,7 +16,7 @@ defmodule Nerves.Env do
   `{:error, {:already_started, pid}}` with the pid of that process
   """
   @spec start() :: Agent.on_start()
-  def start do
+  def start() do
     Nerves.system_requirements()
     set_source_date_epoch()
     Agent.start_link(fn -> load_packages() end, name: __MODULE__)
@@ -26,7 +26,7 @@ defmodule Nerves.Env do
   Stop the Nerves environment agent.
   """
   @spec stop() :: :ok
-  def stop do
+  def stop() do
     if Process.whereis(__MODULE__) do
       Agent.stop(__MODULE__)
     else
@@ -73,7 +73,7 @@ defmodule Nerves.Env do
   be downloaded.
   """
   @spec download_dir() :: path :: String.t()
-  def download_dir do
+  def download_dir() do
     (System.get_env("NERVES_DL_DIR") || Path.join(data_dir(), "dl"))
     |> Path.expand()
   end
@@ -87,7 +87,7 @@ defmodule Nerves.Env do
   is used (i.e. `$HOME/.nerves`).
   """
   @spec data_dir() :: path :: String.t()
-  def data_dir do
+  def data_dir() do
     case System.get_env("XDG_DATA_HOME") do
       directory when is_binary(directory) -> Path.join(directory, "nerves")
       nil -> Path.expand("~/.nerves")
@@ -242,7 +242,7 @@ defmodule Nerves.Env do
   Lists all Nerves packages loaded in the Nerves environment.
   """
   @spec packages() :: [Nerves.Package.t()]
-  def packages do
+  def packages() do
     Agent.get(__MODULE__, & &1) || Mix.raise("Nerves packages are not loaded")
   end
 
@@ -293,7 +293,7 @@ defmodule Nerves.Env do
   Helper function for returning the system type package
   """
   @spec system() :: Nerves.Package.t()
-  def system do
+  def system() do
     system =
       packages_by_type(:system)
       |> List.first()
@@ -305,7 +305,7 @@ defmodule Nerves.Env do
   Helper function for returning the system_platform type package
   """
   @spec system_platform() :: module()
-  def system_platform do
+  def system_platform() do
     system().platform
   end
 
@@ -313,7 +313,7 @@ defmodule Nerves.Env do
   Helper function for returning the toolchain type package
   """
   @spec toolchain() :: Nerves.Package.t()
-  def toolchain do
+  def toolchain() do
     toolchain =
       packages_by_type(:toolchain)
       |> List.first()
@@ -325,7 +325,7 @@ defmodule Nerves.Env do
   Helper function for returning the toolchain_platform type package
   """
   @spec toolchain_platform() :: Nerves.Package.t()
-  def toolchain_platform do
+  def toolchain_platform() do
     toolchain().platform
   end
 
@@ -337,7 +337,7 @@ defmodule Nerves.Env do
   for the package defining system_platform.
   """
   @spec bootstrap() :: :ok
-  def bootstrap do
+  def bootstrap() do
     nerves_system_path = system_path()
     nerves_toolchain_path = toolchain_path()
     packages = Nerves.Env.packages()
@@ -418,7 +418,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
-  def toolchain_path do
+  def toolchain_path() do
     case Nerves.Env.toolchain() do
       nil ->
         nil
@@ -429,7 +429,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
-  def system_path do
+  def system_path() do
     case Nerves.Env.system() do
       nil ->
         nil
@@ -482,7 +482,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
-  defp load_packages do
+  defp load_packages() do
     Mix.Project.deps_paths()
     |> Map.put(Mix.Project.config()[:app], File.cwd!())
     |> Enum.filter(&nerves_package?/1)

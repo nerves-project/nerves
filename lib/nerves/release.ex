@@ -160,7 +160,7 @@ defmodule Nerves.Release do
     end)
   end
 
-  defp release_opts do
+  defp release_opts() do
     [
       quiet: true,
       include_executables_for: [],

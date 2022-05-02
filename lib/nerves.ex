@@ -2,9 +2,9 @@ defmodule Nerves do
   @elixir_version_req ">= 1.7.0"
   @otp_version_req ">= 21.0.0"
 
-  def version, do: unquote(Mix.Project.config()[:version])
-  def elixir_version, do: unquote(System.version())
-  def otp_release, do: unquote(System.otp_release())
+  def version(), do: unquote(Mix.Project.config()[:version])
+  def elixir_version(), do: unquote(System.version())
+  def otp_release(), do: unquote(System.otp_release())
 
   def system_requirements(elixir_version \\ nil, otp_release \\ nil) do
     elixir_version = elixir_version || elixir_version()

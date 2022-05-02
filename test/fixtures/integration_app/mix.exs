@@ -1,7 +1,7 @@
 defmodule IntegrationApp do
   use Mix.Project
 
-  def project do
+  def project() do
     [
       app: :example_app,
       version: "0.1.0",
@@ -12,11 +12,11 @@ defmodule IntegrationApp do
     ]
   end
 
-  def application do
+  def application() do
     [applications: []]
   end
 
-  defp deps do
+  defp deps() do
     [
       {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
       {:system, path: "../system"},

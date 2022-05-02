@@ -5,7 +5,7 @@ defmodule ToolchainPlatform.MixProject do
            |> File.read!()
            |> String.trim()
 
-  def project do
+  def project() do
     [
       app: :toolchain_platform,
       version: @version,
@@ -17,20 +17,20 @@ defmodule ToolchainPlatform.MixProject do
     ]
   end
 
-  defp deps do
+  defp deps() do
     [
       {:nerves, path: System.get_env("NERVES_PATH") || "../../../"}
     ]
   end
 
-  defp nerves_package do
+  defp nerves_package() do
     [
       type: :toolchain_platform,
       checksum: package_files()
     ]
   end
 
-  defp package_files do
+  defp package_files() do
     [
       "mix.exs",
       "env.exs",

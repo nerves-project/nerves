@@ -5,7 +5,7 @@ defmodule Package.Fixture.MixProject do
            |> File.read!()
            |> String.trim()
 
-  def project do
+  def project() do
     [
       app: :package,
       version: @version,
@@ -16,7 +16,7 @@ defmodule Package.Fixture.MixProject do
     ]
   end
 
-  defp nerves_package do
+  defp nerves_package() do
     [
       type: :package,
       platform: Nerves.System.BR,
@@ -27,11 +27,11 @@ defmodule Package.Fixture.MixProject do
     ]
   end
 
-  defp deps do
+  defp deps() do
     [{:system_platform, path: "../system_platform"}]
   end
 
-  defp package_files do
+  defp package_files() do
     [
       "nerves_defconfig",
       "mix.exs",

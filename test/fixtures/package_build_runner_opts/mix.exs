@@ -5,7 +5,7 @@ defmodule PackageBuildRunnerOpts.Fixture.MixProject do
            |> File.read!()
            |> String.trim()
 
-  def project do
+  def project() do
     [
       app: :package_build_runner_opts,
       version: @version,
@@ -16,7 +16,7 @@ defmodule PackageBuildRunnerOpts.Fixture.MixProject do
     ]
   end
 
-  defp nerves_package do
+  defp nerves_package() do
     [
       type: :package,
       build_runner_opts: [make_args: []],
@@ -28,11 +28,11 @@ defmodule PackageBuildRunnerOpts.Fixture.MixProject do
     ]
   end
 
-  defp deps do
+  defp deps() do
     []
   end
 
-  defp package_files do
+  defp package_files() do
     [
       "nerves_defconfig",
       "mix.exs",

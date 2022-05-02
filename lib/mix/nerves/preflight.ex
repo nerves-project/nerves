@@ -3,7 +3,7 @@ defmodule Mix.Nerves.Preflight do
 
   @fwup_semver "~> 1.8"
 
-  def check! do
+  def check!() do
     :os.type()
     |> case do
       {_, :linux} -> if WSL.running_on_wsl?(), do: :wsl, else: :linux

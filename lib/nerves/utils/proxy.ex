@@ -6,7 +6,7 @@ defmodule Nerves.Utils.Proxy do
     auth(URI.parse(url), http_proxy, https_proxy)
   end
 
-  defp setup do
+  defp setup() do
     http_proxy = (proxy = System.get_env("HTTP_PROXY")) && set(:http, proxy)
     https_proxy = (proxy = System.get_env("HTTPS_PROXY")) && set(:https, proxy)
     {http_proxy, https_proxy}

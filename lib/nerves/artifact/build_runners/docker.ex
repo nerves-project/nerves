@@ -369,7 +369,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     {dockerfile, tag}
   end
 
-  defp error_not_installed do
+  defp error_not_installed() do
     Mix.raise("""
     Docker is not installed on your machine.
     Please install docker #{@version} or later

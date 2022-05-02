@@ -1,7 +1,7 @@
 defmodule HostTool.MixProject do
   use Mix.Project
 
-  def project do
+  def project() do
     [
       app: :host_tool,
       version: "0.1.0",
@@ -21,7 +21,7 @@ defmodule HostTool.MixProject do
     ]
   end
 
-  defp nerves_package do
+  defp nerves_package() do
     [
       type: :host_tool,
       platform: HostTool.Platform,
@@ -30,7 +30,7 @@ defmodule HostTool.MixProject do
     ]
   end
 
-  defp package_files do
+  defp package_files() do
     [
       "lib",
       "mix.exs",

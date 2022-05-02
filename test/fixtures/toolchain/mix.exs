@@ -5,7 +5,7 @@ defmodule Toolchain.MixProject do
            |> File.read!()
            |> String.trim()
 
-  def project do
+  def project() do
     [
       app: :toolchain,
       version: @version,
@@ -16,7 +16,7 @@ defmodule Toolchain.MixProject do
     ]
   end
 
-  defp nerves_package do
+  defp nerves_package() do
     [
       type: :toolchain,
       target_tuple: :x86_64_unknown_linux_musl,
@@ -31,14 +31,14 @@ defmodule Toolchain.MixProject do
     ]
   end
 
-  defp deps do
+  defp deps() do
     [
       # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
       {:toolchain_platform, path: "../toolchain_platform"}
     ]
   end
 
-  defp package_files do
+  defp package_files() do
     [
       "mix.exs",
       "linux_defconfig",
