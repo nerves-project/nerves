@@ -8,7 +8,7 @@ defmodule Nerves.MixProject do
     [
       app: :nerves,
       version: @version,
-      elixir: "~> 1.9.4 or ~> 1.10.0 or ~> 1.11.2 or ~> 1.12.0 or ~> 1.13.0",
+      elixir: "~> 1.11.2 or ~> 1.12.0 or ~> 1.13.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       description: description(),

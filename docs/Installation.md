@@ -11,7 +11,7 @@ Slack](https://elixir-slackin.herokuapp.com/).
 
 Nerves requires that the Erlang version running on your development host be
 compatible with the Erlang version on the embedded target and also depends on
-features added in recent versions of Elixir (`>= 1.7.0`). Because it can be hard
+features added in recent versions of Elixir (`~> 1.11`). Because it can be hard
 to manage these tool versions with sufficient granularity using operating system
 packages, it is recommended that you use [ASDF](https://github.com/asdf-vm/asdf)
 to manage Erlang and Elixir installations. This tool works the same on its
@@ -157,7 +157,7 @@ the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf) for official
 documentation.
 
 IMPORTANT: Elixir 1.11.0 and 1.11.1 do not work with Nerves. Elixir 1.11.2 and
-later are fine. Elixir 1.10.x also works.
+later are fine.
 
 Here's a summary of the install process:
 
