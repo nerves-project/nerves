@@ -516,16 +516,14 @@ defmodule Nerves.Env do
 
   @doc false
   defp nerves_package?({app, path}) do
-    try do
-      package_config =
-        Package.config(app, path)
-        |> Keyword.get(:nerves_package)
+    package_config =
+      Package.config(app, path)
+      |> Keyword.get(:nerves_package)
 
-      package_config != nil
-    rescue
-      _e ->
-        File.exists?(Package.config_path(path))
-    end
+    package_config != nil
+  rescue
+    _e ->
+      File.exists?(Package.config_path(path))
   end
 
   defp mix_config() do
