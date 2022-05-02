@@ -21,6 +21,7 @@ defmodule Nerves.MixProject do
       docs: docs(),
       dialyzer: [plt_add_apps: [:mix]],
       preferred_cli_env: %{
+        credo: :test,
         docs: :docs,
         "hex.publish": :docs,
         "hex.build": :docs
@@ -40,6 +41,7 @@ defmodule Nerves.MixProject do
       {:castore, "~> 0.1"},
       {:elixir_make, "~> 0.6", runtime: false},
       {:jason, "~> 1.2", optional: true},
+      {:credo, "~> 1.6", only: :test, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
       {:nerves_bootstrap, "~> 1.8", only: [:test, :dev, :docs]},
