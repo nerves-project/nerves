@@ -7,6 +7,8 @@ defmodule Nerves.Package do
   [system documentation](https://hexdocs.pm/nerves/systems.html#package-configuration)
   """
 
+  alias Nerves.Artifact
+
   defstruct app: nil,
             path: nil,
             dep: nil,
@@ -18,9 +20,6 @@ defmodule Nerves.Package do
             compilers: [],
             dep_opts: [],
             config: []
-
-  alias __MODULE__
-  alias Nerves.Artifact
 
   @type t :: %__MODULE__{
           app: atom,
@@ -76,7 +75,7 @@ defmodule Nerves.Package do
       |> Map.get(:opts, [])
       |> Keyword.get(:nerves, [])
 
-    %Package{
+    %__MODULE__{
       app: app,
       type: type,
       env: env,
