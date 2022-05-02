@@ -46,9 +46,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
     result =
       with {:ok, data} <- HTTPClient.get(http_pid, url, headers: [auth_header], progress?: false),
            %{"assets" => assets} <- Utils.json_decode(data),
-           {:ok, url} <- get_asset_url(assets, artifact_name),
-           {:ok, data} <- HTTPClient.get(http_pid, url, headers: [auth_header, accept_header]) do
-        {:ok, data}
+           {:ok, url} <- get_asset_url(assets, artifact_name) do
+        HTTPClient.get(http_pid, url, headers: [auth_header, accept_header])
       end
 
     Nerves.Utils.HTTPClient.stop(http_pid)
