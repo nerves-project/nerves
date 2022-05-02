@@ -1,8 +1,7 @@
 defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
   @moduledoc false
+  import Nerves.Artifact.BuildRunners.Docker.Utils
   alias Nerves.Artifact
-  alias Nerves.Artifact.BuildRunners.Docker
-  import Docker.Utils
 
   def name(pkg) do
     if id = id(pkg) do

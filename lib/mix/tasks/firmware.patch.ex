@@ -18,8 +18,8 @@ defmodule Mix.Tasks.Firmware.Patch do
   """
   use Mix.Task
   import Mix.Nerves.Utils
-  alias Nerves.Utils.Shell
   alias Mix.Nerves.Preflight
+  alias Nerves.Utils.Shell
 
   @fwup_semver "~> 1.6 or ~> 1.6.0-dev"
 

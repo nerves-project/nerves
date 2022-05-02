@@ -1,8 +1,8 @@
 defmodule Nerves.ArtifactTest do
   use NervesTest.Case
 
-  alias Nerves.Artifact.BuildRunners, as: P
   alias Nerves.Artifact
+  alias Nerves.Artifact.BuildRunners, as: P
   alias Nerves.Env
 
   test "Fetch build_runner overrides" do

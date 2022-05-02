@@ -8,7 +8,7 @@ defmodule Nerves.Env do
   about Nerves compile time dependencies before any code is compiled.
   """
 
-  alias Nerves.{Package, Artifact}
+  alias Nerves.{Artifact, Package}
 
   @doc """
   Starts the Nerves environment agent and loads package information.

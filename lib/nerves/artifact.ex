@@ -3,7 +3,7 @@ defmodule Nerves.Artifact do
   Package artifacts are the product of compiling a package with a
   specific toolchain.
   """
-  alias Nerves.Artifact.{Cache, BuildRunners, Resolvers}
+  alias Nerves.Artifact.{BuildRunners, Cache, Resolvers}
 
   @checksum_short 7
 
