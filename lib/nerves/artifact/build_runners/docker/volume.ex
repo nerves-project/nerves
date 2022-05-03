@@ -3,12 +3,12 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
   import Nerves.Artifact.BuildRunners.Docker.Utils
   alias Nerves.Artifact
 
-  @spec name(Package.t()) :: String.t()
+  @spec name(Nerves.Package.t()) :: String.t()
   def name(pkg) do
     "#{pkg.app}-#{id(pkg)}"
   end
 
-  @spec id(Package.t()) :: String.t()
+  @spec id(Nerves.Package.t()) :: String.t()
   def id(pkg) do
     id_file = id_file(pkg)
 
