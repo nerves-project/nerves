@@ -40,18 +40,14 @@ defmodule Mix.Nerves.Preflight do
     ensure_available!("mksquashfs", package: "squashfs")
   end
 
+  @spec ensure_fwup_version!(String.t(), String.t()) :: :ok
   def ensure_fwup_version!(fwup_bin \\ "fwup", vsn_requirement \\ @fwup_semver) do
     ensure_available!(fwup_bin)
 
     with {vsn, 0} <- Nerves.Port.cmd(fwup_bin, ["--version"]),
          vsn = String.trim(vsn),
-         {:ok, req} = Version.parse_requirement(vsn_requirement),
-         true <- Version.match?(vsn, req) do
-      :ok
-    else
-      false ->
-        {vsn, 0} = Nerves.Port.cmd(fwup_bin, ["--version"])
-
+         {:ok, req} = Version.parse_requirement(vsn_requirement) do
+      unless Version.match?(vsn, req) do
         Mix.raise("""
         #{fwup_bin} #{vsn_requirement} is required for Nerves.
 
@@ -59,7 +55,8 @@ defmodule Mix.Nerves.Preflight do
         Please see https://hexdocs.pm/nerves/installation.html#fwup
         for installation instructions
         """)
-
+      end
+    else
       error ->
         Mix.raise("""
         Nerves encountered an error while checking host requirements for fwup
@@ -67,6 +64,8 @@ defmodule Mix.Nerves.Preflight do
         Please open a bug report for this issue on github.com/nerves-project/nerves
         """)
     end
+
+    :ok
   end
 
   def ensure_available!(executable, opts \\ []) do
