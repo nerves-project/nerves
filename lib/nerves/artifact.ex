@@ -165,7 +165,6 @@ defmodule Nerves.Artifact do
       |> expand_paths(pkg.path)
       |> Enum.map(&File.read!/1)
       |> Enum.map(&:crypto.hash(:sha256, &1))
-      |> Enum.join()
 
     checksum =
       :crypto.hash(:sha256, blob)
