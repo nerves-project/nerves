@@ -402,10 +402,11 @@ defmodule Nerves.Env do
     Enum.each(packages, &export_package_env/1)
 
     # Bootstrap all other packages who define a platform
+    toolchain_package = Nerves.Env.toolchain()
+    system_package = Nerves.Env.system()
+
     packages
-    |> Enum.reject(&(&1 == Nerves.Env.toolchain()))
-    |> Enum.reject(&(&1 == Nerves.Env.system()))
-    |> Enum.reject(&(&1.platform == nil))
+    |> Enum.reject(&(&1 == toolchain_package or &1 == system_package or &1.platform == nil))
     |> Enum.each(fn
       %{platform: platform} = pkg ->
         platform.bootstrap(pkg)
