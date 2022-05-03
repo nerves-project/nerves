@@ -79,8 +79,8 @@ defmodule Nerves.Utils.WSL do
   @doc """
   Returns true if the path is accessible in Windows
   """
-  @spec path_accessible_in_windows?(String.t(), boolean) :: boolean
-  def path_accessible_in_windows?(file, _use_wslpath = true) do
+  @spec path_accessible_in_windows?(String.t(), boolean()) :: boolean()
+  def path_accessible_in_windows?(file, true = _use_wslpath) do
     {_path, exitcode} = Nerves.Port.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true)
     exitcode == 0
   end
@@ -133,8 +133,8 @@ defmodule Nerves.Utils.WSL do
       "/mnt/c/Users/username/src/nerves/mix.exs"}
 
   """
-  @spec get_wsl_paths(String.t(), boolean) :: {String.t() | nil, String.t() | nil}
-  def get_wsl_paths(file, _use_wslpath = true) do
+  @spec get_wsl_paths(String.t(), boolean()) :: {String.t() | nil, String.t() | nil}
+  def get_wsl_paths(file, true = _use_wslpath) do
     # Use wslpath, available from Windows 10 1803
     # https://superuser.com/questions/1113385/convert-windows-path-for-windows-ubuntu-bash
     # -a    force result to absolute path format
@@ -212,7 +212,7 @@ defmodule Nerves.Utils.WSL do
   valid path an "Invalid argument" error is returned. This function
   catches this error and returns the valid path.
   """
-  @spec execute_wslpath(String.t(), list) :: String.t() | nil
+  @spec execute_wslpath(String.t(), [String.t()]) :: String.t() | nil
   def execute_wslpath(file, arguments) do
     with {path, 0} <- Nerves.Port.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
       String.trim(path)
@@ -229,9 +229,9 @@ defmodule Nerves.Utils.WSL do
   @doc """
   Returns an item tuple with the Windows accessible path and whether the path is a temporary location or original location
   """
-  @spec make_file_accessible(String.t(), boolean, boolean) ::
+  @spec make_file_accessible(String.t(), boolean(), boolean()) ::
           {String.t(), :original_location} | {String.t(), :temporary_location}
-  def make_file_accessible(file, _is_wsl = true, has_wslpath) do
+  def make_file_accessible(file, true = _is_wsl, has_wslpath) do
     if path_accessible_in_windows?(file, has_wslpath) do
       {win_path, _wsl_path} = get_wsl_paths(file, has_wslpath)
       {win_path, :original_location}
