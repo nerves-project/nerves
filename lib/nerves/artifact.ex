@@ -82,7 +82,10 @@ defmodule Nerves.Artifact do
 
   @doc """
   Determines if the artifact for a package is stale and needs to be rebuilt.
+
+  Used by NervesBootstrap
   """
+  @doc used_by: NervesBootstrap
   @spec stale?(Nerves.Package.t()) :: boolean
   def stale?(pkg) do
     if env_var?(pkg) do
@@ -239,7 +242,10 @@ defmodule Nerves.Artifact do
   ```elixir
   {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
   ```
+
+  Used by NervesBootstrap
   """
+  @doc used_by: NervesBootstrap
   def expand_sites(pkg) do
     case pkg.config[:artifact_url] do
       nil ->
