@@ -69,14 +69,6 @@ defmodule Nerves.ArtifactTest do
     end)
   end
 
-  test "parse artifact download name from regex" do
-    {:ok, values} = Artifact.parse_download_name("package-name-portable-0.12.2-ABCDEF1")
-    assert String.equivalent?(values.app, "package-name")
-    assert String.equivalent?(values.host_tuple, "portable")
-    assert String.equivalent?(values.version, "0.12.2")
-    assert String.equivalent?(values.checksum, "ABCDEF1")
-  end
-
   test "artifact_urls can only be binaries" do
     assert_raise Mix.Error, fn ->
       Artifact.expand_sites(%{config: [artifact_url: [{:broken}]]})

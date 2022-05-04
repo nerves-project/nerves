@@ -115,24 +115,6 @@ defmodule Nerves.Artifact do
     "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: checksum_short)}"
   end
 
-  def parse_download_name(name) when is_binary(name) do
-    name = Regex.run(~r/(.*)-([^-]*)-(.*)-([^-]*)/, name)
-
-    case name do
-      [_, app, host_tuple, version, checksum] ->
-        {:ok,
-         %{
-           app: app,
-           host_tuple: host_tuple,
-           checksum: checksum,
-           version: version
-         }}
-
-      _ ->
-        {:error, "Unable to parse artifact name #{name}"}
-    end
-  end
-
   @doc """
   Get the base dir for where an artifact for a package should be stored.
 
