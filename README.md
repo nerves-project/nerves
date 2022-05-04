@@ -1,11 +1,38 @@
 # Nerves
 
-Craft and deploy bulletproof embedded software in Elixir
-
 [![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)
 [![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors)
 [![CircleCI](https://circleci.com/gh/nerves-project/nerves/tree/main.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves/tree/main)
 [![Hex version](https://img.shields.io/hexpm/v/nerves.svg "Hex version")](https://hex.pm/packages/nerves)
+
+## Craft and deploy bulletproof embedded software in Elixir
+
+Nerves provides tooling and libraries for building small, self-contained
+software images using the rock-solid [Erlang virtual
+machine](https://www.erlang.org/) hardware support of Linux, and happy
+development experience of Elixir for microprocessor-based embedded systems.
+
+While the Nerves project provides base runtime libraries for hardware access and
+network configuration, nearly all of the Elixir ecosystem is available,
+including:
+
+* [Phoenix](https://www.phoenixframework.org/) and LiveView for interactive
+  local web user interfaces
+* [Elixir Nx](https://www.phoenixframework.org/) for numerical computing and
+  machine learning
+* [Livebook](https://livebook.dev/) for interactive code notebooks on your device
+* [Scenic](https://github.com/boydm/scenic) for local on-screen user interfaces
+
+Or just keep it simple and use whatever libraries you need from the
+[Hex package manager](https://hex.pm/). Nerves only includes what you use so
+your embedded software can remain small.
+
+Nerves uses the Linux kernel to support a large variety of hardware. It is not a
+Linux distribution, though, and contains little of what you would find on a
+typical embedded Linux system. Instead, it starts the Erlang runtime as one of
+the first OS processes and lets Erlang and Elixir take over from there. Not to
+fear, if you need something from Linux, Nerves provides a way to use most of the
+packages available through [Buildroot](https://buildroot.org).
 
 ## Nerves Projects
 
