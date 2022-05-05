@@ -149,11 +149,10 @@ https://github.com/nerves-project-attic.
 
 ## Host Requirements
 
-* Mac OS 10.10+
+* Mac OS 10.13+ (High Sierra and later)
 * 64-bit Linux (tested on Debian / Ubuntu / Redhat / CentOS / Arch)
-* Windows 10 with [Windows Subsystem for Linux 2](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide) (experimental)
-* Raspberry Pi 3 (experimental)
-* Elixir ~> 1.9
+* Windows 10 with [Windows Subsystem for Linux 2](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
+* Elixir ~> 1.11
 
 See [Installation Docs](https://hexdocs.pm/nerves/installation.html) for
 software dependencies.
