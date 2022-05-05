@@ -1,8 +1,8 @@
 # IEx with Nerves
 
-Nerves greets you with Elixir's IEx prompt. This prompt is your main entry point
-to interacting with Elixir, your program and hardware. This chapter focuses on
-Nerves-specific use of the IEx prompt.
+Nerves greets you with a prompt for Elixir's interactive shell (IEx). This
+prompt is your main entry point to interacting with Elixir, your program, and
+hardware. This chapter focuses on Nerves-specific use of the IEx prompt.
 
 ## Viewing log messages
 
@@ -24,6 +24,12 @@ iex> Logger.info("hello")
 
 To stop log messages from being printed, run `log_detach`.
 
+> #### _undefined function log_attach/0_ {: .warning}
+>
+> `log_attach` is a function of [`Toolshed`](#toolshed) and might not be imported
+> by default. If you get an undefined function error, run `use Toolshed` in your
+> IEx session and try again. See [`Toolshed`](#toolshed) for more details.
+
 ### RingLogger
 
 You'll frequently want to see log messages that occurred in the past. The Nerves
@@ -39,8 +45,8 @@ To view log messages, run `RingLogger.next` at the IEx prompt. Repeated calls
 print newly received log messages. `RingLogger.reset` lets you start at the
 oldest message again.
 
-See the `RingLogger` docs for more information on tuning log levels, filtering
-by module, and grep'ing for keywords.
+See the [`RingLogger`](https://hexdocs.pm/ring_logger) docs for more information
+on tuning log levels, filtering by module, and grep'ing for keywords.
 
 ### Dmesg
 
@@ -58,12 +64,20 @@ iex> dmesg
 [    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
 ```
 
+> #### _undefined function dmesg/0_ {: .warning}
+>
+> `dmesg` is a function of [`Toolshed`](#toolshed) and might not be imported
+> by default. If you get an undefined function error, run `use Toolshed` in your
+> IEx session and try again. See [`Toolshed`](#toolshed) for more details.
+
 ### RamoopsLogger
 
 The [`RamoopsLogger`](https://hex.pm/packages/ramoops_logger) is an Elixir
 logger backend that records messages to a special memory region using Linux's
 `pstore` driver. This memory region survives reboots so it's useful for
-capturing log messages that happen just before an unexpected reboot. Even if you've configured a file-backed logger backend, the `RamoopsLogger` can sometimes capture messages that would have been lost to disk caching.
+capturing log messages that happen just before an unexpected reboot. Even if
+you've configured a file-backed logger backend, the `RamoopsLogger` can
+sometimes capture messages that would have been lost to disk caching.
 
 This driver is enabled in most official Nerves systems. However,
 `:ramoops_logger` is not added to Nerves projects by default. See the
@@ -76,22 +90,22 @@ Pretty much any logger backend in Elixir can be used with Nerves. The caveat is
 that Nerves does not guarantee the following:
 
 1. Networking always works
+  * If you're using a network-based logger, check that it handles network outages
+    gracefully.
+
 2. The application data partition (`/data`) is mounted
-
-If you're using a network-based logger, check that it handles network outages
-gracefully.
-
-The application data partition is almost always available. However, on the
-first boot and if severely corrupted, it will be reformatted. Since the Elixir
-Logger starts very early in the boot process, it's possible for log messages to
-be received before `/data` is ready. This is a temporary situation, but it is
-important that the Logger backend not give up.
+  * The application data partition is almost always available. However, on the
+    first boot and if severely corrupted, it will be reformatted. This partition
+    is also technically optional and a system can choose to omit it. Since the
+    Elixir Logger starts very early in the boot process, it's possible for log
+    messages to be received before `/data` is ready. This is a temporary
+    situation, but it is important that the Logger backend not give up.
 
 ## Networking
 
 Most Nerves projects use the [`VintageNet`](https://hex.pm/packages/vintage_net)
 library for configuring the network. To get a quick overview of network
-configuration and status, run:
+configuration and status, run `VintageNet.info`:
 
 ```elixir
 iex> VintageNet.info
@@ -153,6 +167,12 @@ wwan0: flags=[:up, :pointtopoint, :running, :multicast]
     inet fe80::8eb:885f:3fce:d37d  netmask ffff:ffff:ffff:ffff::
 ```
 
+> #### _undefined function ifconfig/0_ {: .warning}
+>
+> `ifconfig` is a function of [`Toolshed`](#toolshed) and might not be imported
+> by default. If you get an undefined function error, run `use Toolshed` in your
+> IEx session and try again. See [`Toolshed`](#toolshed) for more details.
+
 Another option is to run [`ip(8)`](https://linux.die.net/man/8/ip).
 Nerves provides a trimmed down Busybox version of `ip`. For example:
 
@@ -171,7 +191,9 @@ for more tips on debugging and adjusting network configurations.
 
 [`Toolshed`](https://hex.pm/packages/toolshed) is a library of [IEx
 helpers](https://hexdocs.pm/iex/IEx.Helpers.html) that augments the ones that
-Elixir provides. It's included by the Nerves new project generator.
+Elixir provides. It's included by the Nerves new project generator (see
+[Customizing the IEx session](#customizing-the-iex-session) section for more
+details).
 
 The helpers should be available by default, but if not, run:
 
@@ -181,7 +203,7 @@ Toolshed imported. Run h(Toolshed) for more info.
 :ok
 ```
 
-If you're used to the Linux commandline, many Toolshed helpers will seem
+If you're used to the Linux commandline, many `Toolshed` helpers will seem
 familiar except with an Elixir twist. One difference is that you need to add
 double quotes around filenames and IP addresses. The names are similar, though,
 like `uname`, `ping`, `uptime`, `date`, `lsof` and more.
@@ -205,9 +227,11 @@ service](https://github.com/chubin/wttr.in).
 
 ## Linux shell commands
 
-*Note:* Erlang contains an amazing amount of functionality, so before reaching
-for Linux utilities, we highly recommend checking the [Erlang
-documentation](https://erlang.org/doc/search/).
+> #### Maybe Erlang? {: .tip}
+>
+> Erlang contains an amazing amount of functionality, so before reaching
+> for Linux utilities, we highly recommend checking the [Erlang
+> documentation](https://erlang.org/doc/search/).
 
 Nerves includes a minimal version of [`busybox`](https://www.busybox.net/) to
 support running simple shell scripts and access network configuration utilities
@@ -242,13 +266,36 @@ Currently defined functions:
 	udhcpd, uevent, umount, unzip
 ```
 
+> #### Where's Bash? {: .info}
+> 
+> Everyone asks this and it's come up since almost day one. It is probably the
+> most visible distinction of what it means that Nerves uses the Linux kernel but
+> very little of the standard Linux userland.
+> 
+> Since Nerves provides only a few Linux utilities, the shell prompt is not as
+> useful as you would expect. The projects that once provided a shell prompt have
+> been abandoned due to this.
+> 
+> Our recommendation is to spend some time working at the `iex>` prompt and if
+> you're missing a utility, check if Elixir or Erlang/OTP provide it. If they do
+> and it just needs an IEx helper to make it ergonomic, then please consider
+> contributing a new helper to [`Toolshed`](https://github.com/elixir-toolshed/toolshed).
+> 
+> If having a proper Unix shell and Linux userland is critical to your
+> application, it may be better not to use Nerves.
+> [Buildroot](https://buildroot.org/), [Yocto](https://www.yoctoproject.org/),
+> [Raspberry Pi OS](https://www.raspberrypi.org/), and other embedded Linux
+> projects run Erlang and Elixir too and many Nerves-related libraries also
+> work well outside of Nerves.
+
 ## Customizing the IEx session
 
 The Nerves new project generator creates a default `iex.exs` for setting up the
 prompt. You can find it in `rootfs_overlay/etc/iex.exs`.
 
-The default `iex.exs` shows some text and loads the `Toolshed` helpers. See the
-[IEx .iex.exs docs](https://hexdocs.pm/iex/IEx.html#module-the-iex-exs-file) for
+The default `iex.exs` prints a message of the day (from
+[`NervesMOTD`](https://hexdocs.pm/nerves_motd)) and loads the [`Toolshed`](#toolshed)
+helpers. See the [IEx .iex.exs docs](https://hexdocs.pm/iex/IEx.html#module-the-iex-exs-file) for
 more information on what can be done.
 
 Keep the following in mind:
@@ -262,14 +309,13 @@ Keep the following in mind:
    device. You can create `/root/.iex.exs` and customize it. Use `sftp` to
    update or erase it if you mess it up.
 
-## Changing and disabling the console
+## Changing the IEx console output
 
-Depending on the platform, Nerves sends the startup console to an attached
+Depending on the platform, Nerves sends the IEx console to an attached
 display or UART. If you find yourself taking pictures of the display to capture
 error log messages, you probably want to start using the UART. That requires a
 USB-to-UART cable (often called an FTDI cable) and you'll need a serial
-communications program on your computer. When you ship a Nerves device, you may
-want to disable the console completely.
+communications program on your computer.
 
 [`erlinit`](https://github.com/nerves-project/erlinit) sets up the console
 before starting Erlang. The `/etc/erlinit.config` files in the official Nerves
@@ -290,7 +336,8 @@ config :nerves, :erlinit,
   ctty: "tty1"
 ```
 
-To disable the console completely, set the `ctty` to `null`:
+When you ship a Nerves device for production, you may want to disable the
+console completely. To disable, set the `ctty` to `null`:
 
 ```elixir
 config :nerves, :erlinit,
@@ -299,18 +346,24 @@ config :nerves, :erlinit,
 ```
 
 The `:alternate_exec` key is optional here. It calls
-[`run_erl`](https://erlang.org/doc/man/run_erl.html) to log console output to a
-file in `/tmp`. This is useful if code calls `IO.puts` rather than `Logger`.
+[`run_erl`](https://erlang.org/doc/man/run_erl.html) to log console output to
+a file in `/tmp`. This is useful if code calls `IO.puts` rather than `Logger`.
 
 ## Remote console access
 
-Accessing the IEx prompt remotely requires additional configuration if `ssh` is
-not available. The option that currently requires the least amount of code is to
-use [NervesHub](https://github.com/nerves-hub/). The way this works is that the
-device connects to a NervesHub server and then you can log into the server, pick
-a device and open a command prompt. If NervesHub is not an option, the
-[`extty`](https://hex.pm/packages/extty) library may be useful for connecting an
-IEx prompt to the transport of your choice.
+The Nerves new generator sets up [`NervesSSH`](http://hexdocs.pm/nerves_ssh) by
+default allowing you to remotely connect with `ssh nerves.local` (or via the IP
+address or another hostname you may have set)
+
+If `NervesSSH` is not an option, the [`extty`](https://hex.pm/packages/extty)
+library may be useful for connecting an IEx prompt to the transport of your
+choice.
+
+> #### Exiting SSH sessions {: .tip}
+> 
+> If you're using `Toolshed`, type `exit` at the IEx prompt. Otherwise, use
+> `ssh`'s magic exit sequence: `<enter>~.`. Run `<enter>?` to see all the
+> available SSH magic sequences
 
 ## Erlang and LFE prompts
 
@@ -328,42 +381,6 @@ config :nerves_ssh,
 
 See the [Nerves Examples](https://github.com/nerves-project/nerves-examples) for
 small Erlang and LFE programs.
-
-## CLI FAQ
-
-### How do I exit an ssh session
-
-If you're using `Toolshed`, type `exit` at the IEx prompt. Otherwise, use
-`ssh`'s magic exit sequence: `<enter>~.`.
-
-### Why does history not work on the first boot?
-
-Commandline history is stored on the application data partition. On the first
-boot, the application data partition is unformatted and needs to be initialized.
-Unfortunately, the commandline history code is one of the few pieces of code
-that gets started before this happens.
-
-### Where's Bash?
-
-Everyone asks this and it's come up since almost day one. It is probably the
-most visible distinction of what it means that Nerves uses the Linux kernel but
-very little of the standard Linux userland.
-
-Since Nerves provides only a few Linux utilities, the shell prompt is not as
-useful as you would expect. The projects that once provided a shell prompt have
-been abandoned due to this.
-
-Our recommendation is to spend some time working at the `iex>` prompt and if
-you're missing a utility, check if Elixir or Erlang/OTP provide it. If they do
-and it just needs an IEx helper to make it ergonomic, then please consider
-contributing a new helper to `Toolshed`.
-
-If having a proper Unix shell and Linux userland is critical to your
-application, it may be better to not use Nerves.
-[Buildroot](https://buildroot.org/), [Yocto](https://www.yoctoproject.org/),
-[Raspberry Pi OS](https://www.raspberrypi.org/), and other embedded Linux
-projects run Erlang and Elixir too. Many Nerves-related libraries work well
-outside of Nerves.
 
 <p align="center">
 Is something wrong?
