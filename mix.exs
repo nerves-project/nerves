@@ -59,7 +59,7 @@ defmodule Nerves.MixProject do
         "docs/FAQ.md",
         "docs/Targets.md",
         "docs/Systems.md",
-        "docs/Using the CLI.md",
+        "docs/IEx with Nerves.md",
         "docs/User Interfaces.md",
         "docs/Environment Variables.md",
         "docs/Compiling Non-BEAM Code.md",
