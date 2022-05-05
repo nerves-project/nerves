@@ -1,11 +1,16 @@
 # Environment variables
 
-## Set by Nerves tooling
+Nerves uses environment variables to control the build process and pass
+options to cross-compilers.
 
-When compiling (Elixir or non-BEAM code), Nerves sets environment variables to
-guide compilation. These environment variables are available to `mix`, `rebar3`
-and any code invoked from them. For example, these are frequently used in the
-`Makefiles` invoked by [`elixir_make`](https://hex.pm/packages/elixir_make).
+## Nerves-provided environment variables
+
+Nerves sets the environment variables in this section to control compilation.
+Most variables affect the compilation of C and C++ code so that they use the
+right crosscompiler, flags, and directories. These environment variables are
+available to `mix`, `rebar3` and any code invoked from them. For example,
+these are frequently used in the `Makefiles` invoked by
+[`elixir_make`](https://hex.pm/packages/elixir_make).
 
 Name                   | Min `nerves_system_br` version | Description
 ---------------------- | ------------------------------ | -----------
@@ -37,6 +42,11 @@ PKG_CONFIG_LIBDIR      | `v1.8.5`                       | Metadata for `pkg-conf
 QMAKESPEC              | `v1.4.0`                       | If Qt is available, this points to the spec file
 REBAR_TARGET_ARCH      | All                            | Set to the binutils prefix (e.g., `arm-linux-gnueabi`) for [rebar2](https://github.com/rebar/rebar)
 STRIP                  | All                            | The path to `strip` for target binaries (Nerves strips binaries by default)
+NERVES_APP             | All                            | Current Nerves project root path
+NERVES_SYSTEM          | All                            | Path to target Nerves system to use (`$NERVES_ARTIFACTS_DIR/<system-name>`)
+NERVES_TOOLCHAIN       | All                            | Path to target Nerves toolchain to use (`$NERVES_ARTIFACTS_DIR/<toolchain-name>`)
+NERVES_SDK_IMAGES      | All                            | Path to Nerves system images directory (`$NERVES_SYSTEM/images`)
+NERVES_SDK_SYSROOT     | All                            | Path to Nerves system sysroot directory (`$NERVES_SYSTEM/staging`)
 TARGET_ABI             | See below                      | The target ABI (e.g., `gnueabihf`, `musl`)
 TARGET_ARCH            | See below                      | The target CPU architecture (e.g., `arm`, `aarch64`, `mipsel`, `x86_64`, `riscv64`)
 TARGET_CPU             | See below                      | The target CPU (e.g., `cortex_a7`)
