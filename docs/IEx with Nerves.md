@@ -1,4 +1,4 @@
-# Using the CLI
+# IEx with Nerves
 
 Nerves greets you with Elixir's IEx prompt. This prompt is your main entry point
 to interacting with Elixir, your program and hardware. This chapter focuses on
