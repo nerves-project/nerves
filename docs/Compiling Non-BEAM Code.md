@@ -66,29 +66,37 @@ Nerves. Nerves is, however, less forgiving than normal compilation.
 
 Three recommendations cannot be stressed enough:
 
-First, always compile under `_build`. While it's much easier to compile in the
-source directory, this always leads to errors where an executable compiled for
-one architecture (the host) ends up being put on the target. Nerves will fail
-with an error when this happens, but it causes a lot of confusion.
+1. Always compile under `_build`
+   * While it's much easier to compile in the source directory, this always
+     leads to errors where an executable compiled for one architecture (the
+     host) ends up being put on the target. Nerves will fail with an [`ERROR:
+     Unexpected executable format`](https://github.com/nerves-project/nerves_system_br/blob/v1.18.6/scripts/scrub-otp-release.sh#L136-L174)
+     error when this happens, but it causes a lot of confusion.
 
-Second, do not have a `priv` directory in your source tree. While Elixir
-provides a shortcut for copying files from a source `priv` directory to the
-build output `priv` directory, experience has been that this feature causes
-confusion when building native code. If you do have static assets that you want
-in the output `priv` directory, add a line to your `Makefile` or `mix.exs` to
-copy them.
+2. Do not have a `priv` directory in your source tree
+   * While Elixir provides a shortcut for copying files from a source `priv`
+     directory to the build output `priv` directory, experience has been that
+     this feature causes confusion when building native code. If you do have
+     static assets that you want in the output `priv` directory, add a line to
+     your `Makefile` or `mix.exs` to copy them.
 
-Third, if you have the choice between using a NIF or a port to interface
-external code with Erlang VM, ports offer the benefit of safety since they run
-in an OS process. In other words, if the port crashes, Linux cleans up the mess.
-If a NIF crashes on Nerves, the BEAM crashes and Nerves reboots the device.
+3. Prefer ports over NIFs to interface with external code with Erlang VM (if
+   the choice is available)
+   * Ports offer the benefit of safety since they run in an OS process. In
+     other words, if the port crashes, Linux cleans up the mess. If a NIF
+     crashes on Nerves, the BEAM crashes and Nerves reboots the device.
 
 The Internet has many examples of how to write
 [NIFs](http://erlang.org/doc/tutorial/nif.html). For an example `Makefile` that
 works well with Nerves and embedded Linux, see the [circuits_i2c
-Makefile](https://github.com/elixir-circuits/circuits_i2c/blob/main/Makefile).
-Also consider [zigler](https://github.com/ityonemo/zigler) for a safer
-alternative to C and C++ that works with Nerves.
+Makefile](https://github.com/elixir-circuits/circuits_i2c/blob/main/Makefile)
+or watch [this clip](https://youtu.be/BtUmxoccZGE?t=1827) about
+cross-compilation and Makefiles with Nerves.
+
+> #### Tip {: .tip}
+>
+> Consider [zigler](https://github.com/ityonemo/zigler) for a safer
+> alternative to C and C++ that works with Nerves.
 
 <p align="center">
 Is something wrong?
