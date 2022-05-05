@@ -7,8 +7,7 @@ defmodule IntegrationApp do
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 1.0"],
       compilers: Mix.compilers() ++ [:host_tool],
-      deps: deps(),
-      aliases: Nerves.Bootstrap.add_aliases([])
+      deps: deps()
     ]
   end
 

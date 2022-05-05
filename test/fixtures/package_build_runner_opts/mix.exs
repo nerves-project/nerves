@@ -11,8 +11,7 @@ defmodule PackageBuildRunnerOpts.Fixture.MixProject do
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      deps: deps(),
-      aliases: Nerves.Bootstrap.add_aliases([])
+      deps: deps()
     ]
   end
 
