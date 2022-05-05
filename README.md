@@ -39,8 +39,9 @@ packages available through [Buildroot](https://buildroot.org).
 Our project is spread over many repositories in order to focus on a limited
 scope per repository.
 
-This repository (**[nerves-project/nerves][nerves]**) is an entrance to Nerves
-and provides the core tooling and documentation.
+This repository
+(**[nerves-project/nerves](https://github.com/nerves-project/nerves)**) is an
+entrance to Nerves and provides the core tooling and documentation.
 
 The Nerves core team maintains the projects in the `nerves-project` organization
 with the help of many in the Elixir community. Projects under other GitHub
@@ -124,15 +125,15 @@ other GCC toolchains.
 | Name | Description | Release |
 | -------------------------: | :------------------------------------------------------------------------------------------ | :-------------------------------------------------------- |
 |  **[nerves_toolchain_ctng](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_ctng)** | Crosstool-NG integration for building Nerves toolchains | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_ctng.svg)](https://hex.pm/packages/nerves_toolchain_ctng) |
-|  **[nerves_toolchain_aarch64_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_aarch64_nerves_linux_gnu)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_aarch64_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_aarch64_nerves_linux_gnu) |
-|  **[nerves_toolchain_armv5_nerves_linux_musleabi](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_armv5_nerves_linux_musleabi)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_armv5_nerves_linux_musleabi.svg)](https://hex.pm/packages/nerves_toolchain_armv5_nerves_linux_musleabi) |
-|  **[nerves_toolchain_armv6_nerves_linux_gnueabihf](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_armv6_nerves_linux_gnueabihf)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_armv6_nerves_linux_gnueabihf.svg)](https://hex.pm/packages/nerves_toolchain_armv6_nerves_linux_gnueabihf) |
-|  **[nerves_toolchain_armv7_nerves_linux_gnueabihf](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_armv7_nerves_linux_gnueabihf)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_armv7_nerves_linux_gnueabihf.svg)](https://hex.pm/packages/nerves_toolchain_armv7_nerves_linux_gnueabihf) |
-|  **[nerves_toolchain_i586_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_i586_nerves_linux_gnu)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_i586_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_i586_nerves_linux_gnu) |
-|  **[nerves_toolchain_mipsel_nerves_linux_musl](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_mipsel_nerves_linux_musl)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_mipsel_nerves_linux_musl.svg)](https://hex.pm/packages/nerves_toolchain_mipsel_nerves_linux_musl) |
-|  **[nerves_toolchain_riscv64_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_riscv64_nerves_linux_gnu)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_riscv64_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_riscv64_nerves_linux_gnu) |
-|  **[nerves_toolchain_x86_64_nerves_linux_musl](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_x86_64_nerves_linux_musl)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_x86_64_nerves_linux_musl.svg)](https://hex.pm/packages/nerves_toolchain_x86_64_nerves_linux_musl) |
-|  **[nerves_toolchain_x86_64_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_x86_64_nerves_linux_gnu)** | | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_x86_64_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_x86_64_nerves_linux_gnu) |
+|  **[nerves_toolchain_aarch64_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_aarch64_nerves_linux_gnu)** | 64-bit ARM toolchain | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_aarch64_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_aarch64_nerves_linux_gnu) |
+|  **[nerves_toolchain_armv5_nerves_linux_musleabi](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_armv5_nerves_linux_musleabi)** | 32-bit ARM toolchain for older ARM processors | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_armv5_nerves_linux_musleabi.svg)](https://hex.pm/packages/nerves_toolchain_armv5_nerves_linux_musleabi) |
+|  **[nerves_toolchain_armv6_nerves_linux_gnueabihf](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_armv6_nerves_linux_gnueabihf)** | 32-bit ARM toolchain for Raspberry Pi A, B, and Zero | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_armv6_nerves_linux_gnueabihf.svg)](https://hex.pm/packages/nerves_toolchain_armv6_nerves_linux_gnueabihf) |
+|  **[nerves_toolchain_armv7_nerves_linux_gnueabihf](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_armv7_nerves_linux_gnueabihf)** | 32-bit ARM toolchain for most 32-bit ARMs | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_armv7_nerves_linux_gnueabihf.svg)](https://hex.pm/packages/nerves_toolchain_armv7_nerves_linux_gnueabihf) |
+|  **[nerves_toolchain_i586_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_i586_nerves_linux_gnu)** | 32-bit Intel x86 toolchain | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_i586_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_i586_nerves_linux_gnu) |
+|  **[nerves_toolchain_mipsel_nerves_linux_musl](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_mipsel_nerves_linux_musl)** | 32-bit MIPS toolchain | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_mipsel_nerves_linux_musl.svg)](https://hex.pm/packages/nerves_toolchain_mipsel_nerves_linux_musl) |
+|  **[nerves_toolchain_riscv64_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_riscv64_nerves_linux_gnu)** | 64-bit RISC-V toolchain | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_riscv64_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_riscv64_nerves_linux_gnu) |
+|  **[nerves_toolchain_x86_64_nerves_linux_musl](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_x86_64_nerves_linux_musl)** | 64-bit x86 toolchain using the musl libc | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_x86_64_nerves_linux_musl.svg)](https://hex.pm/packages/nerves_toolchain_x86_64_nerves_linux_musl) |
+|  **[nerves_toolchain_x86_64_nerves_linux_gnu](https://github.com/nerves-project/toolchains/tree/main/nerves_toolchain_x86_64_nerves_linux_gnu)** | 64-bit x86 toolchain using GNU libc | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_toolchain_x86_64_nerves_linux_gnu.svg)](https://hex.pm/packages/nerves_toolchain_x86_64_nerves_linux_gnu) |
 
 ### Miscellaneous
 
