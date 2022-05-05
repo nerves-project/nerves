@@ -191,7 +191,7 @@ defmodule Nerves.Artifact.ResolverTest do
       resolvers = Artifact.expand_sites(pkg)
 
       assert {:error, _reason} = Artifact.Resolver.get(resolvers, pkg)
-      output = "\e[33m     Status 404 Not Found\e[0m"
+      output = "     Status 404 Not Found"
       assert_receive {:mix_shell, :info, [^output]}
     end)
   end
