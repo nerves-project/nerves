@@ -26,9 +26,9 @@ since they're so commonly used in conjunction with the core libraries and tools.
 | Name | Description | Release |
 | -------------------------: | :------------------------------------------------------------------------------------------ | :-------------------------------------------------------- |
 | **[Erlinit](https://github.com/nerves-project/erlinit)** | Replacement for /sbin/init that launches an Erlang/OTP Release | ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/nerves-project/erlinit?sort=semver) |
-| **[NervesBootstrap](https://github.com/nerves-project/nerves_bootstrap)** | The Nerves new project generator and low level hooks into Mix | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_bootstrap.svg)](https://hex.pm/packages/nerves_bootstrap) |
+| **[Nerves.Bootstrap](https://github.com/nerves-project/nerves_bootstrap)** | The Nerves new project generator and low level hooks into Mix | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_bootstrap.svg)](https://hex.pm/packages/nerves_bootstrap) |
+| **[Nerves.Runtime](https://github.com/nerves-project/nerves_runtime)** | Small, general runtime utilities for Nerves devices | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_runtime.svg)](https://hex.pm/packages/nerves_runtime) |
 | **[NervesPack](https://github.com/nerves-project/nerves_pack)** | Initialization setup for Nerves devices | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_pack.svg)](https://hex.pm/packages/nerves_pack) |
-| **[NervesRuntime](https://github.com/nerves-project/nerves_runtime)** | Small, general runtime utilities for Nerves devices | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_runtime.svg)](https://hex.pm/packages/nerves_runtime) |
 | **[NervesSystemBR](https://github.com/nerves-project/nerves_system_br)** | Buildroot based build platform for Nerves Systems | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_system_br.svg)](https://hex.pm/packages/nerves_system_br) |
 | **[RingLogger](https://github.com/nerves-project/ring_logger)** | A ring buffer backend for Elixir Logger with IO streaming | [![Hex.pm](https://img.shields.io/hexpm/v/ring_logger.svg)](https://hex.pm/packages/ring_logger) |
 
