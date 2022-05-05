@@ -95,7 +95,7 @@ defmodule Nerves.CacheTest do
 
       System.put_env("NERVES_SYSTEM", Nerves.Env.download_dir())
       Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
-      message = "\e[32m      " <> Nerves.Env.download_dir() <> "\e[0m"
+      message = "      " <> Nerves.Env.download_dir()
       assert_receive {:mix_shell, :info, [^message]}, 100
       System.delete_env("NERVES_SYSTEM")
     end)
