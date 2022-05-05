@@ -3,6 +3,21 @@
 Nerves uses environment variables to control the build process and pass
 options to cross-compilers.
 
+## Overridable variables
+
+Set these variables if you would like to adjust how Nerves builds
+device-specific code.
+
+| Name                            | Description |
+| ------------------------------- | ----------- |
+| XDG_DATA_HOME                   | If set, uses `$XDG_DATA_HOME/nerves` as the data directory. Defaults to `~/.nerves` if unset |
+| NERVES_DL_DIR                   | Path where compressed Nerves system and toolchain artifacts are downloaded during `mix deps.get`. Defaults to `$XDG_DATA_HOME/nerves/dl` |
+| NERVES_ARTIFACTS_DIR            | Path where Nerves system and toolchain artifacts are decompressed (from `$NERVES_DL_DIR/<artifact-name>`) and cached for use with compilation. Defaults to `$XDG_DATA_HOME/nerves/artifacts` |
+| NERVES_ENV_DISABLED             | Set to `1` to disable the nerves_package compiler |
+| NERVES_DEBUG                    | Set to `1` to print out debug info during compilation |
+| NERVES_LOG_DISABLE_PROGRESS_BAR | Set to `1` to disable progress bar output when fetching artifacts (typically for CI) |
+| SOURCE_DATE_EPOCH               | Used for [reproducable builds](https://reproducible-builds.org). Can also be set via `config :nerves, source_date_epoch: val` |
+
 ## Nerves-provided environment variables
 
 Nerves sets the environment variables in this section to control compilation.
