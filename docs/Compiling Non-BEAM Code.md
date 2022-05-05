@@ -35,6 +35,14 @@ Be aware of the following caveats with Nerves:
    use Elixir instead, but if that's not feasible, it's possible to add missing
    commands by enabling them in Busybox in a custom system.
 
+> #### Tip {: .tip}
+>
+> If you require a long running process from a provided exectuable and need
+> similar startup and supervision management of `systemd`, you can also use
+> [`:muontrap`](https://hexdocs.pm/muontrap/readme.html) to start it in your
+> application supervision. See [this talk](https://youtu.be/BtUmxoccZGE?t=1559)
+> for more information
+
 Before you even start, experience has shown that searching the [Erlang/OTP
 docs](http://erlang.org/doc/index.html) three times and skimming the
 [Erlang source](https://github.com/erlang/otp) lead to all kinds of amazing
