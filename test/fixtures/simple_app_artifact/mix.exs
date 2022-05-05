@@ -6,7 +6,6 @@ defmodule SimpleAppArtifact.Fixture do
       app: :simple_app_artifact,
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 1.0"],
-      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -19,9 +18,5 @@ defmodule SimpleAppArtifact.Fixture do
     [
       {:system_artifact, path: "../system_artifact"}
     ]
-  end
-
-  def aliases() do
-    [] |> Nerves.Bootstrap.add_aliases()
   end
 end

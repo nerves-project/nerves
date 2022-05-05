@@ -8,7 +8,6 @@ defmodule HostTool.MixProject do
       elixir: "~> 1.5",
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      aliases: Nerves.Bootstrap.add_aliases([]),
       xref: [
         exclude: [
           Nerves.Artifact,

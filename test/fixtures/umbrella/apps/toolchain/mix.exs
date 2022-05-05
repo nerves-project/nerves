@@ -14,8 +14,7 @@ defmodule Toolchain.MixProject do
       deps: deps(),
       deps_path: "../../deps",
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
-      aliases: Nerves.Bootstrap.add_aliases([])
+      config_path: "../../config/config.exs"
     ]
   end
 
