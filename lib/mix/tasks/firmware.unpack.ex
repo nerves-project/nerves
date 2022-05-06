@@ -46,7 +46,7 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
     config = Mix.Project.config()
 
-    {opts, _, _} = OptionParser.parse(args, strict: @switches, alies: @aliases)
+    {opts, _, _} = OptionParser.parse(args, strict: @switches, aliases: @aliases)
 
     fw = opts[:fw] || Nerves.Env.firmware_path(config)
     output = opts[:output] || "#{Path.rootname(Path.basename(fw))}.unpacked"
