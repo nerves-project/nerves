@@ -5,6 +5,13 @@ defmodule Nerves.Utils.Stream do
   @timer 10_000
 
   @type options() :: [file: Path.t(), history_lines: non_neg_integer()]
+  @type state() :: %{
+          file: String.t() | nil,
+          timer: reference(),
+          history: :queue.queue(),
+          history_lines: non_neg_integer,
+          history_saved: non_neg_integer
+        }
 
   @spec start_link(options()) :: GenServer.on_start()
   def start_link(opts) do
@@ -71,6 +78,7 @@ defmodule Nerves.Utils.Stream do
     {:noreply, s}
   end
 
+  @spec stdout(String.t(), state()) :: state()
   def stdout(<<">>>", tail::binary>>, s), do: trim_write(">>>", "\n", tail, s)
   def stdout(<<"\e[7m>>>", tail::binary>>, s), do: trim_write(">>>", "\e[7m", tail, s)
   def stdout(_, s), do: s

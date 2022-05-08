@@ -2,6 +2,8 @@ defmodule Mix.Nerves.Utils do
   @moduledoc false
   alias Nerves.Utils.WSL
 
+  @spec shell(binary(), [binary()], keyword()) ::
+          {Collectable.t(), exit_status :: non_neg_integer()}
   def shell(cmd, args, opts \\ []) do
     stream = opts[:stream] || IO.binstream(:standard_io, :line)
     std_err = opts[:stderr_to_stdout] || true
@@ -15,6 +17,7 @@ defmodule Mix.Nerves.Utils do
     Nerves.Port.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 
+  @spec debug_info(String.t()) :: :ok
   def debug_info(msg) do
     if System.get_env("NERVES_DEBUG") == "1" do
       Mix.shell().info(msg)
@@ -56,6 +59,7 @@ defmodule Mix.Nerves.Utils do
     {dev, bytes}
   end
 
+  @spec prompt_dev() :: String.t()
   def prompt_dev() do
     case get_devs() do
       [{dev, bytes}] ->
@@ -96,6 +100,7 @@ defmodule Mix.Nerves.Utils do
     end
   end
 
+  @spec bytes_to_gigabytes(String.t() | number()) :: float()
   def bytes_to_gigabytes(bytes) when is_binary(bytes) do
     {bytes, _} = Integer.parse(bytes)
     bytes_to_gigabytes(bytes)
@@ -106,6 +111,7 @@ defmodule Mix.Nerves.Utils do
     Float.round(gb, 2)
   end
 
+  @spec set_provisioning(nil | atom | binary()) :: :ok
   def set_provisioning(nil), do: :ok
 
   def set_provisioning(app) when is_atom(app) do
