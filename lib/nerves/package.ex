@@ -28,7 +28,9 @@ defmodule Nerves.Package do
           type:
             :system
             | :package
-            | :toolchain,
+            | :toolchain
+            | :system_platform
+            | :toolchain_platform,
           dep:
             :project
             | :path
