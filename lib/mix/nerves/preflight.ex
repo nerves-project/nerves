@@ -44,9 +44,10 @@ defmodule Mix.Nerves.Preflight do
   def ensure_fwup_version!(fwup_bin \\ "fwup", vsn_requirement \\ @fwup_semver) do
     ensure_available!(fwup_bin)
 
-    with {vsn, 0} <- Nerves.Port.cmd(fwup_bin, ["--version"]),
-         vsn = String.trim(vsn),
-         {:ok, req} = Version.parse_requirement(vsn_requirement) do
+    with {vsn, 0} <- Nerves.Port.cmd(fwup_bin, ["--version"]) do
+      vsn = String.trim(vsn)
+      {:ok, req} = Version.parse_requirement(vsn_requirement)
+
       unless Version.match?(vsn, req) do
         Mix.raise("""
         #{fwup_bin} #{vsn_requirement} is required for Nerves.
