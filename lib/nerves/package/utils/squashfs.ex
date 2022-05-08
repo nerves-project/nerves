@@ -9,6 +9,7 @@ defmodule Nerves.Package.Utils.Squashfs do
   @posix [r: 4, w: 2, x: 1, s: 1, t: 1]
   @sticky ["s", "t", "S", "T"]
 
+  @spec start_link(String.t()) :: GenServer.on_start()
   def start_link(rootfs) do
     params = unsquashfs(rootfs)
 
@@ -25,6 +26,7 @@ defmodule Nerves.Package.Utils.Squashfs do
     end
   end
 
+  @spec stop(GenServer.server()) :: :ok
   def stop(pid) do
     GenServer.call(pid, :stop)
     GenServer.stop(pid)
@@ -61,6 +63,7 @@ defmodule Nerves.Package.Utils.Squashfs do
     end
   end
 
+  @impl GenServer
   def init([rootfs, stage, params]) do
     {:ok,
      %{
@@ -70,6 +73,7 @@ defmodule Nerves.Package.Utils.Squashfs do
      }}
   end
 
+  @impl GenServer
   def handle_call(:stop, _from, s) do
     File.rm_rf!(s.stage)
     {:reply, :ok, s}

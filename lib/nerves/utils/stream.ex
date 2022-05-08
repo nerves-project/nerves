@@ -4,18 +4,24 @@ defmodule Nerves.Utils.Stream do
 
   @timer 10_000
 
+  @type options() :: [file: Path.t(), history_lines: non_neg_integer()]
+
+  @spec start_link(options()) :: GenServer.on_start()
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts)
   end
 
+  @spec stop(GenServer.server()) :: :ok
   def stop(pid) do
     GenServer.stop(pid)
   end
 
+  @spec history(GenServer.server()) :: String.t()
   def history(pid) do
     GenServer.call(pid, :history)
   end
 
+  @impl GenServer
   def init(opts) do
     file = opts[:file]
     history_lines = opts[:history_lines] || 100
@@ -34,6 +40,7 @@ defmodule Nerves.Utils.Stream do
      }}
   end
 
+  @impl GenServer
   def handle_call(:history, _from, s) do
     history =
       s.history
@@ -43,6 +50,7 @@ defmodule Nerves.Utils.Stream do
     {:reply, history, s}
   end
 
+  @impl GenServer
   def handle_info({:io_request, from, reply_as, {:put_chars, _encoding, chars}}, s) do
     if s.file != nil do
       File.write(s.file, chars, [:append])
@@ -53,9 +61,14 @@ defmodule Nerves.Utils.Stream do
     {:noreply, stdout(chars, s)}
   end
 
+  @impl GenServer
   def handle_info(:keep_alive, s) do
     IO.write(".")
     {:noreply, reset_timer(s)}
+  end
+
+  def handle_info(_, s) do
+    {:noreply, s}
   end
 
   def stdout(<<">>>", tail::binary>>, s), do: trim_write(">>>", "\n", tail, s)

@@ -4,12 +4,14 @@ defmodule Nerves.Utils.HTTPClient do
 
   @progress_steps 50
 
+  @spec start_link() :: GenServer.on_start()
   def start_link() do
     {:ok, _} = Application.ensure_all_started(:nerves)
     start_httpc()
     GenServer.start_link(__MODULE__, [])
   end
 
+  @spec stop(GenServer.server()) :: :ok
   def stop(pid) do
     GenServer.stop(pid)
   end
@@ -29,6 +31,7 @@ defmodule Nerves.Utils.HTTPClient do
 
   def get(pid, url, opts), do: GenServer.call(pid, {:get, url, opts}, :infinity)
 
+  @impl GenServer
   def init([]) do
     {:ok,
      %{
@@ -44,6 +47,7 @@ defmodule Nerves.Utils.HTTPClient do
      }}
   end
 
+  @impl GenServer
   def handle_call({:get, _url, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
     GenServer.reply(s.caller, {:error, :too_many_redirects})
     {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
@@ -86,6 +90,7 @@ defmodule Nerves.Utils.HTTPClient do
     {:noreply, %{s | url: url, caller: from, get_opts: opts, progress?: progress?}}
   end
 
+  @impl GenServer
   def handle_info({:http, {_ref, {:error, {:failed_connect, _}} = err}}, s) do
     GenServer.reply(s.caller, err)
   end
