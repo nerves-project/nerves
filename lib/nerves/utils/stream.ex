@@ -26,7 +26,7 @@ defmodule Nerves.Utils.Stream do
 
     {:ok,
      %{
-       file: opts[:file],
+       file: file,
        timer: Process.send_after(self(), :keep_alive, @timer),
        history: :queue.new(),
        history_lines: history_lines,
