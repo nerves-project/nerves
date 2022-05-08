@@ -2,14 +2,6 @@ defmodule Nerves.EnvTest do
   use NervesTest.Case
   alias Nerves.Env
 
-  test "system requirements" do
-    assert :error = Nerves.system_requirements(Version.parse!("1.6.0"), "20")
-    assert :error = Nerves.system_requirements(Version.parse!("1.7.0"), "20")
-    assert :error = Nerves.system_requirements(Version.parse!("1.7.0"), "ABC")
-    assert :ok = Nerves.system_requirements(Version.parse!("1.7.0"), "21")
-    assert :ok = Nerves.system_requirements(Version.parse!("1.10.2"), "22")
-  end
-
   test "populate Nerves env" do
     in_fixture("simple_app", fn ->
       packages =

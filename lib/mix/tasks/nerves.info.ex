@@ -25,7 +25,7 @@ defmodule Mix.Tasks.Nerves.Info do
     Mix.Tasks.Nerves.Env.run(["--info", "--disable"])
     Mix.shell().info("Nerves:           #{Nerves.version()}")
     Mix.shell().info("Nerves Bootstrap: #{Nerves.Bootstrap.version()}")
-    Mix.shell().info("Elixir:           #{Nerves.elixir_version()}")
+    Mix.shell().info("Elixir:           #{System.version()}")
     Nerves.Env.enable()
     debug_info("Info End")
   end
