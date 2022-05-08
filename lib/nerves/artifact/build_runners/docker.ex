@@ -372,6 +372,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     {dockerfile, tag}
   end
 
+  @spec error_not_installed() :: no_return()
   defp error_not_installed() do
     Mix.raise("""
     Docker is not installed on your machine.
@@ -379,6 +380,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     """)
   end
 
+  @spec error_invalid_version(Version.t()) :: no_return()
   defp error_invalid_version(vsn) do
     Mix.raise("""
     Your version of docker: #{vsn}

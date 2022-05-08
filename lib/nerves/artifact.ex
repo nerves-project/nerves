@@ -35,6 +35,7 @@ defmodule Nerves.Artifact do
   Produces an archive of the package artifact which can be fetched when
   calling `nerves.artifact.get`.
   """
+  @spec archive(Nerves.Package.t(), Nerves.Package.t(), keyword()) :: {:ok, String.t()}
   def archive(%{app: app, build_runner: nil}, _toolchain, _opts) do
     Mix.raise("""
     #{inspect(app)} does not declare a build_runner and therefore cannot

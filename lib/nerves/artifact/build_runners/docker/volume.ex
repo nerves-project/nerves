@@ -20,12 +20,12 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     end
   end
 
-  def id_file(pkg) do
+  defp id_file(pkg) do
     Artifact.build_path(pkg)
     |> Path.join(".docker_id")
   end
 
-  def create_id(pkg) do
+  defp create_id(pkg) do
     id_file = id_file(pkg)
     id = Nerves.Utils.random_alpha_num(16)
 
@@ -35,6 +35,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     File.write!(id_file, id)
   end
 
+  @spec delete(String.t()) :: :ok
   def delete(volume_name) do
     shell_info("Deleting build volume #{volume_name}")
     args = ["volume", "rm", volume_name]
@@ -50,6 +51,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     end
   end
 
+  @spec exists?(String.t()) :: boolean()
   def exists?(volume_name) do
     cmd = "docker"
     args = ["volume", "ls", "-f", "name=#{volume_name}", "-q"]
@@ -66,6 +68,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     end
   end
 
+  @spec create(String.t()) :: :noop
   def create(volume_name) do
     cmd = "docker"
     args = ["volume", "create", "--name", volume_name]
