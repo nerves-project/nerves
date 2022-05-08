@@ -57,7 +57,7 @@ defmodule Nerves.CacheTest do
 
       System.delete_env("NERVES_SYSTEM")
 
-      Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
+      Mix.Tasks.Nerves.Artifact.Get.get(:system)
       output = "  => Trying #{dl_path}"
       assert_receive {:mix_shell, :info, [^output]}
     end)
@@ -78,7 +78,7 @@ defmodule Nerves.CacheTest do
 
       File.touch(dl_path)
       assert File.exists?(dl_path)
-      Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
+      Mix.Tasks.Nerves.Artifact.Get.get(:system)
       refute File.exists?(dl_path)
     end)
   end
@@ -94,7 +94,7 @@ defmodule Nerves.CacheTest do
       File.mkdir_p!(Nerves.Env.download_dir())
 
       System.put_env("NERVES_SYSTEM", Nerves.Env.download_dir())
-      Mix.Tasks.Nerves.Artifact.Get.get(:system, [])
+      Mix.Tasks.Nerves.Artifact.Get.get(:system)
       message = "      " <> Nerves.Env.download_dir()
       assert_receive {:mix_shell, :info, [^message]}, 100
       System.delete_env("NERVES_SYSTEM")

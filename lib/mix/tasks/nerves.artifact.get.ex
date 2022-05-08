@@ -6,18 +6,19 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   alias Nerves.Artifact.{Cache, Resolver}
 
   @impl Mix.Task
-  def run(opts) do
+  def run(_opts) do
     Mix.shell().info("Checking for prebuilt Nerves artifacts...")
 
     Nerves.Env.packages()
-    |> Enum.each(&get(&1.app, opts))
+    |> Enum.each(&get(&1.app))
   end
 
   @doc false
-  def get(app, _opts) do
+  @spec get(atom()) :: :ok
+  def get(app) do
     case Nerves.Env.package(app) do
       %Nerves.Package{type: type} when type in [:toolchain_platform, :system_platform] ->
-        :noop
+        :ok
 
       %Nerves.Package{} = pkg ->
         # Check to see if the package path is set in the environment
@@ -76,10 +77,8 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     if checksum == Nerves.Artifact.checksum(pkg) do
       Cache.put(pkg, archive)
       Nerves.Utils.Shell.success("  => Success")
-      :ok
     else
       Nerves.Utils.Shell.error("  => Error: Checksums do not match")
-      :error
     end
   end
 end
