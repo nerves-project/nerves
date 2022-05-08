@@ -76,9 +76,9 @@ defmodule Nerves.UtilsTest do
   end
 
   test "validate extension programs" do
-    assert String.equivalent?("gzip", Utils.File.ext_cmd(".gz"))
-    assert String.equivalent?("xz", Utils.File.ext_cmd(".xz"))
-    assert String.equivalent?("tar", Utils.File.ext_cmd(".tar"))
+    assert Utils.File.ext_cmd(".gz") == "gzip"
+    assert Utils.File.ext_cmd(".xz") == "xz"
+    assert Utils.File.ext_cmd(".tar") == "tar"
   end
 
   defp create_archive(content_path, cwd) do

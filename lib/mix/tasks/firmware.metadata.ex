@@ -57,6 +57,7 @@ defmodule Mix.Tasks.Firmware.Metadata do
     shell("fwup", ["-m", "-i", fw])
   end
 
+  @spec firmware_file(keyword()) :: String.t()
   def firmware_file(opts) do
     with {:ok, fw} <- Keyword.fetch(opts, :firmware),
          fw <- Path.expand(fw),

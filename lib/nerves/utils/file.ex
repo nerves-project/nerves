@@ -1,6 +1,7 @@
 defmodule Nerves.Utils.File do
   @moduledoc false
 
+  @spec untar(String.t(), String.t() | nil) :: :ok | {:error, any}
   def untar(file, destination \\ nil) do
     destination = destination || File.cwd!()
 
@@ -11,6 +12,7 @@ defmodule Nerves.Utils.File do
   @doc """
   Create a tar of the contents of the path and specified output file
   """
+  @spec tar(String.t(), String.t()) :: :ok | {:error, any}
   def tar(path, file) do
     working_dir = Path.dirname(path)
     path = Path.basename(path)
@@ -19,6 +21,7 @@ defmodule Nerves.Utils.File do
     |> result()
   end
 
+  @spec validate(String.t()) :: :ok | {:error, any}
   def validate(file) do
     Path.extname(file)
     |> ext_cmd()

@@ -123,8 +123,7 @@ defmodule Mix.Tasks.Burn do
   end
 
   # Requests an elevation of user through askpass
-  @doc false
-  def elevate_user() do
+  defp elevate_user() do
     ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
     System.put_env("SUDO_ASKPASS", ask_pass)
   end
@@ -132,8 +131,7 @@ defmodule Mix.Tasks.Burn do
   # This is a fix for linux when running through sudo.
   # Sudo will strip the environment and therefore any variables
   # that are set during device provisioning.
-  @doc false
-  def provision_env() do
+  defp provision_env() do
     System.get_env()
     |> Enum.filter(fn {k, _} ->
       String.starts_with?(k, "NERVES_") or String.equivalent?(k, "SERIAL_NUMBER")
@@ -141,6 +139,7 @@ defmodule Mix.Tasks.Burn do
     |> Enum.map(fn {k, v} -> k <> "=" <> v end)
   end
 
+  @spec firmware_file(keyword()) :: String.t()
   def firmware_file(opts) do
     with {:ok, fw} <- Keyword.fetch(opts, :firmware),
          fw <- Path.expand(fw),
