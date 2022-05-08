@@ -43,14 +43,14 @@ defmodule Nerves.Utils.Stream do
     {:reply, history, s}
   end
 
-  def handle_info({:io_request, from, reply_as, {:put_chars, _encoding, chars}} = data, s) do
+  def handle_info({:io_request, from, reply_as, {:put_chars, _encoding, chars}}, s) do
     if s.file != nil do
       File.write(s.file, chars, [:append])
     end
 
     s = save_history(s, chars)
     reply(from, reply_as, :ok)
-    {:noreply, stdout(chars, data, s)}
+    {:noreply, stdout(chars, s)}
   end
 
   def handle_info(:keep_alive, s) do
@@ -58,10 +58,9 @@ defmodule Nerves.Utils.Stream do
     {:noreply, reset_timer(s)}
   end
 
-  def stdout(<<">>>", tail::binary>>, _message, s), do: trim_write(">>>", "\n", tail, s)
-  def stdout(<<"\e[7m>>>", tail::binary>>, _message, s), do: trim_write(">>>", "\e[7m", tail, s)
-
-  def stdout(_, _, s), do: s
+  def stdout(<<">>>", tail::binary>>, s), do: trim_write(">>>", "\n", tail, s)
+  def stdout(<<"\e[7m>>>", tail::binary>>, s), do: trim_write(">>>", "\e[7m", tail, s)
+  def stdout(_, s), do: s
 
   defp trim_write(trim, split, bin, s) do
     IO.write("\n")
