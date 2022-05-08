@@ -152,7 +152,8 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   end
 
   defp preflight(pkg) do
-    Docker.Volume.id(pkg) || Docker.Volume.create_id(pkg)
+    # Docker.Volume.id/1 side effects and creates an id if one doesn't exist
+    Docker.Volume.id(pkg)
     name = Docker.Volume.name(pkg)
     _ = host_check()
     _ = config_check(pkg, name)
