@@ -20,7 +20,6 @@ defmodule Nerves.Env do
   @spec start() :: Agent.on_start()
   @doc used_by: NervesBootstrap
   def start() do
-    Nerves.system_requirements()
     set_source_date_epoch()
     Agent.start_link(fn -> load_packages() end, name: __MODULE__)
   end
