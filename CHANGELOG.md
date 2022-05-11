@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.8.0 - 2022-05-11
+
+This release requires Elixir 1.11.2 or later. It has no new features. This is
+the first batch of updates to improve our ability to maintain Nerves tooling
+long term now that we can remove old features and workaround.
+
+* Bug fix
+  * Fix missing space in `CFLAGS` and `CXXFLAGS`. It would sometimes cause
+    compiler warnings.
+
 ## v1.7.16
 
 * Bug fix
