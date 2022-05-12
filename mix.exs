@@ -17,7 +17,6 @@ defmodule Nerves.MixProject do
       compilers: [:elixir_make | Mix.compilers()],
       make_targets: ["all"],
       make_clean: ["clean"],
-      aliases: [docs: ["docs", &copy_images/1]],
       docs: docs(),
       dialyzer: [plt_add_apps: [:mix]],
       preferred_cli_env: %{
@@ -53,6 +52,7 @@ defmodule Nerves.MixProject do
 
   defp docs do
     [
+      assets: "resources",
       main: "getting-started",
       logo: "resources/logo.png",
       extras: [
@@ -79,11 +79,6 @@ defmodule Nerves.MixProject do
       source_url: @source_url,
       skip_undefined_reference_warnings_on: ["docs/Updating Projects.md", "CHANGELOG.md"]
     ]
-  end
-
-  # Copy the images referenced by docs, since ex_doc doesn't do this.
-  defp copy_images(_) do
-    File.cp_r("resources", "doc/resources")
   end
 
   defp description do
