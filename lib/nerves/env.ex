@@ -14,11 +14,8 @@ defmodule Nerves.Env do
   Starts the Nerves environment agent and loads package information.
   If the Nerves.Env is already started, the function returns
   `{:error, {:already_started, pid}}` with the pid of that process
-
-  Used by NervesBootstrap
   """
   @spec start() :: Agent.on_start()
-  @doc used_by: NervesBootstrap
   def start() do
     set_source_date_epoch()
     Agent.start_link(fn -> load_packages() end, name: __MODULE__)
@@ -111,10 +108,7 @@ defmodule Nerves.Env do
 
   @doc """
   Cleans the artifacts for the package build_runners of all specified packages.
-
-  Used by NervesBootstrap
   """
-  @doc used_by: NervesBootstrap
   @spec clean([Nerves.Package.t()]) :: :ok
   def clean(pkgs) do
     Enum.each(pkgs, &Artifact.clean/1)
@@ -241,10 +235,7 @@ defmodule Nerves.Env do
 
   @doc """
   Lists all Nerves packages loaded in the Nerves environment.
-
-  Used by NervesBootstrap
   """
-  @doc used_by: NervesBootstrap
   @spec packages() :: [Nerves.Package.t()]
   def packages() do
     Agent.get(__MODULE__, & &1) || Mix.raise("Nerves packages are not loaded")
@@ -252,10 +243,7 @@ defmodule Nerves.Env do
 
   @doc """
   Gets a package by app name.
-
-  Used by NervesBootstrap
   """
-  @doc used_by: NervesBootstrap
   @spec package(name :: atom) :: Nerves.Package.t() | nil
   def package(name) do
     packages()
@@ -298,10 +286,7 @@ defmodule Nerves.Env do
 
   @doc """
   Helper function for returning the system type package
-
-  Used by NervesBootstrap
   """
-  @doc used_by: NervesBootstrap
   @spec system() :: Nerves.Package.t() | nil
   def system() do
     system =
@@ -345,10 +330,7 @@ defmodule Nerves.Env do
 
   For a comprehensive list of environment variables, see the documentation
   for the package defining system_platform.
-
-  Used by NervesBootstrap
   """
-  @doc used_by: NervesBootstrap
   @spec bootstrap() :: :ok
   def bootstrap() do
     nerves_system_path = system_path()

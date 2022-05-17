@@ -72,9 +72,6 @@ defmodule Nerves.MixProject do
         "docs/Experimental Features.md",
         "CHANGELOG.md"
       ],
-      groups_for_functions: [
-        "Used By NervesBootstrap": &(&1[:used_by] == NervesBootstrap)
-      ],
       source_ref: "v#{@version}",
       source_url: @source_url,
       skip_undefined_reference_warnings_on: ["docs/Updating Projects.md", "CHANGELOG.md"]
