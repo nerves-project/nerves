@@ -159,8 +159,10 @@ The following keys are supported:
     Options are: `system`, `system_compiler`, `system_platform`,
     `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
 
-2. `artifact_sites` (optional): Artifact sites specify how to download
-    artifacts. Sites are tried until one works.
+2. `artifact_sites` (optional): Artifacts for Nerves systems and toolchains are
+    too large for most package managers and must be stored externally.
+    Artifact sites specify how to download artifacts and are attempted in order
+    until one is successfully downloaded.
 
     Supported artifact sites:
 
