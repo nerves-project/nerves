@@ -308,15 +308,22 @@ Building a Nerves system can require a lot of system resources and often takes a
 long time to complete. Once you are satisfied with the configuration of your
 Nerves system and you are ready to make a release, you can create an artifact.
 An artifact is a pre-compiled version of your Nerves system that can be
-retrieved when calling `mix deps.get`. Artifacts will attempt to be retrieved
-using one of the helpers specified in the `artifact_sites` list in
-the `nerves_package` config.
+retrieved when calling `mix deps.get`. 
 
-There are currently three different helpers:
+These are typically 100MB± in size which is usually over the size limit of most
+package manager systems, like https://hex.pm. Because of this, you must store
+your pre-compiled artifact externally and provide instructions for how to
+retrieve it in the `artifacts_sites` list of the `nerves_pacakge` config.
+
+There are currently three different artifact site helpers:
 
 * `{:github_releases, "organization/repo"}`
 * `{:github_api, "organization/repo", username: "", token: "", tag: ""}`
 * `{:prefix, "url", opts \\ []}`
+
+> #### Nerves Package Configuration {: .info}
+> See [Nerves Package Configuration](Systems.md#nerves-package-configuration) doc
+> for more info about artifact sites and customizing your Nerves package
 
 `artifact_sites` only declare the path of the location to the artifact. This is
 because the name of the artifact is defined by Nerves and used to download the
@@ -329,7 +336,7 @@ directories after creating the artifact, the artifact will not match and will
 not be used. Therefore, you first need to define the `artifact_sites` before
 creating the artifact.
 
-To construct a artifact, simply build the project and call `mix nerves.artifact`
+To construct an artifact, simply build the project and call `mix nerves.artifact`
 from within the directory of your custom Nerves system. For example, if your
 system name is `custom_rpi3` and the version is `0.1.0` you will see a file
 similar to `custom_rpi3-portable-0.1.0-ABCDEF0.tar.gz` in your current working
