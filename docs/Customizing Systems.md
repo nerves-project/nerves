@@ -188,6 +188,12 @@ compilation well, so it's recommended that you always run `make clean` before
 `make` unless you're experienced with Buildroot and understand when you can skip
 the `make clean` step.
 
+> #### Quick searching menu {: .tip}
+>
+> Use `/` when in a config menu for quick search. Press the key of the number
+> shown in the results to quickly jump to that option
+> ![quick-search](assets/menu-search-tip.gif)
+
 When you quit from the `menuconfig` interface, the changes are stored
 temporarily. To save them back to your system source directory, follow the
 appropriate steps below:
