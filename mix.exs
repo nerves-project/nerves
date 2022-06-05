@@ -18,7 +18,7 @@ defmodule Nerves.MixProject do
       make_targets: ["all"],
       make_clean: ["clean"],
       docs: docs(),
-      dialyzer: [plt_add_apps: [:mix]],
+      dialyzer: dialyzer(),
       preferred_cli_env: %{
         credo: :test,
         docs: :docs,
@@ -47,6 +47,13 @@ defmodule Nerves.MixProject do
       {:plug, "~> 1.10", only: :test},
       {:mime, "~> 1.6", only: :test},
       {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test}
+    ]
+  end
+
+  defp dialyzer do
+    [
+      flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
+      plt_add_apps: [:mix]
     ]
   end
 

@@ -21,7 +21,7 @@ defmodule Nerves.Artifact.Resolver do
       {:ok, data} ->
         file = Nerves.Artifact.download_path(pkg)
         File.mkdir_p!(Nerves.Env.download_dir())
-        File.write(file, data)
+        File.write!(file, data)
 
         case Nerves.Utils.File.validate(file) do
           :ok ->
@@ -30,7 +30,7 @@ defmodule Nerves.Artifact.Resolver do
           {:error, reason} ->
             Nerves.Utils.Shell.warn("     Invalid or corrupt file")
 
-            File.rm(file)
+            _ = File.rm(file)
             reason = if is_binary(reason), do: reason, else: inspect(reason)
 
             raise_reason = """

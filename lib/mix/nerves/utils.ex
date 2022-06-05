@@ -195,7 +195,7 @@ defmodule Mix.Nerves.Utils do
   {:error, "Unexpected OTP version: \\"invalid\\""}
   ```
   """
-  @spec parse_otp_version(String.t()) :: {:error, String.t()} | {:ok, Version.t()}
+  @spec parse_otp_version(String.t()) :: {:error, String.t()} | {:ok, Version.t()} | :error
   def parse_otp_version(vsn) do
     case Regex.run(~r/^([0-9.]+)(-[0-9a-zA-Z]+)?$/, vsn) do
       [_, version] -> normalize_version(version, "")

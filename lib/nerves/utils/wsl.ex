@@ -55,7 +55,7 @@ defmodule Nerves.Utils.WSL do
         Regex.replace(~r/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u, devs, "")
         |> String.replace("\r", "")
 
-      File.rm(wsl_path)
+      _ = File.rm(wsl_path)
       {devs, 0}
     else
       {:error, :enoent} ->
@@ -239,7 +239,7 @@ defmodule Nerves.Utils.WSL do
       # Create a temporary .fw file that fwup.exe is able to access
       temp_file_location = get_temp_file_location(file)
       {win_path, wsl_path} = get_wsl_paths(temp_file_location, has_wslpath)
-      File.copy(file, wsl_path)
+      _ = File.copy(file, wsl_path)
       {win_path, :temporary_location}
     end
   end

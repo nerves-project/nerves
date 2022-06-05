@@ -13,7 +13,7 @@ defmodule Nerves.Release do
         steps: release.steps ++ [&Nerves.Release.finalize/1]
     }
 
-    File.rm_rf!(release.path)
+    _ = File.rm_rf!(release.path)
 
     if Code.ensure_loaded?(Shoehorn.Release) do
       apply(Shoehorn.Release, :init, [release])

@@ -53,7 +53,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
       put_cache(pkg, archive)
     else
       _error ->
-        File.rm(archive)
+        _ = File.rm(archive)
         resolvers = Artifact.expand_sites(pkg)
         get_artifact(pkg, resolvers)
     end
@@ -75,7 +75,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     checksum = Artifact.checksum(pkg)
 
     if checksum == Nerves.Artifact.checksum(pkg) do
-      Cache.put(pkg, archive)
+      _ = Cache.put(pkg, archive)
       Nerves.Utils.Shell.success("  => Success")
     else
       Nerves.Utils.Shell.error("  => Error: Checksums do not match")

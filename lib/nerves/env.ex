@@ -24,7 +24,7 @@ defmodule Nerves.Env do
   @doc """
   Stop the Nerves environment agent.
   """
-  @spec stop() :: :ok
+  @spec stop() :: :ok | :not_running
   def stop() do
     if Process.whereis(__MODULE__) do
       Agent.stop(__MODULE__)
@@ -488,10 +488,10 @@ defmodule Nerves.Env do
 
   @doc false
   defp validate_packages(packages) do
-    for type <- [:system, :toolchain] do
+    Enum.each([:system, :toolchain], fn type ->
       packages_by_type(type, packages)
       |> validate_one(type)
-    end
+    end)
 
     packages
   end

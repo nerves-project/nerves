@@ -75,7 +75,7 @@ defmodule Nerves.Package.Utils.Squashfs do
 
   @impl GenServer
   def handle_call(:stop, _from, s) do
-    File.rm_rf!(s.stage)
+    _ = File.rm_rf!(s.stage)
     {:reply, :ok, s}
   end
 
@@ -139,17 +139,18 @@ defmodule Nerves.Package.Utils.Squashfs do
 
     IO.puts(path)
 
-    Nerves.Port.cmd("mksquashfs", [
-      tmp_dir,
-      path,
-      "-pf",
-      pseudofile_path,
-      "-noappend",
-      "-no-recovery",
-      "-no-progress"
-    ])
+    _ =
+      Nerves.Port.cmd("mksquashfs", [
+        tmp_dir,
+        path,
+        "-pf",
+        pseudofile_path,
+        "-noappend",
+        "-no-recovery",
+        "-no-progress"
+      ])
 
-    File.rm_rf!(tmp_dir)
+    _ = File.rm_rf!(tmp_dir)
 
     # File.rm!(pseudofile_path)
 

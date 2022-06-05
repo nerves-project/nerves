@@ -30,7 +30,7 @@ defmodule Mix.Tasks.Nerves.Env do
       Mix.Tasks.Deps.Compile.run(["nerves", "--include-children"])
     end
 
-    Nerves.Env.start()
+    _ = Nerves.Env.start()
     debug_info("Env End")
     if opts[:info], do: print_env()
   end

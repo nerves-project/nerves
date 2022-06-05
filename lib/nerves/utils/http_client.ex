@@ -7,7 +7,7 @@ defmodule Nerves.Utils.HTTPClient do
   @spec start_link() :: GenServer.on_start()
   def start_link() do
     {:ok, _} = Application.ensure_all_started(:nerves)
-    start_httpc()
+    _ = start_httpc()
     GenServer.start_link(__MODULE__, [])
   end
 

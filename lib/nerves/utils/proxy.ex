@@ -16,10 +16,11 @@ defmodule Nerves.Utils.Proxy do
   defp set(scheme, proxy) do
     uri = URI.parse(proxy)
 
-    if uri.host && uri.port do
-      host = String.to_charlist(uri.host)
-      :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
-    end
+    _ =
+      if uri.host && uri.port do
+        host = String.to_charlist(uri.host)
+        :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
+      end
 
     uri
   end

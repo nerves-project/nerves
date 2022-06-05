@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Firmware do
 
     system_path = check_nerves_system_is_set!()
 
-    check_nerves_toolchain_is_set!()
+    _ = check_nerves_toolchain_is_set!()
 
     # By this point, paths have already been loaded.
     # We just want to ensure any custom systems are compiled
