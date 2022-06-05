@@ -27,13 +27,17 @@ defmodule Mix.Nerves.Utils do
   @spec check_nerves_system_is_set!() :: String.t()
   def check_nerves_system_is_set!() do
     var_name = "NERVES_SYSTEM"
-    System.get_env(var_name) || raise_env_var_missing(var_name)
+    var = System.get_env(var_name)
+    if is_nil(var), do: raise_env_var_missing(var_name)
+    var
   end
 
   @spec check_nerves_toolchain_is_set!() :: String.t()
   def check_nerves_toolchain_is_set!() do
     var_name = "NERVES_TOOLCHAIN"
-    System.get_env(var_name) || raise_env_var_missing(var_name)
+    var = System.get_env(var_name)
+    if is_nil(var), do: raise_env_var_missing(var_name)
+    var
   end
 
   defp get_devs() do

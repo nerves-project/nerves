@@ -119,7 +119,10 @@ defmodule Nerves.Artifact do
   """
   @spec base_dir() :: String.t()
   def base_dir() do
-    System.get_env("NERVES_ARTIFACTS_DIR") || Path.join(Nerves.Env.data_dir(), "artifacts")
+    case System.get_env("NERVES_ARTIFACTS_DIR") do
+      nil -> Path.join(Nerves.Env.data_dir(), "artifacts")
+      dir -> dir
+    end
   end
 
   @doc """
