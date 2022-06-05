@@ -20,14 +20,14 @@ defmodule Mix.Tasks.Compile.NervesPackage do
       bootstrap_started?()
       |> bootstrap_check()
 
-      Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
+      _ = Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
 
       package = Nerves.Env.package(config[:app])
       toolchain = Nerves.Env.toolchain()
 
       ret =
         if Nerves.Artifact.stale?(package) do
-          Nerves.Artifact.build(package, toolchain)
+          _ = Nerves.Artifact.build(package, toolchain)
           :ok
         else
           :noop

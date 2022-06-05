@@ -11,7 +11,7 @@ defmodule Nerves.Artifact do
   Builds the package and produces an  See Nerves.Artifact
   for more information.
   """
-  @spec build(Nerves.Package.t(), Nerves.Package.t()) :: :ok
+  @spec build(Nerves.Package.t(), Nerves.Package.t()) :: :ok | {:error, File.posix()}
   def build(pkg, toolchain) do
     case pkg.build_runner do
       {build_runner, opts} ->
@@ -48,7 +48,7 @@ defmodule Nerves.Artifact do
     opts = default_archive_opts(pkg, opts)
 
     {build_runner, _opts} = pkg.build_runner
-    Code.ensure_compiled(pkg.platform)
+    _ = Code.ensure_compiled(pkg.platform)
     {:ok, archive_path} = build_runner.archive(pkg, toolchain, opts)
     archive_path = Path.expand(archive_path)
 

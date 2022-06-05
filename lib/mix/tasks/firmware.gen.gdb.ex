@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Firmware.Gen.Gdb do
   def run(_args) do
     Preflight.check!()
     system_path = check_nerves_system_is_set!()
-    check_nerves_toolchain_is_set!()
+    _ = check_nerves_toolchain_is_set!()
 
     gdb_script_contents =
       Application.app_dir(:nerves, "priv/templates/script.run-gdb.sh.eex")

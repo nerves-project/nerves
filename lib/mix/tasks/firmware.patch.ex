@@ -28,7 +28,7 @@ defmodule Mix.Tasks.Firmware.Patch do
   @impl Mix.Task
   def run(args) do
     work_dir = Path.join(Nerves.Env.images_path(), "patch")
-    File.rm_rf!(work_dir)
+    _ = File.rm_rf!(work_dir)
     File.mkdir_p!(work_dir)
 
     config = Mix.Project.config()
@@ -89,7 +89,7 @@ defmodule Mix.Tasks.Firmware.Patch do
     source_uuid = String.trim(source_uuid, "\"")
     target_uuid = String.trim(target_uuid, "\"")
 
-    File.rm_rf!(work_dir)
+    _ = File.rm_rf!(work_dir)
 
     Shell.success("""
 

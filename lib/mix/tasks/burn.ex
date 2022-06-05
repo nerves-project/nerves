@@ -71,7 +71,7 @@ defmodule Mix.Tasks.Burn do
       end
 
     set_provisioning(firmware_config[:provisioning])
-    burn(fw, dev, opts, argv)
+    _ = burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
     WSL.cleanup_file(fw, firmware_location)

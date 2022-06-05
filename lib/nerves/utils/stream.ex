@@ -33,9 +33,7 @@ defmodule Nerves.Utils.Stream do
     file = opts[:file]
     history_lines = opts[:history_lines] || 100
 
-    if file != nil do
-      File.write(file, "", [:write])
-    end
+    _ = if file != nil, do: File.write(file, "", [:write])
 
     {:ok,
      %{
@@ -59,9 +57,7 @@ defmodule Nerves.Utils.Stream do
 
   @impl GenServer
   def handle_info({:io_request, from, reply_as, {:put_chars, _encoding, chars}}, s) do
-    if s.file != nil do
-      File.write(s.file, chars, [:append])
-    end
+    _ = if s.file != nil, do: File.write(s.file, chars, [:append])
 
     s = save_history(s, chars)
     reply(from, reply_as, :ok)
@@ -100,7 +96,7 @@ defmodule Nerves.Utils.Stream do
   end
 
   defp reset_timer(s) do
-    Process.cancel_timer(s.timer)
+    _ = Process.cancel_timer(s.timer)
     %{s | timer: Process.send_after(self(), :keep_alive, @timer)}
   end
 

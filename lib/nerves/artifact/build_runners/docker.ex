@@ -88,7 +88,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   """
   @impl Nerves.Artifact.BuildRunner
   def build(pkg, _toolchain, opts) do
-    preflight(pkg)
+    _ = preflight(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: build_log_path())
     stream = IO.stream(pid, :line)
@@ -128,7 +128,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   """
   @spec system_shell(Nerves.Package.t()) :: :ok
   def system_shell(pkg) do
-    preflight(pkg)
+    _ = preflight(pkg)
     {_, image} = config(pkg)
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
@@ -153,7 +153,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   defp preflight(pkg) do
     # Docker.Volume.id/1 side effects and creates an id if one doesn't exist
-    Docker.Volume.id(pkg)
+    _ = Docker.Volume.id(pkg)
     name = Docker.Volume.name(pkg)
     _ = host_check()
     _ = config_check(pkg, name)
