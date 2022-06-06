@@ -64,7 +64,7 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_system_deps
       - run: mix deps.get
-      - run: mix test || mix test
+      - run: mix test --exclude release || mix test --exclude release
 
   build_elixir_1_11_otp_23:
     docker:
@@ -75,7 +75,7 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_system_deps
       - run: mix deps.get
-      - run: mix test || mix test
+      - run: mix test --exclude release || mix test --exclude release
 
 workflows:
   version: 2

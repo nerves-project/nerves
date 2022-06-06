@@ -11,10 +11,21 @@ defmodule Nerves.ReleaseTest do
 
       generated =
         Path.join(Mix.Project.build_path(), "nerves/rootfs.priorities")
-        |> File.read!()
+        |> only_basenames()
 
-      expected = File.read!("expected.rootfs.priorities")
+      expected = only_basenames("expected.rootfs.priorities")
+
+      # This is only half a test since it just considers file names
+      # and not full paths, but better than nothing
       assert generated == expected
     end)
+  end
+
+  defp only_basenames(path) do
+    str = File.read!(path)
+
+    for line <- String.split(str, "\n", trim: true),
+        [p, n] = String.split(line, " "),
+        do: [Path.basename(p), n]
   end
 end
