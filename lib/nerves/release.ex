@@ -5,6 +5,8 @@ defmodule Nerves.Release do
   # doesn't like the leading slash.
   @target_release_path "srv/erlang"
 
+  @doc false
+  @spec init(Mix.Release.t()) :: Mix.Release.t()
   def init(%{options: options} = release) do
     opts = Keyword.merge(options, release_opts())
 
@@ -23,28 +25,32 @@ defmodule Nerves.Release do
     end
   end
 
+  @doc false
+  @spec finalize(Mix.Release.t()) :: Mix.Release.t()
   def finalize(release) do
     bootfile_path = Path.join([release.version_path, bootfile()])
 
-    _ =
-      case File.read(bootfile_path) do
-        {:ok, bootfile} ->
-          Nerves.Release.write_rootfs_priorities(release.applications, release.path, bootfile)
+    case File.read(bootfile_path) do
+      {:ok, bootfile} ->
+        _ = Nerves.Release.write_rootfs_priorities(release.applications, release.path, bootfile)
+        :ok
 
-        _ ->
-          Nerves.Utils.Shell.warn("""
-            Unable to load bootfile: #{inspect(bootfile_path)}
-            Skipping rootfs priority file generation
-          """)
-      end
+      _ ->
+        Nerves.Utils.Shell.warn("""
+          Unable to load bootfile: #{inspect(bootfile_path)}
+          Skipping rootfs priority file generation
+        """)
+    end
 
     release
   end
 
-  def bootfile() do
+  defp bootfile() do
     Application.get_env(:nerves, :firmware)[:bootfile] || "shoehorn.boot"
   end
 
+  @doc false
+  @spec erts() :: String.t() | true | nil
   def erts() do
     if Nerves.Env.loaded?() do
       System.get_env("ERTS_DIR")
@@ -53,16 +59,14 @@ defmodule Nerves.Release do
     end
   end
 
-  def write_rootfs_priorities(applications, host_release_path, bootfile) do
-    target_release_path = @target_release_path
-
+  defp write_rootfs_priorities(applications, host_release_path, bootfile) do
     applications = normalize_applications(applications)
 
     {:script, _, boot_script} = :erlang.binary_to_term(bootfile)
 
-    target_beam_files = target_beam_files(boot_script, host_release_path, target_release_path)
-    target_app_files = target_app_files(applications, target_release_path)
-    target_priv_dirs = target_priv_dirs(applications, target_release_path)
+    target_beam_files = target_beam_files(boot_script, host_release_path)
+    target_app_files = target_app_files(applications)
+    target_priv_dirs = target_priv_dirs(applications)
 
     priorities =
       (target_beam_files ++ target_app_files ++ target_priv_dirs)
@@ -77,33 +81,25 @@ defmodule Nerves.Release do
     |> File.write(priorities)
   end
 
-  defp target_beam_files(boot_script, host_release_path, target_release_path) do
+  defp target_beam_files(boot_script, host_release_path) do
     {_, loaded} =
       Enum.reduce(boot_script, {nil, []}, fn
         {:path, paths}, {_, loaded} ->
           {rel_paths(paths), loaded}
 
         {:primLoad, files}, {paths, loaded} ->
-          load =
-            Enum.reduce(paths, [], fn path, loaded ->
-              load =
-                Enum.reduce(files, [], fn file, loaded ->
-                  filename = to_string(file) <> ".beam"
+          prim_loaded =
+            for path <- paths,
+                file <- files,
+                path = Path.join(["lib", path, "#{file}.beam"]),
+                host_path = Path.expand(Path.join(host_release_path, path)),
+                File.exists?(host_path),
+                reduce: [] do
+              acc ->
+                [expand_target_path(path) | acc]
+            end
 
-                  path = Path.join(["lib", path, filename])
-                  host_path = Path.join(host_release_path, path) |> Path.expand()
-
-                  if File.exists?(host_path) do
-                    [expand_target_path(target_release_path, path) | loaded]
-                  else
-                    loaded
-                  end
-                end)
-
-              loaded ++ load
-            end)
-
-          {paths, [load | loaded]}
+          {paths, [prim_loaded | loaded]}
 
         _, acc ->
           acc
@@ -114,45 +110,32 @@ defmodule Nerves.Release do
     |> List.flatten()
   end
 
-  defp target_app_files(applications, target_release_path) do
-    Enum.reduce(applications, [], fn
-      {app, vsn, path}, app_files ->
-        host_path = Path.join([path, "ebin", app <> ".app"])
-
-        if File.exists?(host_path) do
-          app_file_path =
-            Path.join([
-              target_release_path,
-              "lib",
-              app <> "-" <> vsn,
-              "ebin",
-              app <> ".app"
-            ])
-
-          [app_file_path | app_files]
-        else
-          app_files
-        end
-    end)
+  defp target_app_files(applications) do
+    for {app, vsn, path} <- applications,
+        host_path = Path.join([path, "ebin", "#{app}.app"]),
+        File.exists?(host_path),
+        reduce: [] do
+      acc ->
+        app_path = Path.join([@target_release_path, "lib", "#{app}-#{vsn}", "ebin", "#{app}.app"])
+        [app_path | acc]
+    end
   end
 
-  defp target_priv_dirs(applications, target_release_path) do
-    Enum.reduce(applications, [], fn
-      {app, vsn, path}, priv_dirs ->
-        host_priv_dir = Path.join(path, "priv")
-
-        if File.dir?(host_priv_dir) and not_empty_dir(host_priv_dir) do
-          priv_dir = Path.join([target_release_path, "lib", app <> "-" <> to_string(vsn), "priv"])
-
-          [priv_dir | priv_dirs]
-        else
-          priv_dirs
-        end
-    end)
+  defp target_priv_dirs(applications) do
+    for {app, vsn, path} <- applications,
+        host_priv_dir = Path.join(path, "priv"),
+        File.dir?(host_priv_dir),
+        not_empty_dir(host_priv_dir),
+        reduce: [] do
+      acc ->
+        priv_path = Path.join([@target_release_path, "lib", "#{app}-#{vsn}", "priv"])
+        [priv_path | acc]
+    end
   end
 
   defp rel_paths(paths) do
     paths
+    |> Enum.reverse()
     |> Enum.map(&to_string/1)
     |> Enum.map(&Path.split/1)
     |> Enum.map(fn [_root | path] ->
@@ -173,16 +156,15 @@ defmodule Nerves.Release do
     File.ls(dir) != {:ok, []}
   end
 
-  defp expand_target_path(target_release_path, path) do
-    Path.join(["/", target_release_path, path])
-    |> Path.expand(target_release_path)
+  defp expand_target_path(path) do
+    Path.join(["/", @target_release_path, path])
+    |> Path.expand(@target_release_path)
     |> String.trim_leading("/")
   end
 
   defp normalize_applications(applications) do
-    Enum.map(applications, fn
-      {app, opts} ->
-        {to_string(app), to_string(opts[:vsn]), Path.expand(to_string(opts[:path]))}
-    end)
+    for {app, opts} <- applications do
+      {to_string(app), to_string(opts[:vsn]), Path.expand(opts[:path] || "")}
+    end
   end
 end
