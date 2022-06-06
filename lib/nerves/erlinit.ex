@@ -95,6 +95,9 @@ defmodule Nerves.Erlinit do
     end
   end
 
+  # TODO: Remove this once this fix has been released in Elixir
+  # https://github.com/elixir-lang/elixir/pull/11804
+  @dialyzer {:nowarn_function, decode_config: 1}
   @doc """
   Decode the data from the config into a keyword list
   """
