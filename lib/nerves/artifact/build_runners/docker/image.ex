@@ -2,6 +2,8 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
   @moduledoc false
   import Nerves.Artifact.BuildRunners.Docker.Utils
 
+  @doc false
+  @spec create(Path.t(), String.t()) :: :ok
   def create(dockerfile, tag) do
     cmd = "docker"
     path = Path.dirname(dockerfile)
@@ -18,6 +20,8 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
     end
   end
 
+  @doc false
+  @spec pull(String.t()) :: boolean()
   def pull(tag) do
     shell_info("Trying to pull image")
     cmd = "docker"
@@ -35,6 +39,8 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
     end
   end
 
+  @doc false
+  @spec exists?(String.t()) :: boolean()
   def exists?(tag) do
     cmd = "docker"
     args = ["image", "ls", "#{tag}", "-q"]

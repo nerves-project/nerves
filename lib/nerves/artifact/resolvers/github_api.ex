@@ -56,6 +56,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
     result
   end
 
+  @spec validate_opts(Keyword.t()) :: {:ok | :error, Keyword.t()}
   def validate_opts(opts) do
     keys = Keyword.keys(opts)
 

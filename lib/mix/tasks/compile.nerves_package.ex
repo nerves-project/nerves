@@ -42,9 +42,9 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   end
 
   @doc false
-  def bootstrap_check(true), do: :ok
+  defp bootstrap_check(true), do: :ok
 
-  def bootstrap_check(false) do
+  defp bootstrap_check(false) do
     error =
       """
       Compiling Nerves packages requires nerves_bootstrap to be started, which ought to

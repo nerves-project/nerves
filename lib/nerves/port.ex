@@ -52,7 +52,7 @@ defmodule Nerves.Port do
     end
   end
 
-  def port_options(options) do
+  defp port_options(options) do
     [
       :use_stdio,
       :exit_status,

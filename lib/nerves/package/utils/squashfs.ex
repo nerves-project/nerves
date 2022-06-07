@@ -32,25 +32,29 @@ defmodule Nerves.Package.Utils.Squashfs do
     GenServer.stop(pid)
   end
 
+  @spec pseudofile(GenServer.server()) :: String.t()
   def pseudofile(pid) do
     GenServer.call(pid, {:pseudofile})
   end
 
+  @spec pseudofile_fragment(GenServer.server(), String.t()) :: String.t()
   def pseudofile_fragment(pid, fragment) do
     GenServer.call(pid, {:pseudofile_fragment, fragment})
   end
 
+  @spec fragment(GenServer.server(), String.t(), Path.t(), Keyword.t()) :: Path.t()
   def fragment(pid, fragment, path, opts \\ []) do
     GenServer.call(pid, {:fragment, fragment, path, opts})
   end
 
+  @spec files(GenServer.server()) :: [Path.t()]
   def files(pid) do
     GenServer.call(pid, {:files})
   end
 
-  def merge(pid, file_systems, pseudofiles, path) do
-    GenServer.call(pid, {:mergefs, file_systems, pseudofiles, path})
-  end
+  # def merge(pid, file_systems, pseudofiles, path) do
+  #   GenServer.call(pid, {:mergefs, file_systems, pseudofiles, path})
+  # end
 
   defp unsquashfs(rootfs) do
     case Nerves.Port.cmd("unsquashfs", ["-n", "-ll", rootfs]) do
@@ -268,7 +272,7 @@ defmodule Nerves.Package.Utils.Squashfs do
     end)
   end
 
-  def path_to_paths(path) do
+  defp path_to_paths(path) do
     path
     |> Path.split()
     |> Enum.reduce(["/"], fn p, acc ->

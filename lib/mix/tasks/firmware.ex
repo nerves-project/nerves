@@ -54,6 +54,7 @@ defmodule Mix.Tasks.Firmware do
   end
 
   @doc false
+  @spec result({Collectable.t(), exit_status :: non_neg_integer()}) :: :ok
   def result({_, 0}) do
     Mix.shell().info("""
     Firmware built successfully! 🎉
@@ -193,8 +194,8 @@ defmodule Mix.Tasks.Firmware do
 
       If you're using asdf to manage Elixir versions, run:
 
-      asdf install elixir #{System.version()}-otp-#{system_otp_release()}
-      asdf global elixir #{System.version()}-otp-#{system_otp_release()}
+      asdf install elixir #{System.version()}-otp-#{System.otp_release()}
+      asdf global elixir #{System.version()}-otp-#{System.otp_release()}
       """)
     end
   end
@@ -213,11 +214,6 @@ defmodule Mix.Tasks.Firmware do
     vsn
     |> to_string()
     |> parse_otp_version()
-  end
-
-  def system_otp_release() do
-    :erlang.system_info(:otp_release)
-    |> to_string()
   end
 
   defp write_erlinit_config(build_overlay) do
@@ -246,6 +242,8 @@ defmodule Mix.Tasks.Firmware do
     end
   end
 
+  @doc false
+  @spec erlinit_config_header(Keyword.t()) :: String.t()
   def erlinit_config_header(opts) do
     """
     # Generated from rootfs_overlay/etc/erlinit.config

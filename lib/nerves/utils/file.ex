@@ -29,6 +29,8 @@ defmodule Nerves.Utils.File do
     |> result()
   end
 
+  @doc false
+  @spec ext_cmd(String.t()) :: String.t()
   def ext_cmd(".xz"), do: "xz"
   def ext_cmd(".gz"), do: "gzip"
   def ext_cmd(".tar"), do: "tar"

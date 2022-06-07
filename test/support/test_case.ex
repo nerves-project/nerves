@@ -58,6 +58,7 @@ defmodule NervesTest.Case do
     end
   end
 
+  @spec in_fixture(Path.t(), Path.t(), function()) :: :ok | nil
   def in_fixture(which, tmp, function) do
     src = fixture_path(which)
 
@@ -95,6 +96,7 @@ defmodule NervesTest.Case do
     end
   end
 
+  @spec purge([module()]) :: :ok
   def purge(modules) do
     Enum.each(modules, fn m ->
       :code.purge(m)
@@ -102,6 +104,7 @@ defmodule NervesTest.Case do
     end)
   end
 
+  @spec in_tmp(Path.t(), function()) :: :ok
   def in_tmp(which, function) do
     path = tmp_path(which)
     _ = File.rm_rf!(path)
@@ -114,22 +117,27 @@ defmodule NervesTest.Case do
     Path.join([File.cwd!(), "test", cmd])
   end
 
+  @spec fixture_path() :: Path.t()
   def fixture_path() do
     Path.expand("../fixtures", __DIR__)
   end
 
+  @spec fixture_path(Path.extname()) :: Path.t()
   def fixture_path(extension) do
     Path.join(fixture_path(), extension)
   end
 
+  @spec tmp_path() :: Path.t()
   def tmp_path() do
     Path.expand("../../test_tmp", __DIR__)
   end
 
+  @spec tmp_path(Path.extname()) :: Path.t()
   def tmp_path(extension) do
     Path.join(tmp_path(), to_string(extension))
   end
 
+  @spec fixture_to_tmp(Path.t(), Path.t()) :: :ok
   def fixture_to_tmp(fixture, dest) do
     src = fixture_path(fixture)
 
@@ -138,6 +146,7 @@ defmodule NervesTest.Case do
     File.cp_r!(src, dest)
   end
 
+  @spec load_env([String.t()]) :: [Nerves.Package.t()]
   def load_env(packages \\ []) do
     {:ok, _} = Application.ensure_all_started(:nerves_bootstrap)
 
@@ -156,6 +165,7 @@ defmodule NervesTest.Case do
     Nerves.Env.packages()
   end
 
+  @spec unload_env() :: :ok
   def unload_env() do
     case Process.whereis(Nerves.Env) do
       nil ->

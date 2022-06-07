@@ -4,6 +4,21 @@ defmodule Nerves.Utils.HTTPClient do
 
   @progress_steps 50
 
+  # See https://www.erlang.org/doc/man/httpc.html#request-5
+  @type http_opts ::
+          {:timeout, timeout()}
+          | {:connect_timeout, timeout()}
+          | {:ssl, [:ssl.tls_option()]}
+          | {:essl, [:ssl.tls_option()]}
+          | {:autoredirect, boolean()}
+          | {:proxy_auth, {charlist(), charlist()}}
+          | {:relaxed, boolean()}
+  @type opts :: [
+          progress?: boolean(),
+          headers: [{String.t() | charlist(), String.t() | charlist()}],
+          http_opts: http_opts()
+        ]
+
   @spec start_link() :: GenServer.on_start()
   def start_link() do
     {:ok, _} = Application.ensure_all_started(:nerves)
@@ -16,6 +31,8 @@ defmodule Nerves.Utils.HTTPClient do
     GenServer.stop(pid)
   end
 
+  @spec get(GenServer.server(), URI.t() | String.t(), opts()) ::
+          {:ok, String.t()} | {:error, String.t() | :too_many_redirects | atom()}
   def get(_, _, _ \\ [])
 
   def get(_pid, %URI{host: nil, path: path}, _opts) do
@@ -170,7 +187,7 @@ defmodule Nerves.Utils.HTTPClient do
     {:noreply, s}
   end
 
-  def put_progress(size, max) do
+  defp put_progress(size, max) do
     fraction = size / max
     completed = trunc(fraction * @progress_steps)
     percent = trunc(fraction * 100)

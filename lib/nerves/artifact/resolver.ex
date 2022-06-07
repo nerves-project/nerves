@@ -12,11 +12,11 @@ defmodule Nerves.Artifact.Resolver do
     do_get(resolvers, pkg)
   end
 
-  def do_get(_, _, _raise \\ nil)
-  def do_get([], _pkg, nil), do: {:error, :no_result}
-  def do_get([], _pkg, reason), do: Mix.raise(reason)
+  defp do_get(_, _, _raise \\ nil)
+  defp do_get([], _pkg, nil), do: {:error, :no_result}
+  defp do_get([], _pkg, reason), do: Mix.raise(reason)
 
-  def do_get([{resolver, opts} | resolvers], pkg, raise_reason) do
+  defp do_get([{resolver, opts} | resolvers], pkg, raise_reason) do
     case resolver.get(opts) do
       {:ok, data} ->
         file = Nerves.Artifact.download_path(pkg)
@@ -31,11 +31,10 @@ defmodule Nerves.Artifact.Resolver do
             Nerves.Utils.Shell.warn("     Invalid or corrupt file")
 
             _ = File.rm(file)
-            reason = if is_binary(reason), do: reason, else: inspect(reason)
 
             raise_reason = """
             Nerves encountered errors while validating artifact download.
-            #{reason}
+            #{format_raise_reason(reason)}
             """
 
             do_get(resolvers, pkg, raise_reason)
@@ -45,5 +44,9 @@ defmodule Nerves.Artifact.Resolver do
         Nerves.Utils.Shell.warn("     #{reason}")
         do_get(resolvers, pkg, raise_reason)
     end
+  end
+
+  defp format_raise_reason(reason) do
+    if is_binary(reason), do: reason, else: inspect(reason)
   end
 end

@@ -90,26 +90,7 @@ defmodule Mix.Tasks.Burn do
           if WSL.running_on_wsl?() do
             WSL.admin_powershell_command("fwup", Enum.join(args, " "))
           else
-            fwup = System.find_executable("fwup")
-
-            case File.stat(dev) do
-              {:ok, %File.Stat{access: :read_write}} ->
-                {"fwup", args}
-
-              {:error, :enoent} ->
-                case File.touch(dev, System.os_time(:second)) do
-                  :ok ->
-                    {"fwup", args}
-
-                  {:error, :eacces} ->
-                    elevate_user()
-                    {"sudo", provision_env() ++ [fwup] ++ args}
-                end
-
-              _ ->
-                elevate_user()
-                {"sudo", provision_env() ++ [fwup] ++ args}
-            end
+            maybe_elevated_user_fwup(dev, args)
           end
 
         {_, :nt} ->
@@ -120,6 +101,29 @@ defmodule Mix.Tasks.Burn do
       end
 
     shell(cmd, args)
+  end
+
+  defp maybe_elevated_user_fwup(dev, args) do
+    fwup = System.find_executable("fwup")
+
+    case File.stat(dev) do
+      {:ok, %File.Stat{access: :read_write}} ->
+        {"fwup", args}
+
+      {:error, :enoent} ->
+        case File.touch(dev, System.os_time(:second)) do
+          :ok ->
+            {"fwup", args}
+
+          {:error, :eacces} ->
+            elevate_user()
+            {"sudo", provision_env() ++ [fwup] ++ args}
+        end
+
+      _ ->
+        elevate_user()
+        {"sudo", provision_env() ++ [fwup] ++ args}
+    end
   end
 
   # Requests an elevation of user through askpass
