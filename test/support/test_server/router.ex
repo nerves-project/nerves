@@ -4,6 +4,7 @@ defmodule Nerves.TestServer.Router do
   plug(:match)
   plug(:dispatch)
 
+  @spec start_link() :: GenServer.on_start()
   def start_link() do
     Plug.Adapters.Cowboy.http(Nerves.TestServer.Router, [])
   end

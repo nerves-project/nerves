@@ -4,6 +4,10 @@ defmodule Mix.Nerves.Preflight do
 
   @fwup_semver "~> 1.8"
 
+  @doc """
+  Run the preflight checks for the Nerves System
+  """
+  @spec check!() :: any()
   def check!() do
     :os.type()
     |> case do
@@ -40,24 +44,28 @@ defmodule Mix.Nerves.Preflight do
     ensure_available!("mksquashfs", package: "squashfs")
   end
 
+  @doc """
+  Ensure fwup executable is available and is the expected version
+  """
   @spec ensure_fwup_version!(String.t(), String.t()) :: :ok
   def ensure_fwup_version!(fwup_bin \\ "fwup", vsn_requirement \\ @fwup_semver) do
     ensure_available!(fwup_bin)
 
-    with {vsn, 0} <- Nerves.Port.cmd(fwup_bin, ["--version"]) do
-      vsn = String.trim(vsn)
-      {:ok, req} = Version.parse_requirement(vsn_requirement)
+    case Nerves.Port.cmd(fwup_bin, ["--version"]) do
+      {vsn, 0} ->
+        vsn = String.trim(vsn)
+        {:ok, req} = Version.parse_requirement(vsn_requirement)
 
-      unless Version.match?(vsn, req) do
-        Mix.raise("""
-        #{fwup_bin} #{vsn_requirement} is required for Nerves.
+        unless Version.match?(vsn, req) do
+          Mix.raise("""
+          #{fwup_bin} #{vsn_requirement} is required for Nerves.
 
-        You are running #{vsn}.
-        Please see https://hexdocs.pm/nerves/installation.html#fwup
-        for installation instructions
-        """)
-      end
-    else
+          You are running #{vsn}.
+          Please see https://hexdocs.pm/nerves/installation.html#fwup
+          for installation instructions
+          """)
+        end
+
       error ->
         Mix.raise("""
         Nerves encountered an error while checking host requirements for fwup
@@ -69,6 +77,10 @@ defmodule Mix.Nerves.Preflight do
     :ok
   end
 
+  @doc """
+  Ensure that the given command is available in the system path
+  """
+  @spec ensure_available!(String.t(), Keyword.t()) :: :ok
   def ensure_available!(executable, opts \\ []) do
     if System.find_executable(executable) do
       :ok

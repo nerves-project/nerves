@@ -111,7 +111,7 @@ defmodule Nerves.Utils.Stream do
     %{s | history: history, history_saved: s.history_saved + 1}
   end
 
-  def reply(from, reply_as, reply) do
+  defp reply(from, reply_as, reply) do
     send(from, {:io_reply, reply_as, reply})
   end
 end

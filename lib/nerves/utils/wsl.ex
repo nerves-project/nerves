@@ -9,6 +9,7 @@ defmodule Nerves.Utils.WSL do
   Returns a two item tuple where the first item is a command and the second is
   the argument list to run a powershell command as administrator in Windows
   """
+  @spec admin_powershell_command(String.t(), String.t()) :: {String.t(), [String.t()]}
   def admin_powershell_command(command, args) do
     {
       "powershell.exe",
@@ -41,6 +42,7 @@ defmodule Nerves.Utils.WSL do
   within WSL, as it runs a powershell command to get the list and writes it to a
   temporary file that WSL can access.
   """
+  @spec get_fwup_devices() :: {Collectable.t(), exit_status :: non_neg_integer()}
   def get_fwup_devices() do
     {win_path, _} = make_file_accessible("fwup_devs.txt", running_on_wsl?(), has_wslpath?())
 
@@ -214,15 +216,12 @@ defmodule Nerves.Utils.WSL do
   """
   @spec execute_wslpath(String.t(), [String.t()]) :: String.t() | nil
   def execute_wslpath(file, arguments) do
-    with {path, 0} <- Nerves.Port.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
-      String.trim(path)
-    else
+    case Nerves.Port.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
+      {path, 0} ->
+        String.trim(path)
+
       {error, _} ->
-        if String.contains?(error, "Invalid argument") do
-          Path.expand(file)
-        else
-          nil
-        end
+        if String.contains?(error, "Invalid argument"), do: Path.expand(file)
     end
   end
 

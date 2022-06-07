@@ -169,6 +169,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
+  @spec parse_arch(String.t() | [String.t()]) :: String.t()
   def parse_arch(arch) when is_binary(arch) do
     arch
     |> String.split("-")
@@ -210,6 +211,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
+  @spec parse_platform(String.t() | [String.t()]) :: String.t()
   def parse_platform(platform) when is_binary(platform) do
     platform
     |> String.split("-")
@@ -254,7 +256,7 @@ defmodule Nerves.Env do
   @doc """
   Lists packages by package type.
   """
-  @spec packages_by_type(type :: atom()) :: [Nerves.Package.t()]
+  @spec packages_by_type(type :: atom(), [Nerves.Package.t()] | nil) :: [Nerves.Package.t()]
   def packages_by_type(type, packages \\ nil) do
     (packages || packages())
     |> Enum.filter(&(&1.type === type))
@@ -414,6 +416,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
+  @spec toolchain_path() :: String.t() | nil
   def toolchain_path() do
     case Nerves.Env.toolchain() do
       nil ->
@@ -425,6 +428,7 @@ defmodule Nerves.Env do
   end
 
   @doc false
+  @spec system_path() :: String.t() | nil
   def system_path() do
     case Nerves.Env.system() do
       nil ->
@@ -435,6 +439,8 @@ defmodule Nerves.Env do
     end
   end
 
+  @doc false
+  @spec source_date_epoch() :: {:ok, String.t() | nil} | {:error, String.t()}
   def source_date_epoch() do
     (System.get_env("SOURCE_DATE_EPOCH") || Application.get_env(:nerves, :source_date_epoch))
     |> validate_source_date_epoch()

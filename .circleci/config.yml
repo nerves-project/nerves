@@ -36,7 +36,7 @@ jobs:
       - run: mix docs
       - run: mix hex.build
       - run: mix test || mix test
-      # - run: mix credo -a
+      - run: mix credo -a
       - run: mix dialyzer
       - save_cache:
           key: v1-mix-cache-{{ checksum "mix.lock" }}

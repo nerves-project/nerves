@@ -2,6 +2,7 @@ defmodule Nerves.Utils.Proxy do
   @moduledoc false
   # Special thanks to Hex.
 
+  @spec config(String.t()) :: [proxy_auth: {charlist(), charlist()}]
   def config(url) do
     {http_proxy, https_proxy} = setup()
     auth(URI.parse(url), http_proxy, https_proxy)

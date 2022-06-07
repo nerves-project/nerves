@@ -312,25 +312,23 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   end
 
   defp host_check() do
-    try do
-      case Nerves.Port.cmd("docker", ["--version"]) do
-        {result, 0} ->
-          <<"Docker version ", vsn::binary>> = result
-          {:ok, requirement} = Version.parse_requirement(@version)
-          {:ok, vsn} = parse_docker_version(vsn)
+    case Nerves.Port.cmd("docker", ["--version"]) do
+      {result, 0} ->
+        <<"Docker version ", vsn::binary>> = result
+        {:ok, requirement} = Version.parse_requirement(@version)
+        {:ok, vsn} = parse_docker_version(vsn)
 
-          unless Version.match?(vsn, requirement) do
-            error_invalid_version(vsn)
-          end
+        unless Version.match?(vsn, requirement) do
+          error_invalid_version(vsn)
+        end
 
-          :ok
+        :ok
 
-        _ ->
-          error_not_installed()
-      end
-    rescue
-      ErlangError -> error_not_installed()
+      _ ->
+        error_not_installed()
     end
+  rescue
+    ErlangError -> error_not_installed()
   end
 
   defp config_check(pkg, name) do
@@ -388,6 +386,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     """)
   end
 
+  @spec parse_docker_version(String.t()) :: {:ok, Version.t()} | :error
   def parse_docker_version(vsn) do
     [vsn | _] = String.split(vsn, ",", parts: 2)
 

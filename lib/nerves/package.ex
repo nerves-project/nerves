@@ -117,6 +117,10 @@ defmodule Nerves.Package do
     Path.join(path, @package_config)
   end
 
+  @doc """
+  Get Mix.Project config for an application
+  """
+  @spec config(Application.app(), Path.t()) :: Keyword.t()
   def config(app, path) do
     project_config =
       if app == Mix.Project.config()[:app] do

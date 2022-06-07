@@ -1,5 +1,12 @@
 defmodule Mix.Nerves.Shell do
   @moduledoc false
+
+  @doc """
+  Open a shell with the Nerves environment set
+
+  Used with build runners when compiling Nerves systems
+  """
+  @spec open(String.t(), [String.t()]) :: no_return()
   def open(command, initial_input \\ []) do
     # We need to get raw binary access to the stdout file descriptor
     # so we can directly pass through control characters output by the command

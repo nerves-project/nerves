@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule Nerves.Release do
   @moduledoc false
   # No leading '/' here since this is passed to mksquashfs and it
@@ -25,16 +26,17 @@ defmodule Nerves.Release do
   def finalize(release) do
     bootfile_path = Path.join([release.version_path, bootfile()])
 
-    case File.read(bootfile_path) do
-      {:ok, bootfile} ->
-        Nerves.Release.write_rootfs_priorities(release.applications, release.path, bootfile)
+    _ =
+      case File.read(bootfile_path) do
+        {:ok, bootfile} ->
+          Nerves.Release.write_rootfs_priorities(release.applications, release.path, bootfile)
 
-      _ ->
-        Nerves.Utils.Shell.warn("""
-          Unable to load bootfile: #{inspect(bootfile_path)}
-          Skipping rootfs priority file generation
-        """)
-    end
+        _ ->
+          Nerves.Utils.Shell.warn("""
+            Unable to load bootfile: #{inspect(bootfile_path)}
+            Skipping rootfs priority file generation
+          """)
+      end
 
     release
   end

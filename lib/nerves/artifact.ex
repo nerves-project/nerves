@@ -13,21 +13,18 @@ defmodule Nerves.Artifact do
   """
   @spec build(Nerves.Package.t(), Nerves.Package.t()) :: :ok | {:error, File.posix()}
   def build(pkg, toolchain) do
-    case pkg.build_runner do
-      {build_runner, opts} ->
-        case build_runner.build(pkg, toolchain, opts) do
-          {:ok, path} ->
-            Cache.put(pkg, path)
-
-          {:error, error} ->
-            Mix.raise("""
-            Nerves encountered an error while constructing the artifact
-            #{if String.valid?(error), do: error, else: inspect(error)}
-            """)
-        end
-
+    with {build_runner, opts} <- pkg.build_runner,
+         {:ok, path} <- build_runner.build(pkg, toolchain, opts) do
+      Cache.put(pkg, path)
+    else
       :noop ->
         :ok
+
+      {:error, error} ->
+        Mix.raise("""
+        Nerves encountered an error while constructing the artifact
+        #{if String.valid?(error), do: error, else: inspect(error)}
+        """)
     end
   end
 
@@ -104,7 +101,7 @@ defmodule Nerves.Artifact do
   @doc """
   Get the artifact download name
   """
-  @spec download_name(Nerves.Package.t()) :: String.t()
+  @spec download_name(Nerves.Package.t(), checksum_short: non_neg_integer()) :: String.t()
   def download_name(pkg, opts \\ []) do
     checksum_short = opts[:checksum_short] || @checksum_short
     "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: checksum_short)}"
@@ -138,6 +135,7 @@ defmodule Nerves.Artifact do
   This path is typically a location within build_path, but can be
   vary on different build platforms.
   """
+  @spec build_path_link(Nerves.Package.t()) :: Path.t()
   def build_path_link(pkg) do
     case pkg.platform do
       platform when is_atom(platform) ->
@@ -156,7 +154,7 @@ defmodule Nerves.Artifact do
   Produce a base16 encoded checksum for the package from the list of files
   and expanded folders listed in the checksum config key.
   """
-  @spec checksum(Nerves.Package.t()) :: String.t()
+  @spec checksum(Nerves.Package.t(), short: non_neg_integer()) :: String.t()
   def checksum(pkg, opts \\ []) do
     blob =
       (pkg.config[:checksum] || [])
@@ -244,6 +242,9 @@ defmodule Nerves.Artifact do
   {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
   ```
   """
+  @spec expand_sites(Nerves.Package.t()) :: [
+          {Resolvers.URI | Resolvers.GithubAPI, {Path.t(), Keyword.t()}}
+        ]
   def expand_sites(pkg) do
     case pkg.config[:artifact_url] do
       nil ->
@@ -276,6 +277,7 @@ defmodule Nerves.Artifact do
   @doc """
   Get the path to where the artifact archive is downloaded to.
   """
+  @spec download_path(Nerves.Package.t()) :: String.t()
   def download_path(pkg) do
     name = download_name(pkg) <> ext(pkg)
 
@@ -289,6 +291,7 @@ defmodule Nerves.Artifact do
   on a host for a target. Other packages are host agnostic for now. They are
   marked as `portable`.
   """
+  @spec host_tuple(Nerves.Package.t()) :: String.t()
   def host_tuple(%{type: :system}) do
     "portable"
   end
