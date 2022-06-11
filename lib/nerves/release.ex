@@ -27,12 +27,12 @@ defmodule Nerves.Release do
 
   @doc false
   @spec finalize(Mix.Release.t()) :: Mix.Release.t()
-  def finalize(release) do
+  def finalize(%Mix.Release{} = release) do
     bootfile_path = Path.join([release.version_path, bootfile()])
 
     case File.read(bootfile_path) do
       {:ok, bootfile} ->
-        _ = Nerves.Release.write_rootfs_priorities(release.applications, release.path, bootfile)
+        _ = write_rootfs_priorities(release.applications, release.path, bootfile)
         :ok
 
       _ ->
