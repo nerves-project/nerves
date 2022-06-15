@@ -39,6 +39,31 @@ appropriate toolchain for that target. The system and toolchain also reference a
 pre-compiled version of the relevant artifact so that Mix can simply download
 them instead of having to compile them (which takes quite a while).
 
+## Compatibility
+
+The Nerves System (`nerves_system_*`) dependency determines the OTP version
+running on the target. It is possible that a recent update to the Nerves
+System pulled in a new version of Erlang/OTP. If you are using an official
+Nerves System, you can verify this by reviewing the chart below or
+`CHANGELOG.md` file that comes with the release.
+
+|            | rpi    | rpi0   | rpi2   | rpi3a  | rpi3   | rpi4   | bbb    | x86_64 | osd32mp1 |
+| ---------- | ------ | ------ | ------ | ------ | ------ | ------ | ------ | ------ | -------- |
+| OTP 25.0   | 1.19.0 | 1.19.0 | 1.19.0 | 1.19.0 | 1.19.0 | 1.19.0 | 2.14.0 | 1.19.0 | 0.10.0   |
+| OTP 24.3.2 | 1.18.4 | 1.18.4 | 1.18.4 | 1.18.4 | 1.18.4 | 1.18.4 | -      | 1.18.4 | 0.9.4    |
+| OTP 24.2   | 1.18.3 | 1.18.3 | 1.18.3 | 1.18.3 | 1.18.3 | 1.18.3 | 2.13.4 | 1.18.3 | 0.9.3    |
+| OTP 24.1.7 | 1.17.3 | 1.17.3 | 1.17.3 | 1.17.3 | 1.17.3 | 1.17.3 | 2.12.3 | 1.17.3 | 0.8.3    |
+
+Run `mix deps` to see the Nerves System version and go to that system's
+repository on https://github.com/nerves-project.
+
+If you need to run a particular version of Erlang/OTP on your target, you can
+either lock the `nerves_system_*` dependency in your `mix.exs` to an older
+version. Note that this route prevents you from receiving security updates
+from the official systems. The other option is to build a custom Nerves
+system. See the Nerves documentation for building a custom system and then
+run `make menuconfig` and look for the Erlang options.
+
 ## Anatomy of a Nerves System
 
 Nerves system dependencies are a collection of configurations to be fed into
