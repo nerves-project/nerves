@@ -37,7 +37,7 @@ Raspberry Pi 4 | [nerves_system_rpi4](https://github.com/nerves-project/nerves_s
 BeagleBone Black, BeagleBone Green, BeagleBone Green Wireless, and PocketBeagle. | [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) | `bbb`
 Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves_system_x86_64) | `x86_64`
 OSD32MP1 | [nerves_system_osd32mp1](https://github.com/nerves-project/nerves_system_osd32mp1) | `osd32mp1`
-Grisp 2 | [nerves_system_grisp2](https://github.com/nerves-project/nerves_system_grisp2) | `grisp2`
+GRiSP 2 | [nerves_system_grisp2](https://github.com/nerves-project/nerves_system_grisp2) | `grisp2`
 
 While the Nerves core team only officially supports the above hardware, the
 community has added support for other boards. See [Nerves Systems on
