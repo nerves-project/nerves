@@ -453,8 +453,8 @@ defmodule Nerves.Env do
 
   defp process_target_gcc_flags(%{"TARGET_GCC_FLAGS" => flags} = env) do
     env
-    |> Map.put("CFLAGS", flags <> System.get_env("CFLAGS", ""))
-    |> Map.put("CXXFLAGS", flags <> System.get_env("CXXFLAGS", ""))
+    |> Map.put("CFLAGS", flags <> " " <> System.get_env("CFLAGS", ""))
+    |> Map.put("CXXFLAGS", flags <> " " <> System.get_env("CXXFLAGS", ""))
   end
 
   defp process_target_gcc_flags(env), do: env
