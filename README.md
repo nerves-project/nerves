@@ -18,7 +18,7 @@ including:
 
 * [Phoenix](https://www.phoenixframework.org/) and LiveView for interactive
   local web user interfaces
-* [Elixir Nx](https://www.phoenixframework.org/) for numerical computing and
+* [Elixir Nx](https://github.com/elixir-nx/nx) for numerical computing and
   machine learning
 * [Livebook](https://livebook.dev/) for interactive code notebooks on your device
 * [Scenic](https://github.com/boydm/scenic) for local on-screen user interfaces
