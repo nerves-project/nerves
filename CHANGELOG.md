@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.7.17
+
+* Bug fix
+  * Fix missing space in `CFLAGS` and `CXXFLAGS`. It would sometimes cause
+    compiler warnings.
+
 ## v1.7.16
 
 * Bug fix
