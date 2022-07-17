@@ -1,66 +1,51 @@
 #!/usr/bin/env elixir
 
 #
-# Print the Nerves System compatibility information based on Nerves Project's
-# Github repos. By default, the Github API only allows us 60 requests per hour.
+# Write the Nerves System compatibility information to local `tmp` directory.
+# The information is gathered from Nerves Project's Github repos.
+# By default, the Github API only allows us 60 requests per hour.
 # With an API token, we could get our rate limit bumped to 5000 requests an hour.
 # See https://docs.github.com/en/rest/guides/getting-started-with-the-rest-api#authentication
 #
 # ## Usage
 #
-#   nerves_system_compatibility.exs
+#   scripts/nerves_system_compatibility.exs
 #
 #   GITHUB_API_TOKEN=xxxxxx nerves_system_compatibility.exs
 #
 
-Mix.install([:req])
+Mix.install([:req, :earmark])
 
 defmodule NervesSystemCompatibility do
-  @doc """
-  OTP versions that will be table rows.
-  """
-  @spec otp_versions :: [binary]
-  def otp_versions do
-    ~w[
-      23.2.4
-      23.2.7
-      23.3.1
-      24.0.2
-      24.0.5
-      24.1
-      24.1.2
-      24.1.4
-      24.1.7
-      24.2
-      24.2.2
-      24.3.2
-      25.0
-    ]
-  end
-
-  @doc """
-  The Nerves System targets that are officially supported.
-  """
-  @spec target_systems :: [atom]
-  def target_systems do
-    ~w[
-      bbb
-      rpi
-      rpi0
-      rpi2
-      rpi3
-      rpi3a
-      rpi4
-      osd32mp1
-      x86_64
-      grisp2
-    ]a
-  end
+  @targets [:bbb, :rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :osd32mp1, :x86_64, :grisp2]
+  def targets, do: @targets
 
   def run do
-    NervesSystemCompatibility.Data.get()
-    |> NervesSystemCompatibility.Table.build()
-    |> IO.puts()
+    compatibility_data = NervesSystemCompatibility.Data.get()
+    data_by_target = NervesSystemCompatibility.Data.group_data_by_target(compatibility_data)
+
+    html =
+      for target <- @targets do
+        table_html =
+          NervesSystemCompatibility.Table.build(
+            target,
+            Access.fetch!(data_by_target, target),
+            NervesSystemCompatibility.Data.list_target_system_versions(compatibility_data, target)
+          )
+          |> to_string()
+          |> Earmark.as_html!()
+
+        "<details><summary>#{target}</summary>#{table_html}</details>"
+        |> String.replace(~r/\s+/, " ")
+        |> String.replace(~r/> </, "><")
+        |> String.replace(~r/ style="text-align: left;"/, "")
+      end
+      |> Enum.join("\n")
+
+    File.mkdir("tmp")
+    file = "tmp/nerves_system_compatibility_#{DateTime.to_unix(DateTime.utc_now())}.html"
+    IO.puts("writing the Nerves System compatibility information to #{file}")
+    File.write!(file, html)
   end
 end
 
@@ -72,7 +57,7 @@ defmodule NervesSystemCompatibility.API do
 
   @spec fetch_nerves_system_versions! :: keyword([binary])
   def fetch_nerves_system_versions! do
-    NervesSystemCompatibility.target_systems()
+    NervesSystemCompatibility.targets()
     |> Task.async_stream(&{&1, fetch_nerves_system_versions!(&1)}, timeout: 10_000)
     |> Enum.reduce([], fn {:ok, kv}, acc -> [kv | acc] end)
   end
@@ -150,21 +135,18 @@ defmodule NervesSystemCompatibility.API do
 end
 
 defmodule NervesSystemCompatibility.Data do
-  alias NervesSystemCompatibility.API
+  @type compatibility_data :: [%{binary => any}]
 
-  @doc """
-  Returns compatibility information for Nerves Systems.
-  """
-  @spec get :: [%{binary => any}]
+  @spec get :: compatibility_data
   def get do
     nerves_br_version_to_metadata_map =
-      API.fetch_nerves_br_versions!()
+      NervesSystemCompatibility.API.fetch_nerves_br_versions!()
       |> Task.async_stream(&{&1, nerves_br_version_to_metadata(&1)}, timeout: 10_000)
       |> Enum.reduce(%{}, fn {:ok, {nerves_br_version, nerves_br_metadata}}, acc ->
         Map.put(acc, nerves_br_version, nerves_br_metadata)
       end)
 
-    API.fetch_nerves_system_versions!()
+    NervesSystemCompatibility.API.fetch_nerves_system_versions!()
     |> Task.async_stream(
       fn {target, versions} ->
         build_target_metadata(target, versions, nerves_br_version_to_metadata_map)
@@ -177,7 +159,7 @@ defmodule NervesSystemCompatibility.Data do
   defp build_target_metadata(target, target_versions, %{} = nerves_br_version_to_metadata_map) do
     for target_version <- target_versions, into: [] do
       nerves_br_version =
-        API.fetch_nerves_br_version_for_target!(target, target_version)
+        NervesSystemCompatibility.API.fetch_nerves_br_version_for_target!(target, target_version)
         |> Access.fetch!("nerves_br_version")
 
       if metadata_map = nerves_br_version_to_metadata_map[nerves_br_version] do
@@ -193,8 +175,8 @@ defmodule NervesSystemCompatibility.Data do
 
   defp nerves_br_version_to_metadata(nerves_br_version) do
     [
-      Task.async(API, :fetch_buildroot_version!, [nerves_br_version]),
-      Task.async(API, :fetch_otp_version!, [nerves_br_version])
+      Task.async(NervesSystemCompatibility.API, :fetch_buildroot_version!, [nerves_br_version]),
+      Task.async(NervesSystemCompatibility.API, :fetch_otp_version!, [nerves_br_version])
     ]
     |> Task.await_many(:timer.seconds(10))
     |> Enum.reduce(%{"nerves_br_version" => nerves_br_version}, fn %{} = data, acc ->
@@ -202,43 +184,43 @@ defmodule NervesSystemCompatibility.Data do
     end)
   end
 
-  @doc """
-  Groups the compatibility data by otp version and target.
-  """
-  @spec group_data_by_otp_and_target([%{binary => any}]) :: %{binary => %{atom => any}}
-  def group_data_by_otp_and_target(compatibility_data) do
+  @spec group_data_by_target(compatibility_data) :: %{binary => %{atom => any}}
+  def group_data_by_target(compatibility_data) do
     compatibility_data
-    |> Enum.group_by(&get_in(&1, ["otp_version"]))
-    |> Map.new(fn {otp, otp_entries} ->
+    |> Enum.group_by(&Map.fetch!(&1, "target"))
+    |> Map.new(fn {target, target_entries} ->
       {
-        otp,
-        otp_entries
-        |> Enum.group_by(&get_in(&1, ["target"]))
-        |> Map.new(fn {target, target_entries} ->
+        target,
+        target_entries
+        |> Enum.reject(&String.match?(&1["target_version"], ~r/-rc/))
+        |> Enum.group_by(&Map.fetch!(&1, "target_version"))
+        |> Map.new(fn {target_version, target_version_entries} ->
           {
-            target,
-            # Pick the latest available nerves system version.
-            # Sometimes there are more than one available versions for the same OTP version.
-            target_entries
-            |> Enum.reject(fn %{"target_version" => target_version} ->
-              String.match?(target_version, ~r/-rc/)
-            end)
-            |> Enum.max_by(
-              fn %{"target_version" => target_version} ->
-                normalize_version(target_version)
-              end,
-              Version
-            )
+            target_version,
+            target_version_entries
+            |> Enum.max_by(&normalize_version(&1["target_version"]), Version)
           }
         end)
       }
     end)
   end
 
-  @doc """
-  Supplements missing minor and patch values so that the version can be compared.
-  """
-  def normalize_version(version) do
+  @spec filter_by(compatibility_data, any, any) :: compatibility_data
+  def filter_by(compatibility_data, key, value) do
+    compatibility_data |> Enum.filter(&Kernel.==(&1[key], value))
+  end
+
+  @spec list_target_system_versions(compatibility_data, atom) :: [binary]
+  def list_target_system_versions(compatibility_data, target) do
+    compatibility_data
+    |> filter_by("target", target)
+    |> Enum.map(&Access.fetch!(&1, "target_version"))
+    |> Enum.reject(&String.match?(&1, ~r/-rc/))
+    |> Enum.uniq()
+    |> Enum.sort({:desc, Version})
+  end
+
+  defp normalize_version(version) do
     case version |> String.split(".") |> Enum.count(&String.to_integer/1) do
       1 -> version <> ".0.0"
       2 -> version <> ".0"
@@ -249,68 +231,43 @@ defmodule NervesSystemCompatibility.Data do
 end
 
 defmodule NervesSystemCompatibility.Table do
-  alias NervesSystemCompatibility.Data
-
-  @doc """
-  Converts the compatibility data to a markdown table.
-  """
-  @spec build([%{binary => any}]) :: binary
-  def build(compatibility_data) do
-    targets = NervesSystemCompatibility.target_systems()
-    otp_versions = NervesSystemCompatibility.otp_versions()
+  @spec build(atom, [%{binary => any}], [binary]) :: binary
+  def build(target, data_by_system_version, system_versions) do
+    column_names = build_column_names(target)
 
     [
-      header_row(targets),
-      divider_row(targets),
-      data_rows(targets, otp_versions, compatibility_data)
+      table_row(column_names),
+      divider_row(length(column_names)),
+      data_rows(data_by_system_version, system_versions)
     ]
     |> Enum.join("\n")
   end
 
-  defp header_row(targets) when is_list(targets) do
-    [
-      "|",
-      [cell("", 12) | Enum.map(targets, &cell/1)] |> Enum.intersperse("|"),
-      "|"
-    ]
-    |> Enum.join()
+  defp build_column_names(target) do
+    ["nerves_system_#{target}", "Erlang/OTP", "nerves_system_br", "Buildroot"]
   end
 
-  defp divider_row(targets) when is_list(targets) do
-    [
-      "|",
-      [cell("---", 12) | List.duplicate(cell("---"), length(targets))] |> Enum.intersperse("|"),
-      "|"
-    ]
-    |> Enum.join()
-  end
+  defp data_rows(data_by_system_version, system_versions) do
+    for system_version <- system_versions do
+      data_entry = Access.fetch!(data_by_system_version, system_version)
 
-  defp data_rows(targets, otp_versions, compatibility_data) do
-    grouped_by_otp_and_target = compatibility_data |> Data.group_data_by_otp_and_target()
-
-    for otp_version <- otp_versions, reduce: [] do
-      acc ->
-        target_versions =
-          for target <- targets do
-            get_in(grouped_by_otp_and_target, [otp_version, target, "target_version"])
-          end
-
-        [data_row(otp_version, target_versions) | acc]
+      [
+        system_version,
+        Access.fetch!(data_entry, "otp_version"),
+        Access.fetch!(data_entry, "nerves_br_version"),
+        Access.fetch!(data_entry, "buildroot_version")
+      ]
+      |> table_row()
     end
     |> Enum.join("\n")
   end
 
-  defp data_row(otp_version, row_values) when is_list(row_values) do
-    [
-      "|",
-      [cell("OTP #{otp_version}", 12) | Enum.map(row_values, &cell/1)] |> Enum.intersperse("|"),
-      "|"
-    ]
-    |> Enum.join()
+  defp table_row(values) when is_list(values) do
+    ["|", Enum.intersperse(values, "|"), "|"] |> Enum.join()
   end
 
-  defp cell(value, count \\ 10) do
-    (" " <> to_string(value)) |> String.pad_trailing(count)
+  defp divider_row(cell_count) when is_integer(cell_count) do
+    ["|", List.duplicate("---", cell_count) |> Enum.intersperse("|"), "|"] |> Enum.join()
   end
 end
 
