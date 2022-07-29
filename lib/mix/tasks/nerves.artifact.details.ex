@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
   @moduledoc """
   Prints Nerves artifact details.
 
-  This displays various artifact names/information.
+  This displays various details.
 
   ## Examples
 
@@ -15,6 +15,8 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
   use Mix.Task
 
   import Mix.Nerves.IO
+
+  alias Nerves.Artifact
 
   require Logger
 
@@ -49,15 +51,31 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
       if is_nil(package) do
         Mix.raise("Could not find Nerves package #{package_name} in env")
       else
-        Mix.shell().info("Name:               #{Nerves.Artifact.name(package)}")
-        Mix.shell().info("Download Name:      #{Nerves.Artifact.download_name(package)}")
+        Mix.shell().info("Version:            #{package.version}")
+        Mix.shell().info("Checksum:           #{Artifact.checksum(package)}")
+        # TODO - Find a way to get this from Artifact
+        short_checksum_length = 7
 
         Mix.shell().info(
-          "Download File Name: #{Nerves.Artifact.download_name(package)}#{Nerves.Artifact.ext(package)}"
+          "Checksum Short      #{Artifact.checksum(package, short: short_checksum_length)}"
         )
 
-        Mix.shell().info("Download Path:      #{Nerves.Artifact.download_path(package)}")
-        Mix.shell().info("Checksum:           #{Nerves.Artifact.checksum(package)}")
+        Mix.shell().info("Name:               #{Artifact.name(package)}")
+        Mix.shell().info("Download Name:      #{Artifact.download_name(package)}")
+
+        Mix.shell().info(
+          "Download File Name: #{Artifact.download_name(package)}#{Artifact.ext(package)}"
+        )
+
+        Mix.shell().info("Download Path:      #{Artifact.download_path(package)}")
+
+        Mix.shell().info(
+          "Sites:              #{inspect(Keyword.get(package.config, :artifact_sites, []))}"
+        )
+
+        Mix.shell().info("Base Directory:     #{Artifact.base_dir()}")
+        Mix.shell().info("Path:               #{Artifact.dir(package)}")
+        Mix.shell().info("Build Path:         #{Artifact.build_path(package)}")
       end
 
     debug_info("Nerves.Artifact.Details end")
