@@ -24,59 +24,35 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
 
   @impl Mix.Task
   def run(argv) do
-    # We need to make sure the Nerves env has been set up.
-    # This allows the task to be called from a project level that
-    # does not include aliases to nerves_bootstrap
-    Mix.Task.run("nerves.precompile", [])
-
-    {package_name, _argv} =
-      case argv do
-        [] ->
-          {to_string(Mix.Project.config()[:app]), argv}
-
-        ["-" <> _arg | _] ->
-          {to_string(Mix.Project.config()[:app]), argv}
-
-        [package_name | argv] ->
-          {package_name, argv}
-      end
-
     debug_info("Nerves.Artifact.Details start")
 
-    package_name = String.to_atom(package_name)
+    # We should have attempted precompile before this, but run it
+    # here just in case. Noop if it has already been run.
+    Mix.Task.run("nerves.precompile", [])
+
+    package_name =
+      case OptionParser.parse(argv, switches: []) do
+        {_, [p | _], _} -> String.to_atom(p)
+        _ -> Mix.Project.config()[:app]
+      end
 
     package = Nerves.Env.package(package_name)
 
-    _ =
-      if is_nil(package) do
-        Mix.raise("Could not find Nerves package #{package_name} in env")
-      else
-        Mix.shell().info("Version:            #{package.version}")
-        Mix.shell().info("Checksum:           #{Artifact.checksum(package)}")
-        # TODO - Find a way to get this from Artifact
-        short_checksum_length = 7
+    if is_nil(package), do: Mix.raise("Could not find Nerves package #{package_name} in env")
 
-        Mix.shell().info(
-          "Checksum Short      #{Artifact.checksum(package, short: short_checksum_length)}"
-        )
-
-        Mix.shell().info("Name:               #{Artifact.name(package)}")
-        Mix.shell().info("Download Name:      #{Artifact.download_name(package)}")
-
-        Mix.shell().info(
-          "Download File Name: #{Artifact.download_name(package)}#{Artifact.ext(package)}"
-        )
-
-        Mix.shell().info("Download Path:      #{Artifact.download_path(package)}")
-
-        Mix.shell().info(
-          "Sites:              #{inspect(Keyword.get(package.config, :artifact_sites, []))}"
-        )
-
-        Mix.shell().info("Base Directory:     #{Artifact.base_dir()}")
-        Mix.shell().info("Path:               #{Artifact.dir(package)}")
-        Mix.shell().info("Build Path:         #{Artifact.build_path(package)}")
-      end
+    Mix.shell().info("""
+    Version:            #{package.version}
+    Checksum:           #{Artifact.checksum(package)}
+    Checksum Short:     #{Artifact.checksum(package, short: Artifact.__checksum_short_length__())}
+    Name:               #{Artifact.name(package)}
+    Download Name:      #{Artifact.download_name(package)}
+    Download File Name: #{Artifact.download_name(package)}#{Artifact.ext(package)}
+    Download Path:      #{Artifact.download_path(package)}
+    Sites:              #{inspect(Keyword.get(package.config, :artifact_sites, []))}
+    Base Directory:     #{Artifact.base_dir()}
+    Path:               #{Artifact.dir(package)}
+    Build Path:         #{Artifact.build_path(package)}
+    """)
 
     debug_info("Nerves.Artifact.Details end")
   end

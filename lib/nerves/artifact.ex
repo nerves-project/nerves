@@ -7,6 +7,9 @@ defmodule Nerves.Artifact do
 
   @checksum_short 7
 
+  # credo:disable-for-next-line Credo.Check.Readability.Specs
+  def __checksum_short_length__(), do: @checksum_short
+
   @doc """
   Builds the package and produces an  See Nerves.Artifact
   for more information.
