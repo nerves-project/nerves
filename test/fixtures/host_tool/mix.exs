@@ -11,6 +11,7 @@ defmodule HostTool.MixProject do
       xref: [
         exclude: [
           Nerves.Artifact,
+          Nerves.Artifact.BuildRunner,
           Nerves.Artifact.Cache,
           Nerves.Package.Platform,
           Nerves.Port,
