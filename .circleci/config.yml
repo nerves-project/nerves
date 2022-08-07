@@ -19,9 +19,20 @@ install_system_deps: &install_system_deps
         apk add build-base procps
 
 jobs:
+  build_elixir_1_14_otp_25:
+    docker:
+      - image: hexpm/elixir:1.14.0-rc.1-erlang-25.0.4-alpine-3.16.1
+    <<: *defaults
+    steps:
+      - checkout
+      - <<: *install_hex_rebar
+      - <<: *install_system_deps
+      - run: mix deps.get
+      - run: mix test || mix test
+
   build_elixir_1_13_otp_25:
     docker:
-      - image: hexpm/elixir:1.13.4-erlang-25.0-alpine-3.15.4
+      - image: hexpm/elixir:1.13.4-erlang-25.0.3-alpine-3.16.0
     <<: *defaults
     steps:
       - checkout
@@ -81,6 +92,7 @@ workflows:
   version: 2
   build_test:
     jobs:
+      - build_elixir_1_14_otp_25
       - build_elixir_1_13_otp_25
       - build_elixir_1_13_otp_24
       - build_elixir_1_12_otp_24

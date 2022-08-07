@@ -180,20 +180,20 @@ defmodule Mix.Nerves.Utils do
 
   ```elixir
   iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("24.2")
-  iex> version
-  #Version<24.2.0>
+  iex> to_string(version)
+  "24.2.0"
 
   iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("23.3.4")
-  iex> version
-  #Version<23.3.4>
+  iex> to_string(version)
+  "23.3.4"
 
   iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("18.3.4.1.1")
-  iex> version
-  #Version<18.3.4>
+  iex> to_string(version)
+  "18.3.4"
 
   iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("23.0-rc1")
-  iex> version
-  #Version<23.0.0-rc1>
+  iex> to_string(version)
+  "23.0.0-rc1"
 
   iex> Mix.Nerves.Utils.parse_otp_version("invalid")
   {:error, "Unexpected OTP version: \\"invalid\\""}
