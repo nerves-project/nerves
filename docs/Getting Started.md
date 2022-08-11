@@ -2,15 +2,13 @@
 
 ## Introduction
 
-Nerves defines a new way to build embedded systems using Elixir.  It is
+Nerves defines a new way to build embedded systems using [Elixir](https://elixir-lang.org/). It is
 specifically designed for embedded systems, not desktop or server systems.  You
 can think of Nerves as containing three parts:
 
-**Platform** - a customized, minimal Buildroot-derived Linux that boots directly to the BEAM VM.
-
-**Framework** - ready-to-go library of Elixir modules to get you up and running quickly.
-
-**Tooling** - powerful command-line tools to manage builds, update firmware, configure devices, and more.
+- **Platform** - a customized, minimal [Buildroot](https://buildroot.org)-derived Linux that boots directly to the [BEAM VM](https://en.wikipedia.org/wiki/BEAM_(Erlang_virtual_machine)).
+- **Framework** - ready-to-go library of Elixir modules to get you up and running quickly.
+- **Tooling** - powerful command-line tools to manage builds, update firmware, configure devices, and more.
 
 Taken together, the Nerves platform, framework, and tooling provide a highly specialized environment for using Elixir to build advanced embedded devices.
 
@@ -21,7 +19,7 @@ In the following guides, support channels, and forums, you may hear the followin
 Term | Definition
 --- | ---
 host | The computer on which you are editing source code, compiling, and assembling firmware
-target | The platform for which your firmware is built (for example, Raspberry Pi, Raspberry Pi 2, or Beaglebone Black)
+target | The platform for which your firmware is built (for example, Raspberry Pi Zero W, Raspberry Pi 4, or Beaglebone Black)
 toolchain | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime
 system | A lean Buildroot-based Linux distribution that has been customized and cross-compiled for a particular target
 assemble | The process of combining system, application, and configuration into a firmware bundle
@@ -37,13 +35,6 @@ configured for running Nerves.
 Let's create a new project.  The `nerves.new` project generator can be called
 from anywhere and can take either an absolute path or a relative path.
 
-> NOTE: If you've used Nerves in the past, you may have noticed that you no
-> longer need to specify a `--target` option when creating a new project.  Since
-> Nerves Bootstrap 0.3.0, the default target is `host` unless you specify a
-> different target in your environment.  This allows for more seamless
-> interaction with tools on your host without cross-compilers getting in the way
-> until you're ready to build firmware for a particular target.
-
 ``` bash
 mix nerves.new hello_nerves
 ```
@@ -53,9 +44,13 @@ application. If you chose not to fetch dependencies during project generation, y
 to do that yourself.
 
 As described by the project generator, the next step is to change to the project
-directory, choose a target, and fetch the target-specific dependencies.  Visit
-the [Targets Page](targets.html) for more information on what target name to use
-for each of the boards that Nerves supports.
+directory, choose a target, and fetch the target-specific dependencies.
+
+> #### What is my device's _MIX_TARGET_? {: .tip}
+>
+> Visit the [Targets Page](targets.html) for information on what target name to
+> use for each of the boards that Nerves supports. The default target is `host`
+> unless you specify a different target in your environment.
 
 The target is chosen using a shell environment variable, so if you use the
 `export` command, it will remain in effect as long as you leave that window
@@ -80,9 +75,6 @@ MIX_TARGET=rpi0 mix deps.get
 This allows you quick access to use host-based tooling in the former and
 deploy updated firmware from the latter, all without having to modify the
 `MIX_TARGET` variable in your shell.
-
-> REMINDER: To choose the correct target for your specific device refer to the
-> [Targets Page](targets.html)
 
 ## Building and deploying firmware
 
@@ -127,124 +119,104 @@ MIX_TARGET=rpi0 mix firmware.burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your
-host.  This may fail to correctly detect your SD card, for example, if you have
-more than one SD card inserted or you have disk images mounted.  If this
-happens, you can specify the intended device by passing the `-d <device>`
-argument to the command. For example:
+host.
 
-```bash
-mix firmware.burn -d /dev/rdisk3
-```
-
-> NOTE: You can also use `-d <filename>` to specify an output file that is a raw image of the SD card.
-This binary image can be burned to an SD card using `fwup`, `dd`, `Win32DiskImager`, or some other image copying utility.
+> #### More than one SD cards or disk images? {: .tip}
+>
+> `mix firmware.burn` may fail to correctly detect your SD card, for example,
+> if you have more than one SD card inserted or you have disk images mounted.
+> If this happens, you can specify the intended device by passing the
+> `-d <device>` argument to the command. For example
+> `mix firmware.burn -d /dev/rdisk3`
+>
+> You can alse use `-d <filename>` to specify an output file that is a raw
+> image of the SD card. This binary image can be burned to an SD card using
+> [Raspberry Pi Imager](https://www.raspberrypi.com/software/), [Etcher](https://www.balena.io/etcher/), `dd`, `Win32DiskImager`, or other image copying utilities.
 
 For more options, refer to the `mix firmware.burn` documentation.
 
 Now that you have your SD card burned, you can insert it into your device and
-boot it up.  For Raspberry Pi, be sure to connect it to an HDMI display and USB
-keyboard so you can see it boot to the IEx console.
+boot it up.
 
 ## Connecting to your Nerves target
 
-You can connect to an RPi0, RPi3A, and BBB with just a USB cable. These Nerves
-targets can operate in Linux USB gadget mode, which means a network connection
-can be made with a USB cable between your host and target. The USB cable
-provides both power and network connectivity. This is a very convenient way to
-work with your target device.
+There are multiple ways to connect to your Nerves target device and different
+target may support different connection methods:
 
-The RPi3B/B+ does not have USB gadget mode capability, but you can make a
-network connection using either wired or wireless Ethernet.
+- USB to TTL serial cable (aka FTDI cable)
+- HDMI cable
+- USB data cable
+- Ethernet
+- WiFi
 
-### Attach a USB cable to the RPi0 / RPi0W / RPi0WH
+When connecting with a USB to TTL serial cable or an HDMI cable before booting
+up your device, you can see your device booting to the IEx console.
 
-Connect a USB cable between your host and the RPi0 USB port closest to the
-middle of the board that is labeled "USB". This USB port, via the USB cable,
-will provide both power to the board and a virtual Ethernet network
-connection.
+For more info, refer to [Connecting to Nerves Target page](connecting-to-nerves-target.html).
 
-If you don't see any activity lights blinking on the board after plugging in
-your USB cable, something's not working right. So then, rather power up your
-RPi0 using a dedicated power supply, and use your USB cable only for
-communication.
-
-#### Test the connection
-
-Once the target is powered up, test the connection from your host:
-
-```bash
-ping nerves.local
-```
-
-> Note: If this does not work it may be because your USB cable only has power
-> lines. You need a cable with both power and data lines, so try a different USB
-> cable.
+> #### What features does Nerves support for my device? {: .tip}
 >
-> Note: If Windows `Device Manager`/`Network adapters` does not have a
-> `USB Ethernet/RNDIS Gadget` device, it might be caused by
-> [this](https://www.ghacks.net/2020/09/28/should-you-install-windows-10s-optional-driver-updates),
-> so install the optional `USB Ethernet/RNDIS Gadget` driver to fix it.
->
-> Note: `nerves.local` is an mDNS address. These examples were done with a Mac
-> host, which has mDNS enabled by default. Linux and Windows hosts may have to
-> enable mDNS networking.
+> Refer to the documentation of `nerves_system_<target>` projects for their
+> supported features. As an example, when your target is `rpi0`,
+> visit https://hexdocs.pm/nerves_system_rpi0.
 
-#### Make the network connection
+## Inspecting your target in `IEx`
 
-To make a connection via the USB gadget mode virtual Ethernet interface:
+Once you are connected to your target device, an `IEx` prompt will appear with
+[`NervesMOTD`](https://hexdocs.pm/nerves_motd/readme.html).
+`IEx` is your main entry point to interacting with Elixir, your program, and hardware.
 
 ```bash
 ssh nerves.local
+
+Interactive Elixir (1.13.4) - press Ctrl+C to exit (type h() ENTER for help)
+████▄▄    ▐███
+█▌  ▀▀██▄▄  ▐█
+█▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
+█▌  ▀▀██▄▄  ▐█
+███▌    ▀▀████
+hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi0
+  Uptime       : 1 days, 3 hours, 6 minutes and 29 seconds
+  Clock        : 2022-08-11 21:44:09 EDT
+
+  Firmware     : Valid (B)               Applications : 57 started
+  Memory usage : 87 MB (28%)             Part usage   : 2 MB (0%)
+  Hostname     : nerves-mn02             Load average : 0.15 0.12 0.14
+
+  wlan0        : 10.0.0.25/24, 2601:14d:8602:2a0:ba27:ebff:fecb:222a/64, fe80::ba27:ebff:fecb:222a/64
+  usb0         : 172.31.36.97/30, fe80::3c43:59ff:fec9:6716/64
+
+Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+
+Toolshed imported. Run h(Toolshed) for more info.
+iex(nerves@nerves.local)1>
 ```
 
-You should find yourself at the `iex(hello_nerves@nerves.local)1>` prompt. Enter the following command:
+The [Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package contains
+many useful commands. Enter the following command to display the help for the
+[Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package.
 
 ```elixir
 h Toolshed
 ```
 
-This displays the help for the
-[Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package, which contains
-many useful commands. Go ahead and try them out to explore your target's runtime
-environment.
+Go ahead and try them out to explore your target's runtime environment.
 
-To end your ssh connection type `exit`, or you can use the `ssh` command
-`<enter>~.`
+For more info on Nerves-specific use of the IEx prompt, refer to
+[IEx with Nerves Page](https://hexdocs.pm/nerves/iex-with-nerves.html).
 
-### Wireless and wired Ethernet connections
-The `config/config.exs` generated in a new Nerves project will setup connections
-for USB and Ethernet by default. Instructions on further configuring them, or to
-configure wireless connections, please refer to [Configure networking](https://hexdocs.pm/nerves/user-interfaces.html#configure-networking) or [VintageNet](https://hexdocs.pm/vintage_net)
-documentation.
+## Nerves Livebook
 
-### Alternate connection methods
+The [Nerves Livebook firmware](https://github.com/livebook-dev/nerves_livebook)
+lets you try out the Nerves projects on real hardware without needing to build
+anything. Within minutes, you'll have a Raspberry Pi or Beaglebone running
+Nerves. You'll be able to run code in [Livebook](https://livebook.dev/) and
+work through Nerves tutorials from the comfort of your browser.
 
-There are a couple alternate connection methods:
+Looking for a quick demo first? Click below for
+[Underjord](https://www.youtube.com/c/Underjord)'s Nerves Quickstart video.
 
-#### Gadget-mode virtual serial connection
-
-USB gadget mode also supplies a virtual serial connection. Use it with any
-terminal emulator like `screen` or `picocom`:
-
-```bash
-screen /dev/usb* 115200     # replace "usb*" with the name of your host's USB port
-```
-
-You should be at an `iex(1)>` prompt. If not, try pressing `Enter` a few times.
-
-#### USB to TTL serial cable
-
-In addition to the wired and wireless connection method described above, targets
-without USB gadget mode can be accessed via a serial connection with a TTL
-cable. The TTL cable is connected between the host USB port and a couple of
-header pins on the target. We've had good luck with [this
-cable](https://www.adafruit.com/product/954) and the site also contains a
-[tutorial](https://learn.adafruit.com/adafruits-raspberry-pi-lesson-5-using-a-console-cable/overview)
-on how to use it.
-
-You will also need to modify your Nerves configuration as described in the
-[Using a USB Serial Console](https://hexdocs.pm/nerves/faq.html#using-a-usb-serial-console) FAQ
-topic.
+[![Install video](https://github.com/livebook-dev/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
 
 ## Nerves examples
 
@@ -266,6 +238,13 @@ export MIX_TARGET=rpi0
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
+
+## Nerves communities
+
+- [Elixir Slack #nerves channel](https://elixir-slackin.herokuapp.com/)
+- [Nerves Forum](https://elixirforum.com/c/elixir-framework-forums/nerves-forum/74)
+- [Nerves Meetup](https://www.meetup.com/nerves)
+- [Nerves Newsletter](https://underjord.io/nerves-newsletter.html)
 
 <p align="center">
 Is something wrong?

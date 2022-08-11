@@ -65,10 +65,11 @@ defmodule Nerves.MixProject do
       extras: [
         "docs/Installation.md",
         "docs/Getting Started.md",
+        "docs/Connecting to Nerves Target.md",
+        "docs/IEx with Nerves.md",
         "docs/FAQ.md",
         "docs/Targets.md",
         "docs/Systems.md",
-        "docs/IEx with Nerves.md",
         "docs/User Interfaces.md",
         "docs/Environment Variables.md",
         "docs/Compiling Non-BEAM Code.md",

@@ -90,26 +90,7 @@ host:
 
 ### Configure networking
 
-By default, the `my_app_firmware` project will include the [`nerves_pack`]
-dependency, which simplifies the network setup and configuration process. At
-runtime, `nerves_pack` will detect all available interfaces that have not been
-configured and apply defaults for `usb*` and `eth*` interfaces.
-
-For `eth*` interfaces, the device attempts to connect to the network
-with DHCP using `ipv4` addressing.
-
-For `usb*` interfaces, it uses [`vintage_net_direct`] to run a simple DHCP server
-on the device and assign the host an IP address over a USB cable.
-
-If you want to use some other network configuration, such as wired or wireless
-Ethernet, please refer to the [`nerves_pack` documentation] and the
-underlying [`vintage_net` documentation] as needed.
-
-[`nerves_pack`]: https://hexdocs.pm/nerves_pack
-[`vintage_net_wifi`]: https://hexdocs.pm/vintage_net_wifi
-[`vintage_net_direct`]: https://hexdocs.pm/vintage_net_direct
-[`nerves_pack` documentation]: https://hexdocs.pm/nerves_pack/readme.html
-[`vintage_net` documentation]: https://hexdocs.pm/vintage_net/VintageNet.html
+Refer to the [Connecting to Nerves Target page](connecting-to-nerves-target.html).
 
 ### Configure Phoenix
 
