@@ -101,24 +101,38 @@ remotely?" in the [FAQ](FAQ.md#how-do-i-push-firmware-updates-remotely).
 You can create the firmware bundle with the following command:
 
 ```bash
-mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
+mix firmware
+```
+
+or
+
+```bash
+MIX_TARGET=rpi3 mix firmware
 ```
 
 This will result in a `hello_nerves.fw` firmware bundle file.
+
+### Create a bootable SD card
+
 To create a bootable SD card, use the following command:
 
 ```bash
-mix firmware.burn # -OR- # MIX_TARGET=rpi3 mix firmware.burn
+mix firmware.burn
+```
+
+or
+
+```bash
+MIX_TARGET=rpi3 mix firmware.burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your
 host.  This may fail to correctly detect your SD card, for example, if you have
 more than one SD card inserted or you have disk images mounted.  If this
 happens, you can specify the intended device by passing the `-d <device>`
-argument to the command.
+argument to the command. For example:
 
 ```bash
-# For example:
 mix firmware.burn -d /dev/rdisk3
 ```
 
@@ -131,7 +145,7 @@ are sure there is only one SD card inserted, you can also add the `-y` flag to
 skip the confirmation that it is the correct device.
 
 ```bash
-mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
+mix firmware.burn -y
 ```
 
 You can read about the other supported options in the [`fwup` documentation](https://github.com/fwup-home/fwup#invoking).
