@@ -59,28 +59,30 @@ for each of the boards that Nerves supports.
 
 The target is chosen using a shell environment variable, so if you use the
 `export` command, it will remain in effect as long as you leave that window
-open.  Alternatively, you can prefix each command with the environment variable.
+open.
+
+``` bash
+cd hello_nerves
+export MIX_TARGET=rpi0
+mix deps.get
+```
+
+Alternatively, you can prefix each command with the environment variable.
 We find that it's easiest to have two shell windows open: one remaining
 defaulted to the `host` target and one with the desired `MIX_TARGET` variable
-set.  This allows you quick access to use host-based tooling in the former and
+set.
+
+```bash
+cd hello_nerves
+MIX_TARGET=rpi0 mix deps.get
+```
+
+This allows you quick access to use host-based tooling in the former and
 deploy updated firmware from the latter, all without having to modify the
 `MIX_TARGET` variable in your shell.
 
 > REMINDER: To choose the correct target for your specific device refer to the
 > [Targets Page](targets.html)
-
-``` bash
-cd hello_nerves
-export MIX_TARGET=rpi3
-mix deps.get
-```
-
-**OR**
-
-```bash
-cd hello_nerves
-MIX_TARGET=rpi3 mix deps.get
-```
 
 ## Building and deploying firmware
 
@@ -99,40 +101,45 @@ remotely?" in the [FAQ](FAQ.md#how-do-i-push-firmware-updates-remotely).
 You can create the firmware bundle with the following command:
 
 ```bash
-mix firmware # -OR- # MIX_TARGET=rpi3 mix firmware
+mix firmware
+```
+
+or
+
+```bash
+MIX_TARGET=rpi0 mix firmware
 ```
 
 This will result in a `hello_nerves.fw` firmware bundle file.
+
+### Create a bootable SD card
+
 To create a bootable SD card, use the following command:
 
 ```bash
-mix firmware.burn # -OR- # MIX_TARGET=rpi3 mix firmware.burn
+mix firmware.burn
+```
+
+or
+
+```bash
+MIX_TARGET=rpi0 mix firmware.burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your
 host.  This may fail to correctly detect your SD card, for example, if you have
 more than one SD card inserted or you have disk images mounted.  If this
 happens, you can specify the intended device by passing the `-d <device>`
-argument to the command.
+argument to the command. For example:
 
 ```bash
-# For example:
 mix firmware.burn -d /dev/rdisk3
 ```
 
 > NOTE: You can also use `-d <filename>` to specify an output file that is a raw image of the SD card.
 This binary image can be burned to an SD card using `fwup`, `dd`, `Win32DiskImager`, or some other image copying utility.
 
-The `mix firmware.burn` task uses the `fwup` tool internally; any extra
-arguments passed to it will be forwarded along to `fwup`.  For example, if you
-are sure there is only one SD card inserted, you can also add the `-y` flag to
-skip the confirmation that it is the correct device.
-
-```bash
-mix firmware.burn -y # -OR- # MIX_TARGET=rpi3 mix firmware.burn -y
-```
-
-You can read about the other supported options in the [`fwup` documentation](https://github.com/fwup-home/fwup#invoking).
+For more options, refer to the `mix firmware.burn` documentation.
 
 Now that you have your SD card burned, you can insert it into your device and
 boot it up.  For Raspberry Pi, be sure to connect it to an HDMI display and USB
@@ -255,7 +262,7 @@ on your target to confirm that it works in the simplest case.
 
 ```bash
 git clone https://github.com/nerves-project/nerves_examples
-export MIX_TARGET=rpi3
+export MIX_TARGET=rpi0
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
