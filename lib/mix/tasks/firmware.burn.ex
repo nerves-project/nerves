@@ -35,15 +35,16 @@ defmodule Mix.Tasks.Firmware.Burn do
 
   ## Examples
 
-  ```
-  # Upgrade the contents of the SDCard at /dev/mmcblk0 using the rpi0 system
+  Upgrade the contents of the SDCard at `/dev/mmcblk0` using the `rpi0` system
+
+  ```bash
   mix firmware.burn --device /dev/mmcblk0 --task upgrade
   ```
 
   If you are sure there is only one SD card inserted, you can also add the `-y`
   flag to skip the confirmation that it is the correct device.
 
-  ```
+  ```bash
   mix firmware.burn -y
   ```
   """
