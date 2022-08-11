@@ -59,15 +59,7 @@ for each of the boards that Nerves supports.
 
 The target is chosen using a shell environment variable, so if you use the
 `export` command, it will remain in effect as long as you leave that window
-open.  Alternatively, you can prefix each command with the environment variable.
-We find that it's easiest to have two shell windows open: one remaining
-defaulted to the `host` target and one with the desired `MIX_TARGET` variable
-set.  This allows you quick access to use host-based tooling in the former and
-deploy updated firmware from the latter, all without having to modify the
-`MIX_TARGET` variable in your shell.
-
-> REMINDER: To choose the correct target for your specific device refer to the
-> [Targets Page](targets.html)
+open.
 
 ``` bash
 cd hello_nerves
@@ -75,12 +67,22 @@ export MIX_TARGET=rpi3
 mix deps.get
 ```
 
-**OR**
+Alternatively, you can prefix each command with the environment variable.
+We find that it's easiest to have two shell windows open: one remaining
+defaulted to the `host` target and one with the desired `MIX_TARGET` variable
+set.
 
 ```bash
 cd hello_nerves
 MIX_TARGET=rpi3 mix deps.get
 ```
+
+This allows you quick access to use host-based tooling in the former and
+deploy updated firmware from the latter, all without having to modify the
+`MIX_TARGET` variable in your shell.
+
+> REMINDER: To choose the correct target for your specific device refer to the
+> [Targets Page](targets.html)
 
 ## Building and deploying firmware
 
