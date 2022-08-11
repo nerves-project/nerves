@@ -20,6 +20,11 @@ defmodule Mix.Tasks.Firmware.Burn do
 
     * `--verbose` - produce detailed output about release assembly
 
+    * The `mix firmware.burn` task uses the `fwup` tool internally; any extra
+      arguments passed to it will be forwarded along to `fwup`. You can read
+      about the other supported options in the
+      [`fwup` documentation](https://github.com/fwup-home/fwup#invoking).
+
   ## Environment variables
 
     * `NERVES_SYSTEM`    - may be set to a local directory to specify the Nerves
@@ -32,7 +37,14 @@ defmodule Mix.Tasks.Firmware.Burn do
 
   ```
   # Upgrade the contents of the SDCard at /dev/mmcblk0 using the rpi0 system
-  NERVES_SYSTEM=rpi0 mix firmware.burn --device /dev/mmcblk0 --task upgrade
+  mix firmware.burn --device /dev/mmcblk0 --task upgrade
+  ```
+
+  If you are sure there is only one SD card inserted, you can also add the `-y`
+  flag to skip the confirmation that it is the correct device.
+
+  ```
+  mix firmware.burn -y
   ```
   """
   use Mix.Task

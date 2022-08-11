@@ -139,16 +139,7 @@ mix firmware.burn -d /dev/rdisk3
 > NOTE: You can also use `-d <filename>` to specify an output file that is a raw image of the SD card.
 This binary image can be burned to an SD card using `fwup`, `dd`, `Win32DiskImager`, or some other image copying utility.
 
-The `mix firmware.burn` task uses the `fwup` tool internally; any extra
-arguments passed to it will be forwarded along to `fwup`.  For example, if you
-are sure there is only one SD card inserted, you can also add the `-y` flag to
-skip the confirmation that it is the correct device.
-
-```bash
-mix firmware.burn -y
-```
-
-You can read about the other supported options in the [`fwup` documentation](https://github.com/fwup-home/fwup#invoking).
+For more options, refer to the `mix firmware.burn` documentation.
 
 Now that you have your SD card burned, you can insert it into your device and
 boot it up.  For Raspberry Pi, be sure to connect it to an HDMI display and USB
