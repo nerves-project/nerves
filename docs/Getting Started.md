@@ -63,7 +63,7 @@ open.
 
 ``` bash
 cd hello_nerves
-export MIX_TARGET=rpi3
+export MIX_TARGET=rpi0
 mix deps.get
 ```
 
@@ -74,7 +74,7 @@ set.
 
 ```bash
 cd hello_nerves
-MIX_TARGET=rpi3 mix deps.get
+MIX_TARGET=rpi0 mix deps.get
 ```
 
 This allows you quick access to use host-based tooling in the former and
@@ -107,7 +107,7 @@ mix firmware
 or
 
 ```bash
-MIX_TARGET=rpi3 mix firmware
+MIX_TARGET=rpi0 mix firmware
 ```
 
 This will result in a `hello_nerves.fw` firmware bundle file.
@@ -123,7 +123,7 @@ mix firmware.burn
 or
 
 ```bash
-MIX_TARGET=rpi3 mix firmware.burn
+MIX_TARGET=rpi0 mix firmware.burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your
@@ -262,7 +262,7 @@ on your target to confirm that it works in the simplest case.
 
 ```bash
 git clone https://github.com/nerves-project/nerves_examples
-export MIX_TARGET=rpi3
+export MIX_TARGET=rpi0
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
