@@ -186,7 +186,7 @@ hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi0
   wlan0        : 10.0.0.25/24, 2601:14d:8602:2a0:ba27:ebff:fecb:222a/64, fe80::ba27:ebff:fecb:222a/64
   usb0         : 172.31.36.97/30, fe80::3c43:59ff:fec9:6716/64
 
-Nerves CLI help: https://hexdocs.pm/nerves/using-the-cli.html
+Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
 
 Toolshed imported. Run h(Toolshed) for more info.
 iex(nerves@nerves.local)1>
