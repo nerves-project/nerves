@@ -131,7 +131,7 @@ host.
 >
 > You can alse use `-d <filename>` to specify an output file that is a raw
 > image of the SD card. This binary image can be burned to an SD card using
-> `fwup`, `dd`, `Win32DiskImager`, or some other image copying utility.
+> [Raspberry Pi Imager](https://www.raspberrypi.com/software/), [Etcher](https://www.balena.io/etcher/), `dd`, `Win32DiskImager`, or other image copying utilities.
 
 For more options, refer to the `mix firmware.burn` documentation.
 
