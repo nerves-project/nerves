@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.9.0 - 2022-08-23
+
+This release removes warnings when using Elixir 1.14 rc releases since they
+appear to work fine.
+
+* Improvements
+  * Added `mix nerves.artifact.details` to list information in Nerves system and
+    toolchain projects. Thanks to @udoschneider for this feature.
+  * Many documentation updates including version charts for Nerves systems.
+    Thanks to @mnishiguchi.
+
 ## v1.8.0 - 2022-05-11
 
 This release requires Elixir 1.11.2 or later. It has no new features. This is
