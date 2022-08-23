@@ -200,7 +200,7 @@ USB gadget mode also supplies a virtual serial connection. Use it with any
 terminal emulator like `screen` or `picocom`:
 
 ```bash
-screen /dev/usb* 115200
+picocom -b115200 /dev/ttyUSB0
 ```
 
 > #### Windows _Device Manager / Network adapters_ has no _USB Ethernet/RNDIS Gadget_ device? {: .info}
