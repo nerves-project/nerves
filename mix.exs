@@ -78,6 +78,7 @@ defmodule Nerves.MixProject do
         "docs/Internals.md",
         "docs/Customizing Systems.md",
         "docs/Experimental Features.md",
+        "docs/Using the CLI.md",
         "CHANGELOG.md"
       ],
       source_ref: "v#{@version}",
