@@ -13,7 +13,6 @@ defmodule Nerves.MixProject do
       deps: deps(),
       description: description(),
       package: package(),
-      build_embedded: true,
       compilers: [:elixir_make | Mix.compilers()],
       make_targets: ["all"],
       make_clean: ["clean"],
