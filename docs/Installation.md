@@ -193,9 +193,9 @@ asdf plugin-add elixir
 # general, differences in patch releases are harmless. Nerves detects
 # configurations that might not work at compile time.
 asdf install erlang 24.3.2
-asdf install elixir 1.13.3-otp-24
+asdf install elixir 1.13.3-otp-25
 asdf global erlang 24.3.2
-asdf global elixir 1.13.3-otp-24
+asdf global elixir 1.13.3-otp-25
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
