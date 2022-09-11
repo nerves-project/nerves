@@ -321,7 +321,7 @@ defmodule Nerves.Env do
   @doc """
   Helper function for returning the toolchain_platform type package
   """
-  @spec toolchain_platform() :: Nerves.Package.t()
+  @spec toolchain_platform() :: atom()
   def toolchain_platform() do
     toolchain().platform
   end
