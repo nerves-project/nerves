@@ -189,8 +189,8 @@ defmodule Mix.Tasks.Firmware do
 
       For example:
 
-      If your target is running OTP 24, you should use a version of Elixir
-      that was compiled using OTP 24.
+      If your target is running OTP 25, you should use a version of Elixir
+      that was compiled using OTP 25.
 
       If you're using asdf to manage Elixir versions, run:
 
