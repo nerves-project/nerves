@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.9.1 - 2022-09-11
+
+This is a patch release that fixes trivial tooling issues found when using
+Elixir 1.14 and Erlang 25.0.4. It's expected to be a safe update from v1.9.0.
+
 ## v1.9.0 - 2022-08-23
 
 This release removes warnings when using Elixir 1.14 rc releases since they
