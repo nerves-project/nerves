@@ -230,15 +230,15 @@ defmodule Mix.Tasks.Firmware do
 
       header = erlinit_config_header(user_opts)
 
-      File.write(erlinit_config_file, header <> erlinit_config)
-      {:ok, erlinit_config_file}
+      File.write!(erlinit_config_file, header <> erlinit_config)
     else
       {:error, :no_config} ->
         Nerves.Utils.Shell.warn("There was no system erlinit.config found")
-        :noop
+        :ok
 
-      _e ->
-        :noop
+      e ->
+        Nerves.Utils.Shell.warn("Error constructing  erlinit.config: #{inspect(e)}")
+        :ok
     end
   end
 
