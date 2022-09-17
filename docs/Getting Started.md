@@ -88,6 +88,11 @@ can be shared across projects.
 For remote deployment information, see "How do I push firmware updates
 remotely?" in the [FAQ](FAQ.md#how-do-i-push-firmware-updates-remotely).
 
+> #### Deleting cached artifacts {: .tip}
+>
+> It is always OK to `rm -fr ~/.nerves`. The consequence is that the archives
+> that you're using will need to be re-downloaded when you run `mix deps.get`.
+
 ### Create the firmware bundle
 
 You can create the firmware bundle with the following command:
