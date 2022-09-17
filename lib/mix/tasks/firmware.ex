@@ -112,6 +112,8 @@ defmodule Mix.Tasks.Firmware do
           [Path.expand(overlay)]
       end
 
+    prevent_overlay_overwrites!(project_rootfs_overlay)
+
     rootfs_overlays =
       [build_rootfs_overlay | project_rootfs_overlay]
       |> Enum.map(&["-a", &1])
@@ -262,5 +264,29 @@ defmodule Mix.Tasks.Firmware do
 
   defp mksquashfs_flags(flags) do
     System.put_env("NERVES_MKSQUASHFS_FLAGS", Enum.join(flags, " "))
+  end
+
+  @restricted_fs ["data", "root", "tmp", "dev", "sys", "proc"]
+  defp prevent_overlay_overwrites!(overlay_dirs) do
+    shadow_mounts =
+      for dir <- overlay_dirs,
+          p <- Path.wildcard([dir, "/*"]),
+          fs_dir = Path.relative_to(p, dir),
+          fs_dir in @restricted_fs,
+          Path.wildcard([p, "/*"]) != [],
+          do: Path.relative_to_cwd(p)
+
+    if length(shadow_mounts) > 0 do
+      Mix.raise("""
+      The firmware contains overlay files which reference directories that are
+      mounted as file systems on the device. The filesystem mount will completely
+      overwrite the overlay and these files will be lost.
+
+      Remove the following overlay directories and build the firmware again:
+
+      #{for dir <- shadow_mounts, do: "  * #{dir}\n"}
+      #{IO.ANSI.reset()}https://hexdocs.pm/nerves/advanced-configuration.html#root-filesystem-overlays
+      """)
+    end
   end
 end
