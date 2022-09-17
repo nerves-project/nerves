@@ -78,6 +78,11 @@ defmodule Nerves.CacheTest do
 
       File.touch(dl_path)
       assert File.exists?(dl_path)
+
+      # This might be leftover from previous test so we need to delete it
+      # here to prevent the code path from resolving to another existing
+      # test artifact and ensure it tries to resolve our corrupted download
+      System.delete_env("NERVES_SYSTEM")
       Mix.Tasks.Nerves.Artifact.Get.get(:system)
       refute File.exists?(dl_path)
     end)
