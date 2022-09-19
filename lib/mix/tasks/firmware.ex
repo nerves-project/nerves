@@ -129,7 +129,7 @@ defmodule Mix.Tasks.Firmware do
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
     args = args ++ fwup_conf ++ rootfs_overlays ++ fw ++ rootfs_priorities ++ output
-    env = standard_fwup_variables(config)
+    env = [{"MIX_BUILD_PATH", Mix.Project.build_path()} | standard_fwup_variables(config)]
 
     set_provisioning(firmware_config[:provisioning])
 
