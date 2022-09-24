@@ -20,7 +20,7 @@ below.
 
 ## MacOS
 
-The easiest installation route on MacOS is to use [Homebrew](brew.sh).
+The easiest installation route on MacOS is to use [Homebrew](https://brew.sh).
 Just run the following:
 
 ```bash
