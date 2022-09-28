@@ -73,8 +73,6 @@ For example, for the Raspberry Pi 3 target, you can find the [hardware descripti
     ```elixir
     # config/config.exs
 
-    use Mix.Config
-
     config :nerves, :firmware,
       rootfs_overlay: "rootfs_overlay"
     ```

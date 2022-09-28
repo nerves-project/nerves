@@ -106,8 +106,6 @@ Our configuration might look like this (as of Phoenix 1.6.2):
 ```elixir
 # my_app_/my_app_firmware/config/target.exs
 
-import Config
-
 config :my_app_ui, MyAppUiWeb.Endpoint,
   url: [host: "nerves.local"],
   http: [port: 80],

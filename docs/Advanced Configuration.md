@@ -10,8 +10,6 @@ let's start by modifying our `config.exs` to include configs for each target.
 ```elixir
 # config/config.exs
 
-use Mix.Config
-
 import_config "#{Mix.Project.config[:target]}.exs"
 ```
 
