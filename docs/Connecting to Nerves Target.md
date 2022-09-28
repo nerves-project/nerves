@@ -149,8 +149,8 @@ console is displayed on the screen attached to the HDMI port by default. You
 can simply connect your target device to a monitor or TV.
 
 For troubleshooting start-up issues and for more advanced development
-workflows, it's often desirable to connect from your development host to the
-target using a UART serial console that was mentioned above.
+workflows, it's desirable to connect from your development host to the
+target using a UART serial cable.
 
 Here is how to override the default, for `rpi3` as an example:
 
