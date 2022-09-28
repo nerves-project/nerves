@@ -144,9 +144,27 @@ Unplug the USB connector and re-plug it.
 
 ## HDMI cable
 
-On some Raspberry Pi family of targets, the `IEx` console is displayed on the
-screen attached to the HDMI port by default. You can simply connect your target
-device to a monitor or TV.
+On some Raspberry Pi family of targets such as `rpi3` and `rpi4`, the `IEx`
+console is displayed on the screen attached to the HDMI port by default. You
+can simply connect your target device to a monitor or TV.
+
+For troubleshooting start-up issues and for more advanced development
+workflows, it's desirable to connect from your development host to the
+target using a UART serial cable.
+
+Here is how to override the default, for `rpi3` as an example:
+
+1. Look in the README of your target's system's documentation for a UART port name. For example, [`nerves_system_rpi3`](https://hexdocs.pm/nerves_system_rpi3/readme.html)
+1. Locate your project's `erlinit` configuration which is normally in your project's `config/target.exs` file
+1. Add a `ctty` option with the UART port name as a value
+
+```diff
+ config :nerves,
+   erlinit: [
++    ctty: "ttyAMA0",
+     hostname_pattern: "nerves-%s"
+   ]
+```
 
 ## USB data cable
 
