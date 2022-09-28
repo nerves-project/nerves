@@ -154,7 +154,7 @@ target using a UART serial console that was mentioned above.
 
 Here is how to override the default, for `rpi3` as an example:
 
-1. identify an available UART port name in the in the README of your target's system, [`nerves_system_rpi3`](https://hexdocs.pm/nerves_system_rpi3/readme.html)
+1. Look in the README of your target's system's documentation for a UART port name. For example, [`nerves_system_rpi3`](https://hexdocs.pm/nerves_system_rpi3/readme.html)
 1. locate the `erlinit` configuration, which is typically found in your Nerves project's `config/target.exs` file
 1. add `ctty` option with a UART port name as a value
 
