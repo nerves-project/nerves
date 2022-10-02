@@ -65,7 +65,7 @@ defmodule NervesSystemCompatibility do
     end
 
     defp build_chart_for_target(target, opts) do
-      column_labels = [target, "Erlang/OTP", "Nerves System BR", "Buildroot", "Linux"]
+      column_labels = [target, "Erlang/OTP", "Nerves", "Nerves System BR", "Buildroot", "Linux"]
 
       header = [
         table_row(column_labels, @row_opts),
@@ -79,6 +79,7 @@ defmodule NervesSystemCompatibility do
           values = [
             version,
             data.otp_version,
+            data.nerves_version,
             data.nerves_system_br_version,
             data.buildroot_version,
             data.linux_version
@@ -112,6 +113,7 @@ defmodule NervesSystemCompatibility do
       %{
         target: target,
         version: version,
+        nerves_version: Database.get({target, version, :nerves_version}),
         nerves_system_br_version: nerves_system_br_version,
         linux_version: Database.get({target, version, :linux_version}),
         buildroot_version: Database.get({:br, nerves_system_br_version, :buildroot_version}),
@@ -183,7 +185,12 @@ defmodule NervesSystemCompatibility do
         for version <- versions do
           put(
             {target, version, :nerves_system_br_version},
-            Repo.get_nerves_system_br_versions_for_target(target, version)
+            Repo.get_nerves_system_br_version_for_target(target, version)
+          )
+
+          put(
+            {target, version, :nerves_version},
+            Repo.get_nerves_version_for_target(target, version)
           )
 
           put(
@@ -270,33 +277,40 @@ defmodule NervesSystemCompatibility do
       end
     end
 
-    def get_nerves_system_br_versions_for_targets(targets) when is_list(targets) do
-      for {target, versions} <- get_nerves_system_target_versions(targets) do
-        Task.async(fn ->
-          for version <- versions, into: %{} do
-            {{target, version}, get_nerves_system_br_versions_for_target(target, version)}
-          end
-        end)
-      end
-      |> Task.await_many(:infinity)
-      |> Enum.reduce(%{}, &Enum.into/2)
-    end
-
-    def get_nerves_system_br_versions_for_target(target, version) do
+    def get_nerves_system_br_version_for_target(target, version) do
       cd = "#{@download_dir}/nerves_system_#{target}"
 
       cmd =
-        "cd #{cd} && git checkout v#{version} > /dev/null 2>&1 && grep nerves_system_br mix.exs"
+        "cd #{cd} && git checkout v#{version} > /dev/null 2>&1 && grep :nerves_system_br, mix.exs"
 
       case System.shell(cmd) do
         {result, 0} ->
           captures =
             Regex.named_captures(
-              ~r/:nerves_system_br, "(?<nerves_system_br_version>(\d+\.)?(\d+\.)?(\*|\d+))"/i,
+              ~r/:nerves_system_br, "(?<nerves_system_br_version>.*)"/i,
               result
             )
 
           captures["nerves_system_br_version"]
+
+        _ ->
+          nil
+      end
+    end
+
+    def get_nerves_version_for_target(target, version) do
+      cd = "#{@download_dir}/nerves_system_#{target}"
+      cmd = "cd #{cd} && git checkout v#{version} > /dev/null 2>&1 && grep :nerves, mix.exs"
+
+      case System.shell(cmd) do
+        {result, 0} ->
+          captures =
+            Regex.named_captures(
+              ~r/:nerves, "(?<nerves_version>.*)"/i,
+              result
+            )
+
+          captures["nerves_version"]
 
         _ ->
           nil
@@ -437,7 +451,7 @@ defmodule NervesSystemCompatibility do
           ]
           |> Enum.reject(&is_nil/1)
           |> Enum.map(&Map.fetch!(&1, "linux_version"))
-          |> Enum.sort_by(&normalize_version/1, :desc)
+          |> Enum.sort_by(&normalize_version/1, {:desc, Version})
           |> List.first()
 
         _ ->
