@@ -46,7 +46,6 @@ defmodule NervesSystemCompatibility do
     alias NervesSystemCompatibility.Database
 
     @chart_dir "tmp/nerves_system_compatibility"
-    @row_opts [column_width: 20]
 
     def build(opts \\ []) do
       chart_dir = opts[:chart_dir] || @chart_dir
@@ -66,11 +65,7 @@ defmodule NervesSystemCompatibility do
 
     defp build_chart_for_target(target, opts) do
       column_labels = [target, "Erlang/OTP", "Nerves", "Nerves System BR", "Buildroot", "Linux"]
-
-      header = [
-        table_row(column_labels, @row_opts),
-        divider_row(length(column_labels), @row_opts)
-      ]
+      header_rows = [table_row(column_labels), divider_row(length(column_labels))]
 
       data_rows =
         for version <- Database.get({target, :versions}) do
@@ -85,10 +80,10 @@ defmodule NervesSystemCompatibility do
             data.linux_version
           ]
 
-          table_row(values, @row_opts)
+          table_row(values)
         end
 
-      markdown_chart = (header ++ data_rows) |> Enum.join("\n")
+      markdown_chart = (header_rows ++ data_rows) |> Enum.join("\n")
 
       case opts[:format] do
         :html ->
@@ -121,43 +116,17 @@ defmodule NervesSystemCompatibility do
       }
     end
 
-    defp table_row(values, opts) when is_list(values) do
-      column_width = opts[:column_width] || 10
-      header_column_width = opts[:header_column_width] || column_width
-      value_column_width = opts[:value_column_width] || column_width
-
-      [header | rest] = values
-
-      [
-        "|",
-        [
-          pad_table_cell(header, header_column_width)
-          | Enum.map(rest, &pad_table_cell(&1, value_column_width))
-        ]
-        |> Enum.intersperse("|"),
-        "|"
-      ]
+    defp table_row(values) when is_list(values) do
+      ["|", Enum.map(values, &pad_table_cell/1) |> Enum.intersperse("|"), "|"]
       |> Enum.join()
     end
 
-    defp divider_row(cell_count, opts) when is_integer(cell_count) do
-      column_width = opts[:column_width] || 10
-      header_column_width = opts[:header_column_width] || column_width
-      value_column_width = opts[:value_column_width] || column_width
-
-      [
-        "|",
-        [
-          pad_table_cell("---", header_column_width)
-          | List.duplicate(pad_table_cell("---", value_column_width), cell_count - 1)
-        ]
-        |> Enum.intersperse("|"),
-        "|"
-      ]
+    defp divider_row(cell_count) when is_integer(cell_count) do
+      ["|", List.duplicate(pad_table_cell("---"), cell_count) |> Enum.intersperse("|"), "|"]
       |> Enum.join()
     end
 
-    defp pad_table_cell(value, count), do: String.pad_trailing(" #{value}", count)
+    defp pad_table_cell(value), do: " #{value} "
   end
 
   defmodule Database do
