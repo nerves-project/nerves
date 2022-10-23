@@ -61,7 +61,7 @@ mix burn
 ### Update firmware via ssh
 
 ```sh
-mix firmware.push [hostname or IP address]
+mix upload [hostname or IP address]
 ```
 
 or if you use need to use commandline ssh instead of Erlang's built-in ssh client:
