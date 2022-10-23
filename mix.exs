@@ -40,7 +40,7 @@ defmodule Nerves.MixProject do
       {:elixir_make, "~> 0.6", runtime: false},
       {:jason, "~> 1.2", optional: true},
       {:credo, "~> 1.6", only: :test, runtime: false},
-      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
+      {:ex_doc, "~> 0.29", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
       {:nerves_bootstrap, "~> 1.8", only: [:test, :dev, :docs]},
       {:plug, "~> 1.10", only: :test},
@@ -78,6 +78,7 @@ defmodule Nerves.MixProject do
         "docs/Customizing Systems.md",
         "docs/Experimental Features.md",
         "docs/Using the CLI.md",
+        "docs/Nerves Cheatsheet.cheatmd",
         "CHANGELOG.md"
       ],
       source_ref: "v#{@version}",

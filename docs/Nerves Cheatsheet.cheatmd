@@ -1,0 +1,160 @@
+# Nerves User Guide
+
+## Overview
+
+### Terminology
+
+| Term             | Definition                 |
+| ---              | ---                        |
+| host             | The computer on which you are editing source code, compiling, and assembling firmware |
+| target           | The computer that runs the compiled code such as a Raspberry Pi Zero, Beaglebone, or other board |
+| toolchain        | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime |
+| system           | A lean Buildroot-based Linux root filesystem that has been customized and cross-compiled for a particular target |
+| firmware bundle  | A single file that contains the system, application, configuration and anything else needed to initialize and update the non- volatile storage of a device |
+| firmware image   | A large binary file generated from the firmware bundle that is a bit- for-bit image of a devices non- volatile memory |
+
+### Official targets
+{: .list-3}
+
+* Beaglebone Black and variants - `bbb`
+* Raspberry Pi Zero - `rpi0`
+* Raspberry Pi Zero W 2/Model 3A - `rpi3a`
+* Raspberry Pi 3B - `rpi3`
+* Raspberry Pi 4 - `rpi4`
+* GRiSP2 - `grisp2`
+* OSD32MP1 - `osd32mp1`
+* Generic x86_64 - `x86_64`
+
+## Getting started
+{: .col-2}
+
+### Install Nerves bootstrap archive
+
+```sh
+mix archive.install hex nerves_bootstrap
+```
+
+### Create a new Nerves project
+
+```sh
+mix nerves.new my_project
+cd my_project
+export MIX TARGET=<mix target>
+mix deps.get
+mix firmware
+```
+
+### Burn a MicroSD card for the first time
+
+Build the project and write it to a MicroSD:
+
+```sh
+mix firmware.burn
+```
+
+Write the most recently built firmware to MicroSD:
+
+```sh
+mix burn
+```
+
+### Update firmware via ssh
+
+```sh
+mix firmware.push [hostname or IP address]
+```
+
+or if you use need to use commandline ssh instead of Erlang's built-in ssh client:
+
+```sh
+mix firmware.gen.script
+./upload.sh [hostname or IP address]
+```
+
+## Networking
+{: .col-2}
+
+Nerves uses [VintageNet](https://github.com/nerves-networking/vintage_net) for network configuration.
+Generally, defaults are in the `target.exs` and device-specific changes such as setting WiFi parameters
+or static IP addresses are made at runtime.
+
+Here's a typical default configuration:
+
+```elixir
+config :vintage_net,
+  # Change to "US", etc. to set country-specific WiFi frequencies
+  regulatory_domain: "00",
+  config: [
+    {"usb0", %{type: VintageNetDirect}},
+    {"eth0", %{type: VintageNetEthernet, ipv4: %{method: :dhcp}}},
+    {"wlan0", %{type: VintageNetWiFi}}
+  ]
+```
+
+### Compile-time WiFi configuration
+
+Replace the `"wlan0"` line in the `target.exs` with this:
+
+```elixir
+{"wlan0",
+   %{
+     type: VintageNetWiFi,
+     vintage_net_wifi: %{
+       networks: [
+         %{
+           key_mgmt: :wpa_psk,
+           ssid: "my_network_ssid",
+           psk: "a_passphrase_or_psk"
+         }
+       ]
+     },
+     ipv4: %{method: :dhcp}
+   }}
+```
+
+### Runtime WiFi configuration
+
+When using the IEx prompt:
+
+```elixir
+iex> VintageNetWiFi.quick_configure("my_network_ssid", "a_passphrase_or_psk")
+```
+
+In code, use `VintageNetWiFi.Cookbook` to generate configurations and then set them:
+
+```elixir
+{:ok, wifi_config} = VintageNetWiFi.Cookbook.wpa_psk("my_network_ssid", "a_passphrase_or_psk")
+VintageNet.configure("wlan0", wifi_config)
+```
+
+### Debug network issues
+
+Check network configurations and connection status:
+
+```elixir
+VintageNet.info
+```
+
+Run `RingLogger.next` to check log messages. Next, browse `VintageNet` properties to see what else `VintageNet` knows:
+
+```elixir
+VintageNet.get_by_prefix([])
+```
+
+### More network examples
+
+* [VintageNet Cookbook](https://github.com/nerves-networking/vintage_net/blob/main/docs/cookbook.md)
+* Cellular - [VintageNetQMI](https://github.com/nerves-networking/vintage_net_qmi) and [VintageNetMobile](https://github.com/nerves-networking/vintage_net_mobile)
+
+## Helpful commands at the IEx prompt
+
+| Command                       | Description                 |
+| ---                           | ---                         |
+| `log_attach` and `log_detach` | Watch messages from the Elixir logger on the console  |
+| `exit`                        | Exit an ssh session. Also try `<enter>~.` |
+| `reboot`                      | Reboot |
+| `cat "/proc/cpuinfo"`         | Print out the contents of a file |
+| `dmesg`                       | Show kernel log messages |
+| `weather`                     | Print the local weather if connected to the internet |
+| `cmd "ps"`                    | Run an OS process (like `ps`) |
+| `hostname`                    | Get the hostname |
