@@ -42,7 +42,7 @@ git checkout -b main
 git push origin main
 ```
 
-Next, tweak the metadata of your Mix project by updating the following:
+Next, tweak the metadata of your Mix project by updating your `mix.exs` with the following:
 
 * The module name of the mix project at the top of the file
 * the value of `@app` to `custom_rpi3`
@@ -53,17 +53,20 @@ for the structure of this file.
 
 ```elixir
 # custom_rpi3/mix.exs
-# =vvv= make sure to rename the module name
+
 # defmodule NervesSystemRpi3.MixProject do
 defmodule CustomRpi3.MixProject do
+  #      =^^^^^^^^^^= Rename `NervesSystemRpi3` to `CustomRpi3`
   use Mix.Project
 
-  # =vvv= Rename `"nerves-project"` here to your user or ogranization name
-  # @github_orgranization "nerves-project"
+  # @github_organization "nerves-project"
   @github_organization "YourGitHubUserOrOrganizationName"
-  # =vvv= Rename `nerves_system_rpi3` here to `custom_rpi3`
+  #                    =^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
+  #                    Rename `"nerves-project"` here to your GitHub user or organization name
+
   # @app :nerves_system_rpi3
   @app :custom_rpi3
+  #    =^^^^^^^^^^^= Rename `nerves_system_rpi3` here to `custom_rpi3`
 end
 
 # =^^^= The rest of this file remains the same
