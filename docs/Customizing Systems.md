@@ -103,7 +103,13 @@ mix nerves.new your_project --target rpi3
 
       # Dependencies for specific targets
       {:nerves_system_rpi3, "~> 1.6", runtime: false, targets: :rpi},
-      {:custom_rpi3, path: "../custom_rpi3", runtime: false, targets: :custom_rpi3, nerves: [compile: true]}, # <===
+
+      # Add the entry below vvv
+      {:custom_rpi3,
+       path: "../custom_rpi3",
+       runtime: false,
+       targets: :custom_rpi3,
+       nerves: [compile: true]},
     ]
   end
 ```
