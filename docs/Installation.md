@@ -162,7 +162,7 @@ later are fine.
 Here's a summary of the install process:
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.0
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.0
 
 # The following steps are for bash. If you’re using something else, do the
 # equivalent for your shell.
