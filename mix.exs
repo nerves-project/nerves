@@ -78,7 +78,11 @@ defmodule Nerves.MixProject do
         "docs/Customizing Systems.md",
         "docs/Experimental Features.md",
         "docs/Using the CLI.md",
-        "CHANGELOG.md"
+        "CHANGELOG.md",
+        "cheatsheets/basics.cheatmd"
+      ],
+      groups_for_extras: [
+        Cheatsheets: ~r/cheatsheets\/.?/
       ],
       source_ref: "v#{@version}",
       source_url: @source_url,
