@@ -2,143 +2,132 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   @moduledoc false
   @behaviour Nerves.Artifact.Resolver
 
-  alias Nerves.Utils
-  alias Nerves.Utils.HTTPClient
+  alias Nerves.{Utils, Utils.HTTPClient}
 
   @base_url "https://api.github.com/"
-  @required_opts [:username, :token, :tag]
+
+  defstruct artifact_name: nil,
+            base_url: @base_url,
+            headers: [],
+            http_client: HTTPClient,
+            http_pid: nil,
+            public?: false,
+            opts: [],
+            repo: nil,
+            tag: "",
+            token: "",
+            url: nil,
+            username: ""
 
   @impl Nerves.Artifact.Resolver
   def get({org_proj, opts}) do
-    case validate_opts(opts) do
-      {:ok, opts} ->
-        fetch_artifact(org_proj, opts)
+    opts =
+      %{struct(__MODULE__, opts) | opts: opts, repo: org_proj}
+      |> maybe_adjust_token()
+      |> add_http_opts()
+      |> maybe_start_http()
 
-      {:error, missing} ->
-        missing = Enum.join(missing, ", ")
-        artifact_name = opts[:artifact_name]
+    result = fetch_artifact(opts)
 
-        error = """
-        Skipping: #{artifact_name}
-        Required options missing: [#{missing}]
-        """
+    opts.http_client.stop(opts.http_pid)
 
-        {:error, error}
-    end
-  end
-
-  defp fetch_artifact(org_proj, opts) do
-    artifact_name = opts[:artifact_name]
-    {:ok, http_pid} = HTTPClient.start_link()
-    token = get_token(opts, artifact_name)
-    username = get_username(opts, artifact_name)
-    tag = get_tag(opts, artifact_name)
-
-    credentials = Base.encode64(username <> ":" <> token)
-    auth_header = {"Authorization", "Basic " <> credentials}
-    accept_header = {"Accept", "application/octet-stream"}
-    base_url = opts[:base_url] || @base_url
-
-    url = Path.join([base_url, "repos", org_proj, "releases", "tags", tag])
-
-    Nerves.Utils.Shell.info("  Downloading artifacts from #{url}")
-
-    url = URI.encode(url)
-
-    result =
-      with {:ok, data} <- HTTPClient.get(http_pid, url, headers: [auth_header], progress?: false),
-           %{"assets" => assets} <- Utils.json_decode(data),
-           {:ok, url} <- get_asset_url(assets, artifact_name) do
-        HTTPClient.get(http_pid, url, headers: [auth_header, accept_header])
-      end
-
-    Nerves.Utils.HTTPClient.stop(http_pid)
     result
   end
 
-  @spec validate_opts(Keyword.t()) :: {:ok | :error, Keyword.t()}
-  def validate_opts(opts) do
-    keys = Keyword.keys(opts)
+  defp add_http_opts(opts) do
+    headers =
+      if opts.public? do
+        []
+      else
+        credentials = Base.encode64(opts.username <> ":" <> opts.token)
+        [{"Authorization", "Basic " <> credentials}]
+      end
 
-    case Enum.split_with(@required_opts, &(&1 in keys)) do
-      {_, [_ | _] = missing} -> {:error, missing}
-      _ -> {:ok, opts}
+    %{
+      opts
+      | headers: headers,
+        url: Path.join([opts.base_url, "repos", opts.repo, "releases", "tags", opts.tag])
+    }
+  end
+
+  defp maybe_adjust_token(opts) do
+    token = System.get_env("GITHUB_TOKEN") || System.get_env("GH_TOKEN")
+
+    if token do
+      # Let the env var take precedence
+      %{opts | token: token}
+    else
+      opts
     end
   end
 
-  defp get_asset_url(assets, artifact_name) do
+  defp maybe_start_http(%{http_pid: pid} = opts) when is_pid(pid), do: opts
+
+  defp maybe_start_http(opts) do
+    {:ok, http_pid} = opts.http_client.start_link()
+    %{opts | http_pid: http_pid}
+  end
+
+  defp fetch_artifact(opts) do
+    info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
+
+    Utils.Shell.info(["  [GitHub] ", info])
+
+    with {:ok, data} <- release_details(opts),
+         %{"assets" => assets} <- Utils.json_decode(data),
+         {:ok, asset_url} <- get_asset_url(assets, opts) do
+      opts.http_client.get(opts.http_pid, asset_url,
+        headers: [{"Accept", "application/octet-stream"} | opts.headers]
+      )
+    end
+  end
+
+  defp release_details(opts) do
+    case opts.http_client.get(opts.http_pid, opts.url, headers: opts.headers, progress?: false) do
+      {:error, "Status 404 Not Found"} ->
+        invalid_token? = is_nil(opts.token) or opts.token == ""
+
+        msg =
+          if not opts.public? and invalid_token? do
+            """
+            Missing token
+
+                 For private releases, you must authenticate the request to fetch release assets.
+                 You can do this in a few ways:
+
+                   * export or set GITHUB_TOKEN=<your-token>
+                   * set `token: <get-token-function>` for this GitHub repository in your Nerves system mix.exs
+            """
+          else
+            "No release"
+          end
+
+        {:error, msg}
+
+      result ->
+        result
+    end
+  end
+
+  defp get_asset_url([], _opts) do
+    {:error, "No release artifacts"}
+  end
+
+  defp get_asset_url(assets, %{artifact_name: artifact_name}) do
     ret =
       Enum.find(assets, fn %{"name" => name} ->
         String.equivalent?(artifact_name, name)
       end)
 
     case ret do
-      nil -> {:error, "No artifact found"}
-      %{"url" => url} -> {:ok, url}
-    end
-  end
-
-  defp get_username(opts, artifact_name) do
-    case Keyword.get(opts, :username) do
       nil ->
-        Mix.raise("""
-        GitHub username not set for artifact: #{artifact_name}.
+        available = for %{"name" => name} <- assets, do: ["       * ", name, "\n"]
+        msg = ["No artifact with valid checksum\n\n     Found:\n", available]
 
-        Ensure that you have your GitHub username set correctly
-        in your environment. You might need to export an environmental
-        variable.
+        {:error, msg}
 
-        For example:
-
-        export GITHUB_USER=<your_username>
-
-        For correctly setting up your environment please see the documentation for the artifact you are
-        trying to download.
-        """)
-
-      username ->
-        username
-    end
-  end
-
-  defp get_token(opts, artifact_name) do
-    case Keyword.get(opts, :token) do
-      nil ->
-        Mix.raise("""
-        GitHub token not set for artifact: #{artifact_name}
-
-        Ensure that you have your GitHub token set correctly
-        in your environment. You might need to export an environmental
-        variable.
-
-        For example:
-
-        export GITHUB_TOKEN=<your_token>
-
-        For correctly setting up your environment please see the documentation for the artifact you are
-        trying to download.
-        """)
-
-      token ->
-        token
-    end
-  end
-
-  defp get_tag(opts, artifact_name) do
-    case Keyword.get(opts, :tag) do
-      nil ->
-        Mix.raise("""
-        GitHub release tag not set for artifact: #{artifact_name}.
-
-        Ensure that you have set the tag field in the artifact sites
-        configuration for this artifact.
-
-        For example:
-          {:github_api, "github_org/my_custom_system", username: System.get_env("GITHUB_USER"), token: System.get_env("GITHUB_TOKEN"), tag: @version}
-        """)
-
-      tag ->
-        tag
+      %{"url" => url} ->
+        {:ok, url}
     end
   end
 end

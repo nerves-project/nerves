@@ -3,6 +3,7 @@ defmodule Nerves.ArtifactTest do
 
   alias Nerves.Artifact
   alias Nerves.Artifact.BuildRunners, as: P
+  alias Nerves.Artifact.Resolvers.GithubAPI
   alias Nerves.Env
 
   test "Fetch build_runner overrides" do
@@ -93,18 +94,20 @@ defmodule Nerves.ArtifactTest do
   end
 
   test "artifact sites are expanded" do
+    repo = "nerves-project/system"
+
     pkg = %{
       app: "my_system",
       version: "1.0.0",
       path: "./",
-      config: [artifact_sites: [{:github_releases, "nerves-project/system"}]]
+      config: [artifact_sites: [{:github_releases, repo}]]
     }
 
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [{_, {short, _}}] = Artifact.expand_sites(pkg)
+    [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
 
-    assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
+    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
   end
 
   test "precompile will raise if packages are stale and not fetched" do

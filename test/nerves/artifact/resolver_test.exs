@@ -103,48 +103,6 @@ defmodule Nerves.Artifact.ResolverTest do
     end)
   end
 
-  test "github api validates required fields" do
-    in_fixture("resolver", fn ->
-      set_artifact_path()
-
-      sites = [
-        {:github_api, "my_org/my_repo", username: "my_user"}
-      ]
-
-      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
-      resolvers = Artifact.expand_sites(pkg)
-
-      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
-
-      sites = [
-        {:github_api, "my_org/my_repo", token: "my_token"}
-      ]
-
-      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
-      resolvers = Artifact.expand_sites(pkg)
-
-      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
-
-      sites = [
-        {:github_api, "my_org/my_repo", username: "my_username", token: "my_token"}
-      ]
-
-      pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
-      resolvers = Artifact.expand_sites(pkg)
-
-      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
-    end)
-  end
-
-  test "github api returns error when missing required options" do
-    assert {:error, _} = Artifact.Resolvers.GithubAPI.validate_opts([])
-    assert {:error, _} = Artifact.Resolvers.GithubAPI.validate_opts(username: "foo")
-    assert {:error, _} = Artifact.Resolvers.GithubAPI.validate_opts(username: "foo", token: "bar")
-
-    assert {:ok, _} =
-             Artifact.Resolvers.GithubAPI.validate_opts(username: "foo", token: "bar", tag: "baz")
-  end
-
   test "download validations will raise" do
     in_fixture("resolver", fn ->
       set_artifact_path()
