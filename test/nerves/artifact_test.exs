@@ -100,13 +100,11 @@ defmodule Nerves.ArtifactTest do
       config: [artifact_sites: [{:github_releases, "nerves-project/system"}]]
     }
 
-    checksum_long = Nerves.Artifact.checksum(pkg)
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [{_, {short, _}}, {_, {long, _}}] = Artifact.expand_sites(pkg)
+    [{_, {short, _}}] = Artifact.expand_sites(pkg)
 
     assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
-    assert String.ends_with?(long, checksum_long <> Artifact.ext(pkg))
   end
 
   test "precompile will raise if packages are stale and not fetched" do

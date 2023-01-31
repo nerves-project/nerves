@@ -251,14 +251,8 @@ defmodule Nerves.Artifact do
   def expand_sites(pkg) do
     case pkg.config[:artifact_url] do
       nil ->
-        # |> Enum.map(&expand_site(&1, pkg))
-        # Check entire checksum length
-        # This code can be removed sometime after nerves 1.0
-        # and instead use the commented line above
         Keyword.get(pkg.config, :artifact_sites, [])
-        |> Enum.reduce([], fn site, urls ->
-          [expand_site(site, pkg), expand_site(site, pkg, checksum_short: 64) | urls]
-        end)
+        |> Enum.map(&expand_site(&1, pkg))
 
       urls when is_list(urls) ->
         # artifact_url is deprecated and this code can be removed sometime following
