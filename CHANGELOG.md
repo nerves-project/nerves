@@ -1,5 +1,25 @@
 # Changelog
 
+## v1.9.2 - 2023-02-05
+
+* Improvements
+  * `:github_api` artifact site resolver was completely refactored
+    * More contextual error messages
+    * `GITHUB_TOKEN` and `GH_TOKEN` environment variables supported (They were
+      previously ignored despite the error message suggesting them to be used)
+    * `:user` option no longer required, but still supported (effectively ignored
+      by GitHub if the token is supplied)
+  * `:github_release` switched to use the same GitHub resolver as `:github_api`
+    in order to have the same benefits
+  * Remove duplicate artifact request with 64 byte checksum name
+
+* Bug Fix
+  * `mix firmware` now places temporary build products in `MIX_BUILD_PATH` which
+    prevents them from being stored in `_build/` root and compiling different
+    targets in different terminals. See #576
+  * Check if supplied rootfs_overlays have incompatible directories. See
+    [nerves-project/nerves_system_br#495](https://github.com/nerves-project/nerves_system_br/issues/495).
+
 ## v1.9.1 - 2022-09-11
 
 This is a patch release that fixes trivial tooling issues found when using
