@@ -50,6 +50,24 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
            """
   end
 
+  test "private release fails with nil token", context do
+    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+
+    opts = Keyword.put(context.opts, :token, nil)
+
+    assert {:error, msg} = GithubAPI.get({context.repo, opts})
+
+    assert msg == """
+           Missing token
+
+                For private releases, you must authenticate the request to fetch release assets.
+                You can do this in a few ways:
+
+                  * export or set GITHUB_TOKEN=<your-token>
+                  * set `token: <get-token-function>` for this GitHub repository in your Nerves system mix.exs
+           """
+  end
+
   test "mismatched checksum", context do
     details = {:ok, Jason.encode!(%{assets: [%{name: "howdy.tar.xz"}]})}
     context = start_http_client!(context, [details])
