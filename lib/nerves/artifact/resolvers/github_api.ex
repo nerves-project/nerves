@@ -39,7 +39,12 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
       if opts.public? do
         []
       else
-        credentials = Base.encode64(opts.username <> ":" <> opts.token)
+        # make safe values here in case nil was supplied as an option
+        # The request will fail and error will be reported later on
+        user = opts.username || ""
+        token = opts.token || ""
+
+        credentials = Base.encode64(user <> ":" <> token)
         [{"Authorization", "Basic " <> credentials}]
       end
 
