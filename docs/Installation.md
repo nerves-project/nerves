@@ -124,6 +124,7 @@ mkShell {
     rebar3
     squashfsTools
     x11_ssh_askpass
+    pkg-config
   ];
   shellHook = ''
     SUDO_ASKPASS=${pkgs.x11_ssh_askpass}/libexec/x11-ssh-askpass
