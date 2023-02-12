@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.9.3 - 2023-02-11
+
+* Bug fix
+  * Temporarily revert GitHub release update in v1.9.2. It produces an error on
+    new projects when downloading artifacts. It's easily fixed by adding a
+    `jason`, but a better fix will be coming.
+
 ## v1.9.2 - 2023-02-05
 
 * Improvements
