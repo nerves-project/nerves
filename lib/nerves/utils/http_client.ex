@@ -96,13 +96,14 @@ defmodule Nerves.Utils.HTTPClient do
       |> Keyword.merge(Nerves.Utils.Proxy.config(url))
       |> Keyword.merge(Keyword.get(opts, :http_opts, []))
 
-    :httpc.request(
-      :get,
-      {String.to_charlist(url), headers},
-      http_opts,
-      [stream: :self, receiver: self(), sync: false],
-      :nerves
-    )
+    {:ok, _} =
+      :httpc.request(
+        :get,
+        {String.to_charlist(url), headers},
+        http_opts,
+        [stream: :self, receiver: self(), sync: false],
+        :nerves
+      )
 
     {:noreply, %{s | url: url, caller: from, get_opts: opts, progress?: progress?}}
   end
