@@ -103,11 +103,15 @@ defmodule Nerves.ArtifactTest do
       config: [artifact_sites: [{:github_releases, repo}]]
     }
 
+    # TODO: Use this testing once fully switched to GithubAPI resolving
+    # [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
+    # assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
+    [{_, {short, _}}] = Artifact.expand_sites(pkg)
 
-    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+    assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
   end
 
   test "precompile will raise if packages are stale and not fetched" do

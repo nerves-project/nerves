@@ -365,13 +365,21 @@ defmodule Nerves.Artifact do
   defp expand_site(_, _, _ \\ [])
 
   defp expand_site({:github_releases, org_proj}, pkg, opts) do
-    opts =
-      opts
-      |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
-      |> Keyword.put(:public?, true)
-      |> update_in([:tag], &(&1 || "v#{pkg.version}"))
+    # TODO: Switch to GithubAPI once JSON codec expectations are
+    # fixed within the lib
+    # opts =
+    #   opts
+    #   |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
+    #   |> Keyword.put(:public?, true)
+    #   |> update_in([:tag], &(&1 || "v#{pkg.version}"))
 
-    {Resolvers.GithubAPI, {org_proj, opts}}
+    # {Resolvers.GithubAPI, {org_proj, opts}}
+
+    expand_site(
+      {:prefix, "https://github.com/#{org_proj}/releases/download/v#{pkg.version}/"},
+      pkg,
+      opts
+    )
   end
 
   defp expand_site({:prefix, url}, pkg, opts) do
