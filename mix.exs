@@ -38,7 +38,7 @@ defmodule Nerves.MixProject do
     [
       {:castore, "~> 0.1"},
       {:elixir_make, "~> 0.6", runtime: false},
-      {:jason, "~> 1.2", optional: true},
+      {:jason, "~> 1.2"},
       {:credo, "~> 1.6", only: :test, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
