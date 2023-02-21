@@ -25,6 +25,8 @@ defmodule Mix.Tasks.Firmware do
   import Mix.Nerves.Utils
   alias Mix.Nerves.Preflight
 
+  @default_mksquashfs_flags ["-no-xattrs", "-quiet"]
+
   @switches [verbose: :boolean, output: :string]
 
   @impl Mix.Task
@@ -79,7 +81,8 @@ defmodule Mix.Tasks.Firmware do
     compiler_check()
     firmware_config = Application.get_env(:nerves, :firmware)
 
-    mksquashfs_flags(firmware_config[:mksquashfs_flags])
+    mksquashfs_flags = firmware_config[:mksquashfs_flags] || @default_mksquashfs_flags
+    set_mksquashfs_flags(mksquashfs_flags)
 
     rootfs_priorities =
       Nerves.Env.package(:nerves_system_br)
@@ -260,9 +263,7 @@ defmodule Mix.Tasks.Firmware do
       end
   end
 
-  defp mksquashfs_flags(nil), do: :noop
-
-  defp mksquashfs_flags(flags) do
+  defp set_mksquashfs_flags(flags) when is_list(flags) do
     System.put_env("NERVES_MKSQUASHFS_FLAGS", Enum.join(flags, " "))
   end
 
