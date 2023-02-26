@@ -23,7 +23,8 @@ defmodule Nerves.MixProject do
         docs: :docs,
         "hex.publish": :docs,
         "hex.build": :docs
-      }
+      },
+      aliases: ["archive.build": &raise_on_archive_build/1]
     ]
   end
 
@@ -109,5 +110,12 @@ defmodule Nerves.MixProject do
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
       }
     ]
+  end
+
+  defp raise_on_archive_build(_) do
+    Mix.raise("""
+    You are trying to install "nerves" as an archive, which is not supported. \
+    You probably meant to install "nerves_bootstrap" instead.
+    """)
   end
 end
