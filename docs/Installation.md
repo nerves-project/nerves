@@ -75,9 +75,11 @@ cards. It is important that you install `fwup ` in both environments.
 First, install a few packages using your package manager:
 
 ### For Debian based systems
+
 ```bash
-sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl
+sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev
 ```
+
 ### For Arch based systems
 
 ```bash
