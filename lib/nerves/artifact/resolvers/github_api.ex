@@ -2,7 +2,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   @moduledoc false
   @behaviour Nerves.Artifact.Resolver
 
-  alias Nerves.{Utils, Utils.HTTPClient}
+  alias Nerves.Utils.{HTTPClient, Shell}
 
   @base_url "https://api.github.com/"
 
@@ -76,10 +76,10 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   defp fetch_artifact(opts) do
     info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
 
-    Utils.Shell.info(["  [GitHub] ", info])
+    Shell.info(["  [GitHub] ", info])
 
     with {:ok, data} <- release_details(opts),
-         %{"assets" => assets} <- Utils.json_decode(data),
+         {:ok, %{"assets" => assets}} <- Jason.decode(data),
          {:ok, asset_url} <- get_asset_url(assets, opts) do
       opts.http_client.get(opts.http_pid, asset_url,
         headers: [{"Accept", "application/octet-stream"} | opts.headers]
