@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.10.0 - 2023-03-03
+
+This release removes the ability to specify an alternative JSON codec with
+`:json_codec` config option and defaults to using `Jason`. If set, everything
+will function as normal but you will see a compiler warning.
+
+* Bug fix
+  * Prevent accidentally installing `:nerves` as an archive
+  * Add default mksquashfs flags when none specified
+
 ## v1.9.3 - 2023-02-11
 
 * Bug fix
