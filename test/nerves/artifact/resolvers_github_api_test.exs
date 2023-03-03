@@ -155,6 +155,39 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     assert env_token == req_token
   end
 
+  test "public release uses public download when API rate limit reached", context do
+    data = {:ok, "artifact data!"}
+
+    context =
+      start_http_client!(context, [{:error, "Status 403 rate limit exceeded"}, data], self())
+
+    opts =
+      context.opts
+      |> Keyword.put(:public?, true)
+      |> Keyword.delete(:token)
+
+    assert ^data = GithubAPI.get({context.repo, opts})
+
+    # Requests the GitHubAPI for release details first
+    expected_details_url =
+      "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
+
+    assert_receive {:get, ^expected_details_url, _opts}
+
+    # Rate limit reached, so downloads the usual public URL
+    expected_public_download_url =
+      "https://github.com/#{context.repo}/releases/download/#{opts[:tag]}/#{opts[:artifact_name]}"
+
+    assert_receive {:get, ^expected_public_download_url, _opts}
+  end
+
+  test "private release fails when API rate limit reached", context do
+    err = {:error, "Status 403 rate limit exceeded"}
+    context = start_http_client!(context, [err], self())
+
+    assert ^err = GithubAPI.get({context.repo, context.opts})
+  end
+
   defp start_http_client!(context, returns, echo \\ nil) do
     client = context.opts[:http_client]
     opts = [name: context.test, returns: returns, echo: echo]
