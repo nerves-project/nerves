@@ -78,9 +78,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
     Shell.info(["  [GitHub] ", info])
 
-    with {:ok, data} <- release_details(opts),
-         {:ok, %{"assets" => assets}} <- Jason.decode(data),
-         {:ok, asset_url} <- get_asset_url(assets, opts) do
+    with {:ok, assets_or_url} <- release_details(opts),
+         {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
       opts.http_client.get(opts.http_pid, asset_url,
         headers: [{"Accept", "application/octet-stream"} | opts.headers]
       )
@@ -89,6 +88,18 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
   defp release_details(opts) do
     case opts.http_client.get(opts.http_pid, opts.url, headers: opts.headers, progress?: false) do
+      {:ok, data} ->
+        Jason.decode(data)
+
+      {:error, "Status 403 rate limit exceeded"} when opts.public? ->
+        # Apparently this user has made too many public API requests from their IP
+        # so let's just fallback to the old way of fetching via a release download.
+        # If the release doesn't exist, we won't be able help provide hints about
+        # a checksum mismatch or bad name, but the tradeoff is worth it if the
+        # release actually does exist
+        {:ok,
+         "https://github.com/#{opts.repo}/releases/download/#{opts.tag}/#{opts.artifact_name}"}
+
       {:error, "Status 404 Not Found"} ->
         invalid_token? = is_nil(opts.token) or opts.token == ""
 
@@ -114,11 +125,13 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
     end
   end
 
-  defp get_asset_url([], _opts) do
+  defp get_asset_url(url, _) when is_binary(url), do: {:ok, url}
+
+  defp get_asset_url(%{"assets" => []}, _opts) do
     {:error, "No release artifacts"}
   end
 
-  defp get_asset_url(assets, %{artifact_name: artifact_name}) do
+  defp get_asset_url(%{"assets" => assets}, %{artifact_name: artifact_name}) do
     ret =
       Enum.find(assets, fn %{"name" => name} ->
         String.equivalent?(artifact_name, name)
