@@ -3,6 +3,7 @@ defmodule Nerves.ArtifactTest do
 
   alias Nerves.Artifact
   alias Nerves.Artifact.BuildRunners, as: P
+  alias Nerves.Artifact.Resolvers.GithubAPI
   alias Nerves.Env
 
   test "Fetch build_runner overrides" do
@@ -102,15 +103,10 @@ defmodule Nerves.ArtifactTest do
       config: [artifact_sites: [{:github_releases, repo}]]
     }
 
-    # TODO: Use this testing once fully switched to GithubAPI resolving
-    # [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
-    # assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
-
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [{_, {short, _}}] = Artifact.expand_sites(pkg)
-
-    assert String.ends_with?(short, checksum_short <> Artifact.ext(pkg))
+    [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
+    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
   end
 
   test "precompile will raise if packages are stale and not fetched" do
