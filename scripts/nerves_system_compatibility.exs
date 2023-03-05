@@ -38,6 +38,7 @@ defmodule NervesSystemCompatibility do
 
     IO.puts("===> Building chart")
     Chart.build(format: format)
+    Repo.cleanup!()
 
     IO.puts("done")
   end
@@ -45,7 +46,7 @@ defmodule NervesSystemCompatibility do
   defmodule Chart do
     alias NervesSystemCompatibility.Database
 
-    @chart_dir "tmp/nerves_system_compatibility"
+    @chart_dir Path.join(System.tmp_dir!(), "nerves_system_compatibility")
 
     def build(opts \\ []) do
       chart_dir = opts[:chart_dir] || @chart_dir
@@ -190,9 +191,11 @@ defmodule NervesSystemCompatibility do
   end
 
   defmodule Repo do
-    @download_dir "tmp/nerves_system_compatibility/repos"
+    @download_dir Path.join(System.tmp_dir!(), "nerves_system_compatibility/repos")
     @br_version_count 150
     @target_version_count 50
+
+    def cleanup!(), do: File.rm_rf!(@download_dir)
 
     def download_nerves_system_repos do
       for target_or_br <- [:br | NervesSystemCompatibility.nerves_targets()] do
