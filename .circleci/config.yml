@@ -35,6 +35,7 @@ jobs:
       - run: mix deps.unlock --check-unused
       - run: mix docs
       - run: mix hex.build
+      - run: MIX_ENV=test mix compile
       - run: mix test || mix test
       - run: mix credo -a
       - run: mix dialyzer
@@ -53,6 +54,7 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_system_deps
       - run: mix deps.get
+      - run: MIX_ENV=test mix compile
       - run: mix test || mix test
 
   build_elixir_1_13_otp_24:
@@ -64,6 +66,7 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_system_deps
       - run: mix deps.get
+      - run: MIX_ENV=test mix compile
       - run: mix test || mix test
 
   build_elixir_1_12_otp_24:
@@ -75,6 +78,7 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_system_deps
       - run: mix deps.get
+      - run: MIX_ENV=test mix compile
       - run: mix test --exclude release || mix test --exclude release
 
   build_elixir_1_11_otp_23:
@@ -86,6 +90,7 @@ jobs:
       - <<: *install_hex_rebar
       - <<: *install_system_deps
       - run: mix deps.get
+      - run: MIX_ENV=test mix compile
       - run: mix test --exclude release || mix test --exclude release
 
 workflows:
