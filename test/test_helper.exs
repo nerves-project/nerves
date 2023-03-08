@@ -16,5 +16,15 @@ System.put_env("NERVES_LOG_DISABLE_PROGRESS_BAR", "1")
 # Clear the project stack in preparation for loading and unloading fixtures
 Mix.ProjectStack.clear_stack()
 
-# Long assert receive timeout is for CircleCI.
-ExUnit.start(exclude: [:skip], assert_receive_timeout: 500)
+config =
+  case System.get_env("CI") do
+    nil ->
+      []
+
+    _ ->
+      # CircleCI needs a long assert receive timeout.
+      # The JUnitFormatter lets CircleCI parse the error messages.
+      [assert_receive_timeout: 500, formatters: [ExUnit.CLIFormatter, JUnitFormatter]]
+  end
+
+ExUnit.start(config)

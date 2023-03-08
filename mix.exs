@@ -43,6 +43,7 @@ defmodule Nerves.MixProject do
       {:credo, "~> 1.6", only: :test, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
+      {:junit_formatter, "~> 3.3", only: :test},
       {:nerves_bootstrap, "~> 1.8", only: [:test, :dev, :docs]},
       {:plug, "~> 1.10", only: :test},
       {:mime, "~> 2.0", only: :test},

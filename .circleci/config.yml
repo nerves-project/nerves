@@ -36,6 +36,8 @@ jobs:
       - run: mix docs
       - run: mix hex.build
       - run: mix test || mix test
+      - store_test_results:
+          path: test-junit-report.xml
       - run: mix credo -a
       - run: mix dialyzer
       - save_cache:
