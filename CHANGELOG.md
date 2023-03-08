@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.10.1 - 2023-03-08
+
+* Improvements
+  * Use `GitHubAPI` for public release artifacts for helpful reports on error
+  * Allow `castore: v1.0` to be used
+
 ## v1.10.0 - 2023-03-03
 
 This release removes the ability to specify an alternative JSON codec with
