@@ -11,6 +11,9 @@
 #   # Generate HTML
 #   scripts/nerves_system_compatibility.exs --format html
 #
+#   # Generate HTML and update the charts in the documentation
+#   scripts/nerves_system_compatibility.exs --format html --doc
+#
 
 Mix.install([:earmark])
 
@@ -18,16 +21,24 @@ defmodule NervesSystemCompatibility do
   alias NervesSystemCompatibility.{Chart, Database, Repo}
 
   @nerves_targets [:bbb, :rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :osd32mp1, :x86_64, :grisp2]
+  @systems_doc_divider "\n<!-- COMPATIBILITY -->\n"
+  @systems_doc_path "./docs/Systems.md"
+
   def nerves_targets, do: @nerves_targets
 
   def run do
+    {parsed_opts, _} =
+      OptionParser.parse!(System.argv(), strict: [format: :string, doc: :boolean])
+
+    IO.puts(["options: ", inspect(parsed_opts)])
+
     format =
-      case OptionParser.parse!(System.argv(), strict: [format: :string]) do
-        {[format: format], _} -> String.to_existing_atom(format)
-        _ -> :md
+      case parsed_opts[:format] do
+        nil -> :md
+        format -> String.to_existing_atom(format)
       end
 
-    IO.puts("format: #{format}")
+    should_update_doc = Keyword.get(parsed_opts, :doc, false)
 
     IO.puts("===> Downloading repos")
     Repo.download_nerves_system_repos()
@@ -37,10 +48,25 @@ defmodule NervesSystemCompatibility do
     Database.build()
 
     IO.puts("===> Building chart")
-    Chart.build(format: format)
+    {:ok, chart} = Chart.build(format: format)
     Repo.cleanup!()
 
+    if should_update_doc do
+      update_doc(chart.content)
+      IO.puts("updated doc #{@systems_doc_path}")
+    end
+
     IO.puts("done")
+  end
+
+  def update_doc(chart_content) do
+    [keep_before, _replace, keep_after] =
+      File.read!(@systems_doc_path)
+      |> String.split(@systems_doc_divider)
+
+    [keep_before, chart_content, keep_after]
+    |> Enum.join(@systems_doc_divider)
+    |> then(&File.write(@systems_doc_path, &1))
   end
 
   defmodule Chart do
@@ -62,6 +88,7 @@ defmodule NervesSystemCompatibility do
       file = "#{chart_dir}/nerves_system_compatibility_#{System.os_time(:second)}.#{chart_format}"
       IO.puts(file)
       File.write!(file, chart)
+      {:ok, %{file: file, content: chart}}
     end
 
     defp build_chart_for_target(target, opts) do
