@@ -68,8 +68,12 @@ as a deployment wrapper around the `my_app_ui` project.
 # ...
 ```
 
-We need one adjustment to the UI project's `mix.exs`.  By default when `MIX_ENV`
-is `dev`, the default Phoenix setup runs [`esbuild`] to rebuild assets as needed.
+We need a few adjustments to the UI project's `mix.exs`.  By default when `MIX_ENV`
+is `dev`, the default Phoenix setup runs: 
+- `phoenix_live_reload` to reload code changes
+- [`esbuild`] to rebuild assets as needed
+- `tailwindcss` to optimize css (Phoenix 1.7+)
+
 This doesn't work on target device, so we need to limit it to only run on the
 host:
 
@@ -80,7 +84,10 @@ host:
     [
       {:phoenix, "~> 1.6.0"},
       # ...
-      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev && Mix.target() == :host},
+      {:phoenix_live_reload, "~> 1.2", only: :dev && Mix.target() == :host},
+      # ...
+      {:esbuild, "~> 0.5", runtime: Mix.env() == :dev && Mix.target() == :host},
+      {:tailwind, "~> 0.1.8", runtime: Mix.env() == :dev && Mix.target() == :host},
       # ...
     ]
   end
