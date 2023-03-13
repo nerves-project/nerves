@@ -5,12 +5,13 @@ defaults: &defaults
   environment:
     LC_ALL: C.UTF-8
 
-install_hex_rebar: &install_hex_rebar
+mix_setup: &mix_setup
   run:
-    name: Install hex and rebar
+    name: Install hex, rebar, and nerves_bootstrap
     command: |
       mix local.hex --force
       mix local.rebar --force
+      mix archive.install hex nerves_bootstrap --force
 
 install_system_deps: &install_system_deps
   run:
@@ -25,7 +26,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_hex_rebar
+      - <<: *mix_setup
       - <<: *install_system_deps
       - restore_cache:
           keys:
@@ -50,7 +51,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_hex_rebar
+      - <<: *mix_setup
       - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test || mix test
@@ -61,7 +62,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_hex_rebar
+      - <<: *mix_setup
       - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test || mix test
@@ -72,7 +73,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_hex_rebar
+      - <<: *mix_setup
       - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test --exclude release || mix test --exclude release
@@ -83,7 +84,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - <<: *install_hex_rebar
+      - <<: *mix_setup
       - <<: *install_system_deps
       - run: mix deps.get
       - run: mix test --exclude release || mix test --exclude release

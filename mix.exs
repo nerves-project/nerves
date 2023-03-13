@@ -24,7 +24,8 @@ defmodule Nerves.MixProject do
         "hex.publish": :docs,
         "hex.build": :docs
       },
-      aliases: ["archive.build": &raise_on_archive_build/1]
+      aliases: ["archive.build": &raise_on_archive_build/1],
+      xref: [exclude: [Nerves.Bootstrap]]
     ]
   end
 
@@ -43,7 +44,6 @@ defmodule Nerves.MixProject do
       {:credo, "~> 1.6", only: :test, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
-      {:nerves_bootstrap, "~> 1.8", only: [:test, :dev, :docs]},
       {:plug, "~> 1.10", only: :test},
       {:mime, "~> 2.0", only: :test},
       {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test}
@@ -53,7 +53,7 @@ defmodule Nerves.MixProject do
   defp dialyzer do
     [
       flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
-      plt_add_apps: [:mix]
+      plt_add_apps: [:mix, :nerves_bootstrap]
     ]
   end
 
