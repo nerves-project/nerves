@@ -32,7 +32,7 @@ defmodule Toolchain.MixProject do
 
   defp deps() do
     [
-      # {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
       {:toolchain_platform, path: "../toolchain_platform"}
     ]
   end
