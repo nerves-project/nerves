@@ -96,6 +96,80 @@ defmodule NervesTest.Case do
     end
   end
 
+  @doc """
+  Compile a test fixture with it's dependencies to a temporary directory
+
+  Returns the temporary path of the copied fixture and environment variables
+  list with `XDG_DATA_HOME` set to `tmp_path/.nerves` for an isolated
+  Nerves data directory if needed (i.e. With `System.cmd` or Nerves)
+
+  The `tmp` argument can be any directory, though it is suggested to use the
+  `ExUnit.Case` Tmp Dir functionality with `@tag :tmp_dir` which will handle
+  creation of a clean directory for the test.
+
+  ```
+  @tag :tmp_dir
+  test "something", %{temp_dir: tmp} do
+    {path, env} = setup_fixture("some_app", tmp)
+  end
+  ```
+
+  See https://hexdocs.pm/ex_unit/ExUnit.Case.html#module-tmp-dir
+  """
+  @type env_var :: {String.t(), String.t()}
+  @spec compile_fixture(String.t(), Path.t(), [String.t()], [env_var()]) ::
+          {:ok, Path.t(), [env_var()]} | {Collectable.t(), exit_status :: non_neg_integer()}
+  def compile_fixture(fixture, tmp, deps \\ [], env \\ [{"MIX_TARGET", "test"}]) do
+    src = fixture_path(fixture)
+
+    dest = Path.join(tmp, fixture) |> Path.expand()
+
+    env = [{"XDG_DATA_HOME", Path.join(dest, ".nerves")} | env]
+
+    _ = File.cp_r!(src, dest)
+
+    Enum.each(deps, fn dep ->
+      path = Path.expand("#{dest}/../#{dep}")
+      fixture_to_tmp(dep, path)
+    end)
+
+    opts = [cd: dest, env: env, stderr_to_stdout: true]
+
+    with {_deps, 0} <- System.cmd("mix", ["deps.get"], opts),
+         {_compile, 0} <- System.cmd("mix", ["compile"], opts) do
+      {:ok, dest, env}
+    end
+  end
+
+  @doc """
+  Same as `compile_fixture/4` but raises on error
+  """
+  @spec compile_fixture!(String.t(), Path.t(), [String.t()], [env_var()]) ::
+          {Path.t(), [env_var()]} | :no_return
+  def compile_fixture!(fixture, tmp, deps \\ [], env \\ [{"MIX_TARGET", "test"}]) do
+    case compile_fixture(fixture, tmp, deps, env) do
+      {:ok, dest, env} ->
+        {dest, env}
+
+      {output, err} ->
+        msg =
+          [
+            "Fixture compilation error during integration test. See output below ¬",
+            "\n\n=== Start ===\n\n",
+            output,
+            "\n\n=== End ==="
+          ]
+          |> IO.iodata_to_binary()
+
+        if function_exported?(Mix, :raise, 2) do
+          # since 1.12.3
+          Mix.raise(msg, exit_status: err)
+        else
+          Mix.raise(msg)
+        end
+    end
+  end
+
   @spec purge([module()]) :: :ok
   def purge(modules) do
     Enum.each(modules, fn m ->
