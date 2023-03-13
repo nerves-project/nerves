@@ -1,23 +1,16 @@
 defmodule Nerves.IntegrationTest do
-  use NervesTest.Case
+  use NervesTest.Case, async: true
 
+  @tag :tmp_dir
   @tag :integration
-  test "bootstrap is called for other env packages" do
-    in_fixture("integration_app", fn ->
-      packages = ~w(system toolchain system_platform toolchain_platform host_tool)
+  test "bootstrap is called for other env packages", %{tmp_dir: tmp} do
+    deps = ~w(system toolchain system_platform toolchain_platform host_tool)
 
-      load_env(packages)
-      Mix.Tasks.Deps.Get.run([])
-      Mix.Tasks.Nerves.Env.run([])
-      Mix.Tasks.Nerves.Precompile.run([])
-      Mix.Tasks.Compile.run([])
+    {path, _env} = compile_fixture!("integration_app", tmp, deps)
 
-      file =
-        File.cwd!()
-        |> Path.join("hello")
+    file = Path.join(path, "hello")
 
-      assert File.exists?(file)
-      assert File.read!(file) == "Hello, world!\n"
-    end)
+    assert File.exists?(file)
+    assert File.read!(file) == "Hello, world!\n"
   end
 end
