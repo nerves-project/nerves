@@ -11,7 +11,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   Docker containers will be created based off the image that is loaded.
   By default, containers will use the default image
-  `nervesproject/nerves_system_br:latest`. Sometimes additional host tools
+  `ghcr.io/nerves-project/nerves_system_br:latest`. Sometimes additional host tools
   are required to build a package. Therefore, packages can provide their own
   images by specifying it in the package config under `:build_runner_config`.
   the file is specified as a tuple `{"path/to/Dockerfile", tag_name}`.
@@ -366,7 +366,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   defp default_docker_config() do
     [platform] = Nerves.Env.packages_by_type(:system_platform)
     dockerfile = Path.join(platform.path, "support/docker/#{platform.app}")
-    tag = "nervesproject/#{platform.app}:#{platform.version}"
+    tag = "ghcr.io/nerves-project/#{platform.app}:#{platform.version}"
     {dockerfile, tag}
   end
 
