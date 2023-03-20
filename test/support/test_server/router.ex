@@ -6,7 +6,7 @@ defmodule Nerves.TestServer.Router do
 
   @spec start_link() :: GenServer.on_start()
   def start_link() do
-    Plug.Adapters.Cowboy.http(Nerves.TestServer.Router, [])
+    Plug.Cowboy.http(Nerves.TestServer.Router, [])
   end
 
   get "/no_auth/*_" do
