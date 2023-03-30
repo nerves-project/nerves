@@ -22,20 +22,19 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
 
       %Nerves.Package{} = pkg ->
         # Check to see if the package path is set in the environment
-        if Nerves.Artifact.env_var?(pkg) do
-          path = System.get_env(Nerves.Artifact.env_var(pkg))
-          Nerves.Utils.Shell.success("  Env #{app}")
-          Nerves.Utils.Shell.success("      #{path}")
-        else
-          # Check the cache
-          case Artifact.Cache.get(pkg) do
-            nil ->
-              get_artifact(pkg)
+        cond do
+          Nerves.Artifact.env_var?(pkg) ->
+            path = System.get_env(Nerves.Artifact.env_var(pkg))
+            Nerves.Utils.Shell.success("  Env #{app}")
+            Nerves.Utils.Shell.success("      #{path}")
 
-            cache_path ->
-              Nerves.Utils.Shell.success("  Found #{app} in cache")
-              Nerves.Utils.Shell.info("    #{cache_path}")
-          end
+          # Check the cache
+          cache_path = Artifact.Cache.get(pkg) ->
+            Nerves.Utils.Shell.success("  Found #{app} in cache")
+            Nerves.Utils.Shell.info("    #{cache_path}")
+
+          true ->
+            get_artifact(pkg)
         end
 
       _ ->
