@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.10.2 - 2023-04-11
+
+* Improvements
+  * Change `BuildRunners.Docker` to use GitHub Container Registry by default
+
 ## v1.10.1 - 2023-03-08
 
 * Improvements
