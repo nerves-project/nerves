@@ -38,7 +38,7 @@ BeagleBone Black, BeagleBone Green, BeagleBone Green Wireless, and PocketBeagle.
 Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves_system_x86_64) | `x86_64`
 OSD32MP1 | [nerves_system_osd32mp1](https://github.com/nerves-project/nerves_system_osd32mp1) | `osd32mp1`
 GRiSP 2 | [nerves_system_grisp2](https://github.com/nerves-project/nerves_system_grisp2) | `grisp2`
-
+MangoPi MQ Pro | [nerves_system_mangopi_mq_pro](https://github.com/nerves-project/nerves_system_mangopi_mq_pro | `mangopi_mq_pro`
 While the Nerves core team only officially supports the above hardware, the
 community has added support for other boards. See [Nerves Systems on
 hex.pm](https://hex.pm/packages?search=depends:nerves_system_br)
