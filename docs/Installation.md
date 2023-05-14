@@ -172,8 +172,12 @@ git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.0
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc # optional
 source ~/.bashrc
-# for zsh based systems run the following
+
+# For zsh based systems run the following
 echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.zshrc
+# Add complete command used by asdf.bash
+echo -e 'autoload -U +X bashcompinit && bashcompinit' >> ~/.zshrc
+echo -e 'autoload -U +X compinit && compinit' >> ~/.zshrc
 echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.zshrc
 source ~/.zshrc
 
