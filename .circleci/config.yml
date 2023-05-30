@@ -22,7 +22,7 @@ install_system_deps: &install_system_deps
 jobs:
   build_elixir_1_14_otp_25:
     docker:
-      - image: hexpm/elixir:1.14.3-erlang-25.2.2-alpine-3.17.0
+      - image: hexpm/elixir:1.14.5-erlang-25.3.2-alpine-3.17.3
     <<: *defaults
     steps:
       - checkout
