@@ -1,7 +1,7 @@
 version: 2.1
 
 latest: &latest
-  pattern: "^1.14.5-erlang-25.*$"
+  pattern: "^1.15.1-erlang-26.*$"
 
 jobs:
   build-test:
@@ -59,6 +59,7 @@ workflows:
           matrix:
             parameters:
               tag: [
+                1.15.1-erlang-26.0.2-alpine-3.18.2,
                 1.14.5-erlang-25.3.2-alpine-3.18.0,
                 1.13.4-erlang-25.3.2-alpine-3.18.0,
                 1.13.4-erlang-24.3.4.11-alpine-3.18.0,

@@ -8,7 +8,7 @@ defmodule Nerves.MixProject do
     [
       app: :nerves,
       version: @version,
-      elixir: "~> 1.11.2 or ~> 1.12.0 or ~> 1.13.0 or ~> 1.14.0",
+      elixir: "~> 1.11.2 or ~> 1.12.0 or ~> 1.13.0 or ~> 1.14.0 or ~> 1.15.1",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       description: description(),
@@ -30,7 +30,7 @@ defmodule Nerves.MixProject do
   end
 
   def application do
-    [extra_applications: [:ssl, :inets, :eex]]
+    [extra_applications: [:ssl, :inets, :eex, :nerves_bootstrap]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -53,7 +53,7 @@ defmodule Nerves.MixProject do
   defp dialyzer do
     [
       flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
-      plt_add_apps: [:mix, :nerves_bootstrap]
+      plt_add_apps: [:mix]
     ]
   end
 
