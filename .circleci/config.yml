@@ -1,100 +1,67 @@
-version: 2
+version: 2.1
 
-defaults: &defaults
-  working_directory: ~/repo
-  environment:
-    LC_ALL: C.UTF-8
-
-mix_setup: &mix_setup
-  run:
-    name: Install hex, rebar, and nerves_bootstrap
-    command: |
-      mix local.hex --force
-      mix local.rebar --force
-      mix archive.install hex nerves_bootstrap --force
-
-install_system_deps: &install_system_deps
-  run:
-    name: Install system dependencies
-    command: |
-        apk add build-base procps
+latest: &latest
+  pattern: "^1.14.5-erlang-25.*$"
 
 jobs:
-  build_elixir_1_14_otp_25:
+  build-test:
+    parameters:
+      tag:
+        type: string
     docker:
-      - image: hexpm/elixir:1.14.5-erlang-25.3.2-alpine-3.17.3
-    <<: *defaults
+      - image: hexpm/elixir:<< parameters.tag >>
+    working_directory: ~/repo
+    environment:
+      LC_ALL: C.UTF-8
     steps:
+      - run:
+          name: Install system dependencies
+          command: apk add --no-cache build-base procps
       - checkout
-      - <<: *mix_setup
-      - <<: *install_system_deps
+      - run:
+          name: Install hex, rebar, and nerves_bootstrap
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
+            mix archive.install hex nerves_bootstrap --force
       - restore_cache:
           keys:
-            - v2-mix-cache-{{ checksum "mix.lock" }}
+            - v1-mix-cache-<< parameters.tag >>-{{ checksum "mix.lock" }}
       - run: mix deps.get
-      - run: mix format --check-formatted
-      - run: mix deps.unlock --check-unused
-      - run: mix docs
-      - run: mix hex.build
-      - run: mix test || mix test
-      - run: mix credo -a
-      - run: mix dialyzer
+      - when:
+          condition:
+            matches: { <<: *latest, value: << parameters.tag >> }
+          steps:
+            - run: mix format --check-formatted
+            - run: mix deps.unlock --check-unused
+            - run: mix docs
+            - run: mix hex.build
+            - run: mix test || mix test
+            - run: mix credo -a --strict
+            - run: mix dialyzer
+      - when:
+          condition:
+            not:
+              matches: { <<: *latest, value: << parameters.tag >> }
+          steps:
+            - run: mix test --exclude release || mix test --exclude release
       - save_cache:
-          key: v2-mix-cache-{{ checksum "mix.lock" }}
+          key: v1-mix-cache-<< parameters.tag >>-{{ checksum "mix.lock" }}
           paths:
             - _build
             - deps
 
-  build_elixir_1_13_otp_25:
-    docker:
-      - image: hexpm/elixir:1.13.4-erlang-25.0.3-alpine-3.16.0
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *mix_setup
-      - <<: *install_system_deps
-      - run: mix deps.get
-      - run: mix test || mix test
-
-  build_elixir_1_13_otp_24:
-    docker:
-      - image: hexpm/elixir:1.13.4-erlang-24.3.4-alpine-3.15.3
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *mix_setup
-      - <<: *install_system_deps
-      - run: mix deps.get
-      - run: mix test || mix test
-
-  build_elixir_1_12_otp_24:
-    docker:
-      - image: hexpm/elixir:1.12.3-erlang-24.3.4-alpine-3.15.3
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *mix_setup
-      - <<: *install_system_deps
-      - run: mix deps.get
-      - run: mix test --exclude release || mix test --exclude release
-
-  build_elixir_1_11_otp_23:
-    docker:
-      - image: hexpm/elixir:1.11.4-erlang-23.3.4.13-alpine-3.15.3
-    <<: *defaults
-    steps:
-      - checkout
-      - <<: *mix_setup
-      - <<: *install_system_deps
-      - run: mix deps.get
-      - run: mix test --exclude release || mix test --exclude release
-
 workflows:
-  version: 2
-  build_test:
+  checks:
     jobs:
-      - build_elixir_1_14_otp_25
-      - build_elixir_1_13_otp_25
-      - build_elixir_1_13_otp_24
-      - build_elixir_1_12_otp_24
-      - build_elixir_1_11_otp_23
+      - build-test:
+          name: << matrix.tag >>
+          matrix:
+            parameters:
+              tag: [
+                1.14.5-erlang-25.3.2-alpine-3.17.3,
+                1.13.4-erlang-25.0.3-alpine-3.16.0,
+                1.13.4-erlang-24.3.4-alpine-3.15.3,
+                1.12.3-erlang-24.3.4-alpine-3.15.3,
+                1.11.4-erlang-23.3.4.13-alpine-3.15.3
+              ]
