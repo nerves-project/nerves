@@ -1,6 +1,6 @@
 defmodule Nerves.Utils do
   @moduledoc false
-  @alphanum 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_'
+  @alphanum ~c"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
 
   if Application.compile_env(:nerves, :json_codec) do
     IO.warn(":json_codec is no longer supported. Please remove from your config", [])

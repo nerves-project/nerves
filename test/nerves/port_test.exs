@@ -71,7 +71,7 @@ defmodule Nerves.PortTest do
 
   test "cmd/3 raises with non-binary arguments" do
     assert_raise ArgumentError, ~r"all arguments for Nerves.Port.cmd/3 must be binaries", fn ->
-      Nerves.Port.cmd("ls", ['/usr'])
+      Nerves.Port.cmd("ls", [~c"/usr"])
     end
   end
 

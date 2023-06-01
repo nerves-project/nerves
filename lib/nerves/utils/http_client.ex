@@ -76,8 +76,8 @@ defmodule Nerves.Utils.HTTPClient do
     user_headers = Keyword.get(opts, :headers, []) |> Enum.map(&tuple_to_charlist/1)
 
     headers = [
-      {'User-Agent', 'Nerves/#{Nerves.version()}'},
-      {'Content-Type', 'application/octet-stream'} | user_headers
+      {~c"User-Agent", ~c"Nerves/#{Nerves.version()}"},
+      {~c"Content-Type", ~c"application/octet-stream"} | user_headers
     ]
 
     http_opts =
@@ -115,7 +115,7 @@ defmodule Nerves.Utils.HTTPClient do
 
   def handle_info({:http, {_, :stream_start, headers}}, s) do
     content_length =
-      case Enum.find(headers, fn {key, _} -> key == 'content-length' end) do
+      case Enum.find(headers, fn {key, _} -> key == ~c"content-length" end) do
         nil ->
           0
 
@@ -129,7 +129,7 @@ defmodule Nerves.Utils.HTTPClient do
       end
 
     filename =
-      case Enum.find(headers, fn {key, _} -> key == 'content-disposition' end) do
+      case Enum.find(headers, fn {key, _} -> key == ~c"content-disposition" end) do
         nil ->
           Path.basename(s.url)
 
@@ -167,8 +167,8 @@ defmodule Nerves.Utils.HTTPClient do
 
   def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
       when div(status_code, 100) == 3 do
-    case Enum.find(headers, fn {key, _} -> key == 'location' end) do
-      {'location', next_location} ->
+    case Enum.find(headers, fn {key, _} -> key == ~c"location" end) do
+      {~c"location", next_location} ->
         next_get_opts = Keyword.drop(s.get_opts, [:headers])
 
         handle_call({:get, List.to_string(next_location), next_get_opts}, s.caller, %{

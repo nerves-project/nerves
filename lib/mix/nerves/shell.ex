@@ -35,13 +35,13 @@ defmodule Mix.Nerves.Shell do
         :stderr_to_stdout,
         {:env,
          [
-           {'PATH', Mix.Nerves.Utils.sanitize_path() |> to_charlist()},
+           {~c"PATH", Mix.Nerves.Utils.sanitize_path() |> to_charlist()},
            # Unset these Env vars which are set by the host Erlang
            # and might interfere with the build
-           {'BINDIR', false},
-           {'MIX_HOME', false},
-           {'PROGNAME', false},
-           {'ROOTDIR', false}
+           {~c"BINDIR", false},
+           {~c"MIX_HOME", false},
+           {~c"PROGNAME", false},
+           {~c"ROOTDIR", false}
          ]}
       ])
 
