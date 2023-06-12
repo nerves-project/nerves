@@ -233,7 +233,7 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 This project exists thanks to all the people who contribute.
 <a href="https://github.com/nerves-project/nerves/graphs/contributors"><img src="https://opencollective.com/nerves-project/contributors.svg?width=890" /></a>
 
-Please see our [Contributing Guide](/.github/CONTRIBUTING.md) for details on how you can
+Please see our [Contributing Guide](https://github.com/nerves-project/.github/blob/main/CONTRIBUTING.md) for details on how you can
 contribute in various ways.
 
 ## Metal Level Sponsors
