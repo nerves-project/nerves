@@ -72,15 +72,17 @@ cards. It is important that you install `fwup ` in both environments.
 
 ## Linux
 
-First, install a few packages using your package manager:
 
-### For Debian based systems
+### Package manager installs
+First, install a few packages using your package manager.
+
+#### On Debian-based systems
 
 ```bash
 sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev
 ```
 
-### For Arch based systems
+#### On Arch-based systems
 
 ```bash
 yay -S base-devel ncurses5-compat-libs openssh-askpass git squashfs-tools curl
@@ -91,20 +93,7 @@ filesystems and `ssh-askpass` will be used to ask for passwords when writing to
 MicroSD cards. Some Fedora and Manjaro users have reported that they had to create a symlink
 from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
-Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
-install firmware images. You can install `fwup` using the instructions found at
-[Installation Page](https://github.com/fwup-home/fwup#installing). Installing the
-pre-built `.deb` or `.rpm` files is recommended.
-
-If you want to build custom Nerves Systems, you need a few more build tools. If
-you skip this step, you'll get an error message with instructions if you ever
-need to build a custom system. On Debian and Ubuntu, run the following:
-
-```bash
-sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python
-```
-
-### For NixOS or Nix package manager
+#### On NixOS or with Nix package manager
 
 Create a `shell.nix` file with the following contents:
 
@@ -144,6 +133,21 @@ include the same packages listed under `buildInputs` in the
 Please notes that you may need to adjust the `SUDO_ASKPASS` environment
 variable to include the correct path to the askpass program of your choice. A
 known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`
+
+
+### fwup
+Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
+install firmware images. You can install `fwup` using the instructions found at
+[Installation Page](https://github.com/fwup-home/fwup#installing). Installing the
+pre-built `.deb` or `.rpm` files is recommended.
+
+If you want to build custom Nerves Systems, you need a few more build tools. If
+you skip this step, you'll get an error message with instructions if you ever
+need to build a custom system. On Debian and Ubuntu, run the following:
+
+```bash
+sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python
+```
 
 ### Other Linux distributions
 
