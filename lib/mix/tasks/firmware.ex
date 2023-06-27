@@ -66,6 +66,12 @@ defmodule Mix.Tasks.Firmware do
     """)
   end
 
+  def result({%IO.Stream{}, err}) do
+    # Any output was already sent through the stream,
+    # so just halt at this point
+    System.halt(err)
+  end
+
   def result({result, _}) do
     Mix.raise("""
     Nerves encountered an error. #{inspect(result)}
@@ -141,7 +147,7 @@ defmodule Mix.Tasks.Firmware do
     |> File.mkdir_p!()
 
     shell(cmd, args, env: env)
-    |> result
+    |> result()
   end
 
   defp standard_fwup_variables(config) do
