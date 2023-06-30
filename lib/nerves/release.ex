@@ -16,6 +16,8 @@ defmodule Nerves.Release do
         steps: release.steps ++ [&Nerves.Release.finalize/1]
     }
 
+    check_vm_args_compatibility!(release)
+
     _ = File.rm_rf!(release.path)
 
     if Code.ensure_loaded?(Shoehorn.Release) do
@@ -165,6 +167,82 @@ defmodule Nerves.Release do
   defp normalize_applications(applications) do
     for {app, opts} <- applications do
       {to_string(app), to_string(opts[:vsn]), Path.expand(opts[:path] || "")}
+    end
+  end
+
+  @elixir_1_15_opts ["-user elixir", "-run elixir start_iex"]
+  @legacy_elixir_opts ["-user Elixir.IEx.CLI"]
+  defp check_vm_args_compatibility!(release) do
+    Mix.shell().info([:yellow, "* [Nerves] ", :reset, "validating vm.args"])
+
+    {exclusions, inclusions} =
+      if Version.match?(System.version(), ">= 1.15.0") do
+        {@legacy_elixir_opts, @elixir_1_15_opts}
+      else
+        {@elixir_1_15_opts, @legacy_elixir_opts}
+      end
+
+    vm_args = File.read!(vm_args_path)
+
+    errors =
+      []
+      |> check_vm_args_inclusions(vm_args, inclusions, vm_args_path)
+      |> check_vm_args_exclusions(vm_args, exclusions, vm_args_path)
+
+    if length(errors) > 0 do
+      errs = IO.ANSI.format(errors) |> IO.chardata_to_string()
+
+      Mix.raise("""
+      Incompatible vm.args.eex
+
+      The procedure for starting IEx changed in Elixir 1.15. The rel/vm.args.eex for
+      this project starts IEx in an incompatible way for the version of Elixir you're
+      using and won't work.
+
+      To fix this, either change the version of Elixir that you're using or make the
+      following changes to vm.args.eex:
+      #{errs}
+      """)
+    else
+      :ok
+    end
+  end
+
+  defp check_vm_args_exclusions(errors, vm_args, exclusions, vm_args_path) do
+    String.split(vm_args, "\n")
+    |> Enum.with_index(1)
+    |> Enum.filter(fn {line, _} -> Enum.any?(exclusions, &String.contains?(line, &1)) end)
+    |> case do
+      [] ->
+        []
+
+      lines ->
+        [
+          "\nPlease remove the following lines:\n\n",
+          Enum.map(lines, fn {line, line_num} ->
+            ["* ", vm_args_path, ":", to_string(line_num), ":\n  ", :red, line, "\n"]
+          end)
+          | errors
+        ]
+    end
+  end
+
+  defp check_vm_args_inclusions(errors, vm_args, inclusions, vm_args_path) do
+    case Enum.reject(inclusions, &String.contains?(vm_args, &1)) do
+      [] ->
+        []
+
+      lines ->
+        [
+          [
+            "\nPlease ensure the following lines are in ",
+            vm_args_path,
+            ":\n",
+            :green,
+            Enum.map(lines, &["  ", &1, "\n"])
+          ]
+          | errors
+        ]
     end
   end
 end

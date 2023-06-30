@@ -26,4 +26,56 @@ defmodule Nerves.ReleaseTest do
            |> File.read!()
            |> String.starts_with?(expected)
   end
+
+  @tag :tmp_dir
+  @tag :release
+  test "fails if vm.args has incompatible shell setting", %{tmp_dir: tmp} do
+    {path, env} = compile_fixture!("release_app", tmp, [], [])
+
+    rel_templates_path = Path.join(tmp, "bad_rel")
+    assert :ok = File.mkdir_p(rel_templates_path)
+    bad_vm_args = Path.join(rel_templates_path, "vm.args.eex")
+
+    expected =
+      if Version.match?(System.version(), ">= 1.15.0") do
+        assert :ok = File.write(bad_vm_args, "# test.vm.args\n-user Elixir.IEx.CLI")
+
+        ~r"""
+        Please remove the following lines:
+
+        \* #{bad_vm_args}:2:
+          -user Elixir.IEx.CLI
+
+        Please ensure the following lines are in #{bad_vm_args}:
+          -user elixir
+          -run elixir start_iex
+        """
+      else
+        assert :ok =
+                 File.write(bad_vm_args, "# test.vm.args\n-user elixir\n-run elixir start_iex")
+
+        ~r"""
+        Please remove the following lines:
+
+        \* #{bad_vm_args}:2:
+          -user elixir
+        \* #{bad_vm_args}:3:
+          -run elixir start_iex
+
+        Please ensure the following lines are in #{bad_vm_args}:
+          -user Elixir.IEx.CLI
+        """
+      end
+
+    opts = [
+      cd: path,
+      env: [{"MIX_ENV", "prod"}, {"REL_TEMPLATES_PATH", rel_templates_path} | env],
+      stderr_to_stdout: true
+    ]
+
+    {output, 1} = System.cmd("mix", ["release"], opts)
+
+    assert output =~ "Incompatible vm.args"
+    assert output =~ expected
+  end
 end
