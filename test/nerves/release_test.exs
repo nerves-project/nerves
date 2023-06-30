@@ -29,6 +29,22 @@ defmodule Nerves.ReleaseTest do
 
   @tag :tmp_dir
   @tag :release
+  test "requires vm.args.eex", %{tmp_dir: tmp} do
+    {path, env} = compile_fixture!("release_app", tmp, [], [])
+
+    opts = [
+      cd: path,
+      env: [{"MIX_ENV", "prod"}, {"REL_TEMPLATES_PATH", Path.join(tmp, "no-rel")} | env],
+      stderr_to_stdout: true
+    ]
+
+    assert {output, 1} = System.cmd("mix", ["release"], opts)
+
+    assert output =~ ~r/Missing required .*vm\.args\.eex/
+  end
+
+  @tag :tmp_dir
+  @tag :release
   test "fails if vm.args has incompatible shell setting", %{tmp_dir: tmp} do
     {path, env} = compile_fixture!("release_app", tmp, [], [])
 

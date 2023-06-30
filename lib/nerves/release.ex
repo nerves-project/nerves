@@ -174,6 +174,11 @@ defmodule Nerves.Release do
   @legacy_elixir_opts ["-user Elixir.IEx.CLI"]
   defp check_vm_args_compatibility!(release) do
     Mix.shell().info([:yellow, "* [Nerves] ", :reset, "validating vm.args"])
+    vm_args_path = Mix.Release.rel_templates_path(release, "vm.args.eex")
+
+    if not File.exists?(vm_args_path) do
+      Mix.raise("Missing required #{vm_args_path}")
+    end
 
     {exclusions, inclusions} =
       if Version.match?(System.version(), ">= 1.15.0") do
