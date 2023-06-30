@@ -27,6 +27,7 @@ defmodule ReleaseApp.Fixture do
     [
       overwrite: true,
       steps: [&Nerves.Release.init/1, :assemble],
+      rel_templates_path: System.get_env("REL_TEMPLATES_PATH", "rel"),
       strip_beams: true
     ]
   end
