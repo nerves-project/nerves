@@ -92,14 +92,15 @@ defmodule Nerves.PortTest do
     assert {["hello\n"], 0} = Nerves.Port.cmd("echo", ["hello"], opts)
   end
 
+  # Test adapted from https://github.com/elixir-lang/elixir/blob/v1.15.0/lib/elixir/test/elixir/system_test.exs#L121
   @echo "echo-elixir-test"
-  @tmp_path Path.join(__DIR__, "tmp")
+  @tag :tmp_dir
+  test "cmd/2 with absolute and relative paths", config do
+    echo = Path.join(config.tmp_dir, @echo)
+    File.mkdir_p!(Path.dirname(echo))
+    File.ln_s!(System.find_executable("echo"), echo)
 
-  test "cmd/2 with absolute and relative paths" do
-    File.mkdir_p!(@tmp_path)
-    File.cp!(System.find_executable("echo"), Path.join(@tmp_path, @echo))
-
-    File.cd!(@tmp_path, fn ->
+    File.cd!(Path.dirname(echo), fn ->
       # There is a bug in OTP where find_executable is finding
       # entries on the current directory. If this is the case,
       # we should avoid the assertion below.
@@ -110,8 +111,6 @@ defmodule Nerves.PortTest do
       assert {"hello\n", 0} =
                Nerves.Port.cmd(Path.join(File.cwd!(), @echo), ["hello"], [{:arg0, "echo"}])
     end)
-  after
-    File.rm_rf!(@tmp_path)
   end
 
   test "signals return an exit code of 128 + signal" do
