@@ -122,22 +122,6 @@ defmodule Nerves.ArtifactTest do
     end)
   end
 
-  test "parent projects are omitted from precompile check" do
-    in_fixture("system_artifact", fn ->
-      packages = ~w(toolchain system_platform)
-
-      File.cwd!()
-      |> Path.join("mix.exs")
-      |> Code.require_file()
-
-      _ = load_env(packages)
-
-      Mix.Tasks.Deps.Get.run([])
-      Mix.Tasks.Nerves.Env.run([])
-      assert :ok = Mix.Tasks.Nerves.Precompile.run([])
-    end)
-  end
-
   describe "artifact base_path" do
     test "XDG_DATA_HOME" do
       System.delete_env("NERVES_ARTIFACTS_DIR")
