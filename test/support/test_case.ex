@@ -222,8 +222,6 @@ defmodule NervesTest.Case do
 
   @spec load_env([String.t()]) :: [Nerves.Package.t()]
   def load_env(packages \\ []) do
-    {:ok, _} = Application.ensure_all_started(:nerves_bootstrap)
-
     packages =
       packages
       |> Enum.sort()

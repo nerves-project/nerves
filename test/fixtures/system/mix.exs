@@ -11,8 +11,15 @@ defmodule System.MixProject do
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
+      aliases: [loadconfig: [&bootstrap/1]],
       deps: deps()
     ]
+  end
+
+  defp bootstrap(args) do
+    Mix.target(:target)
+    Application.ensure_all_started(:nerves_bootstrap)
+    Mix.Task.run("loadconfig", args)
   end
 
   defp nerves_package() do
@@ -33,9 +40,9 @@ defmodule System.MixProject do
 
   defp deps() do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
-      {:toolchain, path: "../toolchain"},
-      {:system_platform, path: "../system_platform"}
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false},
+      {:toolchain, path: "../toolchain", runtime: false},
+      {:system_platform, path: "../system_platform", runtime: false}
     ]
   end
 

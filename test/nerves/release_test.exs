@@ -7,7 +7,9 @@ defmodule Nerves.ReleaseTest do
     {path, env} = compile_fixture!("release_app", tmp, [], [])
 
     opts = [cd: path, env: [{"MIX_ENV", "prod"} | env], stderr_to_stdout: true]
-    {_, 0} = System.cmd("mix", ["release"], opts)
+    {output, exit_status} = System.cmd("mix", ["release"], opts)
+
+    assert exit_status == 0, output
 
     expected = """
     srv/erlang/releases/0.1.0/consolidated/Elixir.String.Chars.beam 32000

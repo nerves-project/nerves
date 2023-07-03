@@ -1,3 +1,3 @@
 import Config
 
-Application.start(:nerves_bootstrap)
+Application.ensure_all_started(:nerves_bootstrap)
