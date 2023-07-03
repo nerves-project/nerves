@@ -48,19 +48,15 @@ defmodule Nerves.EnvTest do
     System.delete_env("HOST_ARCH")
   end
 
-  test "compiling Nerves packages from the top of an umbrella raises an error" do
-    in_fixture("umbrella", fn ->
-      File.cwd!()
-      |> Path.join("mix.exs")
-      |> Code.require_file()
+  @tag :tmp_dir
+  test "compiling Nerves packages from the top of an umbrella raises an error", %{tmp_dir: tmp} do
+    err_regex = ~r"""
+    When compiling from an Umbrella project you must also ensure:
 
-      Mix.Tasks.Deps.Get.run([])
+    \* You are compiling from an application directory, not the root of the Umbrella
+    """
 
-      assert_raise Mix.Error, fn ->
-        Mix.Tasks.Nerves.Precompile.run([])
-        Mix.Tasks.Compile.run([])
-      end
-    end)
+    assert_raise Mix.Error, err_regex, fn -> compile_fixture!("umbrella", tmp) end
   end
 
   describe "data_dir/0" do
