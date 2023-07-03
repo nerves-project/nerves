@@ -13,7 +13,6 @@ defmodule Mix.Tasks.Nerves.Deps.Get do
     # the system and toolchain during this time.
     Mix.Tasks.Nerves.Env.run(["--disable"])
     Mix.Task.run("nerves.artifact.get", [])
-    Nerves.Bootstrap.check_for_update()
 
     debug_info("Nerves.Deps.Get End")
   end
