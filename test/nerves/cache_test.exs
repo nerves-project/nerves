@@ -4,33 +4,30 @@ defmodule Nerves.CacheTest do
   alias Nerves.Artifact
   alias Nerves.Artifact.Cache
 
-  test "cache entries are created properly" do
-    in_fixture("host_tool", fn ->
-      Application.start(:nerves_bootstrap)
+  @tag :tmp_dir
+  test "cache entries are created properly", %{tmp_dir: tmp} do
+    File.touch(Path.join(tmp, "tester"))
 
-      File.cwd!()
-      |> Path.join("mix.exs")
-      |> Code.require_file()
+    package = %Nerves.Package{
+      path: tmp,
+      version: "0.1.0",
+      app: :tester,
+      config: [checksum: ["tester"]]
+    }
 
-      Nerves.Env.start()
-      package = Nerves.Env.package(:host_tool)
+    artifact_name = Artifact.download_name(package) <> Artifact.ext(package)
+    artifact_tar = Path.join(tmp, artifact_name)
 
-      artifact_name = Artifact.download_name(package) <> Artifact.ext(package)
+    Nerves.Utils.File.tar(tmp, artifact_tar)
 
-      artifact_tar =
-        File.cwd!()
-        |> Path.join(artifact_name)
+    assert File.exists?(artifact_tar)
 
-      Mix.Tasks.Nerves.Artifact.run([])
-      assert File.exists?(artifact_tar)
+    Cache.put(package, artifact_tar)
 
-      Cache.put(package, artifact_tar)
+    artifact_dir = Artifact.dir(package)
 
-      artifact_dir = Artifact.dir(package)
-
-      assert File.dir?(artifact_dir)
-      assert Cache.valid?(package)
-    end)
+    assert File.dir?(artifact_dir)
+    assert Cache.valid?(package)
   end
 
   test "dl folder is queried prior to calling resolver" do
