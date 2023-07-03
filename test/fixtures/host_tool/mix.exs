@@ -8,16 +8,13 @@ defmodule HostTool.MixProject do
       elixir: "~> 1.5",
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
-      xref: [
-        exclude: [
-          Nerves.Artifact,
-          Nerves.Artifact.BuildRunner,
-          Nerves.Artifact.Cache,
-          Nerves.Package.Platform,
-          Nerves.Port,
-          Nerves.Utils.File
-        ]
-      ]
+      deps: deps()
+    ]
+  end
+
+  defp deps() do
+    [
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false}
     ]
   end
 

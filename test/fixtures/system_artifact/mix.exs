@@ -7,12 +7,19 @@ defmodule SystemArtifact.MixProject do
 
   def project() do
     [
-      app: :system,
+      app: :system_artifact,
       version: @version,
       compilers: Mix.compilers() ++ [:nerves_package],
       nerves_package: nerves_package(),
+      aliases: [loadconfig: [&bootstrap/1]],
       deps: deps()
     ]
+  end
+
+  defp bootstrap(args) do
+    Mix.target(:target)
+    Application.ensure_all_started(:nerves_bootstrap)
+    Mix.Task.run("loadconfig", args)
   end
 
   defp nerves_package() do
@@ -32,8 +39,8 @@ defmodule SystemArtifact.MixProject do
 
   defp deps() do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
-      {:system_platform, path: "../system_platform"}
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false},
+      {:system_platform, path: "../system_platform", runtime: false}
     ]
   end
 

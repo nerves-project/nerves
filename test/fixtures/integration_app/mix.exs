@@ -3,7 +3,7 @@ defmodule IntegrationApp do
 
   def project() do
     [
-      app: :example_app,
+      app: :integration_app,
       version: "0.1.0",
       archives: [nerves_bootstrap: "~> 1.0"],
       compilers: Mix.compilers() ++ [:host_tool],
@@ -12,14 +12,14 @@ defmodule IntegrationApp do
   end
 
   def application() do
-    [applications: []]
+    [extra_applications: []]
   end
 
   defp deps() do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../"},
-      {:system, path: "../system"},
-      {:host_tool, path: "../host_tool"}
+      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false},
+      {:system, path: "../system", runtime: false},
+      {:host_tool, path: "../host_tool", runtime: false}
     ]
   end
 end
