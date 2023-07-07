@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.10.3 - 2023-07-07
+
+* Improvements
+  * Support Elixir 1.15 / OTP 26
+  * Fix misleading `%IO.Stream{}` error when building firmware
+  * Add validations for `vm.args.eex` during firmware build
+
 ## v1.10.2 - 2023-04-11
 
 * Improvements
