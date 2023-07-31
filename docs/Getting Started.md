@@ -212,7 +212,7 @@ For more info on Nerves-specific use of the IEx prompt, refer to
 
 ## Nerves Livebook
 
-The [Nerves Livebook firmware](https://github.com/livebook-dev/nerves_livebook)
+The [Nerves Livebook firmware](https://github.com/nerves-livebook/nerves_livebook)
 lets you try out the Nerves projects on real hardware without needing to build
 anything. Within minutes, you'll have a Raspberry Pi or Beaglebone running
 Nerves. You'll be able to run code in [Livebook](https://livebook.dev/) and
@@ -221,7 +221,7 @@ work through Nerves tutorials from the comfort of your browser.
 Looking for a quick demo first? Click below for
 [Underjord](https://www.youtube.com/c/Underjord)'s Nerves Quickstart video.
 
-[![Install video](https://github.com/livebook-dev/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
+[![Install video](https://github.com/nerves-livebook/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
 
 ## Nerves examples
 

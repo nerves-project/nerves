@@ -65,7 +65,7 @@ since they're so commonly used in conjunction with the core libraries and tools.
 | -------------------------: | :------------------------------------------------------------------------------------------ | :-------------------------------------------------------- |
 | **[Circuits Quickstart](https://github.com/elixir-circuits/circuits_quickstart)** | Try out Elixir Circuits with prebuilt Nerves firmware | ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/elixir-circuits/circuits_quickstart?sort=semver) |
 | **[NervesExamples](https://github.com/nerves-project/nerves_examples)** | Small example programs using Nerves | |
-| **[Nerves Livebook](https://github.com/livebook-dev/nerves_livebook)** | Develop on embedded devices with Livebook and Nerves | ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/livebook-dev/nerves_livebook?sort=semver) |
+| **[Nerves Livebook](https://github.com/nerves-livebook/nerves_livebook)** | Develop on embedded devices with Livebook and Nerves | ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/nerves-livebook/nerves_livebook?sort=semver) |
 
 ### Hardware
 
