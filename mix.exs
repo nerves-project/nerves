@@ -18,6 +18,7 @@ defmodule Nerves.MixProject do
       make_clean: ["clean"],
       docs: docs(),
       dialyzer: dialyzer(),
+      build_per_environment: false,
       preferred_cli_env: %{
         credo: :lint,
         dialyzer: :lint,
