@@ -19,7 +19,8 @@ defmodule Nerves.MixProject do
       docs: docs(),
       dialyzer: dialyzer(),
       preferred_cli_env: %{
-        credo: :test,
+        credo: :lint,
+        dialyzer: :lint,
         docs: :docs,
         "hex.publish": :docs,
         "hex.build": :docs
@@ -41,9 +42,9 @@ defmodule Nerves.MixProject do
       {:castore, "~> 0.1 or ~> 1.0"},
       {:elixir_make, "~> 0.6", runtime: false},
       {:jason, "~> 1.2"},
-      {:credo, "~> 1.6", only: :test, runtime: false},
+      {:credo, "~> 1.6", only: :lint, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
-      {:dialyxir, "~> 1.0", only: [:test, :dev], runtime: false},
+      {:dialyxir, "~> 1.0", only: :lint, runtime: false},
       {:plug, "~> 1.10", only: :test},
       {:mime, "~> 2.0", only: :test},
       {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test}
