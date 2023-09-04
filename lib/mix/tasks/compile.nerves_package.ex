@@ -17,8 +17,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     if Nerves.Env.enabled?() do
       config = Mix.Project.config()
 
-      bootstrap_started?()
-      |> bootstrap_check()
+      bootstrap_check!()
 
       _ = Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
 
@@ -41,31 +40,50 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     end
   end
 
-  @doc false
-  defp bootstrap_check(true), do: :ok
+  defp bootstrap_check!() do
+    cond do
+      bootstrap_started?() ->
+        :ok
 
-  defp bootstrap_check(false) do
-    error =
-      """
-      Compiling Nerves packages requires nerves_bootstrap to be started, which ought to
-      happen in your generated `config.exs`. Please ensure that MIX_TARGET is set in your environment.
-      """ <>
-        if in_umbrella?(File.cwd!()) do
+      not bootstrap_installed?() ->
+        Mix.raise("""
+        Compiling Nerves packages requires the nerves_bootstrap archive which is missing
+        from the Elixir version currently in use (#{System.version()}).
+
+        Please install it with:
+
+          mix archive.install hex nerves_bootstrap
+        """)
+
+      true ->
+        Mix.raise(
           """
+          Compiling Nerves packages requires nerves_bootstrap to be started, which ought to
+          happen in your generated `config.exs`. Please ensure that MIX_TARGET is set in your environment.
+          """ <>
+            if in_umbrella?(File.cwd!()) do
+              """
 
-          When compiling from an Umbrella project you must also ensure:
+              When compiling from an Umbrella project you must also ensure:
 
-          * You are compiling from an application directory, not the root of the Umbrella
+              * You are compiling from an application directory, not the root of the Umbrella
 
-          * The Umbrella config (/config/config.exs) imports the generated Nerves config from your
-          Nerves application (import_config "../apps/your_nerves_app/config/config.exs")
+              * The Umbrella config (/config/config.exs) imports the generated Nerves config from your
+              Nerves application (import_config "../apps/your_nerves_app/config/config.exs")
 
-          """
-        else
-          ""
-        end
+              """
+            else
+              ""
+            end
+        )
+    end
+  end
 
-    Mix.raise(error)
+  defp bootstrap_installed?() do
+    Mix.path_for(:archives)
+    |> Path.join("*")
+    |> Path.wildcard()
+    |> Enum.any?(&(&1 =~ ~r/nerves_bootstrap/))
   end
 
   defp bootstrap_started?() do
