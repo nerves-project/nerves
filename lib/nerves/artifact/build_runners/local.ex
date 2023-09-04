@@ -51,6 +51,8 @@ defmodule Nerves.Artifact.BuildRunners.Local do
 
   @doc """
   Connect to a system configuration sub-shell
+
+  Unsupported in >= OTP 26
   """
   @spec system_shell(Nerves.Package.t()) :: :ok
   def system_shell(pkg) do
@@ -67,13 +69,28 @@ defmodule Nerves.Artifact.BuildRunners.Local do
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("#{pkg.path}", platform_config)
 
-    initial_input = [
-      "echo Updating build directory.",
-      "echo This will take a while if it is the first time...",
-      "#{script} #{defconfig} #{dest} >/dev/null",
-      "cd #{dest}"
-    ]
+    if String.to_integer(System.otp_release()) < 26 do
+      initial_input = [
+        "echo Updating build directory.",
+        "echo This will take a while if it is the first time...",
+        "#{script} #{defconfig} #{dest} >/dev/null",
+        "cd #{dest}"
+      ]
 
-    Mix.Nerves.Shell.open(shell, initial_input)
+      Mix.Nerves.Shell.open(shell, initial_input)
+    else
+      Mix.Nerves.IO.shell_warn("shell start deprecated", """
+      OTP 26 made several changes to the serial interface handling. Unfortunately, this
+      is a regression in preventing the Nerves tooling from starting a system sub-shell.
+
+      However, compilation is supported on this host and this native shell can be used.
+      Run the commands below to create the build directory and perform all the same
+      interactions as before within it:
+      """)
+
+      # Leave as it's own info line so users could pipe/eval this as a workaround
+      # i.e eval "$(mix nerves.system.shell | tail -n 1)"
+      Mix.shell().info("  #{script} #{defconfig} #{dest} >/dev/null && cd #{dest}")
+    end
   end
 end

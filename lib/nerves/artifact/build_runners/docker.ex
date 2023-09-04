@@ -125,30 +125,62 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   @doc """
   Connect to a system configuration shell in a Docker container
+
+  Unsupported in >= OTP 26. However, the Docker env will still be created
+  and a command output to IO which can be used manually.
   """
   @spec system_shell(Nerves.Package.t()) :: :ok
   def system_shell(pkg) do
     _ = preflight(pkg)
     {_, image} = config(pkg)
-    platform_config = pkg.config[:platform_config][:defconfig]
-    defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
-
-    initial_input = [
-      "echo Updating build directory.",
-      "echo This will take a while if it is the first time...",
-      "/nerves/env/platform/create-build.sh #{defconfig} #{@working_dir} >/dev/null"
-    ]
 
     mounts = Enum.join(mounts(pkg), " ")
     ssh_agent = Enum.join(ssh_agent(), " ")
     env_vars = Enum.join(env(), " ")
 
-    cmd =
+    shell =
       "docker run --rm -it -w #{@working_dir} #{env_vars} #{mounts} #{ssh_agent} #{image} /bin/bash"
 
     set_volume_permissions(pkg)
 
-    Mix.Nerves.Shell.open(cmd, initial_input)
+    create_build = create_build_cmd(pkg) |> Enum.join(" ")
+
+    if String.to_integer(System.otp_release()) < 26 do
+      # Legacy shell support
+      initial_input = [
+        "echo Updating build directory.",
+        "echo This will take a while if it is the first time...",
+        "#{create_build} >/dev/null"
+      ]
+
+      Mix.Nerves.Shell.open(shell, initial_input)
+    else
+      Mix.Nerves.IO.shell_warn("shell start deprecated", """
+      OTP 26 made several changes to the serial interface handling. Unfortunately, this
+      is a regression in preventing the Nerves tooling from starting a system sub-shell.
+
+      However, the Docker environment has been configured and can be used the same as
+      before by manually running the command below which creates the build directory
+      and gives you a shell running in the container to interact with the system:
+      """)
+
+      exec_input = [
+        "echo -e '\\e[25F\\e[0J\\e[1;7m\\n  Preparing Nerves Shell  \\e[0m'",
+        "echo -e '\\e]0;Nerves Shell\\a'",
+        "echo \\\"PS1='\\e[1;7m Nerves \\e[0;1m \\W > \\e[0m'\\\" >> ~/.bashrc",
+        "echo \\\"PS2='\\e[1;7m Nerves \\e[0;1m \\W ..\\e[0m'\\\" >> ~/.bashrc",
+        "echo 'Updating build directory.'",
+        "echo 'This will take a while if it is the first time...'",
+        "#{create_build} >/dev/null",
+        "echo -e '\\nUse \\e[33mctrl+d\\e[0m or \\e[33mexit\\e[0m to leave the container shell\\n'",
+        "exec /bin/bash"
+      ]
+
+      # >= OTP 26 will just output this command to the user for them to run
+      # With Docker, we want create-build.sh to run and then to exec the shell
+      # to keep the docker container open as an interactive shell
+      Mix.shell().info(~s(#{shell} -c "#{Enum.join(exec_input, " ; ")}"))
+    end
   end
 
   defp preflight(pkg) do
@@ -162,10 +194,14 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   # Build Commands
 
-  defp create_build(pkg, stream) do
+  defp create_build_cmd(pkg) do
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
-    cmd = ["/nerves/env/platform/create-build.sh", defconfig, @working_dir]
+    ["/nerves/env/platform/create-build.sh", defconfig, @working_dir]
+  end
+
+  defp create_build(pkg, stream) do
+    cmd = create_build_cmd(pkg)
     shell_info("Starting Build... (this may take a while)")
     run(pkg, cmd, stream)
   end
