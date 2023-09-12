@@ -145,6 +145,15 @@ procedure to be used on Linux and non-Linux development hosts by using a
 Linux-based Docker container on non-Linux platforms. To access this environment,
 run the `mix nerves.system.shell` task from the custom system source directory.
 
+> #### Warning {: .warning}
+>
+> Starting with OTP 26, the underlying shell system was completely reworked with
+> big improvements but unfortunately is incompatible with how `mix nerves.system.shell`
+> was handling a shell session. The task can still be run, but it will simple output
+> a command you will need to manually run in your shell to get the same effect
+>
+> Follow [nerves#893](https://github.com/nerves-project/nerves/issues/893) for status updates
+
 ```bash
 $ mix deps.get
 Mix environment
