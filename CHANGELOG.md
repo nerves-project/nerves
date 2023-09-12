@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.10.4 - 2023-09-13
+
+* Improvements
+  * Adjust compilation error when `nerves_bootstrap` is missing
+
+* Bug Fix
+  * Adjust `mix nerves.system.shell` for OTP 26
+    * With OTP 26, this task cannot completely handle the shell and
+      instead prints out the command to run manually for the
+      same effect.
+
 ## v1.10.3 - 2023-07-07
 
 * Improvements
