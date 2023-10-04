@@ -135,7 +135,7 @@ Note that this minimal configuration corresponds to our freshly generated
 phoenix application without Ecto or Swoosh as we passed the `--no-ecto` and
 `--no-mailer` flags to the generator earlier. If you wish to use those features, 
 remember to add the relevant configuration. An example for Ecto can be seen 
-in the [Nerves + Phoenix example]: https://github.com/nerves-project/nerves_examples/blob/1da4597bee5d9f26c643cb32523fc70e136d1e2b/hello_phoenix/firmware/config/target.exs#L17 .
+in the [Nerves + Phoenix example](https://github.com/nerves-project/nerves_examples/blob/1da4597bee5d9f26c643cb32523fc70e136d1e2b/hello_phoenix/firmware/config/target.exs#L17).
 
 There we have it! A Phoenix-based web application is now ready to run on our
 Nerves-based embedded device. By separating the Phoenix-based project from the
