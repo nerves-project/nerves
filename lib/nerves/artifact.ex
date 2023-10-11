@@ -374,6 +374,28 @@ defmodule Nerves.Artifact do
     {Resolvers.GithubAPI, {org_proj, opts}}
   end
 
+  defp expand_site({:gitea_releases, repo_uri}, pkg, opts) when is_binary(repo_uri),
+    do: expand_site({:gitea_releases, URI.parse(repo_uri)}, pkg, opts)
+
+  defp expand_site({:gitea_releases, repo_uri}, pkg, opts)
+       when is_nil(repo_uri.scheme) and is_nil(repo_uri.host),
+       do: expand_site({:gitea_releases, URI.parse("https://#{repo_uri.path}")}, pkg, opts)
+
+  defp expand_site({:gitea_releases, repo_uri}, pkg, opts) do
+    repo_uri = URI.parse(repo_uri)
+    base_url = %{repo_uri | path: "/"} |> to_string()
+    org_proj = repo_uri.path |> String.trim_leading("/")
+
+    opts =
+      opts
+      |> Keyword.put(:base_url, base_url)
+      |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
+      |> Keyword.put(:public?, true)
+      |> update_in([:tag], &(&1 || "v#{pkg.version}"))
+
+    {Resolvers.GiteaAPI, {org_proj, opts}}
+  end
+
   defp expand_site({:prefix, url}, pkg, opts) do
     expand_site({:prefix, url, []}, pkg, opts)
   end
@@ -390,6 +412,13 @@ defmodule Nerves.Artifact do
     {Resolvers.GithubAPI, {org_proj, resolver_opts}}
   end
 
+  defp expand_site({:gitea_api, org_proj, resolver_opts}, pkg, opts) do
+    resolver_opts =
+      Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
+
+    {Resolvers.GiteaAPI, {org_proj, resolver_opts}}
+  end
+
   defp expand_site(site, _pkg, _opts),
     do:
       Mix.raise("""
@@ -399,6 +428,8 @@ defmodule Nerves.Artifact do
       Supported artifact sites:
       {:github_releases, "owner/repo"}
       {:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}
+      {:gitea_releases, "host/owner/repo"},
+      {:gitea_api, "owner/repo", base_url: "https://gitea.com", token: "123456", tag: "v0.1.0"}
       {:prefix, "http://myserver.com/artifacts"}
       {:prefix, "http://myserver.com/artifacts", headers: [{"Authorization", "Basic: 1234567=="}]}
       {:prefix, "http://myserver.com/artifacts", query_params: %{"id" => "1234567"}}
