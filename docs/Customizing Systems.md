@@ -331,13 +331,15 @@ retrieved when calling `mix deps.get`.
 These are typically 100MB± in size which is usually over the size limit of most
 package manager systems, like https://hex.pm. Because of this, you must store
 your pre-compiled artifact externally and provide instructions for how to
-retrieve it in the `artifacts_sites` list of the `nerves_pacakge` config.
+retrieve it in the `artifacts_sites` list of the `nerves_package` config.
 
-There are currently three different artifact site helpers:
+There are currently five different artifact site helpers:
 
-* `{:github_releases, "organization/repo"}`
-* `{:github_api, "organization/repo", username: "", token: "", tag: ""}`
-* `{:prefix, "url", opts \\ []}`
+- `{:github_releases, "organization/repo"}`
+- `{:github_api, "organization/repo", username: "", token: "", tag: ""}`
+- `{:gitea_releases, "site/organization/repo}`
+- `{:gitea_api, "organization/repo", base_url: "https://gitea.com/", token: "", tag: ""}`
+- `{:prefix, "url", opts \\ []}`
 
 > #### Nerves Package Configuration {: .info}
 > See [Nerves Package Configuration](Systems.md#nerves-package-configuration) doc

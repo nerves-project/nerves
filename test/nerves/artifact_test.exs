@@ -3,6 +3,7 @@ defmodule Nerves.ArtifactTest do
 
   alias Nerves.Artifact
   alias Nerves.Artifact.BuildRunners, as: P
+  alias Nerves.Artifact.Resolvers.GiteaAPI
   alias Nerves.Artifact.Resolvers.GithubAPI
   alias Nerves.Env
 
@@ -93,7 +94,7 @@ defmodule Nerves.ArtifactTest do
     end)
   end
 
-  test "artifact sites are expanded" do
+  test "GitHub artifact sites are expanded" do
     repo = "nerves-project/system"
 
     pkg = %{
@@ -106,6 +107,22 @@ defmodule Nerves.ArtifactTest do
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
     [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
+    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+  end
+
+  test "Gitea artifact sites are expanded" do
+    repo = "gitea.com/jmshrtn/nerves_artifact_test"
+
+    pkg = %{
+      app: "my_system",
+      version: "1.0.0",
+      path: "./",
+      config: [artifact_sites: [{:gitea_releases, repo}]]
+    }
+
+    checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
+
+    assert [{GiteaAPI, {"jmshrtn/nerves_artifact_test", opts}}] = Artifact.expand_sites(pkg)
     assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
   end
 
