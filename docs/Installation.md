@@ -142,6 +142,7 @@ install firmware images. You can install `fwup` using the instructions found at
 pre-built `.deb` or `.rpm` files is recommended.
 
 ### Packages for building custom Nerves systems
+
 If you want to build custom Nerves systems, you need a few more build tools. If
 you skip this step, you'll get an error message with instructions if you ever
 need to build a custom system. On Debian and Ubuntu, run the following:
