@@ -36,7 +36,7 @@ brew uninstall elixir
 brew uninstall erlang
 ```
 
-Optionally, if you want to build custom Nerves Systems, you'll also need to
+Optionally, if you want to build custom Nerves systems, you'll also need to
 install [Docker for Mac](https://www.docker.com/docker-mac). After installing
 Docker for Mac, you will likely want to adjust the resource limits imposed on
 Docker, to allow it to successfully compile more complicated custom systems.
@@ -141,12 +141,13 @@ install firmware images. You can install `fwup` using the instructions found at
 [Installation Page](https://github.com/fwup-home/fwup#installing). Installing the
 pre-built `.deb` or `.rpm` files is recommended.
 
-If you want to build custom Nerves Systems, you need a few more build tools. If
+### Packages for building custom Nerves systems
+If you want to build custom Nerves systems, you need a few more build tools. If
 you skip this step, you'll get an error message with instructions if you ever
 need to build a custom system. On Debian and Ubuntu, run the following:
 
 ```bash
-sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python
+sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python3
 ```
 
 ### Other Linux distributions
