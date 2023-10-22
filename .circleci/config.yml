@@ -3,6 +3,15 @@ version: 2.1
 latest: &latest
   pattern: "^1.15.4-erlang-26.*$"
 
+tags: &tags
+  [
+    1.15.4-erlang-26.0.2-alpine-3.18.2,
+    1.14.5-erlang-25.3.2-alpine-3.18.0,
+    1.13.4-erlang-24.3.4-alpine-3.15.3,
+    1.12.3-erlang-24.3.4-alpine-3.15.3,
+    1.11.4-erlang-23.3.4.13-alpine-3.15.3
+  ]
+
 jobs:
   build-test:
     parameters:
@@ -51,6 +60,24 @@ jobs:
             - _build
             - deps
 
+  automerge:
+    docker:
+        - image: alpine:3.18.4
+    steps:
+      - run:
+          name: Install GitHub CLI
+          command: apk add --no-cache build-base github-cli
+      - run:
+          name: Attempt PR automerge
+          command: |
+            author=$(gh pr view "${CIRCLE_PULL_REQUEST}" --json author --jq '.author.login' || true)
+
+            if [ "$author" = "app/dependabot" ]; then
+              gh pr merge "${CIRCLE_PULL_REQUEST}" --auto --rebase || echo "Failed trying to set automerge"
+            else
+              echo "Not a dependabot PR, skipping automerge"
+            fi
+
 workflows:
   checks:
     jobs:
@@ -58,10 +85,11 @@ workflows:
           name: << matrix.tag >>
           matrix:
             parameters:
-              tag: [
-                1.15.4-erlang-26.0.2-alpine-3.18.2,
-                1.14.5-erlang-25.3.2-alpine-3.18.0,
-                1.13.4-erlang-24.3.4-alpine-3.15.3,
-                1.12.3-erlang-24.3.4-alpine-3.15.3,
-                1.11.4-erlang-23.3.4.13-alpine-3.15.3
-              ]
+              tag: *tags
+
+      - automerge:
+          requires: *tags
+          context: org-global
+          filters:
+            branches:
+              only: /^dependabot.*/
