@@ -246,7 +246,7 @@ mix do deps.get, firmware, firmware.burn
 
 ## Nerves communities
 
-- [Elixir Slack #nerves channel](https://elixir-slackin.herokuapp.com/)
+- [Elixir Discord #nerves channel](https://discord.gg/elixir)
 - [Nerves Forum](https://elixirforum.com/c/elixir-framework-forums/nerves-forum/74)
 - [Nerves Meetup](https://www.meetup.com/nerves)
 - [Nerves Newsletter](https://underjord.io/nerves-newsletter.html)
