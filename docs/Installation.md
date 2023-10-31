@@ -7,7 +7,7 @@ people have had success running Linux in a virtual machine or using the Windows
 Subsystem for Linux available in Windows 10. If you have issues with any of the
 tooling after following the steps below, we recommend you reach out to us in
 [the #nerves channel on the Elixir
-Slack](https://elixir-slackin.herokuapp.com/).
+Discord](https://discord.gg/elixir).
 
 Nerves requires that the Erlang version running on your development host be
 compatible with the Erlang version on the embedded target and also depends on

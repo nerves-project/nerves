@@ -2,7 +2,7 @@
 
 This is a collection of questions that often come up as people are getting started with Nerves.
 If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves_examples) and got stuck, hopefully one of the following answers will help.
-If not, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/main/docs).
+If not, please let us know in the #nerves channel on [the Elixir-Lang Discord](https://discord.gg/elixir), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/main/docs).
 
 ## Where can persistent data be stored?
 
@@ -75,7 +75,7 @@ general, platform-specific features will be documented in the target's system
 documentation.  You may also find what you need by searching
 [hex.pm](https://hex.pm) for libraries that use that feature.
 
-If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Slack](https://elixir-slackin.herokuapp.com/), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
+If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Discord](https://discord.gg/elixir), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
 
 <p align="center">
 Is something wrong?
