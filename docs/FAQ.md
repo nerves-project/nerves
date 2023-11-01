@@ -42,7 +42,7 @@ iex> reboot
 
 SSH is a good default for local development and is enabled by default (via `mix nerves.new`) with https://github.com/nerves-project/nerves_ssh (note: previously https://github.com/nerves-project/nerves_firmware_ssh was enabled by default)
 
-For production environments you might also want to look at https://www.nerves-hub.org/ (either hosted or self-hosted)
+For production environments, [Nerves Hub](https://www.nerves-hub.org/) allows you to run a self-hosted platform for managing devices and sending over-the-air updates.
 
 ## Change Behavior on BEAM Failure
 
