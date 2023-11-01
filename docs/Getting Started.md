@@ -26,6 +26,21 @@ assemble | The process of combining system, application, and configuration into 
 firmware bundle | A single file that contains an assembled version of everything needed to burn firmware
 firmware image | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc.
 
+## Exploring Nerves using Livebook
+
+The best path to exploring Nerves for the first time is by setting up the
+[Nerves Livebook project](https://github.com/nerves-livebook/nerves_livebook).
+This allows you to try out the Nerves project on real hardware without needing
+to build a project from scratch.
+
+Within minutes, you'll have a Raspberry Pi or Beaglebone running Nerves. You'll
+be able to run code in [Livebook](https://livebook.dev/) and work through
+Nerves tutorials from the comfort of your browser.
+
+[Underjord](https://www.youtube.com/c/Underjord) has put together a
+[fantastic video](https://github.com/nerves-livebook/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
+to help walk-through the entire setup process.
+
 ## Creating a new Nerves app
 
 Before you start using Nerves, it is important that you take a minute to read
@@ -52,9 +67,9 @@ directory, choose a target, and fetch the target-specific dependencies.
 > use for each of the boards that Nerves supports. The default target is `host`
 > unless you specify a different target in your environment.
 
-The target is chosen using a shell environment variable, so if you use the
-`export` command, it will remain in effect as long as you leave that window
-open.
+The target is chosen using a shell environment variable. You can use the
+`export` command, which will remain in effect as long as you leave your
+shell window open.
 
 ``` bash
 cd hello_nerves
@@ -63,14 +78,15 @@ mix deps.get
 ```
 
 Alternatively, you can prefix each command with the environment variable.
-We find that it's easiest to have two shell windows open: one remaining
-defaulted to the `host` target and one with the desired `MIX_TARGET` variable
-set.
 
-```bash
+``` bash
 cd hello_nerves
 MIX_TARGET=rpi0 mix deps.get
 ```
+
+An often used approach is to have two shell windows open: one for running
+commands against the `host` target, and one with the desired `MIX_TARGET`
+variable set.
 
 This allows you quick access to use host-based tooling in the former and
 deploy updated firmware from the latter, all without having to modify the
@@ -78,20 +94,22 @@ deploy updated firmware from the latter, all without having to modify the
 
 ## Building and deploying firmware
 
-Once the dependencies are fetched, you can build a Nerves Firmware (a bundle
-that contains a minimal Linux platform and your application, packaged as an OTP
-release).  The first time you ask any dependencies or your application to
-compile, Nerves will fetch the System and Toolchain from one of our cache
-mirrors.  These artifacts are cached locally in `~/.nerves/artifacts` so they
-can be shared across projects.
+Once you have installed your project dependencies you can build a Nerves
+Firmware bundle. This bundle contains a minimal Linux platform and your
+application packaged as an OTP release.
+
+The first time you compile your application or it's dependencies Nerves will
+fetch the System and Toolchain from one of our cache mirrors. These artifacts
+are cached locally in `~/.nerves/artifacts` so they can be shared across
+projects.
 
 For remote deployment information, see "How do I push firmware updates
 remotely?" in the [FAQ](FAQ.md#how-do-i-push-firmware-updates-remotely).
 
 > #### Deleting cached artifacts {: .tip}
 >
-> It is always OK to `rm -fr ~/.nerves`. The consequence is that the archives
-> that you're using will need to be re-downloaded when you run `mix deps.get`.
+> Running `rm -fr ~/.nerves` is a safe operation as any archives
+> that you're using will be re-downloaded when you next run `mix deps.get`.
 
 ### Create the firmware bundle
 
@@ -128,8 +146,9 @@ host.
 
 > #### More than one SD cards or disk images? {: .tip}
 >
-> `mix firmware.burn` may fail to correctly detect your SD card, for example,
-> if you have more than one SD card inserted or you have disk images mounted.
+> `mix firmware.burn` may fail to correctly detect your SD card if you have
+> more than one SD card inserted or you have disk images mounted.
+>
 > If this happens, you can specify the intended device by passing the
 > `-d <device>` argument to the command. For example
 > `mix firmware.burn -d /dev/rdisk3`
@@ -145,8 +164,8 @@ boot it up.
 
 ## Connecting to your Nerves target
 
-There are multiple ways to connect to your Nerves target device and different
-target may support different connection methods:
+There are multiple ways to connect to your Nerves target device, and different
+targets may support different connection methods:
 
 - USB to TTL serial cable (aka FTDI cable)
 - HDMI cable
@@ -154,8 +173,9 @@ target may support different connection methods:
 - Ethernet
 - WiFi
 
-When connecting with a USB to TTL serial cable or an HDMI cable before booting
-up your device, you can see your device booting to the IEx console.
+When connecting to your target device using a USB to TTL serial cable or an
+HDMI cable, and before booting up your device, you may see device messages
+related to the booting process in the IEx console.
 
 For more info, refer to [Connecting to Nerves Target page](connecting-to-nerves-target.html).
 
@@ -210,26 +230,14 @@ Go ahead and try them out to explore your target's runtime environment.
 For more info on Nerves-specific use of the IEx prompt, refer to
 [IEx with Nerves Page](https://hexdocs.pm/nerves/iex-with-nerves.html).
 
-## Nerves Livebook
-
-The [Nerves Livebook firmware](https://github.com/nerves-livebook/nerves_livebook)
-lets you try out the Nerves projects on real hardware without needing to build
-anything. Within minutes, you'll have a Raspberry Pi or Beaglebone running
-Nerves. You'll be able to run code in [Livebook](https://livebook.dev/) and
-work through Nerves tutorials from the comfort of your browser.
-
-Looking for a quick demo first? Click below for
-[Underjord](https://www.youtube.com/c/Underjord)'s Nerves Quickstart video.
-
-[![Install video](https://github.com/nerves-livebook/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
-
 ## Nerves examples
 
-To get up and running quickly, you can check out our [collection of example
-projects](https://github.com/nerves-project/nerves_examples).  Be sure to set
-your `MIX_TARGET` environment variable appropriately for the target hardware you
-have.  Visit the [Targets Page](targets.html) for more information on what
-target name to use for the boards that Nerves supports.
+If you are interested in exploring other Nerve codebases and projects, you can
+check out our [collection of example projects](https://github.com/nerves-project/nerves_examples).
+
+Be sure to set your `MIX_TARGET` environment variable appropriately for the
+target hardware you have. Visit the [Targets Page](targets.html) for more
+information on what target name to use for the boards that Nerves supports.
 
 The `nerves_examples` repository contains several example projects to get you
 started.  The simplest example is Blinky, known as the "Hello World" of hardware
