@@ -69,7 +69,7 @@ as a deployment wrapper around the `my_app_ui` project.
 ```
 
 We need a few adjustments to the UI project's `mix.exs`.  By default when `MIX_ENV`
-is `dev`, the default Phoenix setup runs: 
+is `dev`, the default Phoenix setup runs:
 - `phoenix_live_reload` to reload code changes
 - [`esbuild`] to rebuild assets as needed
 - `tailwindcss` to optimize css (Phoenix 1.7+)
@@ -131,10 +131,10 @@ config :my_app_ui, MyAppUiWeb.Endpoint,
 config :phoenix, :json_library, Jason
 ```
 
-Note that this minimal configuration corresponds to our freshly generated 
+Note that this minimal configuration corresponds to our freshly generated
 phoenix application without Ecto or Swoosh as we passed the `--no-ecto` and
-`--no-mailer` flags to the generator earlier. If you wish to use those features, 
-remember to add the relevant configuration. An example for Ecto can be seen 
+`--no-mailer` flags to the generator earlier. If you wish to use those features,
+remember to add the relevant configuration. An example for Ecto can be seen
 in the [Nerves + Phoenix example](https://github.com/nerves-project/nerves_examples/blob/1da4597bee5d9f26c643cb32523fc70e136d1e2b/hello_phoenix/firmware/config/target.exs#L17).
 
 There we have it! A Phoenix-based web application is now ready to run on our
@@ -222,10 +222,3 @@ Several companies have integrated web browsers with Nerves for kiosk application
 Unfortunately, public repositories are currently unmaintained. If this is of interest to
 you, take a look at the repos in the [Nerves Web Kiosks](https://github.com/nerves-web-kiosk)
 org and consider helping maintain them.
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/User%20Interfaces.md">
-Edit this page on GitHub
-</a>
-</p>

@@ -59,31 +59,22 @@ defmodule Nerves.MixProject do
 
   defp docs do
     [
-      assets: "resources",
       main: "getting-started",
-      logo: "resources/logo.png",
-      extras: [
-        "docs/Installation.md",
-        "docs/Getting Started.md",
-        "docs/Connecting to Nerves Target.md",
-        "docs/IEx with Nerves.md",
-        "docs/FAQ.md",
-        "docs/Targets.md",
-        "docs/Systems.md",
-        "docs/User Interfaces.md",
-        "docs/Environment Variables.md",
-        "docs/Compiling Non-BEAM Code.md",
-        "docs/Advanced Configuration.md",
-        "docs/Updating Projects.md",
-        "docs/Internals.md",
-        "docs/Customizing Systems.md",
-        "docs/Experimental Features.md",
-        "docs/Using the CLI.md",
-        "CHANGELOG.md"
-      ],
       source_ref: "v#{@version}",
       source_url: @source_url,
-      skip_undefined_reference_warnings_on: ["docs/Updating Projects.md", "CHANGELOG.md"]
+      extra_section: "GUIDES",
+      assets: "resources",
+      logo: "resources/logo.png",
+      groups_for_extras: [
+        Introduction: ~r/guides\/introduction\/.?/,
+        Core: ~r/guides\/core\/.?/,
+        Advanced: ~r/guides\/advanced\/.?/
+      ],
+      extras: ["CHANGELOG.md"] ++ Path.wildcard("guides/*/*.md"),
+      skip_undefined_reference_warnings_on: [
+        "guides/advanced/updating-projects.md",
+        "CHANGELOG.md"
+      ]
     ]
   end
 

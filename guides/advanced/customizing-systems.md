@@ -1,4 +1,4 @@
-# Customizing Your Own Nerves System
+# Customizing Your Nerves System
 
 Before following this guide, you should probably read about
 [The Anatomy of a Nerves System](https://hexdocs.pm/nerves/systems.html)
@@ -326,7 +326,7 @@ Building a Nerves system can require a lot of system resources and often takes a
 long time to complete. Once you are satisfied with the configuration of your
 Nerves system and you are ready to make a release, you can create an artifact.
 An artifact is a pre-compiled version of your Nerves system that can be
-retrieved when calling `mix deps.get`. 
+retrieved when calling `mix deps.get`.
 
 These are typically 100MB± in size which is usually over the size limit of most
 package manager systems, like https://hex.pm. Because of this, you must store
@@ -342,7 +342,7 @@ There are currently five different artifact site helpers:
 - `{:prefix, "url", opts \\ []}`
 
 > #### Nerves Package Configuration {: .info}
-> See [Nerves Package Configuration](Systems.md#nerves-package-configuration) doc
+> See [Nerves Package Configuration](advanced/systems.md#nerves-package-configuration) doc
 > for more info about artifact sites and customizing your Nerves package
 
 `artifact_sites` only declare the path of the location to the artifact. This is
@@ -420,10 +420,3 @@ You can also use the GitHub interface to do this:
 ```text
 https://github.com/YourGitHubUserName/custom_rpi3/compare/main...nerves-project:main?expand=1
 ```
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Customizing%20Systems.md">
-Edit this page on GitHub
-</a>
-</p>

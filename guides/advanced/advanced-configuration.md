@@ -465,10 +465,3 @@ You can modify the kernel parameters for your application or custom Nerves
 system by copying the default `sysctl.conf` file to your `rootfs_overlay/etc`
 directory and making the desired changes. Use `System.cmd/3` to run `sysctl` to
 change settings after initialization.
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Advanced%20Configuration.md">
-Edit this page on GitHub
-</a>
-</p>

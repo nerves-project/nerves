@@ -1,8 +1,13 @@
-# Frequently-Asked Questions
+# Frequently Asked Questions
 
-This is a collection of questions that often come up as people are getting started with Nerves.
-If you tried to go through the [Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some of the [example projects](https://github.com/nerves-project/nerves_examples) and got stuck, hopefully one of the following answers will help.
-If not, please let us know in the #nerves channel on [the Elixir-Lang Discord](https://discord.gg/elixir), or [create an Issue or Pull Request to improve this documentation](https://github.com/nerves-project/nerves/tree/main/docs).
+This is a collection of questions that often come up as people are getting
+started with Nerves. If you tried to go through the
+[Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some
+of the [example projects](https://github.com/nerves-project/nerves_examples)
+and got stuck, hopefully one of the following answers will help. If not, please
+let us know in the #nerves channel on [the Elixir-Lang Discord](https://discord.gg/elixir), or [create an Issue or Pull
+Request to improve this
+documentation](https://github.com/nerves-project/nerves/tree/main/docs).
 
 ## Where can persistent data be stored?
 
@@ -42,7 +47,7 @@ iex> reboot
 
 SSH is a good default for local development and is enabled by default (via `mix nerves.new`) with https://github.com/nerves-project/nerves_ssh (note: previously https://github.com/nerves-project/nerves_firmware_ssh was enabled by default)
 
-For production environments, [Nerves Hub](https://www.nerves-hub.org/) allows you to run a self-hosted platform for managing devices and sending over-the-air updates.
+For production environments you might also want to look at https://www.nerves-hub.org/ (either hosted or self-hosted)
 
 ## Change Behavior on BEAM Failure
 
@@ -76,10 +81,3 @@ documentation.  You may also find what you need by searching
 [hex.pm](https://hex.pm) for libraries that use that feature.
 
 If you still don't see what you're looking for, please let us know in the #nerves channel on [the Elixir-Lang Discord](https://discord.gg/elixir), or create an Issue or Pull Request to the [relevant `nerves_system-<target>` repository](https://github.com/nerves-project?query=nerves_system_).
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/FAQ.md">
-Edit this page on GitHub
-</a>
-</p>

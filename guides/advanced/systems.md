@@ -291,10 +291,3 @@ The following keys are supported:
 ## Customizing Your Own Nerves System
 
 [This document has been moved](https://hexdocs.pm/nerves/customizing-systems.html)
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Systems.md">
-Edit this page on GitHub
-</a>
-</p>

@@ -6,8 +6,7 @@ actively used on MacOS and various Linux distributions. For Windows users, some
 people have had success running Linux in a virtual machine or using the Windows
 Subsystem for Linux available in Windows 10. If you have issues with any of the
 tooling after following the steps below, we recommend you reach out to us in
-[the #nerves channel on the Elixir
-Discord](https://discord.gg/elixir).
+[the #nerves channel on the Elixir Discord](https://discord.gg/elixir).
 
 Nerves requires that the Erlang version running on your development host be
 compatible with the Erlang version on the embedded target and also depends on
@@ -231,10 +230,3 @@ to create new Nerves projects. To install the `nerves_bootstrap` archive:
 ```bash
 mix archive.install hex nerves_bootstrap
 ```
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Installation.md">
-Edit this page on GitHub
-</a>
-</p>

@@ -54,7 +54,7 @@ case may be better met by installing Elixir on embedded Linux rather than trying
 to make Nerves look more like embedded Linux. Many embedded Elixir libraries
 work fine on both Nerves and embedded Linux.
 
-Refer to [Environment Variables](Environment Variables.md) for sources available
+Refer to [Environment Variables](advanced/environment-variables.md) for sources available
 during compilation if needed.
 
 ## Library recommendations
@@ -97,10 +97,3 @@ cross-compilation and Makefiles with Nerves.
 >
 > Consider [zigler](https://github.com/ityonemo/zigler) for a safer
 > alternative to C and C++ that works with Nerves.
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Compiling%20Non-BEAM%20Code.md">
-Edit this page on GitHub
-</a>
-</p>

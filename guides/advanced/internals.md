@@ -74,10 +74,3 @@ you produce a system directly using Buildroot and want to force Nerves to use it
 ### nerves_system/.nerves/artifacts/nerves_system_*
    * "package" directory
    * Gets fetched from nerves_env.exs artifact_url
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Internals.md">
-Edit this page on GitHub
-</a>
-</p>

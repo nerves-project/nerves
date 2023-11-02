@@ -267,20 +267,20 @@ Currently defined functions:
 ```
 
 > #### Where's Bash? {: .info}
-> 
+>
 > Everyone asks this and it's come up since almost day one. It is probably the
 > most visible distinction of what it means that Nerves uses the Linux kernel but
 > very little of the standard Linux userland.
-> 
+>
 > Since Nerves provides only a few Linux utilities, the shell prompt is not as
 > useful as you would expect. The projects that once provided a shell prompt have
 > been abandoned due to this.
-> 
+>
 > Our recommendation is to spend some time working at the `iex>` prompt and if
 > you're missing a utility, check if Elixir or Erlang/OTP provide it. If they do
 > and it just needs an IEx helper to make it ergonomic, then please consider
 > contributing a new helper to [`Toolshed`](https://github.com/elixir-toolshed/toolshed).
-> 
+>
 > If having a proper Unix shell and Linux userland is critical to your
 > application, it may be better not to use Nerves.
 > [Buildroot](https://buildroot.org/), [Yocto](https://www.yoctoproject.org/),
@@ -360,7 +360,7 @@ library may be useful for connecting an IEx prompt to the transport of your
 choice.
 
 > #### Exiting SSH sessions {: .tip}
-> 
+>
 > If you're using `Toolshed`, type `exit` at the IEx prompt. Otherwise, use
 > `ssh`'s magic exit sequence: `<enter>~.`. Run `<enter>?` to see all the
 > available SSH magic sequences
@@ -381,10 +381,3 @@ config :nerves_ssh,
 
 See the [Nerves Examples](https://github.com/nerves-project/nerves-examples) for
 small Erlang and LFE programs.
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Using%20the%20CLI.md">
-Edit this page on GitHub
-</a>
-</p>

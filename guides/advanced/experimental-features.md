@@ -236,10 +236,3 @@ export system specific information for llvm-based tools. Here is an example from
     ]
   end
 ```
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Experimental%20Features.md">
-Edit this page on GitHub
-</a>
-</p>

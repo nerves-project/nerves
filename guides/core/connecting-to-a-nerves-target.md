@@ -1,4 +1,4 @@
-# Connecting to Nerves Target
+# Connecting to a Nerves Target
 
 There are multiple ways to connect to your Nerves target device and different
 target may support different connection methods.
