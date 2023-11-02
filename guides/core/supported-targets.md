@@ -1,4 +1,4 @@
-# Targets
+# Supported Targets
 
 Nerves supports a variety of hardware. These are called targets and are
 identified by short tag names. Examples of tag names are `rpi0`, `bbb`, etc.
@@ -9,8 +9,8 @@ when building your project. See the [Mix
 Targets](https://hexdocs.pm/mix/Mix.html#module-targets) documentation for
 further information on this concept.
 
-In Nerves, the term _system_ refers to the library (usually posted to hex.pm) that
-provides the bootloader, Linux kernel, C libraries, and more for a device.
+In Nerves, the term _system_ refers to the library (usually posted to hex.pm)
+that provides the bootloader, Linux kernel, C libraries, and more for a device.
 Systems have names like `nerves_system_rpi0`. Since it's possible to create
 firmware for more than one hardware device, Nerves uses the Mix target feature
 to select the desired system in your project's `mix.exs`.
@@ -38,7 +38,7 @@ BeagleBone Black, BeagleBone Green, BeagleBone Green Wireless, and PocketBeagle.
 Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves_system_x86_64) | `x86_64`
 OSD32MP1 | [nerves_system_osd32mp1](https://github.com/nerves-project/nerves_system_osd32mp1) | `osd32mp1`
 GRiSP 2 | [nerves_system_grisp2](https://github.com/nerves-project/nerves_system_grisp2) | `grisp2`
-MangoPi MQ Pro | [nerves_system_mangopi_mq_pro](https://github.com/nerves-project/nerves_system_mangopi_mq_pro | `mangopi_mq_pro`
+MangoPi MQ Pro | [nerves_system_mangopi_mq_pro](https://github.com/nerves-project/nerves_system_mangopi_mq_pro) | `mangopi_mq_pro`
 While the Nerves core team only officially supports the above hardware, the
 community has added support for other boards. See [Nerves Systems on
 hex.pm](https://hex.pm/packages?search=depends:nerves_system_br)
@@ -68,10 +68,3 @@ System as follows:
 
 > NOTE: You probably want to disable any userland packages that may be included
 > by default to avoid distraction.
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Targets.md">
-Edit this page on GitHub
-</a>
-</p>

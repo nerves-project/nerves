@@ -2,31 +2,52 @@
 
 ## Introduction
 
-Nerves defines a new way to build embedded systems using [Elixir](https://elixir-lang.org/). It is
+Nerves defines a new way to build embedded systems using
+[Elixir](https://elixir-lang.org/). It is
 specifically designed for embedded systems, not desktop or server systems.  You
 can think of Nerves as containing three parts:
 
-- **Platform** - a customized, minimal [Buildroot](https://buildroot.org)-derived Linux that boots directly to the [BEAM VM](https://en.wikipedia.org/wiki/BEAM_(Erlang_virtual_machine)).
-- **Framework** - ready-to-go library of Elixir modules to get you up and running quickly.
-- **Tooling** - powerful command-line tools to manage builds, update firmware, configure devices, and more.
+- **Platform** - a customized, minimal
+[Buildroot](https://buildroot.org)-derived Linux that boots directly to the
+[BEAM VM](https://en.wikipedia.org/wiki/BEAM_(Erlang_virtual_machine)).
+- **Framework** - ready-to-go library of Elixir modules to get you up and
+running quickly.
+- **Tooling** - powerful command-line tools to manage builds, update firmware,
+configure devices, and more.
 
-Taken together, the Nerves platform, framework, and tooling provide a highly specialized environment for using Elixir to build advanced embedded devices.
+Taken together, the Nerves platform, framework, and tooling provide a highly
+specialized environment for using Elixir to build advanced embedded devices.
 
 ## Common terms
 
-In the following guides, support channels, and forums, you may hear the following terms being used.
+In the following guides, support channels, and forums, you may hear the
+following terms being used.
 
 Term | Definition
 --- | ---
-host | The computer on which you are editing source code, compiling, and assembling firmware
-target | The platform for which your firmware is built (for example, Raspberry Pi Zero W, Raspberry Pi 4, or Beaglebone Black)
-toolchain | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime
-system | A lean Buildroot-based Linux distribution that has been customized and cross-compiled for a particular target
-assemble | The process of combining system, application, and configuration into a firmware bundle
-firmware bundle | A single file that contains an assembled version of everything needed to burn firmware
-firmware image | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc.
+host | The computer on which you are editing source code, compiling, and
+assembling firmware
+target | The platform for which your firmware is built (for example, Raspberry
+Pi Zero W, Raspberry Pi 4, or Beaglebone Black)
+toolchain | The tools required to build code for the target, such as compilers,
+linkers, binutils, and C runtime
+system | A lean Buildroot-based Linux distribution that has been customized and
+cross-compiled for a particular target
+assemble | The process of combining system, application, and configuration into
+a firmware bundle
+firmware bundle | A single file that contains an assembled version of
+everything needed to burn firmware
+firmware image | Built from a firmware bundle and contains the partition table,
+partitions, bootloader, etc.
 
-## Exploring Nerves using Livebook
+## Development environment
+
+Before you create your first Nerves project or explore Nerves with Livebook,
+you will need to make sure to [install some system
+packages](introduction/installation.html) required by the Framework, Platform,
+and Tooling.
+
+## Nerves + Livebook
 
 The best path to exploring Nerves for the first time is by setting up the
 [Nerves Livebook project](https://github.com/nerves-livebook/nerves_livebook).
@@ -41,7 +62,7 @@ Nerves tutorials from the comfort of your browser.
 [fantastic video](https://github.com/nerves-livebook/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
 to help walk-through the entire setup process.
 
-## Creating a new Nerves app
+## Creating a project
 
 Before you start using Nerves, it is important that you take a minute to read
 the [Installation Guide](installation.html).  It will help you get your machine
@@ -55,8 +76,8 @@ mix nerves.new hello_nerves
 ```
 
 Nerves will generate the required files and directory structure for your
-application. If you chose not to fetch dependencies during project generation, you will need
-to do that yourself.
+application. If you chose not to fetch dependencies during project generation,
+you will need to do that yourself.
 
 As described by the project generator, the next step is to change to the project
 directory, choose a target, and fetch the target-specific dependencies.
@@ -92,7 +113,7 @@ This allows you quick access to use host-based tooling in the former and
 deploy updated firmware from the latter, all without having to modify the
 `MIX_TARGET` variable in your shell.
 
-## Building and deploying firmware
+## Deploying your firmware
 
 Once you have installed your project dependencies you can build a Nerves
 Firmware bundle. This bundle contains a minimal Linux platform and your
@@ -104,7 +125,7 @@ are cached locally in `~/.nerves/artifacts` so they can be shared across
 projects.
 
 For remote deployment information, see "How do I push firmware updates
-remotely?" in the [FAQ](FAQ.md#how-do-i-push-firmware-updates-remotely).
+remotely?" in the [FAQ](core/faq.md#how-do-i-push-firmware-updates-remotely).
 
 > #### Deleting cached artifacts {: .tip}
 >
@@ -162,7 +183,7 @@ For more options, refer to the `mix firmware.burn` documentation.
 Now that you have your SD card burned, you can insert it into your device and
 boot it up.
 
-## Connecting to your Nerves target
+## Connecting to your device
 
 There are multiple ways to connect to your Nerves target device, and different
 targets may support different connection methods:
@@ -177,7 +198,7 @@ When connecting to your target device using a USB to TTL serial cable or an
 HDMI cable, and before booting up your device, you may see device messages
 related to the booting process in the IEx console.
 
-For more info, refer to [Connecting to Nerves Target page](connecting-to-nerves-target.html).
+For more info, refer to [Connecting to your Nerves Target](core/connecting-to-your-nerves-target.html).
 
 > #### What features does Nerves support for my device? {: .tip}
 >
@@ -185,7 +206,7 @@ For more info, refer to [Connecting to Nerves Target page](connecting-to-nerves-
 > supported features. As an example, when your target is `rpi0`,
 > visit https://hexdocs.pm/nerves_system_rpi0.
 
-## Inspecting your target in `IEx`
+## Using `IEx`
 
 Once you are connected to your target device, an `IEx` prompt will appear with
 [`NervesMOTD`](https://hexdocs.pm/nerves_motd/readme.html).
@@ -230,7 +251,7 @@ Go ahead and try them out to explore your target's runtime environment.
 For more info on Nerves-specific use of the IEx prompt, refer to
 [IEx with Nerves Page](https://hexdocs.pm/nerves/iex-with-nerves.html).
 
-## Nerves examples
+## Example projects
 
 If you are interested in exploring other Nerve codebases and projects, you can
 check out our [collection of example projects](https://github.com/nerves-project/nerves_examples).
@@ -252,16 +273,9 @@ cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
 
-## Nerves communities
+## Community links
 
 - [Elixir Discord #nerves channel](https://discord.gg/elixir)
 - [Nerves Forum](https://elixirforum.com/c/elixir-framework-forums/nerves-forum/74)
 - [Nerves Meetup](https://www.meetup.com/nerves)
 - [Nerves Newsletter](https://underjord.io/nerves-newsletter.html)
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Getting%20Started.md">
-Edit this page on GitHub
-</a>
-</p>

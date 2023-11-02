@@ -769,10 +769,3 @@ Nerves system release notes when you upgrade.
 The only backwards incompatible change in Nerves 1.7 is to remove Distillery
 support. See [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5) for how
 to move to mix releases.
-
-<p align="center">
-Is something wrong?
-<a href="https://github.com/nerves-project/nerves/edit/main/docs/Updating%20Projects.md">
-Edit this page on GitHub
-</a>
-</p>
