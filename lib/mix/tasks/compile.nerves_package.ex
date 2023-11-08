@@ -1,7 +1,11 @@
 defmodule Mix.Tasks.Compile.NervesPackage do
   @shortdoc "Nerves Package Compiler"
   @moduledoc """
-  Build a Nerves Artifact from a Nerves Package
+  Compile a Nerves package into a local artifact
+
+  This is only intended to be used by Nerves systems and toolchains
+  and configured in thier mix.exs files. It should not be used manually
+  when compiling a Nerves project. See `mix firmware` instead.
   """
   use Mix.Task
   import Mix.Nerves.IO
@@ -15,13 +19,14 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     debug_info("Compile.NervesPackage start")
 
     if Nerves.Env.enabled?() do
-      config = Mix.Project.config()
-
       bootstrap_check!()
 
-      _ = Nerves.Env.ensure_loaded(Mix.Project.config()[:app])
+      package =
+        case Nerves.Env.ensure_loaded(Mix.Project.config()[:app]) do
+          {:ok, package} -> package
+          {:error, err} -> Mix.raise(err)
+        end
 
-      package = Nerves.Env.package(config[:app])
       toolchain = Nerves.Env.toolchain()
 
       ret =
