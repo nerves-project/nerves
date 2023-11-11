@@ -23,22 +23,14 @@ specialized environment for using Elixir to build advanced embedded devices.
 In the following guides, support channels, and forums, you may hear the
 following terms being used.
 
-Term | Definition
---- | ---
-host | The computer on which you are editing source code, compiling, and
-assembling firmware
-target | The platform for which your firmware is built (for example, Raspberry
-Pi Zero W, Raspberry Pi 4, or Beaglebone Black)
-toolchain | The tools required to build code for the target, such as compilers,
-linkers, binutils, and C runtime
-system | A lean Buildroot-based Linux distribution that has been customized and
-cross-compiled for a particular target
-assemble | The process of combining system, application, and configuration into
-a firmware bundle
-firmware bundle | A single file that contains an assembled version of
-everything needed to burn firmware
-firmware image | Built from a firmware bundle and contains the partition table,
-partitions, bootloader, etc.
+| Term            | Definition |
+| --------------- | ---------- |
+| host            | The computer on which you are editing source code, compiling, and assembling firmware |
+| target          | The platform for which your firmware is built (for example, Raspberry Pi Zero W, Raspberry Pi 4, or Beaglebone Black) |
+| toolchain       | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime |
+| system          | A lean Buildroot-based Linux distribution that has been customized and cross-compiled for a particular target |
+| firmware bundle | A single file that contains an assembled version of everything needed to burn firmware |
+| firmware image  | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc. |
 
 ## Development environment
 
