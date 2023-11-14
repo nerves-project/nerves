@@ -97,7 +97,7 @@ host:
 
 ### Configure networking
 
-Refer to the [Connecting to Nerves Target page](connecting-to-nerves-target.html).
+Refer to the [Connecting to a Nerves Target page](connecting-to-a-nerves-target.html).
 
 ### Configure Phoenix
 

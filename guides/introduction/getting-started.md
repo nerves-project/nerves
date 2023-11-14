@@ -190,7 +190,7 @@ When connecting to your target device using a USB to TTL serial cable or an
 HDMI cable, and before booting up your device, you may see device messages
 related to the booting process in the IEx console.
 
-For more info, refer to [Connecting to your Nerves Target](core/connecting-to-your-nerves-target.html).
+For more info, refer to [Connecting to your Nerves Target](connecting-to-a-nerves-target.html).
 
 > #### What features does Nerves support for my device? {: .tip}
 >
