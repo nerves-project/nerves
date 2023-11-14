@@ -54,7 +54,7 @@ case may be better met by installing Elixir on embedded Linux rather than trying
 to make Nerves look more like embedded Linux. Many embedded Elixir libraries
 work fine on both Nerves and embedded Linux.
 
-Refer to [Environment Variables](advanced/environment-variables.md) for sources available
+Refer to [Environment Variables](environment-variables.md) for sources available
 during compilation if needed.
 
 ## Library recommendations

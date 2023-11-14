@@ -9,9 +9,9 @@ hardware. This chapter focuses on Nerves-specific use of the IEx prompt.
 ### Attaching to the logger
 
 The [`Elixir console
-logger`](https://hexdocs.pm/logger/master/Logger.Backends.Console.html) is
-normally disabled so log messages don't print to the terminal. Instead, run
-`log_attach` to see log messages:
+logger`](https://hexdocs.pm/logger/Logger.Backends.Console.html) is
+almost always not included with Nerves so log messages don't print to the
+terminal. Instead, run `log_attach` to see log messages:
 
 ```elixir
 iex> log_attach

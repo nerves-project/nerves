@@ -36,7 +36,7 @@ following terms being used.
 
 Before you create your first Nerves project or explore Nerves with Livebook,
 you will need to make sure to [install some system
-packages](introduction/installation.html) required by the Framework, Platform,
+packages](installation.html) required by the Framework, Platform,
 and Tooling.
 
 ## Nerves + Livebook
@@ -117,7 +117,7 @@ are cached locally in `~/.nerves/artifacts` so they can be shared across
 projects.
 
 For remote deployment information, see "How do I push firmware updates
-remotely?" in the [FAQ](core/faq.md#how-do-i-push-firmware-updates-remotely).
+remotely?" in the [FAQ](faq.md#how-do-i-push-firmware-updates-remotely).
 
 > #### Deleting cached artifacts {: .tip}
 >

@@ -342,7 +342,7 @@ There are currently five different artifact site helpers:
 - `{:prefix, "url", opts \\ []}`
 
 > #### Nerves Package Configuration {: .info}
-> See [Nerves Package Configuration](advanced/systems.md#nerves-package-configuration) doc
+> See [Nerves Package Configuration](systems.md#nerves-package-configuration) doc
 > for more info about artifact sites and customizing your Nerves package
 
 `artifact_sites` only declare the path of the location to the artifact. This is
