@@ -36,7 +36,7 @@ You'll frequently want to see log messages that occurred in the past. The Nerves
 new project generator creates projects with
 [`RingLogger`](https://hex.pm/packages/ring_logger) to support this.
 `RingLogger` is an [Elixir logger
-backend](https://hexdocs.pm/logger/master/Logger.html#module-backends) that
+backend](https://hexdocs.pm/logger/Logger.html#module-backends-and-backwards-compatibility) that
 stores logs completely in memory. This is nice for embedded systems where you
 don't want to wear out Flash storage by writing to it. The drawbacks are
 RingLogger discards old messages and doesn't save them across reboots.
