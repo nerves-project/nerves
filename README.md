@@ -218,7 +218,7 @@ binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
 
 [Systems](https://hexdocs.pm/nerves/systems.html)
 
-[Targets](https://hexdocs.pm/nerves/targets.html)
+[Targets](https://hexdocs.pm/nerves/supported-targets.html)
 
 [User Interfaces](https://hexdocs.pm/nerves/user-interfaces.html)
 

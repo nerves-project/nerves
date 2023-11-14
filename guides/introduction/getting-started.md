@@ -76,7 +76,7 @@ directory, choose a target, and fetch the target-specific dependencies.
 
 > #### What is my device's _MIX_TARGET_? {: .tip}
 >
-> Visit the [Targets Page](targets.html) for information on what target name to
+> Visit the [Supported Targets Page](supported-targets.html) for information on what target name to
 > use for each of the boards that Nerves supports. The default target is `host`
 > unless you specify a different target in your environment.
 
@@ -249,7 +249,7 @@ If you are interested in exploring other Nerve codebases and projects, you can
 check out our [collection of example projects](https://github.com/nerves-project/nerves_examples).
 
 Be sure to set your `MIX_TARGET` environment variable appropriately for the
-target hardware you have. Visit the [Targets Page](targets.html) for more
+target hardware you have. Visit the [Supported Targets Page](supported-targets.html) for more
 information on what target name to use for the boards that Nerves supports.
 
 The `nerves_examples` repository contains several example projects to get you
