@@ -84,7 +84,7 @@ host:
     [
       {:phoenix, "~> 1.6.0"},
       # ...
-      {:phoenix_live_reload, "~> 1.2", only: :dev && Mix.target() == :host},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
       # ...
       {:esbuild, "~> 0.5", runtime: Mix.env() == :dev && Mix.target() == :host},
       {:tailwind, "~> 0.1.8", runtime: Mix.env() == :dev && Mix.target() == :host},
