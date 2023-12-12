@@ -51,7 +51,7 @@ be able to run code in [Livebook](https://livebook.dev/) and work through
 Nerves tutorials from the comfort of your browser.
 
 [Underjord](https://www.youtube.com/c/Underjord) has put together a
-[fantastic video](https://github.com/nerves-livebook/nerves_livebook/raw/main/assets/video.jpg)](https://www.youtube.com/watch?v=-b5TPb_MwQE)
+[fantastic video](https://www.youtube.com/watch?v=-b5TPb_MwQE)
 to help walk-through the entire setup process.
 
 ## Creating a project
