@@ -72,7 +72,7 @@ defmodule Nerves.Package do
     config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
 
     dep_opts =
-      Mix.Dep.load_on_environment(env: Mix.env())
+      load_env_deps()
       |> Enum.find(%{}, &(&1.app == app))
       |> Map.get(:opts, [])
       |> Keyword.get(:nerves, [])
@@ -90,6 +90,17 @@ defmodule Nerves.Package do
       version: version,
       config: config
     }
+  end
+
+  if Version.match?(System.version(), ">= 1.16.0") do
+    defp load_env_deps() do
+      Mix.Dep.Converger.converge(env: Mix.env())
+    end
+  else
+    defp load_env_deps() do
+      # deprecated in Elixir >= 1.16.0
+      Mix.Dep.load_on_environment(env: Mix.env())
+    end
   end
 
   @doc """
