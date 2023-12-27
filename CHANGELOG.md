@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.10.5 - 2023-12-26
+
+* Improvements
+  * Support Elixir 1.16
+  * Add support for `:gitea_releases` and `:gitea_api` artifact sites
+
+* Bug Fix
+  * Ensure a package is loaded before `compile.nerves_package`
+
 ## v1.10.4 - 2023-09-13
 
 * Improvements
