@@ -349,7 +349,7 @@ defmodule Nerves.Env do
         v == nil ->
           Mix.shell().info("#{k} is unset")
 
-        File.dir?(v) != true ->
+        not File.dir?(v) ->
           with "NERVES_SYSTEM" <- k,
                %{app: app, dep: :path} <- system() do
             Mix.shell().info([
