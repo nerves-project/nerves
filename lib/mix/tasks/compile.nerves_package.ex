@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   Compile a Nerves package into a local artifact
 
   This is only intended to be used by Nerves systems and toolchains
-  and configured in thier mix.exs files. It should not be used manually
+  and configured in their mix.exs files. It should not be used manually
   when compiling a Nerves project. See `mix firmware` instead.
   """
   use Mix.Task
