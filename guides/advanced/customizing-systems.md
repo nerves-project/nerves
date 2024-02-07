@@ -420,3 +420,15 @@ You can also use the GitHub interface to do this:
 ```text
 https://github.com/YourGitHubUserName/custom_rpi3/compare/main...nerves-project:main?expand=1
 ```
+
+## Building Systems on macOS
+
+The primary Apple File System (APFS) volume on Macs is case-insensitive, but the Nerves filesystem is case-sensitive. This can cause filename conflicts when including some packages.
+
+To get around this limitation, use Disk Utility to create a new volume with the format "APFS (Case-sensitive)". Then set the following [environment variables](environment-variables.md) so that Nerves will use the new volume (named "Nerves" in this example):
+
+```sh
+export NERVES_DL_DIR='/Volumes/Nerves/dl'
+export NERVES_ARTIFACTS_DIR='/Volumes/Nerves/artifacts'
+export TMPDIR='/Volumes/Nerves/tmp'
+```
