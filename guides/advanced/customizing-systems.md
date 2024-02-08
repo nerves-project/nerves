@@ -428,7 +428,6 @@ The primary Apple File System (APFS) volume on Macs is case-insensitive, but the
 To get around this limitation, use Disk Utility to create a new volume with the format "APFS (Case-sensitive)". Then set the following [environment variables](environment-variables.md) so that Nerves will use the new volume (named "Nerves" in this example):
 
 ```sh
-export NERVES_DL_DIR='/Volumes/Nerves/dl'
-export NERVES_ARTIFACTS_DIR='/Volumes/Nerves/artifacts'
+export XDG_DATA_HOME='/Volumes/Nerves'
 export TMPDIR='/Volumes/Nerves/tmp'
 ```
