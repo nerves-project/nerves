@@ -244,11 +244,11 @@ extend Nerves for a portion of each work week. Nerves is not a product of any
 one company. We also have a soft spot for supporting makers and hobbyists using
 the BEAM, and it would be difficult to do this without them.
 
-<a href="https://www.smartrent.com" target="_blank"><img width="200" height="100" src="https://www.nerves-project.org/hubfs/Very%20Logos%20Smart%20Rent.png"></a>
+<a href="https://www.smartrent.com" target="_blank"><img width="200" height="100" src="https://nerves-project.org/img/SmartRent_logo.png"></a>
 
 <a href="https://www.redwirelabs.com/" target="_blank"><img width="250" src="https://nerves-project.org/img/Redwire_logo.png"></a>
 
-<a href="https://www.binarynoggin.com" target="_blank"><img width="250" src="https://www.nerves-project.org/assets/BinaryNoggin_logo_250.png"></a>
+<a href="https://www.binarynoggin.com" target="_blank"><img width="250" src="https://nerves-project.org/img/BinaryNoggin_logo.png"></a>
 
 [[Become a metal level sponsor]](http://nerves-project.org/sponsors)
 
