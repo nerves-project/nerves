@@ -61,7 +61,7 @@ as a deployment wrapper around the `my_app_ui` project.
       # Dependencies for all targets
       {:nerves, "~> 1.7.0", runtime: false},
       # ...
-      {:my_app_ui, path: "../my_app_ui", targets: [:host | @all_targets], env: Mix.env()},
+      {:my_app_ui, path: "../my_app_ui", env: Mix.env()},
       # ...
     ]
   end
