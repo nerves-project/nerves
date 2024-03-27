@@ -44,7 +44,7 @@ mkdir my_app && cd my_app
 # Create a Nerves firmware project called "my_app_firmware"
 mix nerves.new my_app_firmware
 
-# Create a Phoenix 1.6 UI project called "my_app_ui", without Ecto or Swoosh Mailer
+# Create a Phoenix 1.7 UI project called "my_app_ui", without Ecto or Swoosh Mailer
 mix phx.new my_app_ui --no-ecto --no-mailer
 ```
 
@@ -61,7 +61,7 @@ as a deployment wrapper around the `my_app_ui` project.
       # Dependencies for all targets
       {:nerves, "~> 1.7.0", runtime: false},
       # ...
-      {:my_app_ui, path: "../my_app_ui", targets: @all_targets, env: Mix.env()},
+      {:my_app_ui, path: "../my_app_ui", env: Mix.env()},
       # ...
     ]
   end
@@ -82,12 +82,12 @@ host:
 
   defp deps do
     [
-      {:phoenix, "~> 1.6.0"},
+      {:phoenix, "~> 1.7.0"},
       # ...
       {:phoenix_live_reload, "~> 1.2", only: :dev, targets: [:host]},
       # ...
-      {:esbuild, "~> 0.5", runtime: Mix.env() == :dev && Mix.target() == :host},
-      {:tailwind, "~> 0.1.8", runtime: Mix.env() == :dev && Mix.target() == :host},
+      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev && Mix.target() == :host},
+      {:tailwind, "~> 0.2", runtime: Mix.env() == :dev && Mix.target() == :host},
       # ...
     ]
   end
@@ -114,6 +114,7 @@ Our configuration might look like this (as of Phoenix 1.6.2):
 # my_app_/my_app_firmware/config/target.exs
 
 config :my_app_ui, MyAppUiWeb.Endpoint,
+  adapter: Bandit.PhoenixAdapter, 
   url: [host: "nerves.local"],
   http: [port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json",
