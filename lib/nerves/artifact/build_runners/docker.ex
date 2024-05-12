@@ -135,11 +135,11 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     {_, image} = config(pkg)
 
     mounts = Enum.join(mounts(pkg), " ")
-    ssh_agent = Enum.join(ssh_agent(), " ")
+    ssh_mount = Enum.join(ssh_mount(), " ")
     env_vars = Enum.join(env(), " ")
 
     shell =
-      "docker run --rm -it -w #{@working_dir} #{env_vars} #{mounts} #{ssh_agent} #{image} /bin/bash"
+      "docker run --rm -it -w #{@working_dir} #{env_vars} #{mounts} #{ssh_mount} #{image} /bin/bash"
 
     set_volume_permissions(pkg)
 
@@ -244,7 +244,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         "stdout",
         "-a",
         "stderr"
-      ] ++ env() ++ mounts(pkg) ++ ssh_agent() ++ [image | cmd]
+      ] ++ env() ++ mounts(pkg) ++ ssh_mount() ++ [image | cmd]
 
     case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
       {_result, 0} ->
@@ -333,9 +333,9 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
   end
 
-  defp ssh_agent() do
-    ssh_auth_sock = System.get_env("SSH_AUTH_SOCK")
-    ["-v", "#{ssh_auth_sock}:/ssh-agent", "-e", "SSH_AUTH_SOCK=/ssh-agent"]
+  defp ssh_mount() do
+    ssh_path = Path.expand("~/.ssh")
+    ["--mount", "type=bind,src=#{ssh_path},target=/home/nerves/.ssh,readonly"]
   end
 
   defp build_paths(pkg) do
