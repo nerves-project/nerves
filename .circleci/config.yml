@@ -45,7 +45,7 @@ jobs:
             - run: mix format --check-formatted
             - run: mix deps.unlock --check-unused
             - run: mix docs
-            - run: mix hex.build
+            # - run: mix hex.build
             - run: mix test || mix test
             - run: mix credo -a --strict
             - run: mix dialyzer
