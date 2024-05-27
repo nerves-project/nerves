@@ -22,23 +22,31 @@ defmodule Mix.Tasks.Firmware do
       Nerves toolchain (C/C++ crosscompiler) that is used
   """
   use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
 
-  @default_mksquashfs_flags ["-no-xattrs", "-quiet"]
+  import Mix.Nerves.Utils,
+    only: [
+      check_nerves_system_is_set!: 0,
+      check_nerves_toolchain_is_set!: 0,
+      parse_otp_version: 1,
+      set_provisioning: 1,
+      shell: 3
+    ]
+
+  import Mix.Nerves.IO, only: [debug_info: 1]
+  alias Mix.Nerves.Preflight
 
   @switches [verbose: :boolean, output: :string]
 
   @impl Mix.Task
   def run(args) do
-    Preflight.check!()
-    debug_info("Nerves Firmware Assembler")
-
     {opts, _, _} = OptionParser.parse(args, switches: @switches)
+    if opts[:verbose], do: System.put_env("NERVES_DEBUG", "1")
+    debug_info("firmware build start")
 
-    system_path = check_nerves_system_is_set!()
+    Preflight.check!()
 
-    _ = check_nerves_toolchain_is_set!()
+    config = build_config!(opts)
+    compiler_check!()
 
     # By this point, paths have already been loaded.
     # We just want to ensure any custom systems are compiled
@@ -46,71 +54,49 @@ defmodule Mix.Tasks.Firmware do
     Mix.Task.run("nerves.precompile", ["--no-loadpaths"])
     Mix.Task.run("compile", [])
 
-    Mix.Nerves.IO.shell_info("Building OTP Release...")
+    {time, _result} = :timer.tc(fn -> Mix.Task.run("release", []) end)
+    debug_info("OTP release : #{time / 1.0e6}s")
 
-    build_release()
+    write_erlinit_config!(config)
+    prevent_overlay_overwrites!(config)
 
-    config = Mix.Project.config()
-    fw_out = opts[:output] || Nerves.Env.firmware_path(config)
-    build_firmware(config, system_path, fw_out)
+    build_from_tar? =
+      config.fs_type == :erofs or Path.extname(config.system_rootfs_path) == ".tar"
+
+    # build_result =
+    {time, build_result} =
+      :timer.tc(fn ->
+        if build_from_tar?,
+          do: build_firmware(config),
+          else: build_firmware_legacy(config)
+      end)
+
+    _ = File.rm_rf!(config.tmp_dir)
+
+    debug_info("mkfs : #{time / 1.0e6}s")
+    result(build_result, config)
+    debug_info("firmware build end")
   end
 
-  @doc false
-  @spec result({Collectable.t(), exit_status :: non_neg_integer()}) :: :ok
-  def result({_, 0}) do
-    Mix.shell().info("""
-    Firmware built successfully! 🎉
+  defp build_config!(opts) do
+    firmware_config = Application.get_env(:nerves, :firmware, [])
+    mix_config = Mix.Project.config()
 
-    Now you may install it to a MicroSD card using `mix burn` or upload it
-    to a device with `mix upload` or `mix firmware.gen.script`+`./upload.sh`.
-    """)
-  end
+    # Enforce required pieces
+    system_path = check_nerves_system_is_set!()
+    toolchain_path = check_nerves_toolchain_is_set!()
+    set_provisioning(firmware_config[:provisioning])
 
-  def result({%IO.Stream{}, err}) do
-    # Any output was already sent through the stream,
-    # so just halt at this point
-    System.halt(err)
-  end
-
-  def result({result, _}) do
-    Mix.raise("""
-    Nerves encountered an error. #{inspect(result)}
-    """)
-  end
-
-  defp build_release() do
-    Mix.Task.run("release", [])
-  end
-
-  defp build_firmware(config, system_path, fw_out) do
-    otp_app = config[:app]
-    compiler_check()
-    firmware_config = Application.get_env(:nerves, :firmware)
-
-    mksquashfs_flags = firmware_config[:mksquashfs_flags] || @default_mksquashfs_flags
-    set_mksquashfs_flags(mksquashfs_flags)
-
-    rootfs_priorities =
-      Nerves.Env.package(:nerves_system_br)
-      |> rootfs_priorities()
-
-    rel2fw_path = Path.join(system_path, "scripts/rel2fw.sh")
-    cmd = "bash"
-    args = [rel2fw_path]
-
-    if firmware_config[:rootfs_additions] do
-      Mix.shell().error(
-        "The :rootfs_additions configuration option has been deprecated. Please use :rootfs_overlay instead."
-      )
-    end
-
+    # Build configuration
     build_rootfs_overlay = Path.join([Mix.Project.build_path(), "nerves", "rootfs_overlay"])
     File.mkdir_p!(build_rootfs_overlay)
 
-    write_erlinit_config(build_rootfs_overlay)
+    tmp_dir = Path.join(Mix.Project.build_path(), "_nerves-tmp")
+    _ = File.rm_rf!(tmp_dir)
+    File.mkdir_p!(tmp_dir)
 
-    project_rootfs_overlay =
-      case firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions] do
+    project_rootfs_overlays =
+      case firmware_config[:rootfs_overlay] do
         nil ->
           []
 
@@ -121,69 +107,166 @@ defmodule Mix.Tasks.Firmware do
           [Path.expand(overlay)]
       end
 
-    prevent_overlay_overwrites!(project_rootfs_overlay)
-
-    rootfs_overlays =
-      [build_rootfs_overlay | project_rootfs_overlay]
-      |> Enum.map(&["-a", &1])
-      |> List.flatten()
+    system_images = Path.join(system_path, "images")
 
     fwup_conf =
-      case firmware_config[:fwup_conf] do
-        nil -> []
-        fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
+      if conf_path = firmware_config[:fwup_conf] do
+        Path.join(File.cwd!(), conf_path)
+      else
+        Path.join(system_images, "fwup.conf")
       end
 
-    fw = ["-f", fw_out]
-    release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
-    output = [release_path]
-    args = args ++ fwup_conf ++ rootfs_overlays ++ fw ++ rootfs_priorities ++ output
-    env = [{"MIX_BUILD_PATH", Mix.Project.build_path()} | standard_fwup_variables(config)]
+    system_rootfs =
+      with path <- Path.join(system_images, "rootfs.tar"),
+           true <- File.exists?(path) do
+        path
+      else
+        _ -> Path.join(system_images, "rootfs.squashfs")
+      end
 
-    set_provisioning(firmware_config[:provisioning])
+    output = opts[:output] || Nerves.Env.firmware_path(mix_config)
+    # Make sure the fw dir path exists for fwup to write to
+    File.mkdir_p!(Path.dirname(output))
 
-    config
-    |> Nerves.Env.images_path()
-    |> File.mkdir_p!()
-
-    shell(cmd, args, env: env)
-    |> result()
+    %{
+      build_rootfs_overlay: build_rootfs_overlay,
+      env: build_env(mix_config),
+      erofs_options: firmware_config[:erofs_options] || [],
+      fs_type: firmware_config[:fs_type] || :squashfs,
+      fwup_conf: fwup_conf,
+      mksquashfs_flags: firmware_config[:mksquashfs_flags] || [],
+      output: output,
+      project_rootfs_overlays: project_rootfs_overlays,
+      release_path: Path.join(Mix.Project.build_path(), "rel/#{mix_config[:app]}"),
+      system_path: system_path,
+      system_rootfs_path: system_rootfs,
+      tmp_dir: tmp_dir,
+      toolchain_path: toolchain_path,
+      verbose: opts[:verbose]
+    }
   end
 
-  defp standard_fwup_variables(config) do
+  defp build_env(mix_config) do
     # Assuming the fwup.conf file respects these variable like the official
     # systems do, this will set the .fw metadata to what's in the mix.exs.
     [
-      {"NERVES_FW_VERSION", config[:version]},
-      {"NERVES_FW_PRODUCT", config[:name] || to_string(config[:app])},
-      {"NERVES_FW_DESCRIPTION", config[:description]},
-      {"NERVES_FW_AUTHOR", config[:author]}
+      {"MIX_BUILD_PATH", Mix.Project.build_path()},
+      {"NERVES_FW_VERSION", mix_config[:version]},
+      {"NERVES_FW_PRODUCT", mix_config[:name] || to_string(mix_config[:app])},
+      {"NERVES_FW_DESCRIPTION", mix_config[:description]},
+      {"NERVES_FW_AUTHOR", mix_config[:author]}
     ]
   end
 
-  # Need to check min version for nerves_system_br to check if passing the
-  # rootfs priorities option is supported. This was added in the 1.7.1 release
-  # https://github.com/nerves-project/nerves_system_br/releases/tag/v1.7.1
-  defp rootfs_priorities(%Nerves.Package{app: :nerves_system_br, version: vsn}) do
-    case Version.compare(vsn, "1.7.1") do
-      r when r in [:gt, :eq] ->
-        rootfs_priorities_file =
-          Path.join([Mix.Project.build_path(), "nerves", "rootfs.priorities"])
+  defp result({_, 0}, config) do
+    args = ["-m", "--metadata-key", "meta-uuid", "-i", config.output]
+    {uuid, _} = shell("fwup", args, stream: "")
+    formatted = IO.ANSI.format([:green, String.trim(uuid)])
 
-        if File.exists?(rootfs_priorities_file) do
-          ["-p", rootfs_priorities_file]
-        else
-          []
-        end
+    Mix.shell().info("""
+    Firmware built successfully! 🎉 [#{formatted}]
 
-      _ ->
-        []
+    Now you may install it to a MicroSD card using `mix burn` or upload it
+    to a device with `mix upload` or `mix firmware.gen.script`+`./upload.sh`.
+    """)
+  end
+
+  defp result(:error, _config), do: System.halt(1)
+
+  defp result({%IO.Stream{}, err}, _config) do
+    # Any output was already sent through the stream,
+    # so just halt at this point
+    System.halt(err)
+  end
+
+  defp result({result, _}, _config) do
+    Mix.raise("""
+    Nerves encountered an error. #{inspect(result)}
+    """)
+  end
+
+  defp build_firmware(config) do
+    # Order matters. First == highest priority
+    entries =
+      [
+        # TODO: Scrub unsupported files?
+        Enum.map(config.project_rootfs_overlays, &TarMerger.scan_directory/1),
+        TarMerger.scan_directory(config.build_rootfs_overlay),
+        TarMerger.scan_directory(config.release_path, "/srv/erlang"),
+        TarMerger.read_tar(config.system_rootfs_path)
+      ]
+      |> TarMerger.merge()
+      |> TarMerger.sort()
+
+    rootfs = Path.join(config.tmp_dir, "rootfs.#{config.fs_type}")
+
+    with :ok <- mkfs(rootfs, entries, config) do
+      args = ["-c", "-f", config.fwup_conf, "-o", config.output]
+      env = [{"ROOTFS", rootfs} | config.env]
+      shell("fwup", args, env: env)
     end
   end
 
-  defp rootfs_priorities(_), do: []
+  defp mkfs(rootfs, entries, %{fs_type: :erofs} = config) do
+    mkfs_tmp = Path.join(config.tmp_dir, "mkfs.erofs-tmp")
+    File.mkdir_p!(mkfs_tmp)
+    TarMerger.mkfs_erofs(rootfs, entries, erofs_options: config.erofs_options, tmp_dir: mkfs_tmp)
+  end
 
-  defp compiler_check() do
+  defp mkfs(rootfs, entries, config) do
+    mkfs_tmp = Path.join(config.tmp_dir, "mkfs.squashfs-tmp")
+    File.mkdir_p!(mkfs_tmp)
+
+    TarMerger.mkfs_squashfs(rootfs, entries,
+      mksquashfs_options: config.mksquashfs_flags,
+      tmp_dir: mkfs_tmp
+    )
+  end
+
+  defp build_firmware_legacy(config) do
+    # Need to check min version for nerves_system_br to check if passing the
+    # rootfs priorities option is supported. This was added in the 1.7.1 release
+    # https://github.com/nerves-project/nerves_system_br/releases/tag/v1.7.1
+    rootfs_priorities_arg =
+      with %Nerves.Package{app: :nerves_system_br, version: vsn} <-
+             Nerves.Env.package(:nerves_system_br),
+           r when r in [:gt, :eq] <- Version.compare(vsn, "1.7.1"),
+           rootfs_priorities_file =
+             Path.join([Mix.Project.build_path(), "nerves", "rootfs.priorities"]),
+           true <- File.exists?(rootfs_priorities_file) do
+        ["-p", rootfs_priorities_file]
+      else
+        _ -> []
+      end
+
+    rootfs_overlay_args =
+      [config.build_rootfs_overlay | config.project_rootfs_overlays]
+      |> Enum.map(&["-a", &1])
+
+    args =
+      [
+        Path.join(config.system_path, "scripts/rel2fw.sh"),
+        "-c",
+        config.fwup_conf,
+        "-f",
+        config.output,
+        rootfs_overlay_args,
+        rootfs_priorities_arg,
+        config.release_path
+      ]
+      |> List.flatten()
+
+    flags =
+      if Enum.empty?(config.mksquashfs_flags),
+        do: ["-no-xattrs", "-quiet"],
+        else: config.mksquashfs_flags
+
+    env = [{"NERVES_MKSQUASHFS_FLAGS", Enum.join(flags, " ")} | config.env]
+
+    shell("bash", args, env: env)
+  end
+
+  defp compiler_check!() do
     {:ok, otpc} = erlang_compiler_version()
     {:ok, elixirc} = elixir_compiler_version()
 
@@ -227,14 +310,14 @@ defmodule Mix.Tasks.Firmware do
     |> parse_otp_version()
   end
 
-  defp write_erlinit_config(build_overlay) do
+  defp write_erlinit_config!(config) do
     with user_opts <- Application.get_env(:nerves, :erlinit, []),
          {:ok, system_config_file} <- Nerves.Erlinit.system_config_file(Nerves.Env.system()),
          {:ok, system_config_file} <- File.read(system_config_file),
          system_opts <- Nerves.Erlinit.decode_config(system_config_file),
          erlinit_opts <- Nerves.Erlinit.merge_opts(system_opts, user_opts),
          erlinit_config <- Nerves.Erlinit.encode_config(erlinit_opts) do
-      erlinit_config_file = Path.join(build_overlay, "etc/erlinit.config")
+      erlinit_config_file = Path.join(config.build_rootfs_overlay, "etc/erlinit.config")
 
       Path.dirname(erlinit_config_file)
       |> File.mkdir_p!()
@@ -269,14 +352,10 @@ defmodule Mix.Tasks.Firmware do
       end
   end
 
-  defp set_mksquashfs_flags(flags) when is_list(flags) do
-    System.put_env("NERVES_MKSQUASHFS_FLAGS", Enum.join(flags, " "))
-  end
-
   @restricted_fs ["data", "root", "tmp", "dev", "sys", "proc"]
-  defp prevent_overlay_overwrites!(overlay_dirs) do
+  defp prevent_overlay_overwrites!(config) do
     shadow_mounts =
-      for dir <- overlay_dirs,
+      for dir <- config.project_rootfs_overlays,
           p <- Path.wildcard([dir, "/*"]),
           fs_dir = Path.relative_to(p, dir),
           fs_dir in @restricted_fs,
