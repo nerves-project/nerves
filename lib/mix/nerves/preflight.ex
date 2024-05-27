@@ -22,7 +22,7 @@ defmodule Mix.Nerves.Preflight do
   # OSX
   defp check_platform!(:darwin) do
     ensure_fwup_version!()
-    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_fs_tools!()
     ensure_available!("gstat", package: "gstat (coreutils)")
   end
 
@@ -35,13 +35,23 @@ defmodule Mix.Nerves.Preflight do
   defp check_platform!(:wsl) do
     ensure_fwup_version!()
     ensure_fwup_version!("fwup.exe")
-    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_fs_tools!()
   end
 
   # Non-WSL Linux
   defp check_platform!(_) do
     ensure_fwup_version!()
-    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_fs_tools!()
+  end
+
+  defp ensure_fs_tools!() do
+    fs_type = Application.get_env(:nerves, :firmware, [])[:fs_type]
+
+    if fs_type == :erofs do
+      ensure_available!("mkfs.erofs", package: "erofs-utils")
+    else
+      ensure_available!("mksquashfs", package: "squashfs")
+    end
   end
 
   @doc """

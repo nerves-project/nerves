@@ -26,7 +26,7 @@ jobs:
     steps:
       - run:
           name: Install system dependencies
-          command: apk add --no-cache build-base procps
+          command: apk add --no-cache build-base procps git
       - checkout
       - run:
           name: Install hex, rebar, and nerves_bootstrap
