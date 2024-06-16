@@ -73,7 +73,7 @@ defmodule Nerves.Release do
     priorities =
       (target_beam_files ++ target_app_files ++ target_priv_dirs)
       |> List.flatten()
-      |> Enum.zip(32_000..1_000)
+      |> Enum.zip(32_000..1_000//-1)
       |> Enum.map(fn {file, priority} -> [file, " ", to_string(priority), "\n"] end)
 
     build_path = Path.join([Mix.Project.build_path(), "nerves"])
