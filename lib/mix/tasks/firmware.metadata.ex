@@ -59,18 +59,14 @@ defmodule Mix.Tasks.Firmware.Metadata do
 
   @spec firmware_file(keyword()) :: String.t()
   def firmware_file(opts) do
-    with {:ok, fw} <- Keyword.fetch(opts, :firmware),
-         fw <- Path.expand(fw),
-         true <- File.exists?(fw) do
+    fw =
+      (opts[:firmware] || Nerves.Env.firmware_path())
+      |> Path.expand()
+
+    if File.exists?(fw) do
       fw
     else
-      false ->
-        fw = Keyword.get(opts, :firmware)
-
-        Mix.raise("The firmware file #{fw} does not exist")
-
-      _ ->
-        Nerves.Env.firmware_path()
+      Mix.raise("The firmware file #{fw} does not exist")
     end
   end
 end

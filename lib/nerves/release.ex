@@ -171,6 +171,7 @@ defmodule Nerves.Release do
   end
 
   @elixir_1_15_opts ["-user elixir", "-run elixir start_iex"]
+  @elixir_1_17_opts ["-user elixir", "-run elixir start_cli"]
   @legacy_elixir_opts ["-user Elixir.IEx.CLI"]
   defp check_vm_args_compatibility!(release) do
     Mix.shell().info([:yellow, "* [Nerves] ", :reset, "validating vm.args"])
@@ -181,10 +182,16 @@ defmodule Nerves.Release do
     end
 
     {exclusions, inclusions} =
-      if Version.match?(System.version(), ">= 1.15.0") do
-        {@legacy_elixir_opts, @elixir_1_15_opts}
-      else
-        {@elixir_1_15_opts, @legacy_elixir_opts}
+      cond do
+        Version.match?(System.version(), ">= 1.17.0") ->
+          {["-run elixir start_iex" | @legacy_elixir_opts], @elixir_1_17_opts}
+
+        Version.match?(System.version(), ">= 1.15.0") ->
+          {["-run elixir start_iex" | @legacy_elixir_opts], @elixir_1_15_opts}
+
+        true ->
+          exclude = Enum.uniq(@elixir_1_15_opts ++ @elixir_1_17_opts)
+          {exclude, @legacy_elixir_opts}
       end
 
     vm_args = File.read!(vm_args_path)
@@ -200,9 +207,9 @@ defmodule Nerves.Release do
       Mix.raise("""
       Incompatible vm.args.eex
 
-      The procedure for starting IEx changed in Elixir 1.15. The rel/vm.args.eex for
-      this project starts IEx in an incompatible way for the version of Elixir you're
-      using and won't work.
+      The procedure for starting IEx changed in newer Elixir versions. The 
+      rel/vm.args.eex for this project starts IEx in an incompatible way for
+      the version of Elixir you're using and won't work.
 
       To fix this, either change the version of Elixir that you're using or make the
       following changes to vm.args.eex:

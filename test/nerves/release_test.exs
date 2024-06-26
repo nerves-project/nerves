@@ -55,34 +55,58 @@ defmodule Nerves.ReleaseTest do
     bad_vm_args = Path.join(rel_templates_path, "vm.args.eex")
 
     expected =
-      if Version.match?(System.version(), ">= 1.15.0") do
-        assert :ok = File.write(bad_vm_args, "# test.vm.args\n-user Elixir.IEx.CLI")
+      cond do
+        Version.match?(System.version(), ">= 1.17.0") ->
+          assert :ok =
+                   File.write(
+                     bad_vm_args,
+                     "# test.vm.args\n-user Elixir.IEx.CLI\n-user elixir\n-run elixir start_iex"
+                   )
 
-        ~r"""
-        Please remove the following lines:
+          # Check both the older conditions and those in Elixir 1.15 and 1.16
+          # in the same test. This won't happen in practice, so this is mostly
+          # asserting the underlying logic works for both cases
+          ~r"""
+          Please remove the following lines:
 
-        \* #{bad_vm_args}:2:
-          -user Elixir.IEx.CLI
+          \* #{bad_vm_args}:2:
+            -user Elixir.IEx.CLI
+          \* #{bad_vm_args}:4:
+            -run elixir start_iex
 
-        Please ensure the following lines are in #{bad_vm_args}:
-          -user elixir
-          -run elixir start_iex
-        """
-      else
-        assert :ok =
-                 File.write(bad_vm_args, "# test.vm.args\n-user elixir\n-run elixir start_iex")
+          Please ensure the following lines are in #{bad_vm_args}:
+            -run elixir start_cli
+          """
 
-        ~r"""
-        Please remove the following lines:
+        Version.match?(System.version(), ">= 1.15.0") ->
+          assert :ok = File.write(bad_vm_args, "# test.vm.args\n-user Elixir.IEx.CLI")
 
-        \* #{bad_vm_args}:2:
-          -user elixir
-        \* #{bad_vm_args}:3:
-          -run elixir start_iex
+          ~r"""
+          Please remove the following lines:
 
-        Please ensure the following lines are in #{bad_vm_args}:
-          -user Elixir.IEx.CLI
-        """
+          \* #{bad_vm_args}:2:
+            -user Elixir.IEx.CLI
+
+          Please ensure the following lines are in #{bad_vm_args}:
+            -user elixir
+            -run elixir start_iex
+          """
+
+        true ->
+          assert :ok =
+                   File.write(bad_vm_args, "# test.vm.args\n-user elixir\n-run elixir start_iex")
+
+          ~r"""
+          Please remove the following lines:
+
+          \* #{bad_vm_args}:2:
+            -user elixir
+          \* #{bad_vm_args}:3:
+            -run elixir start_iex
+
+          Please ensure the following lines are in #{bad_vm_args}:
+            -user Elixir.IEx.CLI
+          """
       end
 
     opts = [

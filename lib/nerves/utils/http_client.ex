@@ -205,7 +205,7 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   defp start_httpc() do
-    :inets.start(:httpc, profile: :nerves)
+    _ = :inets.start(:httpc, profile: :nerves)
 
     opts = [
       max_sessions: 8,
