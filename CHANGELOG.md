@@ -1,5 +1,22 @@
 # Changelog
 
+## v1.11.0 - 2024-07-05
+
+This release includes support for Elixir 1.17 and is generally
+safe for most, but some setups may be broken and require small
+changes:
+
+* Minimum Elixir version is now `1.13`
+* If using Elixir >= 1.17, `vm.args.eex` needs to be updated
+  to use the run function `-run elixir start_cli`. Firmware
+  builds will fail if `vm.args.eex` settings are incompatible with
+  the current Elixir version to prevent unbootable images.
+
+* Bug Fix
+  * Docker build runner changed to mount `~/.ssh` instead of attempting
+    to use `ssh-agent` which would run into issues compiling systems
+    on MacOS
+
 ## v1.10.5 - 2023-12-26
 
 * Improvements
