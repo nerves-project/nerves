@@ -187,7 +187,7 @@ defmodule Nerves.Release do
           {["-run elixir start_iex" | @legacy_elixir_opts], @elixir_1_17_opts}
 
         Version.match?(System.version(), ">= 1.15.0") ->
-          {["-run elixir start_iex" | @legacy_elixir_opts], @elixir_1_15_opts}
+          {["-run elixir start_cli" | @legacy_elixir_opts], @elixir_1_15_opts}
 
         true ->
           exclude = Enum.uniq(@elixir_1_15_opts ++ @elixir_1_17_opts)

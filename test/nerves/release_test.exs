@@ -79,13 +79,22 @@ defmodule Nerves.ReleaseTest do
           """
 
         Version.match?(System.version(), ">= 1.15.0") ->
-          assert :ok = File.write(bad_vm_args, "# test.vm.args\n-user Elixir.IEx.CLI")
+          assert :ok =
+                   File.write(
+                     bad_vm_args,
+                     "# test.vm.args\n-user Elixir.IEx.CLI\n-run elixir start_cli"
+                   )
 
+          # Check both the older conditions and those in Elixir 1.17
+          # in the same test. This won't happen in practice, so this is mostly
+          # asserting the underlying logic works for both cases
           ~r"""
           Please remove the following lines:
 
           \* #{bad_vm_args}:2:
             -user Elixir.IEx.CLI
+          \* #{bad_vm_args}:3:
+            -run elixir start_cli
 
           Please ensure the following lines are in #{bad_vm_args}:
             -user elixir
