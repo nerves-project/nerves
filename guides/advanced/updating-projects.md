@@ -324,7 +324,7 @@ For example:
   def nerves_package do
     [
       # ..
-      build_runner: Nerves.Artifact.BuildRunner.Docker,
+      build_runner: Nerves.Artifact.BuildRunners.Docker,
       # ..
     ]
   end
