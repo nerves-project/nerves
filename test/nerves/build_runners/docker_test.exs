@@ -1,4 +1,4 @@
-defmodule Nerves.BuildRunner.DockerTest do
+defmodule Nerves.BuildRunners.DockerTest do
   use NervesTest.Case
 
   alias Nerves.Artifact.BuildRunners.Docker
