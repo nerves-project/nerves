@@ -63,8 +63,8 @@ defmodule Nerves.MixProject do
       source_ref: "v#{@version}",
       source_url: @source_url,
       extra_section: "GUIDES",
-      assets: "resources",
-      logo: "resources/logo.png",
+      assets: %{"resources" => "assets"},
+      logo: "resources/logo-color.png",
       groups_for_extras: [
         Introduction: ~r/guides\/introduction\/.?/,
         Core: ~r/guides\/core\/.?/,
