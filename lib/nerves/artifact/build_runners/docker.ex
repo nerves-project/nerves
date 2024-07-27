@@ -64,7 +64,20 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   @version "~> 1.12 or ~> 1.12.0-rc2 or >= 17.0.0"
 
-  @working_dir "/nerves/build"
+  # nerves_system_br v1.28.0 changed to a Docker image that moves the
+  # project build directory and runs everything as a non-root user.
+  defp new_docker_image?() do
+    version_c = Application.spec(:nerves_system_br)[:vsn]
+    version_c != nil and Version.match?(to_string(version_c), ">= 1.28.0")
+  end
+
+  defp working_dir() do
+    if new_docker_image?() do
+      "/home/nerves/project"
+    else
+      "/nerves/build"
+    end
+  end
 
   @doc """
   Create an artifact for the package
@@ -139,7 +152,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     env_vars = Enum.join(env(), " ")
 
     shell =
-      "docker run --rm -it -w #{@working_dir} #{env_vars} #{mounts} #{ssh_mount} #{image} /bin/bash"
+      "docker run --rm -it -w #{working_dir()} #{env_vars} #{mounts} #{ssh_mount} #{image} /bin/bash"
 
     set_volume_permissions(pkg)
 
@@ -197,7 +210,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   defp create_build_cmd(pkg) do
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("/nerves/env/#{pkg.app}", platform_config)
-    ["/nerves/env/platform/create-build.sh", defconfig, @working_dir]
+    ["/nerves/env/platform/create-build.sh", defconfig, working_dir()]
   end
 
   defp create_build(pkg, stream) do
@@ -239,7 +252,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
       [
         "run",
         "--rm",
-        "-w=#{@working_dir}",
+        "-w=#{working_dir()}",
         "-a",
         "stdout",
         "-a",
@@ -264,30 +277,34 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   end
 
   defp set_volume_permissions(pkg) do
-    {_dockerfile, image} = config(pkg)
+    if new_docker_image?() do
+      :ok
+    else
+      {_dockerfile, image} = config(pkg)
 
-    # (chown)
-    #   Set the permissions of the build volume
-    #   to match those of the host user:group.
-    # (--rm)
-    #   Remove the container when finished.
-    args =
-      [
-        "run",
-        "--rm",
-        "-w=#{@working_dir}"
-      ] ++ env(:root) ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", @working_dir]]
+      # (chown)
+      #   Set the permissions of the build volume
+      #   to match those of the host user:group.
+      # (--rm)
+      #   Remove the container when finished.
+      args =
+        [
+          "run",
+          "--rm",
+          "-w=#{working_dir()}"
+        ] ++ env(:root) ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", working_dir()]]
 
-    case Mix.Nerves.Utils.shell("docker", args) do
-      {_result, 0} ->
-        :ok
+      case Mix.Nerves.Utils.shell("docker", args) do
+        {_result, 0} ->
+          :ok
 
-      {result, _} ->
-        Mix.raise("""
-        The Nerves Docker build_runner encountered an error while setting permissions:
+        {result, _} ->
+          Mix.raise("""
+          The Nerves Docker build_runner encountered an error while setting permissions:
 
-        #{inspect(result)}
-        """)
+          #{inspect(result)}
+          """)
+      end
     end
   end
 
@@ -330,7 +347,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
       end)
 
     mounts = ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl" | mounts]
-    ["--mount", "type=volume,src=#{build_volume},target=#{@working_dir}" | mounts]
+    ["--mount", "type=volume,src=#{build_volume},target=#{working_dir()}" | mounts]
   end
 
   defp ssh_mount() do
