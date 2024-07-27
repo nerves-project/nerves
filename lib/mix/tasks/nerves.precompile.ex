@@ -73,6 +73,10 @@ defmodule Mix.Tasks.Nerves.Precompile do
         The following Nerves packages need to be built:
         #{stale_package_text}
 
+          ******************************************************************
+          * Run `mix deps.get` if you aren't making Nerves system changes. *
+          ******************************************************************
+
         The build process for each of these can take a significant amount of
         time so the maintainers have listed URLs for downloading pre-built packages.
         If you have not modified these packages, please try running `mix deps.get`
