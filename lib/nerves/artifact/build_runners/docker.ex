@@ -106,7 +106,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: build_log_path())
     stream = IO.stream(pid, :line)
 
-    :ok = create_build(pkg, stream)
+    :ok = create_build(pkg, stream, opts)
     :ok = make(pkg, stream, opts)
     Mix.shell().info("\n")
     :ok = make_artifact(pkg, stream)
@@ -213,15 +213,15 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     ["/nerves/env/platform/create-build.sh", defconfig, working_dir()]
   end
 
-  defp create_build(pkg, stream) do
+  defp create_build(pkg, stream, opts) do
     cmd = create_build_cmd(pkg)
     shell_info("Starting Build... (this may take a while)")
-    run(pkg, cmd, stream)
+    run(pkg, cmd, stream, opts[:env])
   end
 
   defp make(pkg, stream, opts) do
     make_args = Keyword.get(opts, :make_args, [])
-    run(pkg, ["make" | make_args], stream)
+    run(pkg, ["make" | make_args], stream, opts[:env])
   end
 
   defp make_artifact(pkg, stream) do
@@ -243,10 +243,35 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   # Helpers
 
-  defp run(pkg, cmd, stream) do
+  defp run(pkg, cmd, stream, env \\ []) do
     set_volume_permissions(pkg)
 
     {_dockerfile, image} = config(pkg)
+
+    additional_packages =
+      case Enum.find(env, fn {"NERVES_ADDITIONAL_PACKAGES", _path} -> true end) do
+        {_env_var, path} ->
+          path
+          |> String.split(":")
+          |> Enum.map(fn host_path ->
+            container_path = Path.join("/nerves/env", Path.basename(host_path))
+            {:package, host_path, container_path}
+          end)
+
+        _ ->
+          []
+      end
+
+    container_paths =
+      Enum.map_join(additional_packages, ":", fn {_, _host_path, container_path} ->
+        container_path
+      end)
+
+    container_env =
+      case container_paths do
+        "" -> []
+        _ -> ["--env", "NERVES_ADDITIONAL_PACKAGES=#{container_paths}"]
+      end
 
     args =
       [
@@ -257,7 +282,11 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         "stdout",
         "-a",
         "stderr"
-      ] ++ env() ++ mounts(pkg) ++ ssh_mount() ++ [image | cmd]
+      ] ++
+        env() ++
+        mounts(pkg, additional_packages) ++
+        container_env ++
+        ssh_mount() ++ [image | cmd]
 
     case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
       {_result, 0} ->
@@ -335,19 +364,18 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     |> Path.join("build.log")
   end
 
-  defp mounts(pkg) do
+  defp mounts(pkg, additional_packages \\ []) do
     build_paths = build_paths(pkg)
     build_volume = Docker.Volume.name(pkg)
     download_dir = Nerves.Env.download_dir() |> Path.expand()
-    mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
 
-    mounts =
-      Enum.reduce(build_paths, mounts, fn {_, host, target}, acc ->
-        ["--mount", "type=bind,src=#{host},target=#{target}" | acc]
-      end)
-
-    mounts = ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl" | mounts]
-    ["--mount", "type=volume,src=#{build_volume},target=#{working_dir()}" | mounts]
+    Enum.map(build_paths ++ additional_packages, fn {_, host, target} ->
+      ["--mount", "type=bind,src=#{host},target=#{target}"]
+    end)
+    |> List.insert_at(0, ["--env", "NERVES_BR_DL_DIR=/nerves/dl"])
+    |> List.insert_at(-1, ["--mount", "type=bind,src=#{download_dir},target=/nerves/dl"])
+    |> List.insert_at(-1, ["--mount", "type=volume,src=#{build_volume},target=#{working_dir()}"])
+    |> List.flatten()
   end
 
   defp ssh_mount() do

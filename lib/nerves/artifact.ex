@@ -14,10 +14,10 @@ defmodule Nerves.Artifact do
   Builds the package and produces an  See Nerves.Artifact
   for more information.
   """
-  @spec build(Nerves.Package.t(), Nerves.Package.t()) :: :ok | {:error, File.posix()}
-  def build(pkg, toolchain) do
-    with {build_runner, opts} <- pkg.build_runner,
-         {:ok, path} <- build_runner.build(pkg, toolchain, opts) do
+  @spec build(Nerves.Package.t(), Nerves.Package.t(), list()) :: :ok | {:error, File.posix()}
+  def build(pkg, toolchain, opts \\ []) do
+    with {build_runner, build_runner_opts} <- pkg.build_runner,
+         {:ok, path} <- build_runner.build(pkg, toolchain, build_runner_opts ++ opts) do
       Cache.put(pkg, path)
     else
       :noop ->
