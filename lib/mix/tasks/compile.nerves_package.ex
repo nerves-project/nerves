@@ -18,6 +18,24 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   def run(_args) do
     debug_info("Compile.NervesPackage start")
 
+    package_paths =
+      Enum.reduce(Mix.Project.deps_paths(), [], fn {app, path}, acc ->
+        Mix.Project.in_project(app, path, fn project_module ->
+          # credo:disable-for-next-line
+          case project_module.project[:buildroot_package] do
+            true -> acc ++ [path]
+            _ -> acc
+          end
+        end)
+      end)
+      |> Enum.join(":")
+
+    env =
+      case package_paths do
+        "" -> []
+        _ -> [{"NERVES_ADDITIONAL_PACKAGES", package_paths}]
+      end
+
     if Nerves.Env.enabled?() do
       bootstrap_check!()
 
@@ -31,7 +49,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
       ret =
         if Nerves.Artifact.stale?(package) do
-          _ = Nerves.Artifact.build(package, toolchain)
+          _ = Nerves.Artifact.build(package, toolchain, env: env)
           :ok
         else
           :noop
