@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.11.1 - 2024-08-05
+
+* Fix Docker builds for nerves_system_br v1.28.0 and later (see #997)
+* Documentation updates and improvements
+
 ## v1.11.0 - 2024-07-05
 
 This release includes support for Elixir 1.17 and is generally
