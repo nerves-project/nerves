@@ -30,7 +30,7 @@ defmodule Nerves.MixProject do
   end
 
   def application do
-    [extra_applications: [:ssl, :inets, :eex, :nerves_bootstrap]]
+    [extra_applications: [:ssl, :inets, :eex, :nerves_bootstrap, :tar_merger]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -46,7 +46,8 @@ defmodule Nerves.MixProject do
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:plug, "~> 1.10", only: :test},
       {:mime, "~> 2.0", only: :test},
-      {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test}
+      {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test},
+      {:tar_merger, github: "jjcarstens/tar_merger", branch: "scan-dir-root", runtime: false}
     ]
   end
 
