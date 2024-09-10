@@ -119,11 +119,6 @@ usually have the letters "USB" somewhere in the name.
 
 You should be at an `iex(1)>` prompt. If not, try pressing `Enter` a few times.
 
-> #### Linux USB gadget mode {: .info}
->
-> Linux USB gadget mode also supplies a virtual serial connection for some
-> Nerves targets.
-
 ### Troubleshooting
 
 #### First boot shows error messages
