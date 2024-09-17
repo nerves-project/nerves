@@ -1,7 +1,7 @@
 # Updating Projects
 
 Please review this guide before updating your projects. Help is available via
-the #nerves channel on the elixir-lang discord and the Elixir forum. Please file
+[the Elixir forum](https://elixirforum.com/c/nerves-forum/74). Please file
 bugs on GitHub.
 
 Contents:
