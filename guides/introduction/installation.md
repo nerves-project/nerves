@@ -71,8 +71,8 @@ cards. It is important that you install `fwup ` in both environments.
 
 ## Linux
 
-
 ### Package manager installs
+
 First, install a few packages using your package manager.
 
 #### On Debian-based systems
@@ -89,8 +89,8 @@ yay -S base-devel ncurses5-compat-libs openssh-askpass git squashfs-tools curl
 
 If you're curious, `squashfs-tools` will be used by Nerves to create root
 filesystems and `ssh-askpass` will be used to ask for passwords when writing to
-MicroSD cards. Some Fedora and Manjaro users have reported that they had to create a symlink
-from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
+MicroSD cards. Some Fedora and Manjaro users have reported that they had to
+create a symlink from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
 #### On NixOS or with Nix package manager
 
@@ -133,8 +133,8 @@ Please notes that you may need to adjust the `SUDO_ASKPASS` environment
 variable to include the correct path to the askpass program of your choice. A
 known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`
 
-
 ### fwup
+
 Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
 install firmware images. You can install `fwup` using the instructions found at
 [Installation Page](https://github.com/fwup-home/fwup#installing). Installing the
