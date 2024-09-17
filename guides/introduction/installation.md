@@ -4,12 +4,9 @@ Nerves requires a number of programs on your system to work. These include
 Erlang, Elixir, and a few tools for packaging firmware images. Nerves is
 actively used on MacOS and various Linux distributions. For Windows users, some
 people have had success running Linux in a virtual machine or using the Windows
-Subsystem for Linux available in Windows 10. If you have issues with any of the
-tooling after following the steps below, we recommend you reach out to us by opening
-a topic in the "Nerves" category on
-[https://elixirforum.com](https://elixirforum.com/c/nerves-forum/74). This allows
-answers to be searchable and replaces the use of the previous Slack and Discord
-channels.
+Subsystem for Linux available in Windows 10. If you have issues after following
+the steps below, please search or open a topic in the [Nerves category on the
+Elixir Forum](https://elixirforum.com/c/nerves-forum/74).
 
 Nerves requires that the Erlang version running on your development host be
 compatible with the Erlang version on the embedded target and also depends on
