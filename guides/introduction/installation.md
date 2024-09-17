@@ -8,14 +8,9 @@ Subsystem for Linux available in Windows 10. If you have issues after following
 the steps below, please search or open a topic in the [Nerves category on the
 Elixir Forum](https://elixirforum.com/c/nerves-forum/74).
 
-Nerves requires that the Erlang version running on your development host be
-compatible with the Erlang version on the embedded target and also depends on
-features added in recent versions of Elixir (`~> 1.11`). Because it can be hard
-to manage these tool versions with sufficient granularity using operating system
-packages, it is recommended that you use [ASDF](https://github.com/asdf-vm/asdf)
-to manage Erlang and Elixir installations. This tool works the same on its
-supported platforms, so you'll find more details in the All Platforms section
-below.
+Nerves requires specific Erlang and Elixir versions. We highly recommend using
+[asdf](https://asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/) rather
+than your OS's package manager.
 
 ## MacOS
 
@@ -28,7 +23,8 @@ brew install fwup squashfs coreutils xz pkg-config
 ```
 
 If you've already installed Erlang & Elixir using Homebrew, you'll need to
-uninstall them to avoid clashes with the recommended ASDF installation.
+uninstall them to avoid clashes with the recommended `asdf` or `mise`
+installation.
 
 ```bash
 brew uninstall elixir
@@ -160,32 +156,13 @@ page](https://github.com/nerves-project/nerves/blob/main/docs/Installation.md).
 ## All platforms
 
 First, install the required versions of Erlang/OTP and Elixir. We highly
-recommend using ASDF since the versions in use will be under your control. See
-the [ASDF docs](https://asdf-vm.com/#/core-manage-asdf) for official
-documentation.
+recommend using [asdf](asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/).
+Please refer to those sites for installation directions.
 
-IMPORTANT: Elixir 1.11.0 and 1.11.1 do not work with Nerves. Elixir 1.11.2 and
-later are fine.
-
-Here's a summary of the install process:
+After you've installed a `asdf` or `mise`, run the following to install
+Erlang/OTP and Elixir. If you're using `mise`, change `asdf` to `mise`:
 
 ```bash
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.0
-
-# The following steps are for bash. If you’re using something else, do the
-# equivalent for your shell.
-echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.bashrc
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.bashrc # optional
-source ~/.bashrc
-
-# For zsh based systems run the following
-echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.zshrc
-# Add complete command used by asdf.bash
-echo -e 'autoload -U +X bashcompinit && bashcompinit' >> ~/.zshrc
-echo -e 'autoload -U +X compinit && compinit' >> ~/.zshrc
-echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.zshrc
-source ~/.zshrc
-
 asdf plugin-add erlang
 asdf plugin-add elixir
 
@@ -204,10 +181,10 @@ asdf plugin-add elixir
 # latest official Nerves systems are compatible with the versions below. In
 # general, differences in patch releases are harmless. Nerves detects
 # configurations that might not work at compile time.
-asdf install erlang 26.0.2
-asdf install elixir 1.15.4-otp-26
-asdf global erlang 26.0.2
-asdf global elixir 1.15.4-otp-26
+asdf install erlang 27.0.1
+asdf install elixir 1.17.2-otp-27
+asdf global erlang 27.0.1
+asdf global elixir 1.17.2-otp-27
 ```
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
