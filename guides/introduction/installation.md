@@ -160,32 +160,55 @@ recommend using [asdf](asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/).
 Please refer to those sites for installation directions.
 
 After you've installed a `asdf` or `mise`, run the following to install
-Erlang/OTP and Elixir. If you're using `mise`, change `asdf` to `mise`:
+Erlang/OTP and Elixir:
 
-```bash
+> #### Debian/Ubuntu {: .tip}
+>
+> If on Debian or Ubuntu, you'll want to install `wx` before installing Erlang. Run
+> the command based on your system:
+>
+> * Ubuntu < 20.04: `sudo apt install libwxgtk3.0-dev`
+> * Ubuntu >= 20.04: `sudo apt install libwxgtk3.0-gtk3-dev`
+> * Arch based systems: `yay -S wxgtk2 fop jdk-openjdk unzip`
+
+> #### Different Erlang/Elixir versions {: .tip}
+>
+> It's possible to use different Erlang and Elixir versions with Nerves. The
+> latest official Nerves systems are compatible with the versions below. In
+> general, differences in patch releases are harmless. Nerves detects
+> configurations that might not work at compile time.
+
+<!-- tabs-open -->
+
+### asdf
+
+```sh
 asdf plugin-add erlang
 asdf plugin-add elixir
 
-# Note #1:
-# If on Debian or Ubuntu, you'll want to install wx before running the next line:
-# For Ubuntu versions before 20.04 run the next line:
-# sudo apt install libwxgtk3.0-dev
-# For Ubuntu 20.04 and up run the next line:
-# sudo apt install libwxgtk3.0-gtk3-dev
-# for arch based systems run the next line:
-# yay -S wxgtk2 fop jdk-openjdk unzip
-
-
-# Note #2:
-# It's possible to use different Erlang and Elixir versions with Nerves. The
-# latest official Nerves systems are compatible with the versions below. In
-# general, differences in patch releases are harmless. Nerves detects
-# configurations that might not work at compile time.
 asdf install erlang 27.0.1
 asdf install elixir 1.17.2-otp-27
 asdf global erlang 27.0.1
 asdf global elixir 1.17.2-otp-27
 ```
+
+### mise
+
+```sh
+mise use -g erlang@27.0.1
+mise use -g elixir@1.17.2-otp-27
+```
+
+> #### Auto plugin install {: .tip}
+>
+> `mise` automatically installs the needed plugin. If it does not work for
+> some reason, you can also manually install with:
+> ```sh
+> mise plugin install erlang
+> mise plugin install elixir
+> ```
+
+<!-- tabs-close -->
 
 It is important to update the versions of `hex` and `rebar` used by Elixir,
 **even if you already had Elixir installed**.
