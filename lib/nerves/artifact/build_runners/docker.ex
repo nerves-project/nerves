@@ -312,7 +312,13 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   defp env(:root), do: env(0, 0)
 
   defp env(uid, gid) do
-    ["--env", "UID=#{uid}", "--env", "GID=#{gid}"]
+    term =
+      case System.get_env("TERM") do
+        term when is_binary(term) and byte_size(term) > 0 -> term
+        _ -> "xterm-256color"
+      end
+
+    ["--env", "UID=#{uid}", "--env", "GID=#{gid}", "--env", "TERM=#{term}"]
   end
 
   defp uid() do
