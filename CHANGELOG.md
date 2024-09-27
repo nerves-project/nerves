@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.11.2 - 2024-00-27
+
+Nerves support is shifting to [Elixir Forum - Nerves Forum](https://elixirforum.com/c/nerves-forum/74)!
+This will now be the preferred and primary source for gaining Nerves support
+and documentation has been adjusted to reflect this shift.
+
+* Set `TERM` from user terminal when running `mix nerves.system.shell`
+  on MacOS. Fixes an issue where config menus were not rendering
+* Documentation updates and improvements
+  * Add instructions for [`mise`](https://mise.jdx.dev)
+  * Remove USB Gadget mode serial references since not on official platforms
+
 ## v1.11.1 - 2024-08-05
 
 * Fix Docker builds for nerves_system_br v1.28.0 and later (see #997)
