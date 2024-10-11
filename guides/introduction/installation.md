@@ -125,7 +125,7 @@ If instead, you'd like to install the dependencies on your host system, you can
 include the same packages listed under `buildInputs` in the
 `environment.systemPackages` section of your NixOS `configuration.nix` file.
 
-Please notes that you may need to adjust the `SUDO_ASKPASS` environment
+Please note that you may need to adjust the `SUDO_ASKPASS` environment
 variable to include the correct path to the askpass program of your choice. A
 known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`.
 To use this instead change the package name and change the definition of
