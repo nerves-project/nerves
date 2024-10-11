@@ -127,7 +127,13 @@ include the same packages listed under `buildInputs` in the
 
 Please notes that you may need to adjust the `SUDO_ASKPASS` environment
 variable to include the correct path to the askpass program of your choice. A
-known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`
+known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`.
+To use this instead change the package name and change the definition of
+`SUDO_ASKPASS` to:
+
+```nix
+SUDO_ASKPASS="${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+```
 
 ### fwup
 
