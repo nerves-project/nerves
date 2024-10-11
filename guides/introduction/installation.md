@@ -132,7 +132,7 @@ To use this instead change the package name and change the definition of
 `SUDO_ASKPASS` to:
 
 ```nix
-SUDO_ASKPASS="${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+SUDO_ASKPASS=${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass
 ```
 
 ### fwup
