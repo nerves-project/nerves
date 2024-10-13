@@ -157,7 +157,7 @@ sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python3
 For other distributions, try adapting one of the sections above.
 
 When you have it working, please consider [sending us an improvement to this
-page](https://github.com/nerves-project/nerves/blob/main/docs/Installation.md).
+page](https://github.com/nerves-project/nerves/blob/main/guides/introduction/installation.md).
 
 ## All platforms
 
