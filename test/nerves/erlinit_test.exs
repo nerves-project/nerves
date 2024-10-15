@@ -58,7 +58,7 @@ defmodule Nerves.ErlinitTest do
   # Mount the application partition (run "man fstab" for field names)
   # NOTE: This must match the location in the fwup.conf. If it doesn't the system
   #       will probably still work fine, but you won't get shell history since
-  #       shoehorn/nerves_runtime can't mount the application filesystem before
+  #       nerves_runtime can't mount the application filesystem before
   #       the history is loaded. If this mount fails due to corruption, etc.,
   #       nerves_runtime will auto-format it. Your applications will need to handle
   #       initializing any expected files and folders.
@@ -79,10 +79,9 @@ defmodule Nerves.ErlinitTest do
   -d /usr/bin/boardid
   -n nerves-%s
 
-  # If using shoehorn (https://github.com/nerves-project/shoehorn), start the
-  # shoehorn OTP release up first. If shoehorn isn't around, erlinit fails back
+  # Start the nerves OTP release first. If the nerves boot file isn't around, erlinit fails back
   # to the main OTP release.
-  --boot shoehorn
+  --boot nerves
 
   # Test that unknown erlinit options are passed through unharmed
   --unknown-erlinit-option 1234
@@ -115,7 +114,7 @@ defmodule Nerves.ErlinitTest do
                release_path: "/srv/erlang",
                uniqueid_exec: "/usr/bin/boardid",
                hostname_pattern: "nerves-%s",
-               boot: "shoehorn",
+               boot: "nerves",
                unknown_erlinit_option: "1234"
              ]
     end)
@@ -190,7 +189,7 @@ defmodule Nerves.ErlinitTest do
              --release-path /srv/erlang
              --uniqueid-exec /usr/bin/boardid
              --hostname-pattern nerves-%s
-             --boot shoehorn
+             --boot nerves
              --unknown-erlinit-option 1234
              """
     end)
