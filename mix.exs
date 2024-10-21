@@ -46,7 +46,7 @@ defmodule Nerves.MixProject do
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:plug, "~> 1.10", only: :test},
       {:mime, "~> 2.0", only: :test},
-      {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test}
+      {:plug_cowboy, "~> 1.0 or ~> 2.0", only: :test},
     ]
   end
 
