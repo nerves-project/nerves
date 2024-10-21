@@ -63,32 +63,58 @@ choco install fwup /y
 
 When running on WSL2, Nerves uses the Linux version of `fwup` for building the
 firmware files and the Windows version of `fwup` for burning firmware to SD
-cards. It is important that you install `fwup ` in both environments.
+cards. It is important that you install `fwup` in both environments.
 
 ## Linux
 
-### Package manager installs
+First, install a few packages.
 
-First, install a few packages using your package manager.
-
-#### On Debian-based systems
+<!-- tabs-open -->
+### Ubuntu and Debian
 
 ```bash
-sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev
+sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev
 ```
 
-#### On Arch-based systems
+Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
+manually from source. Nerves uses `fwup` in the build process to create firmware
+images. Here are the `asdf` instructions:
+
+```bash
+asdf plugin add fwup https://github.com/fwup-home/asdf-fwup.git
+asdf install fwup latest
+asdf global fwup latest
+```
+
+### Fedora
+
+```bash
+sudo dnf install @development-tools automake autoconf git squashfs-tools openssh-askpass pkgconf-pkg-config curl libmnl-devel openssl-devel ncurses-devel help2man libconfuse-devel libarchive-devel
+```
+
+Some Fedora have reported that they had to create a symlink
+from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
+
+Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
+manually from source. Nerves uses `fwup` in the build process to create firmware
+images. Here are the `asdf` instructions:
+
+```bash
+asdf plugin add fwup https://github.com/fwup-home/asdf-fwup.git
+asdf install fwup latest
+asdf global fwup latest
+```
+
+### Arch
 
 ```bash
 yay -S base-devel ncurses5-compat-libs openssh-askpass git squashfs-tools curl
 ```
 
-If you're curious, `squashfs-tools` will be used by Nerves to create root
-filesystems and `ssh-askpass` will be used to ask for passwords when writing to
-MicroSD cards. Some Fedora and Manjaro users have reported that they had to
+Some users have reported that they had to
 create a symlink from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
-#### On NixOS or with Nix package manager
+### NixOS
 
 Create a `shell.nix` file with the following contents:
 
@@ -134,44 +160,24 @@ To use this instead change the package name and change the definition of
 ```nix
 SUDO_ASKPASS=${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass
 ```
+<!-- tabs-close -->
 
-### fwup
-
-Next, install the `fwup` utility. Nerves uses `fwup` to create, distribute, and
-install firmware images. You can install `fwup` using the instructions found at
-[Installation Page](https://github.com/fwup-home/fwup#installing). Installing the
-pre-built `.deb` or `.rpm` files is recommended.
-
-### Packages for building custom Nerves systems
-
-If you want to build custom Nerves systems, you need a few more build tools. If
-you skip this step, you'll get an error message with instructions if you ever
-need to build a custom system. On Debian and Ubuntu, run the following:
-
-```bash
-sudo apt install libssl-dev libncurses5-dev bc m4 unzip cmake python3
-```
-
-### Other Linux distributions
-
-For other distributions, try adapting one of the sections above.
-
-When you have it working, please consider [sending us an improvement to this
+If these instructions aren't accurate, please consider [sending us an improvement to this
 page](https://github.com/nerves-project/nerves/blob/main/guides/introduction/installation.md).
 
 ## All platforms
 
-First, install the required versions of Erlang/OTP and Elixir. We highly
-recommend using [asdf](asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/).
-Please refer to those sites for installation directions.
+Then install the required versions of Erlang/OTP and Elixir. We highly recommend
+using [asdf](asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/). Please
+refer to those sites for installation directions.
 
 After you've installed a `asdf` or `mise`, run the following to install
 Erlang/OTP and Elixir:
 
 > #### Debian/Ubuntu {: .tip}
 >
-> If on Debian or Ubuntu, you'll want to install `wx` before installing Erlang. Run
-> the command based on your system:
+> If on Debian or Ubuntu, you'll want to install `wx` before installing Erlang.
+> Run the command based on your system:
 >
 > * Ubuntu < 20.04: `sudo apt install libwxgtk3.0-dev`
 > * Ubuntu >= 20.04: `sudo apt install libwxgtk3.0-gtk3-dev`
