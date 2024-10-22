@@ -215,6 +215,7 @@ mise use -g elixir@1.17.2-otp-27
 >
 > `mise` automatically installs the needed plugin. If it does not work for
 > some reason, you can also manually install with:
+>
 > ```sh
 > mise plugin install erlang
 > mise plugin install elixir
