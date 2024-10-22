@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.11.2 - 2024-00-27
+## v1.11.2 - 2024-09-27
 
 Nerves support is shifting to [Elixir Forum - Nerves Forum](https://elixirforum.com/c/nerves-forum/74)!
 This will now be the preferred and primary source for gaining Nerves support
