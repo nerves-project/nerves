@@ -222,7 +222,7 @@ mise use -g elixir@1.17.2-otp-27
 
 <!-- tabs-close -->
 
-It is important to update the versions of `hex` and `rebar` used by Elixir,
+It is important to update the versions of `hex` and `rebar3` used by Elixir,
 **even if you already had Elixir installed**.
 
 ```bash
@@ -230,7 +230,7 @@ mix local.hex
 mix local.rebar
 ```
 
-If you have your own version of `rebar` in your path, be sure that it is
+If you have your own version of `rebar3` in your path, be sure that it is
 up-to-date.
 
 You can now add the `nerves_bootstrap` archive to your Mix environment. This
