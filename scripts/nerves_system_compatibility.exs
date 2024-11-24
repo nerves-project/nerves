@@ -20,9 +20,9 @@ Mix.install([:earmark])
 defmodule NervesSystemCompatibility do
   alias NervesSystemCompatibility.{Chart, Database, Repo}
 
-  @nerves_targets [:bbb, :rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :osd32mp1, :x86_64, :grisp2, :mangopi_mq_pro]
+  @nerves_targets [:bbb, :rpi, :rpi0, :rpi2, :rpi3, :rpi3a, :rpi4, :rpi5, :osd32mp1, :x86_64, :grisp2, :mangopi_mq_pro]
   @systems_doc_divider "\n<!-- COMPATIBILITY -->\n"
-  @systems_doc_path "./guides/advanced/Systems.md"
+  @systems_doc_path "./guides/advanced/systems.md"
 
   def nerves_targets, do: @nerves_targets
 
