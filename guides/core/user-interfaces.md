@@ -16,8 +16,8 @@ LiveView does very well in local network embedded setups as there is usually no
 significant latency to the server (the device) and it gives you a lot of tools
 for building out UI.
 
-To get started with a project combining Nerves and Phoenix the 
-[Hello LiveView example] is recommended. There are many approaches to setting
+To get started with a project combining Nerves and Phoenix the
+[Hello LiveView] example is recommended. There are many approaches to setting
 up a combined Nerves and Phoenix project as Nerves and Phoenix are both really
 just Elixir projects.
 
@@ -27,7 +27,7 @@ to begin.
 
 [Nerves]: https://www.nerves-project.org/
 [Phoenix]: http://www.phoenixframework.org/
-[Hello LiveView]: https://github.com/nerves-project/nerves_examples/tree/main/hello_liveview
+[Hello LiveView]: https://github.com/nerves-project/nerves_examples/tree/main/hello_live_view
 
 ## Scenic
 
