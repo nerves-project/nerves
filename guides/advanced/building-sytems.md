@@ -92,17 +92,6 @@ To begin working with Nerves systems, you’ll need to clone the `nerves_systems
    - **Delete unnecessary systems** to speed up the build process.
    - **Add new systems** by following the format in the starter configuration.
 
-   An example configuration in `config.exs` might look like this:
-
-   ```elixir
-   config :nerves_systems,
-     systems: [
-       "nerves_system_rpi0",
-       "nerves_system_rpi3",
-       "nerves_system_bbb"
-     ]
-   ```
-
 3. **Download the Necessary Systems**
    After finalizing the configuration file, use the `ns.clone` mix task to download the repositories for the specified systems into the `src` directory. This command automates the cloning process:
 
