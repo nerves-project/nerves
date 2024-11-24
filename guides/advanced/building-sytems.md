@@ -337,13 +337,3 @@ Customizing the build allows you to tailor the Nerves system to meet specific re
    git add config/nerves_defconfig
    git commit -m "Customize Buildroot configuration for <system name>"
    ```
-
----
-
-## Conclusion
-
-The `nerves_systems` repository enables an alternative, faster approach to building Nerves systems, especially for developers working extensively with Buildroot or maintaining multiple systems. By following this guide, you can create and customize systems for your hardware platform, unlocking new possibilities within the Nerves framework.
-
-> **Feedback:** If you encounter any issues or have suggestions, please open an issue on the [nerves_systems repository](https://github.com/nerves-project/nerves_systems/issues).
-
----
