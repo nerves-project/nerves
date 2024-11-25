@@ -6,50 +6,42 @@ The `nerves_systems` repository offers an alternative way to build Nerves system
 
 By following this guide, you’ll gain the ability to create and customize Nerves systems for your hardware platform, contributing valuable improvements to the Nerves community.
 
-> **Note:** This guide provides instructions for users on macOS, Linux, and Windows. Adjustments may be necessary depending on your specific environment.
-
 ---
 
 ## Prerequisites
 
-Before starting, ensure you have the following:
+The `nerves_systems` build process only works on **Linux** systems with `x86_64` or `aarch64` architectures. Non-Linux users must set up a Linux environment, such as a virtual machine (VM) or a container.
 
 ### General Requirements
 
 - Basic familiarity with the Nerves project and embedded systems development.
-- A computer running one of the following operating systems:
-  - **macOS**: Recommended for users who can install and run [UTM](https://mac.getutm.app) to set up an Ubuntu virtual machine (VM).
-  - **Linux**: Ubuntu or other Debian-based distributions are preferred, but most distributions with essential build tools installed should work.
-  - **Windows**: Use [WSL2 (Windows Subsystem for Linux)](https://learn.microsoft.com/en-us/windows/wsl/install) to run an Ubuntu environment.
+- Access to a Linux environment:
+  - **Native Linux Machine**: Best for performance and simplicity.
+  - **macOS Users**: Install a Linux VM (e.g., via [UTM](https://mac.getutm.app)) to create an Ubuntu environment.
+  - **Windows Users**: Use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) with an Ubuntu distribution.
 
-### Specific Requirements per OS
+### Linux Environment Requirements
 
-#### macOS
+Install the following packages in your Linux environment:
 
-We suggest using [UTM](https://mac.getutm.app) to set up an Ubuntu virtual machine (VM) for building Nerves systems. This approach is widely used, including by the Nerves Core team on their macOS machines. However, other virtualization solutions or a direct Linux setup may also work, depending on your preferences and requirements.
+```bash
+sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses5-dev
+```
 
-#### Linux
+> **Why These Packages?**
+> These packages provide essential tools and libraries required for the Buildroot environment and system customization.
 
-For Linux users, the commands below assume a **Debian-based distribution** (e.g., Ubuntu). If you're using a different distribution, you may need to adapt the instructions to your package manager and package names.
+> **Compatibility Note**: This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04, and anticipated 24.04. Older distributions may require adjustments.
 
-1. **Install Required Dependencies on Debian-based Systems**
-   Run the following command to install necessary packages:
+### macOS Setup
 
-   ```bash
-   sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses5-dev
-   ```
+- Install [UTM](https://mac.getutm.app) to set up a Linux VM.
+- Follow the Linux Environment Requirements above inside the VM.
 
-   > **Compatibility Note**: This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04, and anticipated 24.04. Older distributions may require adjustments.
+### Windows Setup
 
-2. **For Other Distributions**
-   Adapt the list of required packages to your system's package manager (e.g., `dnf` for Fedora, `pacman` for Arch Linux). Refer to your distribution's documentation or community for assistance if needed.
-
-> **Tip:** To ensure compatibility, consider using an Ubuntu-based VM if your Linux distribution has significant differences in package names or versions.
-
-#### Windows
-
-- Install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) and set up an Ubuntu distribution.
-- Make sure WSL2 is configured to support virtualization.
+- Install [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
+- Set up an Ubuntu distribution and follow the Linux Environment Requirements above within WSL2.
 
 ### Install Erlang and Elixir
 
