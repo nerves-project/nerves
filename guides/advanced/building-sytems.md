@@ -19,6 +19,7 @@ The `nerves_systems` build process only works on **Linux** systems with `x86_64`
   - **Native Linux Machine**: Best for performance and simplicity.
   - **macOS Users**: Install a Linux VM (e.g., via [UTM](https://mac.getutm.app)) to create an Ubuntu environment.
   - **Windows Users**: Use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) with an Ubuntu distribution.
+- At least **128GB of free disk space**: Building Nerves systems can require significant disk space, depending on the components included in the system.
 
 ### Linux Environment Requirements
 
@@ -133,8 +134,6 @@ These steps are automated using the `ns.build` Mix task.
    ```bash
    mix ns.build
    ```
-
-   Depending on your system’s resources and the number of systems configured, this process may take some time. Ensure your machine has sufficient disk space (128 GB or more) and RAM.
 
 2. **Inspect the Output**
    Once the build completes, each system’s output will be located in its respective directory within the `o/` folder. For example:
