@@ -29,9 +29,12 @@ sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget cur
 ```
 
 > **Why These Packages?**
+>
 > These packages provide essential tools and libraries required for the Buildroot environment and system customization.
 
-> **Compatibility Note**: This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04, and anticipated 24.04. Older distributions may require adjustments.
+> **Compatibility Note**
+>
+> This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04, and anticipated 24.04. Older distributions may require adjustments.
 
 ### macOS Setup
 
@@ -81,9 +84,6 @@ To begin working with Nerves systems, you’ll need to clone the `nerves_systems
 2. **Modify the Configuration File**
    Open the newly created `config/config.exs` file in a text editor. Review the listed systems and customize the configuration to include only the systems you want to build. For example:
 
-   - **Delete unnecessary systems** to speed up the build process.
-   - **Add new systems** by following the format in the starter configuration.
-
 3. **Download the Necessary Systems**
    After finalizing the configuration file, use the `ns.clone` mix task to download the repositories for the specified systems into the `src` directory. This command automates the cloning process:
 
@@ -102,20 +102,16 @@ To begin working with Nerves systems, you’ll need to clone the `nerves_systems
        ...
    ```
 
-   > **Tip:** If you prefer, you can manually clone individual repositories into the `src` directory using `git clone`. Ensure the directory structure matches the above example.
+> **Tip:** If you prefer, you can manually clone individual repositories into the `src` directory using `git clone`. Ensure the directory structure matches the above example.
 
-4. **Verify the Configuration**
-   Ensure that the `src` directory contains all the necessary repositories. If any repositories are missing, check your `config/config.exs` file for typos or run `mix ns.clone` again to complete the process.
-
-5. **Reset the Environment (Optional)**
-   If you need to start over or clean the environment:
-   - Delete the `src` directory:
-     ```bash
-     rm -rf src
-     ```
-   - Adjust your `config/config.exs` file as needed and rerun the `mix ns.clone` task.
-
-> **Note:** The configuration step is crucial to ensure that only the required systems are downloaded and built. This saves time and disk space during the build process.
+> **Resetting the Environment (Optional)**
+>
+> If you need to start over or clean the environment:
+> - Delete the `src` directory:
+>   ```bash
+>   rm -rf src
+>   ```
+> - Adjust your `config/config.exs` file as needed and rerun the `mix ns.clone` task.
 
 ---
 
