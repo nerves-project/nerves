@@ -29,13 +29,13 @@ Install the following packages in your Linux environment:
 sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses5-dev
 ```
 
-> **Why These Packages?**
+> #### Why These Packages? {: .info}
 >
 > These packages provide essential tools and libraries required for the Buildroot environment and system customization.
 
-> **Compatibility Note**
+> #### Compatibility Note {: .info}
 >
-> This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04, and anticipated 24.04. Older distributions may require adjustments.
+> This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04. Older distributions may require adjustments.
 
 ### macOS Setup
 
@@ -73,41 +73,47 @@ To begin working with Nerves systems, you’ll need to clone the `nerves_systems
 
 ## Step 1: Configuring the Build Environment
 
-1. **Copy the Starter Configuration**
-   To begin configuring the environment for building Nerves systems, you need to create a configuration file. This file specifies which systems to build. Use the provided starter configuration as a template:
+### Copy the Starter Configuration
 
-   ```bash
-   cp config/starter-config.exs config/config.exs
-   ```
+To begin configuring the environment for building Nerves systems, you need to create a configuration file. This file specifies which systems to build. Use the provided starter configuration as a template:
 
-   The `starter-config.exs` file includes example configurations for common hardware platforms.
+```bash
+cp config/starter-config.exs config/config.exs
+```
 
-2. **Modify the Configuration File**
-   Open the newly created `config/config.exs` file in a text editor. Review the listed systems and customize the configuration to include only the systems you want to build. For example:
+The `starter-config.exs` file includes example configurations for common hardware platforms.
 
-3. **Download the Necessary Systems**
-   After finalizing the configuration file, use the `ns.clone` mix task to download the repositories for the specified systems into the `src` directory. This command automates the cloning process:
+### Modify the Configuration File
 
-   ```bash
-   mix ns.clone
-   ```
+Open the newly created `config/config.exs` file in a text editor. Review the listed systems and customize the configuration to include only the systems you want to build. For example:
 
-   The directory structure after running the command will look something like this:
+### Download the Necessary Systems
 
-   ```
-   src/
-       nerves_system_br
-       nerves_system_rpi0
-       nerves_system_rpi3
-       nerves_system_bbb
-       ...
-   ```
+After finalizing the configuration file, use the `ns.clone` mix task to download the repositories for the specified systems into the `src` directory. This command automates the cloning process:
 
-> **Tip:** If you prefer, you can manually clone individual repositories into the `src` directory using `git clone`. Ensure the directory structure matches the above example.
+```bash
+mix ns.clone
+```
 
-> **Resetting the Environment (Optional)**
+The directory structure after running the command will look something like this:
+
+```
+src/
+    nerves_system_br
+    nerves_system_rpi0
+    nerves_system_rpi3
+    nerves_system_bbb
+    ...
+```
+
+> #### Tip {: .tip}
+>
+> If you prefer, you can manually clone individual repositories into the `src` directory using `git clone`. Ensure the directory structure matches the above example.
+
+> #### Resetting the Environment {: .info}
 >
 > If you need to start over or clean the environment:
+>
 > - Delete the `src` directory:
 >   ```bash
 >   rm -rf src
@@ -118,74 +124,97 @@ To begin working with Nerves systems, you’ll need to clone the `nerves_systems
 
 ## Step 2: Building Your Nerves Systems
 
-Building Nerves systems involves two primary steps:
+The `nerves_systems` repository simplifies building custom systems by automating most of the setup. Follow these steps to build your systems:
 
-1. Converting the `nerves_defconfig` file for each system into a `.config` file used by Buildroot.
-2. Running the Buildroot `make` process to build the system.
+### 1. Start the Build Process
 
-These steps are automated using the `ns.build` Mix task.
+Run the `ns.build` Mix task to build all systems listed in your configuration file. This task generates Buildroot `.config` files and compiles the systems.
 
-1. **Run the Build Task**
-   Use the `ns.build` Mix task to build all the systems specified in your configuration. This command will:
+```bash
+mix ns.build
+```
 
-   - Generate the necessary `.config` files.
-   - Initiate the Buildroot build process for each system.
+> #### What Happens During the Build? {: .info}
+>
+> - `.config` files are generated from `nerves_defconfig`.
+> - The Buildroot process compiles the system for each target.
 
-   ```bash
-   mix ns.build
-   ```
+### 2. Check Build Output
 
-2. **Inspect the Output**
-   Once the build completes, each system’s output will be located in its respective directory within the `o/` folder. For example:
+Once the build completes, system outputs will be located in the `o/` directory. For example:
 
-   ```
-   o/
-       rpi0/
-       rpi3/
-       bbb/
-   ```
+```plaintext
+o/
+  rpi0/
+  rpi3/
+  bbb/
+```
 
-   Each output directory contains:
+Each directory contains:
 
-   - A `.config` file generated from the `nerves_defconfig`.
-   - A `build/` folder with compiled binaries.
-   - A `nerves.env.sh` script for setting up environment variables for the system.
+- `.config`: The Buildroot configuration file.
+- `build/`: Compiled binaries and intermediate files.
+- `nerves.env.sh`: Script for setting environment variables.
 
-3. **Debugging Build Failures**
-   If the `ns.build` task fails:
+> #### Quick Verification {: .tip}
+>
+> Run `ls o/<system name>` to confirm the build output exists (e.g., `ls o/rpi0`).
 
-   - Navigate to the output directory of the system that failed (e.g., `o/rpi0/`).
-   - Run the Buildroot `make` process manually to identify and fix issues:
-     ```bash
-     cd o/rpi0
-     make
-     ```
-   - Review any error messages or logs generated during the build process. Common issues may include missing dependencies or insufficient resources.
+### 3. Handle Build Failures
 
-   > **Hint:** To retry a clean build for a specific system, delete its output directory and rerun the `mix ns.build` command:
-   >
-   > ```bash
-   > rm -rf o/rpi0
-   > mix ns.build
-   > ```
+If the `ns.build` task fails, use the following steps to debug:
 
-4. **Preloading Build Dependencies** (Optional)
-   To speed up the build process, you can preload all source dependencies using the `make source` command in the output directory:
+1. **Locate the Failing System**:
+   Navigate to the output directory of the system that failed:
 
    ```bash
-   cd o/rpi0
-   make source
+   cd o/<system name>
    ```
 
-   This will download all required files in advance, allowing subsequent builds to complete more quickly.
+2. **Rebuild Manually**:
+   Run the Buildroot `make` process to identify issues:
 
-5. **Verify Build Artifacts**
-   After the build process completes, verify that the firmware and related files have been generated successfully. Look for:
+   ```bash
+   make
+   ```
 
-   - Firmware files (`.fw`).
-   - Intermediate build outputs (`build/` folder).
+3. **Review Logs**:
+   Examine error messages or logs for missing dependencies or configuration issues.
 
-   These files are necessary for the next steps, where you’ll integrate the custom-built system into your Nerves projects.
+> #### Common Issues {: .warning}
+>
+> - Missing system dependencies: Ensure all required packages are installed.
+> - Insufficient resources: Verify available disk space and memory.
+> - Configuration errors: Check the `.config` file for misconfigurations.
+
+### 4. Retry a Clean Build
+
+If issues persist, clean the system's output directory and rebuild:
+
+```bash
+rm -rf o/<system name>
+mix ns.build
+```
+
+> #### Why Clean Builds? {: .info}
+>
+> Cleaning removes corrupted or incomplete files, ensuring the build starts from a fresh state.
+
+### 5. (Optional) Preload Build Dependencies
+
+To speed up builds, you can preload dependencies for a system by running:
+
+```bash
+cd o/<system name>
+make source
+```
+
+This downloads all required files in advance, making subsequent builds faster.
+
+> #### When to Preload? {: .tip}
+>
+> - For systems with frequent reconfigurations.
+> - When working offline or on slower networks.
 
 ---
 
@@ -205,19 +234,15 @@ After successfully building the Nerves system, you need to set up your environme
 
    Replace `rpi0` with the short name of your target system (e.g., `rpi3`, `bbb`) and adjust the path as needed.
 
-   > **Note:** Each time you start a new terminal session for your Nerves project, you must source the script again to ensure the custom-built system is correctly configured.
+   > #### Warning {: .warning}
+   >
+   > Each time you start a new terminal session for your Nerves project, you must source the script again to ensure the custom-built system is correctly configured.
 
 2. **Set the Target System**
    Nerves uses the `MIX_TARGET` environment variable to identify the hardware target for your project. Set this variable to the short name of your target system. For example:
 
    ```bash
    export MIX_TARGET=rpi0
-   ```
-
-   You can combine this step with sourcing the environment script in one command:
-
-   ```bash
-   . ~/path/to/nerves_systems/o/rpi0/nerves.env.sh && export MIX_TARGET=rpi0
    ```
 
 3. **Build Your Nerves Project**
@@ -237,7 +262,7 @@ After successfully building the Nerves system, you need to set up your environme
 
    Look for the output indicating that the system is being sourced from your custom-built location (e.g., `o/rpi0`).
 
-   > **Troubleshooting**
+   > #### Troubleshooting {: .tip}
    >
    > - If the custom-built system isn’t being used, double-check that:
    >   - The `nerves.env.sh` script was sourced correctly.
@@ -252,64 +277,72 @@ Customizing your Nerves system is an advanced but powerful way to tailor the sys
 
 Customizing the build allows you to tailor the Nerves system to meet specific requirements for your hardware or application. This involves modifying Buildroot configurations and applying changes to the Nerves system.
 
-1. **Modify Buildroot Configuration**
-   Nerves systems use Buildroot for building firmware. The `make menuconfig` command opens a menu-based interface where you can modify the Buildroot configuration:
+### Modify Buildroot Configuration
 
-   ```bash
-   cd o/<system short name>
-   make menuconfig
-   ```
+Nerves systems use Buildroot for building firmware. The `make menuconfig` command opens a menu-based interface where you can modify the Buildroot configuration:
 
-   In this interface, you can:
+```bash
+cd o/<system short name>
+make menuconfig
+```
 
-   - Add or remove packages.
-   - Configure kernel options.
-   - Set custom build flags.
+In this interface, you can:
 
-   > **Tip:** Only make changes you understand, as incorrect settings may cause build failures or unstable firmware. For more details on Buildroot configuration, refer to the [Buildroot user manual](https://buildroot.org/downloads/manual/manual.html).
+- Add or remove packages.
+- Configure kernel options.
+- Set custom build flags.
 
-2. **Save the Updated Configuration**
-   After making changes in `menuconfig`, save the configuration back to the system’s default configuration file (`nerves_defconfig`) using:
+> #### Tip {: .tip}
+>
+> Only make changes you understand, as incorrect settings may cause build failures or unstable firmware. For more details on Buildroot configuration, refer to the [Buildroot user manual](https://buildroot.org/downloads/manual/manual.html).
 
-   ```bash
-   make savedefconfig
-   ```
+### Save the Updated Configuration
 
-   This ensures that your changes are preserved in the Buildroot configuration and can be reused in future builds. Learn more about Nerves system configuration in the [Nerves documentation](https://hexdocs.pm/nerves/systems.html).
+After making changes in `menuconfig`, save the configuration back to the system’s default configuration file (`nerves_defconfig`) using:
 
-3. **Rebuild the System**
-   To apply your changes, clean the output directory for the system and rebuild:
+```bash
+make savedefconfig
+```
 
-   ```bash
-   rm -rf o/<system short name>
-   mix ns.build
-   ```
+This ensures that your changes are preserved in the Buildroot configuration and can be reused in future builds. Learn more about Nerves system configuration in the [Nerves documentation](https://hexdocs.pm/nerves/systems.html).
 
-   This ensures a fresh build with your updated configuration.
+### Rebuild the System
 
-4. **Make Additional Modifications (Optional)**
-   You can further customize the Nerves system by modifying other configuration files, such as:
+To apply your changes, clean the output directory for the system and rebuild:
 
-   - **Linux kernel configuration:** Located in the Buildroot environment.
-   - **System files:** Add or update scripts, binaries, or other files required by your application.
+```bash
+rm -rf o/<system short name>
+mix ns.build
+```
 
-   To dive deeper into kernel customization, see the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/).
+This ensures a fresh build with your updated configuration.
 
-5. **Test the Custom Build**
-   After rebuilding, test the custom firmware on your hardware to ensure it meets your requirements. If issues arise:
+### Make Additional Modifications (Optional)
 
-   - Review the Buildroot logs in `o/<system short name>/build/`.
-   - Iterate on the configuration as needed.
+You can further customize the Nerves system by modifying other configuration files, such as:
 
-6. **Version Control Your Changes**
-   If your customizations are for long-term use, consider committing your changes to version control. This is especially useful for:
+- **Linux kernel configuration:** Located in the Buildroot environment.
+- **System files:** Add or update scripts, binaries, or other files required by your application.
 
-   - Collaborating with other developers.
-   - Reproducing builds in the future.
+To dive deeper into kernel customization, see the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/).
 
-   Example:
+### Test the Custom Build
 
-   ```bash
-   git add config/nerves_defconfig
-   git commit -m "Customize Buildroot configuration for <system name>"
-   ```
+After rebuilding, test the custom firmware on your hardware to ensure it meets your requirements. If issues arise:
+
+- Review the Buildroot logs in `o/<system short name>/build/`.
+- Iterate on the configuration as needed.
+
+### Version Control Your Changes
+ 
+If your customizations are for long-term use, consider committing your changes to version control. This is especially useful for:
+
+- Collaborating with other developers.
+- Reproducing builds in the future.
+
+Example:
+
+```bash
+git add config/nerves_defconfig
+git commit -m "Customize Buildroot configuration for <system name>"
+```
