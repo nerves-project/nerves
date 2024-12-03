@@ -1,6 +1,9 @@
 # credo:disable-for-this-file
 defmodule Nerves.Release do
   @moduledoc false
+
+  alias Nerves.Release.BootOrderer
+
   # No leading '/' here since this is passed to mksquashfs and it
   # doesn't like the leading slash.
   @target_release_path "srv/erlang"
@@ -20,11 +23,7 @@ defmodule Nerves.Release do
 
     _ = File.rm_rf!(release.path)
 
-    if Code.ensure_loaded?(Shoehorn.Release) do
-      apply(Shoehorn.Release, :init, [release])
-    else
-      release
-    end
+    BootOrderer.init(release)
   end
 
   @doc false
@@ -48,7 +47,7 @@ defmodule Nerves.Release do
   end
 
   defp bootfile() do
-    Application.get_env(:nerves, :firmware)[:bootfile] || "shoehorn.boot"
+    Application.get_env(:nerves, :firmware)[:bootfile] || "nerves.boot"
   end
 
   @doc false
