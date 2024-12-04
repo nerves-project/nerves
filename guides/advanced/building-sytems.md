@@ -388,8 +388,67 @@ If your customizations are for long-term use, consider committing your changes t
 - Reproducing builds in the future.
 
 Example:
+Let's say that you want to version control your customized rpi3 system
 
 ```bash
-git add config/nerves_defconfig
-git commit -m "Customize Buildroot configuration for <system name>"
+cd src
+cp -r nerves_system_rpi3 custom_rpi3
 ```
+
+The name of the system directory is up to you, but we will call it `custom_rpi3`
+in this example. It's recommended that you check your custom system into your
+version control system before making changes. This makes it easier to merge in
+upstream changes from the official systems later. For example, assuming you're
+using GitHub:
+
+
+```bash
+# After creating an empty custom_rpi3 repository in your GitHub account
+
+cd custom_rpi3
+git remote rename origin upstream
+git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
+git checkout -b main
+git push origin main
+```
+
+
+Next, tweak the metadata of your Mix project by updating your `mix.exs` with the following:
+
+* The module name of the mix project at the top of the file
+* the value of `@app` to `custom_rpi3`
+* the value of `@github_organization` to your GitHub user name or organization
+
+See the [Official Mix.Project](https://hexdocs.pm/mix/Mix.Project.html) document
+for the structure of this file.
+
+```elixir
+# custom_rpi3/mix.exs
+
+# defmodule NervesSystemRpi3.MixProject do
+defmodule CustomRpi3.MixProject do
+  #      =^^^^^^^^^^= Rename `NervesSystemRpi3` to `CustomRpi3`
+  use Mix.Project
+
+  # @github_organization "nerves-project"
+  @github_organization "YourGitHubUserOrOrganizationName"
+  #                    =^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
+  #                    Rename `"nerves-project"` here to your GitHub user or organization name
+
+  # @app :nerves_system_rpi3
+  @app :custom_rpi3
+  #    =^^^^^^^^^^^= Rename `nerves_system_rpi3` here to `custom_rpi3`
+end
+
+# =^^^= The rest of this file remains the same
+```
+
+```bash
+# Commit and push your changes.
+
+git add mix.exs
+git commit -m "Change project info"
+git push
+```
+
+Now you can go to your `nerves_systems/config/config.exs` and add it to your systems.
