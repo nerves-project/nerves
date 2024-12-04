@@ -289,34 +289,70 @@ Customizing your Nerves system is an advanced but powerful way to tailor the sys
 
 Customizing the build allows you to tailor the Nerves system to meet specific requirements for your hardware or application. This involves modifying Buildroot configurations and applying changes to the Nerves system.
 
-### Modify Buildroot Configuration
+### Modify Buildroot Package Configuration
 
-Nerves systems use Buildroot for building firmware. The `make menuconfig` command opens a menu-based interface where you can modify the Buildroot configuration:
+Navigate to the output directory of system you wish to modify.
 
 ```bash
 cd o/<system short name>
-make menuconfig
 ```
 
-In this interface, you can:
+Workflow for customizing a Nerves system is the same as when using Buildroot outside of Nerves,
+using `make menuconfig` and `make savedefconfig`.
 
-- Add or remove packages.
-- Configure kernel options.
-- Set custom build flags.
+The main package configuration workflows are divided into three categories,
+depending on what you want to configure:
 
-> #### Tip {: .tip}
->
-> Only make changes you understand, as incorrect settings may cause build failures or unstable firmware. For more details on Buildroot configuration, refer to the [Buildroot user manual](https://buildroot.org/downloads/manual/manual.html).
+1. Select base packages by running `make menuconfig`
+2. Modify the Linux kernel and kernel modules with `make linux-menuconfig`
+3. Enable more command line utilities using `make busybox-menuconfig`
 
-### Save the Updated Configuration
+When you quit from the `menuconfig` interface, the changes are stored
+temporarily. To save them back to your system source directory, follow the
+appropriate steps below:
 
-After making changes in `menuconfig`, save the configuration back to the system’s default configuration file (`nerves_defconfig`) using:
+1. After `make menuconfig`:
 
-```bash
-make savedefconfig
-```
+    Run `make savedefconfig` to update the `nerves_defconfig` in your System.
 
-This ensures that your changes are preserved in the Buildroot configuration and can be reused in future builds. Learn more about Nerves system configuration in the [Nerves documentation](https://hexdocs.pm/nerves/systems.html).
+2. After `make linux-menuconfig`:
+
+    Once done with configuring the kernel, you can save the Linux config to the
+    default configuration file using `make linux-update-defconfig`. The destination
+    file is `linux-4.9.defconfig` in your project's root (or whatever the kernel
+    version is you're working with).
+
+    > NOTE: If your system doesn't contain a custom Linux configuration yet,
+    you'll need to update the Buildroot configuration (using `make menuconfig`)
+    to point to the new Linux defconfig in your system directory. The path is
+    usually something like `$(NERVES_DEFCONFIG_DIR)/linux-x.y_defconfig`.
+
+3. After `make busybox-menuconfig`:
+
+    Unfortunately, there's not currently an easy way to save a BusyBox defconfig.
+    What you have to do instead is save the full BusyBox config and configure it
+    to be included in your `nerves_defconfig`.
+
+    ```bash
+    cp build/busybox-1.27.2/.config ../src/<full system name>/busybox_defconfig
+    ```
+
+    Like the Linux configuration, the Buildroot configuration will need to be
+    updated to point to the custom config if it isn't already. This can be done
+    via `make menuconfig` and navigating to **Target Packages** and finding the
+    **Additional BusyBox configuration fragment files** option under the
+    **BusyBox** package, which should already be enabled and already have a base
+    configuration specified. If you're following along with this example, the
+    correct configuration value should look like this:
+
+    ```bash
+    ${NERVES_DEFCONFIG_DIR}/busybox_defconfig
+    ```
+
+The [Buildroot user manual](http://nightly.buildroot.org/manual.html) can be
+very helpful, especially if you need to add a package. The various Nerves system
+repositories have examples of many common use cases, so check them out as well.
+
 
 ### Rebuild the System
 
@@ -333,7 +369,6 @@ This ensures a fresh build with your updated configuration.
 
 You can further customize the Nerves system by modifying other configuration files, such as:
 
-- **Linux kernel configuration:** Located in the Buildroot environment.
 - **System files:** Add or update scripts, binaries, or other files required by your application.
 
 To dive deeper into kernel customization, see the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/).
