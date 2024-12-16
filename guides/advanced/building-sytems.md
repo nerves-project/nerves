@@ -332,20 +332,27 @@ appropriate steps below:
     to be included in your `nerves_defconfig`.
 
     ```bash
-    cp build/busybox-1.27.2/.config ../src/<full system name>/busybox_defconfig
+    cp build/busybox-1.27.2/.config ../src/<full system name>/busybox.config
     ```
 
     Like the Linux configuration, the Buildroot configuration will need to be
-    updated to point to the custom config if it isn't already. This can be done
-    via `make menuconfig` and navigating to **Target Packages** and finding the
-    **Additional BusyBox configuration fragment files** option under the
-    **BusyBox** package, which should already be enabled and already have a base
-    configuration specified. If you're following along with this example, the
-    correct configuration value should look like this:
+    updated to point to the custom config. This can be done via `make menuconfig`
+    and navigating to **Target Packages** and finding the
+    **BusyBox configuration file to use** option under the
+    **BusyBox** package.
+
+    > NOTE: If your system uses **Additional BusyBox configuration fragment files**
+    option under it needs to be disabled for `make busybox-update-config` to work.
 
     ```bash
-    ${NERVES_DEFCONFIG_DIR}/busybox_defconfig
+    ${NERVES_DEFCONFIG_DIR}/busybox.config
     ```
+
+    Run `make busybox-update-config` to update `busybox.config` in your system.
+
+    > NOTE: Since this method uses full buysbox configuration file if upstream 
+    busybox configuration in `nerves_system_br` changes it will not apply automatically.
+
 
 The [Buildroot user manual](http://nightly.buildroot.org/manual.html) can be
 very helpful, especially if you need to add a package. The various Nerves system
