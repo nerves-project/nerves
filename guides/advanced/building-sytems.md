@@ -25,14 +25,11 @@ The `nerves_systems` build process only works on **Linux** systems with `x86_64`
 
 Install the following packages in your Linux environment:
 
+<!-- tabs-open -->
 #### Apt based distributions (Ubuntu, Debian...)
 ```bash
 sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses5-dev
 ```
-
-> #### Compatibility Note {: .info}
->
-> This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04. Older distributions may require adjustments.
 
 #### Arch linux
 ```bash
@@ -41,8 +38,9 @@ sudo pacman -Syu git base-devel bc cmake cvs wget curl mercurial python python-a
 
 #### RPM based distributions (Red Hat, Fedora...)
 ```bash
-sudo dnf install -y git gcc gcc-c++ make bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools openssl-devel automake autoconf ncurses-devel
+sudo dnf install -y git @development-tools @c-development kernel-devel cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync  unzip gawk jq squashfs-tools openssl-devel ncurses-devel
 ```
+<!-- tabs-close -->
 
 > #### Why These Packages? {: .info}
 >
