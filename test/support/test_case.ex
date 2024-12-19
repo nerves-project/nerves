@@ -50,8 +50,8 @@ defmodule NervesTest.Case do
 
   defmacro in_fixture(which, block) do
     module = inspect(__CALLER__.module)
-    function = Atom.to_string(elem(__CALLER__.function, 0))
-    tmp = Path.join(module, function)
+    {function, _} = __CALLER__.function
+    tmp = Path.join(module, Atom.to_string(function))
 
     quote do
       unquote(__MODULE__).in_fixture(unquote(which), unquote(tmp), unquote(block))
