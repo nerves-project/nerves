@@ -47,7 +47,16 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPI do
       opts
       | headers: headers,
         url:
-          Path.join([opts.base_url, "api", "v1", "repos", opts.repo, "releases", "tags", opts.tag])
+          Path.join([
+            opts.base_url,
+            "api",
+            "v1",
+            "repos",
+            opts.repo,
+            "releases",
+            "tags",
+            opts.tag
+          ])
     }
   end
 
