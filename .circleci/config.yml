@@ -1,15 +1,16 @@
 version: 2.1
 
 latest: &latest
-  pattern: "^1.17.*-erlang-27.*$"
+  pattern: "^1.18.*-erlang-27.*$"
 
 tags: &tags
   [
-    1.17.3-erlang-27.1.2-alpine-3.20.3,
+    1.18.1-erlang-27.2-alpine-3.20.3,
+    1.17.3-erlang-27.2-alpine-3.20.3,
     1.16.3-erlang-26.2.5-alpine-3.20.0,
     1.15.7-erlang-26.2.1-alpine-3.18.4,
     1.14.5-erlang-25.3.2-alpine-3.18.0,
-    1.13.4-erlang-24.3.4-alpine-3.15.3
+    1.13.4-erlang-24.3.4.11-alpine-3.18.0
   ]
 
 jobs:
@@ -62,7 +63,7 @@ jobs:
 
   automerge:
     docker:
-        - image: alpine:3.18.4
+      - image: alpine:3.18.4
     steps:
       - run:
           name: Install GitHub CLI
