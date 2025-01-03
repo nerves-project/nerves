@@ -25,17 +25,27 @@ The `nerves_systems` build process only works on **Linux** systems with `x86_64`
 
 Install the following packages in your Linux environment:
 
+<!-- tabs-open -->
+#### Apt based distributions (Ubuntu, Debian...)
 ```bash
 sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses5-dev
 ```
+
+#### Arch linux
+```bash
+sudo pacman -Syu git base-devel bc cmake cvs wget curl mercurial python python-aiohttp flake8 python-ijson python-nose2 python-pexpect python-pip python-requests rsync subversion unzip gawk jq squashfs-tools openssl automake autoconf ncurses
+```
+
+#### RPM based distributions (Red Hat, Fedora...)
+```bash
+sudo dnf install -y git @development-tools @c-development kernel-devel cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync  unzip gawk jq squashfs-tools openssl-devel ncurses-devel
+```
+<!-- tabs-close -->
 
 > #### Why These Packages? {: .info}
 >
 > These packages provide essential tools and libraries required for the Buildroot environment and system customization.
 
-> #### Compatibility Note {: .info}
->
-> This command is compatible with Debian 11 and 12, and Ubuntu 20.04, 22.04. Older distributions may require adjustments.
 
 ### macOS Setup
 
@@ -277,34 +287,77 @@ Customizing your Nerves system is an advanced but powerful way to tailor the sys
 
 Customizing the build allows you to tailor the Nerves system to meet specific requirements for your hardware or application. This involves modifying Buildroot configurations and applying changes to the Nerves system.
 
-### Modify Buildroot Configuration
+### Modify Buildroot Package Configuration
 
-Nerves systems use Buildroot for building firmware. The `make menuconfig` command opens a menu-based interface where you can modify the Buildroot configuration:
+Navigate to the output directory of system you wish to modify.
 
 ```bash
 cd o/<system short name>
-make menuconfig
 ```
 
-In this interface, you can:
+Workflow for customizing a Nerves system is the same as when using Buildroot outside of Nerves,
+using `make menuconfig` and `make savedefconfig`.
 
-- Add or remove packages.
-- Configure kernel options.
-- Set custom build flags.
+The main package configuration workflows are divided into three categories,
+depending on what you want to configure:
 
-> #### Tip {: .tip}
->
-> Only make changes you understand, as incorrect settings may cause build failures or unstable firmware. For more details on Buildroot configuration, refer to the [Buildroot user manual](https://buildroot.org/downloads/manual/manual.html).
+1. Select base packages by running `make menuconfig`
+2. Modify the Linux kernel and kernel modules with `make linux-menuconfig`
+3. Enable more command line utilities using `make busybox-menuconfig`
 
-### Save the Updated Configuration
+When you quit from the `menuconfig` interface, the changes are stored
+temporarily. To save them back to your system source directory, follow the
+appropriate steps below:
 
-After making changes in `menuconfig`, save the configuration back to the system’s default configuration file (`nerves_defconfig`) using:
+1. After `make menuconfig`:
 
-```bash
-make savedefconfig
-```
+    Run `make savedefconfig` to update the `nerves_defconfig` in your System.
 
-This ensures that your changes are preserved in the Buildroot configuration and can be reused in future builds. Learn more about Nerves system configuration in the [Nerves documentation](https://hexdocs.pm/nerves/systems.html).
+2. After `make linux-menuconfig`:
+
+    Once done with configuring the kernel, you can save the Linux config to the
+    default configuration file using `make linux-update-defconfig`. The destination
+    file is `linux-4.9.defconfig` in your project's root (or whatever the kernel
+    version is you're working with).
+
+    > NOTE: If your system doesn't contain a custom Linux configuration yet,
+    you'll need to update the Buildroot configuration (using `make menuconfig`)
+    to point to the new Linux defconfig in your system directory. The path is
+    usually something like `$(NERVES_DEFCONFIG_DIR)/linux-x.y_defconfig`.
+
+3. After `make busybox-menuconfig`:
+
+    Unfortunately, there's not currently an easy way to save a BusyBox defconfig.
+    What you have to do instead is save the full BusyBox config and configure it
+    to be included in your `nerves_defconfig`.
+
+    ```bash
+    cp build/busybox-1.27.2/.config ../src/<full system name>/busybox.config
+    ```
+
+    Like the Linux configuration, the Buildroot configuration will need to be
+    updated to point to the custom config. This can be done via `make menuconfig`
+    and navigating to **Target Packages** and finding the
+    **BusyBox configuration file to use** option under the
+    **BusyBox** package.
+
+    > NOTE: If your system uses **Additional BusyBox configuration fragment files**
+    option under it needs to be disabled for `make busybox-update-config` to work.
+
+    ```bash
+    ${NERVES_DEFCONFIG_DIR}/busybox.config
+    ```
+
+    Run `make busybox-update-config` to update `busybox.config` in your system.
+
+    > NOTE: Since this method uses full buysbox configuration file if upstream 
+    busybox configuration in `nerves_system_br` changes it will not apply automatically.
+
+
+The [Buildroot user manual](http://nightly.buildroot.org/manual.html) can be
+very helpful, especially if you need to add a package. The various Nerves system
+repositories have examples of many common use cases, so check them out as well.
+
 
 ### Rebuild the System
 
@@ -321,7 +374,6 @@ This ensures a fresh build with your updated configuration.
 
 You can further customize the Nerves system by modifying other configuration files, such as:
 
-- **Linux kernel configuration:** Located in the Buildroot environment.
 - **System files:** Add or update scripts, binaries, or other files required by your application.
 
 To dive deeper into kernel customization, see the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/).
@@ -341,8 +393,67 @@ If your customizations are for long-term use, consider committing your changes t
 - Reproducing builds in the future.
 
 Example:
+Let's say that you want to version control your customized rpi3 system
 
 ```bash
-git add config/nerves_defconfig
-git commit -m "Customize Buildroot configuration for <system name>"
+cd src
+cp -r nerves_system_rpi3 custom_rpi3
 ```
+
+The name of the system directory is up to you, but we will call it `custom_rpi3`
+in this example. It's recommended that you check your custom system into your
+version control system before making changes. This makes it easier to merge in
+upstream changes from the official systems later. For example, assuming you're
+using GitHub:
+
+
+```bash
+# After creating an empty custom_rpi3 repository in your GitHub account
+
+cd custom_rpi3
+git remote rename origin upstream
+git remote add origin git@github.com:YourGitHubUserName/custom_rpi3.git
+git checkout -b main
+git push origin main
+```
+
+
+Next, tweak the metadata of your Mix project by updating your `mix.exs` with the following:
+
+* The module name of the mix project at the top of the file
+* the value of `@app` to `custom_rpi3`
+* the value of `@github_organization` to your GitHub user name or organization
+
+See the [Official Mix.Project](https://hexdocs.pm/mix/Mix.Project.html) document
+for the structure of this file.
+
+```elixir
+# custom_rpi3/mix.exs
+
+# defmodule NervesSystemRpi3.MixProject do
+defmodule CustomRpi3.MixProject do
+  #      =^^^^^^^^^^= Rename `NervesSystemRpi3` to `CustomRpi3`
+  use Mix.Project
+
+  # @github_organization "nerves-project"
+  @github_organization "YourGitHubUserOrOrganizationName"
+  #                    =^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^=
+  #                    Rename `"nerves-project"` here to your GitHub user or organization name
+
+  # @app :nerves_system_rpi3
+  @app :custom_rpi3
+  #    =^^^^^^^^^^^= Rename `nerves_system_rpi3` here to `custom_rpi3`
+end
+
+# =^^^= The rest of this file remains the same
+```
+
+```bash
+# Commit and push your changes.
+
+git add mix.exs
+git commit -m "Change project info"
+git push
+```
+
+Now you can go to your `nerves_systems/config/config.exs` and add it to your systems.
