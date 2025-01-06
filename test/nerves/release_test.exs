@@ -11,13 +11,27 @@ defmodule Nerves.ReleaseTest do
 
     assert exit_status == 0, output
 
-    expected = """
-    srv/erlang/releases/0.1.0/consolidated/Elixir.String.Chars.beam 32000
-    srv/erlang/releases/0.1.0/consolidated/Elixir.List.Chars.beam 31999
-    srv/erlang/releases/0.1.0/consolidated/Elixir.Inspect.beam 31998
-    srv/erlang/releases/0.1.0/consolidated/Elixir.Enumerable.beam 31997
-    srv/erlang/releases/0.1.0/consolidated/Elixir.Collectable.beam 31996
-    """
+    expected =
+      if Version.match?(System.version(), ">= 1.18.0") do
+        # JSON.Encoder is in 1.18
+        """
+        srv/erlang/releases/0.1.0/consolidated/Elixir.String.Chars.beam 32000
+        srv/erlang/releases/0.1.0/consolidated/Elixir.List.Chars.beam 31999
+        srv/erlang/releases/0.1.0/consolidated/Elixir.JSON.Encoder.beam 31998
+        srv/erlang/releases/0.1.0/consolidated/Elixir.Inspect.beam 31997
+        srv/erlang/releases/0.1.0/consolidated/Elixir.Enumerable.beam 31996
+        srv/erlang/releases/0.1.0/consolidated/Elixir.Collectable.beam 31995
+        """
+      else
+        # Elixir 1.17 and before
+        """
+        srv/erlang/releases/0.1.0/consolidated/Elixir.String.Chars.beam 32000
+        srv/erlang/releases/0.1.0/consolidated/Elixir.List.Chars.beam 31999
+        srv/erlang/releases/0.1.0/consolidated/Elixir.Inspect.beam 31998
+        srv/erlang/releases/0.1.0/consolidated/Elixir.Enumerable.beam 31997
+        srv/erlang/releases/0.1.0/consolidated/Elixir.Collectable.beam 31996
+        """
+      end
 
     # TODO: Adjust this test to better check ordering
     # Asserting a specific generated priorities is brittle as it drastically
