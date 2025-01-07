@@ -374,10 +374,9 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     case Nerves.Port.cmd("docker", ["--version"]) do
       {result, 0} ->
         <<"Docker version ", vsn::binary>> = result
-        {:ok, requirement} = Version.parse_requirement(@version)
         {:ok, vsn} = parse_docker_version(vsn)
 
-        if !Version.match?(vsn, requirement) do
+        if !Version.match?(vsn, @version) do
           error_invalid_version(vsn)
         end
 
