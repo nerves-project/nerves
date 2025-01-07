@@ -63,7 +63,7 @@ jobs:
 
   automerge:
     docker:
-      - image: alpine:3.18.4
+      - image: alpine:3.21.0
     steps:
       - run:
           name: Install GitHub CLI
