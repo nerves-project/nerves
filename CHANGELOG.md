@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.11.3 - 2025-01-06
+
+This release supports warning-free builds with Elixir 1.18. It should be a low
+risk update for most users. While not related to this package, if you are using
+Elixir 1.18, please ensure that `:nerves_ssh` is at least `v1.0.1`.
+
+
 ## v1.11.2 - 2024-09-27
 
 Nerves support is shifting to [Elixir Forum - Nerves Forum](https://elixirforum.com/c/nerves-forum/74)!
