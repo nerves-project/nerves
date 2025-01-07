@@ -58,7 +58,7 @@ defmodule Nerves.Package do
     compilers = config[:compilers] || Mix.compilers()
     env = Map.new(config[:nerves_package][:env] || %{})
 
-    unless type do
+    if !type do
       Mix.shell().error(
         "The Nerves package #{app} does not define a type.\n\n" <>
           "Verify that the key exists in '#{config_path(path)}'.\n"

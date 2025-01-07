@@ -81,7 +81,7 @@ defmodule Nerves.Port do
   defp validate(cmd, args, opts) do
     assert_no_null_byte!(cmd)
 
-    unless Enum.all?(args, &is_binary/1) do
+    if !Enum.all?(args, &is_binary/1) do
       raise ArgumentError, "all arguments for Nerves.Port.cmd/3 must be binaries"
     end
 

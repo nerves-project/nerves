@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Nerves.Env do
 
     # TODO: Remove this as it should be handled when bootstrapping this tooling
     #       into the current running project. Leave it here for now
-    unless Code.ensure_loaded?(Nerves.Env) do
+    if !Code.ensure_loaded?(Nerves.Env) do
       _ = Mix.Tasks.Deps.Loadpaths.run(["--no-compile"])
 
       Mix.Tasks.Deps.Compile.run(["nerves", "--include-children"])

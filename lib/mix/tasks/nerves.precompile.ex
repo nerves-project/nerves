@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Nerves.Precompile do
     # before the nerves dependency is compiled, which is where Nerves.Env
     # currently lives. This would be improved by moving Nerves.Env to
     # nerves_bootstrap.
-    unless System.get_env("NERVES_ENV_DISABLED") do
+    if !System.get_env("NERVES_ENV_DISABLED") do
       System.put_env("NERVES_PRECOMPILE", "1")
 
       {opts, _, _} = OptionParser.parse(args, switches: @switches)

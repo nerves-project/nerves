@@ -55,7 +55,7 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
     _ = check_nerves_toolchain_is_set!()
 
-    unless File.exists?(fw) do
+    if !File.exists?(fw) do
       Mix.raise("""
       Firmware not found.
 

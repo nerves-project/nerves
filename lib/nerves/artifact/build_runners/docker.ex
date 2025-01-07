@@ -377,7 +377,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         {:ok, requirement} = Version.parse_requirement(@version)
         {:ok, vsn} = parse_docker_version(vsn)
 
-        unless Version.match?(vsn, requirement) do
+        if !Version.match?(vsn, requirement) do
           error_invalid_version(vsn)
         end
 
@@ -394,14 +394,14 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     {dockerfile, tag} = config(pkg)
 
     # Check for the Build Volume
-    unless Docker.Volume.exists?(name) do
+    if !Docker.Volume.exists?(name) do
       Docker.Volume.create(name)
     end
 
-    unless Docker.Image.exists?(tag) do
+    if !Docker.Image.exists?(tag) do
       Docker.Image.pull(tag)
 
-      unless Docker.Image.exists?(tag) do
+      if !Docker.Image.exists?(tag) do
         Docker.Image.create(dockerfile, tag)
       end
     end

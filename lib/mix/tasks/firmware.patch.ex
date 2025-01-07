@@ -38,7 +38,7 @@ defmodule Mix.Tasks.Firmware.Patch do
 
     source = (opts[:source] || Nerves.Env.firmware_path(config)) |> Path.expand()
 
-    unless File.exists?(source) do
+    if !File.exists?(source) do
       Mix.raise("""
       Source firmware #{source} does not exist.
       Please pass --source /path/source.fw or run `mix firmware`.

@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Firmware.Image do
 
     fw = "#{images_path}/#{otp_app}.fw"
 
-    unless File.exists?(fw) do
+    if !File.exists?(fw) do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 

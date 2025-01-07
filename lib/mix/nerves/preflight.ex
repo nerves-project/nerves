@@ -56,7 +56,7 @@ defmodule Mix.Nerves.Preflight do
         vsn = String.trim(vsn)
         {:ok, req} = Version.parse_requirement(vsn_requirement)
 
-        unless Version.match?(vsn, req) do
+        if !Version.match?(vsn, req) do
           Mix.raise("""
           #{fwup_bin} #{vsn_requirement} is required for Nerves.
 
