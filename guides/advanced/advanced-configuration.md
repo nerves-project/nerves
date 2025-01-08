@@ -465,3 +465,25 @@ You can modify the kernel parameters for your application or custom Nerves
 system by copying the default `sysctl.conf` file to your `rootfs_overlay/etc`
 directory and making the desired changes. Use `System.cmd/3` to run `sysctl` to
 change settings after initialization.
+
+## Post-processing or signing the root filesystem
+
+When generating a Nerves firmware there is stage where `mix firmware` takes
+your application code, makes a release and adds that release into the root
+filesystem. After this the root filesystem is complete. This is the point where
+you could generate signatures, hashes and such for a tool like dm-verity. To
+allow this Nerves provides an entrypoint for a script that you can add to your
+Nerves firmware config, such as `config/target.exs` or for the specific target.
+
+```
+config :nerves,
+  firmware: [
+    post_processing_script: Path.expand("./scripts/sign.sh")
+  ]
+```
+
+Create your desired `sign.sh` in a `scripts` directory in your Nerves project
+or put it wherever you prefer. The configuration file is not running with the
+Nerves environment variables. The script will have access to them however. The
+script will receive the filepath of the filesystem as the first argument and
+this allows you to sign it or otherwise amend it.

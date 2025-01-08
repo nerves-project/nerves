@@ -134,10 +134,21 @@ defmodule Mix.Tasks.Firmware do
         fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
       end
 
+    post_processing_script =
+      case firmware_config[:post_processing_script] do
+        nil -> []
+        script when is_binary(script) -> ["-s", script]
+      end
+
     fw = ["-f", fw_out]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
     output = [release_path]
-    args = args ++ fwup_conf ++ rootfs_overlays ++ fw ++ rootfs_priorities ++ output
+
+    args =
+      args ++
+        fwup_conf ++
+        rootfs_overlays ++ fw ++ rootfs_priorities ++ post_processing_script ++ output
+
     env = [{"MIX_BUILD_PATH", Mix.Project.build_path()} | standard_fwup_variables(config)]
 
     set_provisioning(firmware_config[:provisioning])
