@@ -109,18 +109,7 @@ defmodule Mix.Tasks.Firmware do
 
     write_erlinit_config(build_rootfs_overlay)
 
-    project_rootfs_overlay =
-      case firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions] do
-        nil ->
-          []
-
-        overlays when is_list(overlays) ->
-          overlays
-
-        overlay ->
-          [Path.expand(overlay)]
-      end
-
+    project_rootfs_overlay = config_arg(:rootfs_overlay, firmware_config)
     prevent_overlay_overwrites!(project_rootfs_overlay)
 
     rootfs_overlays =
@@ -128,17 +117,9 @@ defmodule Mix.Tasks.Firmware do
       |> Enum.map(&["-a", &1])
       |> List.flatten()
 
-    fwup_conf =
-      case firmware_config[:fwup_conf] do
-        nil -> []
-        fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
-      end
+    fwup_conf = config_arg(:fwup_conf, firmware_config)
 
-    post_processing_script =
-      case firmware_config[:post_processing_script] do
-        nil -> []
-        script when is_binary(script) -> ["-s", script]
-      end
+    post_processing_script = config_arg(:post_processing_script, firmware_config)
 
     fw = ["-f", fw_out]
     release_path = Path.join(Mix.Project.build_path(), "rel/#{otp_app}")
@@ -305,6 +286,33 @@ defmodule Mix.Tasks.Firmware do
       #{for dir <- shadow_mounts, do: "  * #{dir}\n"}
       #{IO.ANSI.reset()}https://hexdocs.pm/nerves/advanced-configuration.html#root-filesystem-overlays
       """)
+    end
+  end
+
+  defp config_arg(:rootfs_overlay, firmware_config) do
+    case firmware_config[:rootfs_overlay] || firmware_config[:rootfs_additions] do
+      nil ->
+        []
+
+      overlays when is_list(overlays) ->
+        overlays
+
+      overlay ->
+        [Path.expand(overlay)]
+    end
+  end
+
+  defp config_arg(:fwup_conf, firmware_config) do
+    case firmware_config[:fwup_conf] do
+      nil -> []
+      fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
+    end
+  end
+
+  defp config_arg(:post_processing_script, firmware_config) do
+    case firmware_config[:post_processing_script] do
+      nil -> []
+      script when is_binary(script) -> ["-s", script]
     end
   end
 end
