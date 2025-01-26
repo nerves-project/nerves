@@ -79,9 +79,7 @@ defmodule Nerves.ErlinitTest do
   -d /usr/bin/boardid
   -n nerves-%s
 
-  # If using shoehorn (https://github.com/nerves-project/shoehorn), start the
-  # shoehorn OTP release up first. If shoehorn isn't around, erlinit fails back
-  # to the main OTP release.
+  # Start the boot script created by the Nerves tooling
   --boot shoehorn
 
   # Test that unknown erlinit options are passed through unharmed

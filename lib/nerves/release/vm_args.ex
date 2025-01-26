@@ -5,7 +5,7 @@ defmodule Nerves.Release.VmArgs do
   @elixir_1_17_opts ["-user elixir", "-run elixir start_cli"]
   @legacy_elixir_opts ["-user Elixir.IEx.CLI"]
 
-  @spec check_compatibility!(Mix.Release.t()) :: :ok
+  @spec check_compatibility!(Mix.Release.t()) :: Mix.Release.t()
   def check_compatibility!(release) do
     Mix.shell().info([:yellow, "* [Nerves] ", :reset, "validating vm.args"])
     vm_args_path = Mix.Release.rel_templates_path(release, "vm.args.eex")
@@ -48,9 +48,9 @@ defmodule Nerves.Release.VmArgs do
       following changes to vm.args.eex:
       #{errs}
       """)
-    else
-      :ok
     end
+
+    release
   end
 
   defp check_vm_args_exclusions(errors, vm_args, exclusions, vm_args_path) do
