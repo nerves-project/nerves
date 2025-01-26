@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Firmware do
 
     Mix.Nerves.IO.shell_info("Building OTP Release...")
 
-    build_release()
+    Mix.Task.run("release", [])
 
     config = Mix.Project.config()
     fw_out = opts[:output] || Nerves.Env.firmware_path(config)
@@ -76,10 +76,6 @@ defmodule Mix.Tasks.Firmware do
     Mix.raise("""
     Nerves encountered an error. #{inspect(result)}
     """)
-  end
-
-  defp build_release() do
-    Mix.Task.run("release", [])
   end
 
   defp build_firmware(config, system_path, fw_out) do
