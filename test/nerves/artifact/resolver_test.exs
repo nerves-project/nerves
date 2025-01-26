@@ -141,7 +141,7 @@ defmodule Nerves.Artifact.ResolverTest do
   test "http resolver status codes are rendered" do
     in_fixture("resolver", fn ->
       sites = [
-        {:prefix, "http://127.0.0.1:4000/doe_not_exist/"}
+        {:prefix, "http://127.0.0.1:4000/does_not_exist/"}
       ]
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
