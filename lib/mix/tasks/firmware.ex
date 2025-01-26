@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Firmware do
 
   defp build_firmware(config, system_path, fw_out) do
     otp_app = config[:app]
-    compiler_check()
+    Nerves.Checks.check_compiler!()
     firmware_config = Application.get_env(:nerves, :firmware)
 
     mksquashfs_flags = firmware_config[:mksquashfs_flags] || @default_mksquashfs_flags
@@ -170,50 +170,6 @@ defmodule Mix.Tasks.Firmware do
   end
 
   defp rootfs_priorities(_), do: []
-
-  defp compiler_check() do
-    {:ok, otpc} = erlang_compiler_version()
-    {:ok, elixirc} = elixir_compiler_version()
-
-    if otpc.major != elixirc.major do
-      Mix.raise("""
-      Elixir was compiled by a different version of the Erlang/OTP compiler
-      than is being used now. This may not work.
-
-      Erlang compiler used for Elixir: #{elixirc.major}.#{elixirc.minor}.#{elixirc.patch}
-      Current Erlang compiler:         #{otpc.major}.#{otpc.minor}.#{otpc.patch}
-
-      Please use a version of Elixir that was compiled using the same major
-      version.
-
-      For example:
-
-      If your target is running OTP 25, you should use a version of Elixir
-      that was compiled using OTP 25.
-
-      If you're using asdf to manage Elixir versions, run:
-
-      asdf install elixir #{System.version()}-otp-#{System.otp_release()}
-      asdf global elixir #{System.version()}-otp-#{System.otp_release()}
-      """)
-    end
-  end
-
-  defp erlang_compiler_version() do
-    Application.spec(:compiler, :vsn)
-    |> to_string()
-    |> parse_otp_version()
-  end
-
-  defp elixir_compiler_version() do
-    {:file, path} = :code.is_loaded(Kernel)
-    {:ok, {_, [compile_info: compile_info]}} = :beam_lib.chunks(path, [:compile_info])
-    {:ok, vsn} = Keyword.fetch(compile_info, :version)
-
-    vsn
-    |> to_string()
-    |> parse_otp_version()
-  end
 
   defp write_erlinit_config(build_overlay) do
     with user_opts <- Application.get_env(:nerves, :erlinit, []),

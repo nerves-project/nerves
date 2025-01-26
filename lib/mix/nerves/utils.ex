@@ -171,54 +171,6 @@ defmodule Mix.Nerves.Utils do
     |> String.replace("::", ":")
   end
 
-  @doc """
-  Parse OTP versions
-
-  OTP versions can have anywhere from 2 to 5 parts. Normalize this into
-  a 3-part version for convenience. This is a lossy operation, but it
-  doesn't matter because the checks aren't needed in this project.
-
-  ```elixir
-  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("24.2")
-  iex> to_string(version)
-  "24.2.0"
-
-  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("23.3.4")
-  iex> to_string(version)
-  "23.3.4"
-
-  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("18.3.4.1.1")
-  iex> to_string(version)
-  "18.3.4"
-
-  iex> {:ok, version} = Mix.Nerves.Utils.parse_otp_version("23.0-rc1")
-  iex> to_string(version)
-  "23.0.0-rc1"
-
-  iex> Mix.Nerves.Utils.parse_otp_version("invalid")
-  {:error, "Unexpected OTP version: \\"invalid\\""}
-  ```
-  """
-  @spec parse_otp_version(String.t()) :: {:error, String.t()} | {:ok, Version.t()} | :error
-  def parse_otp_version(vsn) do
-    case Regex.run(~r/^([0-9.]+)(-[0-9a-zA-Z]+)?$/, vsn) do
-      [_, version] -> normalize_version(version, "")
-      [_, version, pre] -> normalize_version(version, pre)
-      _ -> {:error, "Unexpected OTP version: #{inspect(vsn)}"}
-    end
-  end
-
-  defp normalize_version(version, pre) do
-    {major, minor, patch} =
-      case String.split(version, ".") do
-        [major] -> {major, 0, 0}
-        [major, minor] -> {major, minor, 0}
-        [major, minor, patch | _] -> {major, minor, patch}
-      end
-
-    Version.parse("#{major}.#{minor}.#{patch}#{pre}")
-  end
-
   @spec raise_env_var_missing(String.t()) :: no_return()
   defp raise_env_var_missing(name) do
     Mix.raise("""
