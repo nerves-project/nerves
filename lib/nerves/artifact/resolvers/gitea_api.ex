@@ -2,7 +2,8 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPI do
   @moduledoc false
   @behaviour Nerves.Artifact.Resolver
 
-  alias Nerves.Utils.{HTTPClient, Shell}
+  alias Nerves.Utils.HTTPClient
+  alias Nerves.Utils.Shell
 
   defstruct artifact_name: nil,
             base_url: nil,
