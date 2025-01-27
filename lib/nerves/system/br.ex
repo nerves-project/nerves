@@ -2,7 +2,8 @@ defmodule Nerves.System.BR do
   @moduledoc """
   Package builder for Buildroot-based Nerves systems
   """
-  use Nerves.Package.Platform
+  @behaviour Nerves.Artifact.BuildRunner
+  @behaviour Nerves.Package.Platform
 
   import Mix.Nerves.Utils
   alias Nerves.Artifact
