@@ -2,10 +2,9 @@ defmodule Nerves.Env do
   @moduledoc """
   Contains package info for Nerves dependencies
 
-  The Nerves Env is used to load information from dependencies that
-  contain a nerves.exs config file in the root of the dependency
-  path. Nerves loads this config because it needs access to information
-  about Nerves compile time dependencies before any code is compiled.
+  The Nerves Env is used to load information from dependencies that have nerves
+  config. Nerves loads this config because it needs access to information about
+  Nerves compile time dependencies before any code is compiled.
   """
 
   alias Nerves.Artifact
@@ -525,8 +524,7 @@ defmodule Nerves.Env do
 
     package_config != nil
   rescue
-    _e ->
-      File.exists?(Package.config_path(path))
+    _e -> false
   end
 
   defp mix_config() do
