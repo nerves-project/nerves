@@ -2,7 +2,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   @moduledoc false
   @behaviour Nerves.Artifact.Resolver
 
-  alias Nerves.Utils.{HTTPClient, Shell}
+  alias Nerves.Utils.HTTPClient
+  alias Nerves.Utils.Shell
 
   @base_url "https://api.github.com/"
 
