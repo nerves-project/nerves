@@ -115,7 +115,7 @@ defmodule Nerves.Artifact do
 
   The directory for artifacts will be found in the directory returned
   by `Nerves.Env.data_dir/0` (i.e. `"#{Nerves.Env.data_dir()}/artifacts/"`).
-  This location can be overriden by the environment variable `NERVES_ARTIFACTS_DIR`.
+  This location can be overridden by the environment variable `NERVES_ARTIFACTS_DIR`.
   """
   @spec base_dir() :: String.t()
   def base_dir() do
