@@ -1,6 +1,7 @@
 defmodule ToolchainPlatform do
   @moduledoc false
-  use Nerves.Package.Platform
+  @behaviour Nerves.Artifact.BuildRunner
+  @behaviour Nerves.Package.Platform
 
   alias Nerves.Artifact
 

@@ -8,14 +8,12 @@ defmodule Nerves.Package.Platform do
   is useful for constructing host tools to be used during the elixir compile
   phase.
 
-  You can implement both `Nerves.Package.Platform` and `Nerves.Artifact.BuildRunner`
-  in the same module with the using macro.
-
   Here is a simple example that touches a file in the `Artifact.build_path`
 
   ```elixir
   defmodule SystemPlatform do
-    use Nerves.Package.Platform
+    @behaviour Nerves.Artifact.BuildRunner
+    @behaviour Nerves.Package.Platform
 
     def bootstrap(_pkg) do
       System.put_env("NERVES_BOOTSTRAP_SYSTEM", "1")
@@ -68,11 +66,4 @@ defmodule Nerves.Package.Platform do
   artifact to the local build_path location.
   """
   @callback build_path_link(package :: Nerves.Package.t()) :: build_path_link :: String.t()
-
-  defmacro __using__(_) do
-    quote do
-      @behaviour Nerves.Artifact.BuildRunner
-      @behaviour Nerves.Package.Platform
-    end
-  end
 end
