@@ -44,7 +44,6 @@ defmodule Nerves.Package do
           config: Keyword.t()
         }
 
-  @package_config "nerves.exs"
   @required [:type, :version, :platform]
 
   @doc """
@@ -61,7 +60,7 @@ defmodule Nerves.Package do
     if !type do
       Mix.shell().error(
         "The Nerves package #{app} does not define a type.\n\n" <>
-          "Verify that the key exists in '#{config_path(path)}'.\n"
+          "Verify that the key exists.\n"
       )
 
       exit({:shutdown, 1})
@@ -121,43 +120,17 @@ defmodule Nerves.Package do
   end
 
   @doc """
-  Takes the path to the package and returns the path to its package config.
-  """
-  @spec config_path(String.t()) :: String.t()
-  def config_path(path) do
-    Path.join(path, @package_config)
-  end
-
-  @doc """
   Get Mix.Project config for an application
   """
   @spec config(Application.app(), Path.t()) :: Keyword.t()
   def config(app, path) do
-    project_config =
-      if app == Mix.Project.config()[:app] do
+    if app == Mix.Project.config()[:app] do
+      Mix.Project.config()
+    else
+      Mix.Project.in_project(app, path, fn _mod ->
         Mix.Project.config()
-      else
-        Mix.Project.in_project(app, path, fn _mod ->
-          Mix.Project.config()
-        end)
-      end
-
-    nerves_package =
-      case project_config[:nerves_package] do
-        nil ->
-          # TODO: Deprecated. Clean up after 1.0
-          Mix.shell().raise("""
-          Nerves configuration has moved from nerves.exs to mix.exs.
-
-          Use `mix nerves.new` to regenerate your project's mix.exs and merge
-          your code into the new project.
-          """)
-
-        nerves_package ->
-          nerves_package
-      end
-
-    Keyword.put(project_config, :nerves_package, nerves_package)
+      end)
+    end
   end
 
   defp dep_type(pkg) do
