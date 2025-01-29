@@ -11,29 +11,6 @@ defmodule Nerves.Env do
   alias Nerves.Package
 
   @doc """
-  Starts the Nerves environment agent and loads package information.
-  If the Nerves.Env is already started, the function returns
-  `{:error, {:already_started, pid}}` with the pid of that process
-  """
-  @spec start() :: Agent.on_start()
-  def start() do
-    set_source_date_epoch()
-    Agent.start_link(fn -> load_packages() end, name: __MODULE__)
-  end
-
-  @doc """
-  Stop the Nerves environment agent.
-  """
-  @spec stop() :: :ok | :not_running
-  def stop() do
-    if Process.whereis(__MODULE__) do
-      Agent.stop(__MODULE__)
-    else
-      :not_running
-    end
-  end
-
-  @doc """
   Check if the env compilers are disabled
   """
   @spec enabled?() :: boolean
@@ -115,8 +92,7 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Ensures that an application which contains a Nerves package config has
-  been loaded into the environment agent.
+  Return the Nerves package config for the specified application
 
   ## Options
     * `app` - The atom of the app to load
@@ -128,21 +104,9 @@ defmodule Nerves.Env do
     path = path || File.cwd!()
 
     if nerves_package?({app, path}) do
-      packages = Agent.get(__MODULE__, & &1)
+      %Package{} = package = Package.load_config({app, path})
 
-      case Enum.find(packages, &(&1.app == app)) do
-        nil ->
-          %Package{} = package = Package.load_config({app, path})
-
-          Agent.update(__MODULE__, fn packages ->
-            [package | packages]
-          end)
-
-          {:ok, package}
-
-        package ->
-          {:ok, package}
-      end
+      {:ok, package}
     else
       {:error, "Nerves package config for #{inspect(app)} was not found at #{path}"}
     end
@@ -240,7 +204,7 @@ defmodule Nerves.Env do
   """
   @spec packages() :: [Nerves.Package.t()]
   def packages() do
-    Agent.get(__MODULE__, & &1) || Mix.raise("Nerves packages are not loaded")
+    load_packages()
   end
 
   @doc """
@@ -461,7 +425,8 @@ defmodule Nerves.Env do
 
   defp process_target_gcc_flags(env), do: env
 
-  defp set_source_date_epoch() do
+  @spec set_source_date_epoch() :: :ok
+  def set_source_date_epoch() do
     case source_date_epoch() do
       {:ok, nil} -> :ok
       {:ok, sde} -> System.put_env("SOURCE_DATE_EPOCH", sde)

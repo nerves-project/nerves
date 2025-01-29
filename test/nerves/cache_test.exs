@@ -36,7 +36,6 @@ defmodule Nerves.CacheTest do
       |> Path.join("mix.exs")
       |> Code.require_file()
 
-      Nerves.Env.start()
       package = Nerves.Env.package(:system)
 
       dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
@@ -66,7 +65,6 @@ defmodule Nerves.CacheTest do
       |> Path.join("mix.exs")
       |> Code.require_file()
 
-      Nerves.Env.start()
       package = Nerves.Env.package(:system)
 
       dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
@@ -90,8 +88,6 @@ defmodule Nerves.CacheTest do
       File.cwd!()
       |> Path.join("mix.exs")
       |> Code.require_file()
-
-      Nerves.Env.start()
 
       File.mkdir_p!(Nerves.Env.download_dir())
 

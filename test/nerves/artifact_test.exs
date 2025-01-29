@@ -13,7 +13,6 @@ defmodule Nerves.ArtifactTest do
       |> Path.join("mix.exs")
       |> Code.require_file()
 
-      Env.start()
       assert Env.package(:package_build_runner_override).build_runner == {P.Docker, []}
     end)
   end
@@ -24,7 +23,6 @@ defmodule Nerves.ArtifactTest do
       |> Path.join("mix.exs")
       |> Code.require_file()
 
-      Env.start()
       assert {_, [make_args: []]} = Env.package(:package_build_runner_opts).build_runner
     end)
   end
@@ -82,8 +80,6 @@ defmodule Nerves.ArtifactTest do
       File.cwd!()
       |> Path.join("mix.exs")
       |> Code.require_file()
-
-      Nerves.Env.start()
 
       pkg = Nerves.Env.system()
 

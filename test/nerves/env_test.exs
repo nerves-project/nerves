@@ -122,7 +122,7 @@ defmodule Nerves.EnvTest do
         System.put_env("SOURCE_DATE_EPOCH", "")
 
         assert_raise Mix.Error, fn ->
-          Nerves.Env.start()
+          Nerves.Env.set_source_date_epoch()
         end
       end)
     end
