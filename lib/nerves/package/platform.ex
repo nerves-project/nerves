@@ -66,4 +66,15 @@ defmodule Nerves.Package.Platform do
   artifact to the local build_path location.
   """
   @callback build_path_link(package :: Nerves.Package.t()) :: build_path_link :: String.t()
+
+  # Deprecated. Avoid using in new code.
+  #
+  # This is used in nerves_toolchain_ctng and can't be removed without breaking
+  # the toolchain integration.
+  defmacro __using__(_) do
+    quote do
+      @behaviour Nerves.Artifact.BuildRunner
+      @behaviour Nerves.Package.Platform
+    end
+  end
 end
