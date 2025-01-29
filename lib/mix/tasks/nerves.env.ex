@@ -30,7 +30,8 @@ defmodule Mix.Tasks.Nerves.Env do
       Mix.Tasks.Deps.Compile.run(["nerves", "--include-children"])
     end
 
-    _ = Nerves.Env.start()
+    Nerves.Env.set_source_date_epoch()
+
     debug_info("Env End")
     if opts[:info], do: print_env()
   end

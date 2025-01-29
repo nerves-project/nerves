@@ -40,7 +40,6 @@ defmodule NervesTest.Case do
       Mix.ProjectStack.clear_stack()
       delete_tmp_paths()
       reset_system_env(original_env)
-      Nerves.Env.stop()
 
       :ok
     end)
@@ -233,7 +232,8 @@ defmodule NervesTest.Case do
 
     _ = Code.require_file(Path.expand("mix.exs"))
 
-    {:ok, _} = Nerves.Env.start()
+    # TODO: Move this next line to a more appropriate place
+    Nerves.Env.set_source_date_epoch()
     Nerves.Env.packages()
   end
 
