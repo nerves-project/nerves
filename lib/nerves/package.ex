@@ -51,18 +51,18 @@ defmodule Nerves.Package do
           config: Keyword.t()
         }
 
-  @required [:type, :version, :platform]
+  @required [:type, :platform]
 
   @doc """
-  Loads the package config and parses it into a `%Package{}`
+  Loads the Nerves package configuration for an app
   """
-  @spec load_config({app :: atom, path :: String.t()}) :: Nerves.Package.t()
+  @spec load_config({Application.app(), Path.t()}) :: Nerves.Package.t()
   def load_config({app, path}) do
     config = config(app, path)
-    version = config[:version]
+
     type = config[:nerves_package][:type]
-    compilers = config[:compilers] || Mix.compilers()
-    env = Map.new(config[:nerves_package][:env] || %{})
+    platform = config[:nerves_package][:platform]
+    nerves_package_config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
 
     if !type do
       Mix.shell().error(
@@ -73,22 +73,18 @@ defmodule Nerves.Package do
       exit({:shutdown, 1})
     end
 
-    platform = config[:nerves_package][:platform]
-    build_runner = Artifact.build_runner(config)
-    config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
-
     %__MODULE__{
       app: app,
+      version: config[:version],
       type: type,
-      env: env,
       platform: platform,
-      build_runner: build_runner,
-      compilers: compilers,
+      env: Map.new(nerves_package_config[:env] || %{}),
+      build_runner: Artifact.build_runner(config),
+      compilers: config[:compilers] || Mix.compilers(),
       dep_opts: nerves_options_on_dep(app),
       dep: dep_type(app),
       path: path,
-      version: version,
-      config: config
+      config: nerves_package_config
     }
   end
 
@@ -136,12 +132,9 @@ defmodule Nerves.Package do
   """
   @spec config(Application.app(), Path.t()) :: Keyword.t()
   def config(app, path) do
-    if app == Mix.Project.config()[:app] do
-      Mix.Project.config()
-    else
-      Mix.Project.in_project(app, path, fn _mod ->
-        Mix.Project.config()
-      end)
+    case Mix.Project.config()[:app] do
+      ^app -> Mix.Project.config()
+      _other_app -> Mix.Project.in_project(app, path, fn _mod -> Mix.Project.config() end)
     end
   end
 
