@@ -77,12 +77,6 @@ defmodule Nerves.Package do
     build_runner = Artifact.build_runner(config)
     config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
 
-    dep_opts =
-      load_env_deps()
-      |> Enum.find(%{}, &(&1.app == app))
-      |> Map.get(:opts, [])
-      |> Keyword.get(:nerves, [])
-
     %__MODULE__{
       app: app,
       type: type,
@@ -90,12 +84,23 @@ defmodule Nerves.Package do
       platform: platform,
       build_runner: build_runner,
       compilers: compilers,
-      dep_opts: dep_opts,
+      dep_opts: nerves_options_on_dep(app),
       dep: dep_type(app),
       path: path,
       version: version,
       config: config
     }
+  end
+
+  # Return the nerves options that the user specified on the dependency
+  # E.g.,
+  #  {:nerves_system_rpi4, "~> 1.28", runtime: false, targets: :rpi4, nerves: [compile: true]}
+  #                                                                           ^^^^^^^^^^^^^^^
+  defp nerves_options_on_dep(app) do
+    load_env_deps()
+    |> Enum.find(%{}, &(&1.app == app))
+    |> Map.get(:opts, [])
+    |> Keyword.get(:nerves, [])
   end
 
   if Version.match?(System.version(), ">= 1.16.0") do
