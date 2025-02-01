@@ -66,7 +66,7 @@ defmodule Mix.Tasks.Nerves.Artifact do
     package_name = String.to_atom(package_name)
 
     package = Nerves.Env.package(package_name)
-    toolchain = Nerves.Env.toolchain()
+    toolchain = Nerves.Env.toolchain!()
 
     _ =
       if is_nil(package) do

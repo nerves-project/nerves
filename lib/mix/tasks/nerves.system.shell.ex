@@ -30,11 +30,6 @@ defmodule Mix.Tasks.Nerves.System.Shell do
   #{@standard_error_message}
   """
 
-  @no_system_pkg_error """
-  Unable to locate a relevant Nerves system package.
-  #{@standard_error_message}
-  """
-
   @no_mix_target_error """
   MIX_TARGET environment variable not set or set to "host".
   #{@standard_error_message}
@@ -43,6 +38,11 @@ defmodule Mix.Tasks.Nerves.System.Shell do
   @doc false
   @spec run([String.t()]) :: :ok
   def run(_argv) do
+    # Only supported when working with targets
+    if Mix.target() == :host do
+      Mix.raise(@no_mix_target_error)
+    end
+
     # We unregister :user so that the process currently holding fd 0 (stdin)
     # can't send an error message to the console when we steal it.
     user = Process.whereis(:user)
@@ -63,14 +63,7 @@ defmodule Mix.Tasks.Nerves.System.Shell do
         end
     end
 
-    pkg = Nerves.Env.system()
-
-    if is_nil(pkg) do
-      case Mix.target() do
-        :host -> Mix.raise(@no_mix_target_error)
-        _ -> Mix.raise(@no_system_pkg_error)
-      end
-    end
+    pkg = Nerves.Env.system!()
 
     {build_runner, _opts} = pkg.build_runner
 

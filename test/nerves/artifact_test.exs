@@ -67,10 +67,10 @@ defmodule Nerves.ArtifactTest do
 
       _ = load_env(packages)
 
-      assert Artifact.dir(Env.system()) == system_path
-      assert Artifact.dir(Env.toolchain()) == toolchain_path
-      assert Nerves.Env.toolchain_path() == toolchain_path
-      assert Nerves.Env.system_path() == system_path
+      assert Artifact.dir(Env.system!()) == system_path
+      assert Artifact.dir(Env.toolchain!()) == toolchain_path
+      assert Nerves.Env.toolchain_path!() == toolchain_path
+      assert Nerves.Env.system_path!() == system_path
       System.delete_env("NERVES_SYSTEM")
       System.delete_env("NERVES_TOOLCHAIN")
     end)
@@ -88,7 +88,7 @@ defmodule Nerves.ArtifactTest do
       |> Path.join("mix.exs")
       |> Code.require_file()
 
-      pkg = Nerves.Env.system()
+      pkg = Nerves.Env.system!()
 
       <<a::binary-size(7)-unit(8), _tail::binary>> = Nerves.Artifact.checksum(pkg)
       b = Nerves.Artifact.checksum(pkg, short: 7)

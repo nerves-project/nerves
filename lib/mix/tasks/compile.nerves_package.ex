@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
           {:error, err} -> Mix.raise(err)
         end
 
-      toolchain = Nerves.Env.toolchain()
+      toolchain = Nerves.Env.toolchain!()
 
       ret =
         if Nerves.Artifact.stale?(package) do
