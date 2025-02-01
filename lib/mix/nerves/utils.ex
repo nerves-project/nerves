@@ -158,16 +158,6 @@ defmodule Mix.Nerves.Utils do
     """)
   end
 
-  @spec mix_target() :: atom()
-  def mix_target() do
-    if function_exported?(Mix, :target, 0) do
-      apply(Mix, :target, [])
-    else
-      (System.get_env("MIX_TARGET") || "host")
-      |> String.to_atom()
-    end
-  end
-
   @doc """
   Return the sanitized version of the PATH variable
 

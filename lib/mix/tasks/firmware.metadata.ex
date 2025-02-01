@@ -47,7 +47,7 @@ defmodule Mix.Tasks.Firmware.Metadata do
 
     {opts, _argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
-    target = mix_target()
+    target = Mix.target()
 
     _ = check_nerves_system_is_set!()
 
