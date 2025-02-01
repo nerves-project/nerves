@@ -206,8 +206,7 @@ defmodule Nerves.Env do
   @spec package(name :: atom) :: Nerves.Package.t() | nil
   def package(name) do
     packages()
-    |> Enum.filter(&(&1.app == name))
-    |> List.first()
+    |> Enum.find(&(&1.app == name))
   end
 
   @doc """
@@ -215,8 +214,7 @@ defmodule Nerves.Env do
   """
   @spec packages_by_type(type :: atom(), [Nerves.Package.t()] | nil) :: [Nerves.Package.t()]
   def packages_by_type(type, packages \\ nil) do
-    (packages || packages())
-    |> Enum.filter(&(&1.type === type))
+    (packages || packages()) |> Enum.filter(&(&1.type === type))
   end
 
   @doc """
@@ -246,25 +244,52 @@ defmodule Nerves.Env do
   @doc """
   Helper function for returning the system type package
   """
-  @spec system() :: Nerves.Package.t() | nil
-  def system() do
-    system =
-      packages_by_type(:system)
-      |> List.first()
+  @spec system!() :: Nerves.Package.t()
+  def system!() do
+    case packages_by_type(:system) do
+      [one_system] ->
+        one_system
 
-    system
+      [] ->
+        Mix.raise("No Nerves system found.")
+
+      more_than_one when is_list(more_than_one) ->
+        Mix.raise("""
+        Multiple Nerves systems found:
+
+        #{inspect(more_than_one)}
+
+        Please ensure that only one system is defined. This could be caused by a dependency's :target option being wrong.
+        """)
+    end
   end
 
   @doc """
   Helper function for returning the toolchain type package
   """
-  @spec toolchain() :: Nerves.Package.t() | nil
-  def toolchain() do
-    toolchain =
-      packages_by_type(:toolchain)
-      |> List.first()
+  @spec toolchain!() :: Nerves.Package.t()
+  def toolchain!() do
+    case packages_by_type(:toolchain) do
+      [one_toolchain] ->
+        one_toolchain
 
-    toolchain
+      [] ->
+        Mix.raise("""
+        No Nerves toolchain dependencies found.
+
+        Check your Nerves system dependency since the toolchain is usually defined there.
+        """)
+
+      more_than_one when is_list(more_than_one) ->
+        Mix.raise("""
+        Multiple Nerves toolchains found:
+
+        #{inspect(more_than_one)}
+
+        Please ensure that only one toolchain is defined. This could be caused by specifying more than one
+        Nerves system dependency.
+        """)
+    end
   end
 
   @doc """
@@ -276,8 +301,8 @@ defmodule Nerves.Env do
   """
   @spec bootstrap() :: :ok
   def bootstrap() do
-    nerves_system_path = system_path()
-    nerves_toolchain_path = toolchain_path()
+    nerves_system_path = system_path!()
+    nerves_toolchain_path = toolchain_path!()
     packages = Nerves.Env.packages()
 
     [
@@ -292,7 +317,7 @@ defmodule Nerves.Env do
 
         File.dir?(v) != true ->
           with "NERVES_SYSTEM" <- k,
-               %{app: app, dep: :path} <- system() do
+               %{app: app, dep: :path} <- system!() do
             Mix.shell().info([
               :yellow,
               """
@@ -325,9 +350,9 @@ defmodule Nerves.Env do
       end
     end)
 
-    if nerves_system_path != nil and File.dir?(nerves_system_path) do
+    if File.dir?(nerves_system_path) do
       # Bootstrap the build platform
-      platform = Nerves.Env.system().platform
+      platform = Nerves.Env.system!().platform
 
       pkg =
         Nerves.Env.packages_by_type(:system_platform)
@@ -343,27 +368,15 @@ defmodule Nerves.Env do
   end
 
   @doc false
-  @spec toolchain_path() :: String.t() | nil
-  def toolchain_path() do
-    case Nerves.Env.toolchain() do
-      nil ->
-        nil
-
-      toolchain ->
-        Nerves.Artifact.dir(toolchain)
-    end
+  @spec toolchain_path!() :: String.t()
+  def toolchain_path!() do
+    Nerves.Env.toolchain!() |> Nerves.Artifact.dir()
   end
 
   @doc false
-  @spec system_path() :: String.t() | nil
-  def system_path() do
-    case Nerves.Env.system() do
-      nil ->
-        nil
-
-      system ->
-        Nerves.Artifact.dir(system)
-    end
+  @spec system_path!() :: String.t()
+  def system_path!() do
+    Nerves.Env.system!() |> Nerves.Artifact.dir()
   end
 
   @doc false
