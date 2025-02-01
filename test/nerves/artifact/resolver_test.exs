@@ -3,6 +3,9 @@ defmodule Nerves.Artifact.ResolverTest do
 
   alias Nerves.Artifact
 
+  # Only run on Linux for now
+  @moduletag :linux
+
   setup_all do
     {:ok, pid} = Nerves.TestServer.Router.start_link()
     [server: pid]

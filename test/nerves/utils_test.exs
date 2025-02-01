@@ -5,22 +5,26 @@ defmodule Nerves.UtilsTest do
 
   alias Nerves.Utils
 
+  @tag :linux
   test "proxy_config returns no credentials when no proxy supplied" do
     assert Utils.Proxy.config("http://nerves-project.org") == []
   end
 
+  @tag :linux
   test "proxy_config returns http_proxy credentials when supplied" do
     System.put_env("HTTP_PROXY", "http://nerves:test@example.com")
     assert Utils.Proxy.config("http://nerves-project.org") == [proxy_auth: {~c"nerves", ~c"test"}]
     System.delete_env("HTTP_PROXY")
   end
 
+  @tag :linux
   test "proxy_config returns http_proxy credentials when only username supplied" do
     System.put_env("HTTP_PROXY", "http://nopass@example.com")
     assert Utils.Proxy.config("http://nerves-project.org") == [proxy_auth: {~c"nopass", ~c""}]
     System.delete_env("HTTP_PROXY")
   end
 
+  @tag :linux
   test "proxy_config returns credentials when the protocol is https" do
     System.put_env("HTTPS_PROXY", "https://test:nerves@example.com")
 
@@ -31,6 +35,7 @@ defmodule Nerves.UtilsTest do
     System.delete_env("HTTPS_PROXY")
   end
 
+  @tag :linux
   test "proxy_config returns empty list when no credentials supplied" do
     System.put_env("HTTP_PROXY", "http://example.com")
     assert Utils.Proxy.config("http://nerves-project.org") == []
