@@ -239,14 +239,6 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Helper function for returning the system_platform type package
-  """
-  @spec system_platform() :: module()
-  def system_platform() do
-    system().platform
-  end
-
-  @doc """
   Helper function for returning the toolchain type package
   """
   @spec toolchain() :: Nerves.Package.t() | nil
@@ -256,14 +248,6 @@ defmodule Nerves.Env do
       |> List.first()
 
     toolchain
-  end
-
-  @doc """
-  Helper function for returning the toolchain_platform type package
-  """
-  @spec toolchain_platform() :: atom()
-  def toolchain_platform() do
-    toolchain().platform
   end
 
   @doc """
