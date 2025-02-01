@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Firmware.Image do
 
     config = Mix.Project.config()
     otp_app = config[:app]
-    target = mix_target()
+    target = Mix.target()
 
     images_path =
       (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))

@@ -58,7 +58,7 @@ defmodule Mix.Tasks.Burn do
 
     firmware_config = Application.get_env(:nerves, :firmware)
 
-    target = mix_target()
+    target = Mix.target()
 
     _ = check_nerves_system_is_set!()
 
