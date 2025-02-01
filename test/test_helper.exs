@@ -3,8 +3,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-System.put_env("NERVES_PATH", File.cwd!())
-
 File.cwd!()
 |> Path.join("test_tmp")
 |> File.rm_rf()

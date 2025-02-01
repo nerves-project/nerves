@@ -39,7 +39,7 @@ defmodule SystemArtifact.MixProject do
 
   defp deps() do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false},
+      {:nerves, path: "../../../..", runtime: false},
       {:system_platform, path: "../system_platform", runtime: false}
     ]
   end

@@ -17,7 +17,7 @@ defmodule ReleaseApp.Fixture do
 
   defp deps() do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false},
+      {:nerves, path: "../../../..", runtime: false},
       {:shoehorn, "~> 0.9"},
       {:system, path: "../system", targets: :target, runtime: false}
     ]

@@ -16,7 +16,7 @@ defmodule IntegrationApp do
 
   defp deps() do
     [
-      {:nerves, path: System.get_env("NERVES_PATH") || "../../../", runtime: false},
+      {:nerves, path: "../../../..", runtime: false},
       {:system, path: "../system", runtime: false}
     ]
   end
