@@ -80,19 +80,6 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Re evaluates the mix file under a different target.
-
-  This allows you to start in one target, like host, but then
-  switch to a different target.
-  """
-  @spec change_target(String.t()) :: :ok
-  def change_target(target) do
-    System.put_env("MIX_TARGET", target)
-    :init.restart()
-    :timer.sleep(:infinity)
-  end
-
-  @doc """
   Cleans the artifacts for the package build_runners of all specified packages.
   """
   @spec clean([Nerves.Package.t()]) :: :ok
