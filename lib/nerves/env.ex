@@ -112,12 +112,9 @@ defmodule Nerves.Env do
   def ensure_loaded(app, path \\ nil) do
     path = path || File.cwd!()
 
-    if nerves_package?({app, path}) do
-      %Package{} = package = Package.load_config({app, path})
-
-      {:ok, package}
-    else
-      {:error, "Nerves package config for #{inspect(app)} was not found at #{path}"}
+    case Package.load_config({app, path}) do
+      :error -> {:error, "Nerves package config for #{inspect(app)} was not found at #{path}"}
+      %Nerves.Package{} = package -> {:ok, package}
     end
   end
 
@@ -417,9 +414,9 @@ defmodule Nerves.Env do
   defp load_packages() do
     Mix.Project.deps_paths()
     |> Map.put(Mix.Project.config()[:app], File.cwd!())
-    |> Enum.filter(&nerves_package?/1)
     |> Enum.map(&Package.load_config/1)
-    |> validate_packages
+    |> Enum.filter(&(&1 != :error))
+    |> validate_packages()
   end
 
   @doc false
@@ -445,17 +442,6 @@ defmodule Nerves.Env do
 
   @doc false
   defp validate_one(packages, _type), do: packages
-
-  @doc false
-  defp nerves_package?({app, path}) do
-    package_config =
-      Package.config(app, path)
-      |> Keyword.get(:nerves_package)
-
-    package_config != nil
-  rescue
-    _e -> false
-  end
 
   defp mix_config() do
     Mix.Project.config()
