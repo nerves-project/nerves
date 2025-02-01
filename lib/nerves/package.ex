@@ -9,6 +9,13 @@ defmodule Nerves.Package do
 
   alias Nerves.Artifact
 
+  @typedoc """
+  Nerves package type
+  """
+  @type type() :: :system | :package | :toolchain | :system_platform | :toolchain_platform
+
+  @type dep_type() :: :project | :path | :hex | :git
+
   defstruct app: nil,
             path: nil,
             dep: nil,
@@ -21,21 +28,12 @@ defmodule Nerves.Package do
             dep_opts: [],
             config: []
 
-  @type t :: %__MODULE__{
+  @type t() :: %__MODULE__{
           app: atom,
           path: binary,
           env: %{String.t() => String.t()},
-          type:
-            :system
-            | :package
-            | :toolchain
-            | :system_platform
-            | :toolchain_platform,
-          dep:
-            :project
-            | :path
-            | :hex
-            | :git,
+          type: type(),
+          dep: dep_type(),
           platform: atom,
           build_runner: {module(), Keyword.t()},
           compilers: [atom],
