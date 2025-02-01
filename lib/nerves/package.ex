@@ -51,41 +51,30 @@ defmodule Nerves.Package do
           config: Keyword.t()
         }
 
-  @required [:type, :platform]
-
   @doc """
   Loads the Nerves package configuration for an app
   """
-  @spec load_config({Application.app(), Path.t()}) :: Nerves.Package.t()
+  @spec load_config({Application.app(), Path.t()}) :: Nerves.Package.t() | :error
   def load_config({app, path}) do
-    config = config(app, path)
-
-    type = config[:nerves_package][:type]
-    platform = config[:nerves_package][:platform]
-    nerves_package_config = Enum.reject(config[:nerves_package], fn {k, _v} -> k in @required end)
-
-    if !type do
-      Mix.shell().error(
-        "The Nerves package #{app} does not define a type.\n\n" <>
-          "Verify that the key exists.\n"
-      )
-
-      exit({:shutdown, 1})
+    with true <- File.exists?(path),
+         config = config(app, path),
+         nerves_package_config when nerves_package_config != nil <- config[:nerves_package] do
+      %__MODULE__{
+        app: app,
+        version: config[:version],
+        type: nerves_package_config[:type],
+        platform: nerves_package_config[:platform],
+        env: Map.new(nerves_package_config[:env] || %{}),
+        build_runner: Artifact.build_runner(config),
+        compilers: config[:compilers] || Mix.compilers(),
+        dep_opts: nerves_options_on_dep(app),
+        dep: dep_type(app),
+        path: path,
+        config: nerves_package_config
+      }
+    else
+      _ -> :error
     end
-
-    %__MODULE__{
-      app: app,
-      version: config[:version],
-      type: type,
-      platform: platform,
-      env: Map.new(nerves_package_config[:env] || %{}),
-      build_runner: Artifact.build_runner(config),
-      compilers: config[:compilers] || Mix.compilers(),
-      dep_opts: nerves_options_on_dep(app),
-      dep: dep_type(app),
-      path: path,
-      config: nerves_package_config
-    }
   end
 
   # Return the nerves options that the user specified on the dependency
