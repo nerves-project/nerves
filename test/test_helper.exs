@@ -16,5 +16,7 @@ System.put_env("NERVES_LOG_DISABLE_PROGRESS_BAR", "1")
 # Clear the project stack in preparation for loading and unloading fixtures
 Mix.ProjectStack.clear_stack()
 
+excludes = if :os.type() != {:unix, :linux}, do: [:linux, :skip], else: [:skip]
+
 # Long assert receive timeout is for CircleCI.
-ExUnit.start(exclude: [:skip], assert_receive_timeout: 500)
+ExUnit.start(exclude: excludes, assert_receive_timeout: 500)
