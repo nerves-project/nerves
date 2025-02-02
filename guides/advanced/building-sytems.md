@@ -1,4 +1,4 @@
-# Building Nerves Systems with the `nerves_systems` Repository
+# Building Nerves Systems using `nerves_systems` repository
 
 This guide provides instructions for building custom Nerves systems using the [`nerves_systems`](https://github.com/nerves-project/nerves_systems) repository.
 
@@ -370,14 +370,6 @@ mix ns.build
 
 This ensures a fresh build with your updated configuration.
 
-### Make Additional Modifications (Optional)
-
-You can further customize the Nerves system by modifying other configuration files, such as:
-
-- **System files:** Add or update scripts, binaries, or other files required by your application.
-
-To dive deeper into kernel customization, see the [Linux Kernel Documentation](https://www.kernel.org/doc/html/latest/).
-
 ### Test the Custom Build
 
 After rebuilding, test the custom firmware on your hardware to ensure it meets your requirements. If issues arise:
@@ -392,7 +384,6 @@ If your customizations are for long-term use, consider committing your changes t
 - Collaborating with other developers.
 - Reproducing builds in the future.
 
-Example:
 Let's say that you want to version control your customized rpi3 system
 
 ```bash
