@@ -100,9 +100,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
   defp bootstrap_started?() do
     Application.started_applications()
-    |> Enum.map(&Tuple.to_list/1)
-    |> Enum.map(&List.first/1)
-    |> Enum.member?(:nerves_bootstrap)
+    |> Enum.any?(fn {app, _, _} -> app == :nerves_bootstrap end)
   end
 
   defp in_umbrella?(app_path) do
