@@ -349,13 +349,20 @@ defmodule Nerves.Env do
     |> System.put_env()
   end
 
-  defp process_target_gcc_flags(%{"TARGET_GCC_FLAGS" => flags} = env) do
+  defp process_target_gcc_flags(env) do
+    flags = env["TARGET_GCC_FLAGS"]
+
     env
-    |> Map.put("CFLAGS", flags <> " " <> System.get_env("CFLAGS", ""))
-    |> Map.put("CXXFLAGS", flags <> " " <> System.get_env("CXXFLAGS", ""))
+    |> Map.put("CFLAGS", concatenate_flags(flags, System.get_env("CFLAGS")))
+    |> Map.put("CXXFLAGS", concatenate_flags(flags, System.get_env("CXXFLAGS")))
   end
 
-  defp process_target_gcc_flags(env), do: env
+  defp concatenate_flags(nil, nil), do: ""
+  defp concatenate_flags(flags, nil), do: flags
+  defp concatenate_flags(flags, ""), do: flags
+  defp concatenate_flags(nil, flags2), do: flags2
+  defp concatenate_flags("", flags2), do: flags2
+  defp concatenate_flags(flags, flags2), do: flags <> " " <> flags2
 
   @spec set_source_date_epoch() :: :ok
   def set_source_date_epoch() do
