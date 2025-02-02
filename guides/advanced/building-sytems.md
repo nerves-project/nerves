@@ -444,7 +444,7 @@ end
 
 git add mix.exs
 git commit -m "Change project info"
-git push
+git push origin main
 ```
 
 Now you can go to your `nerves_systems/config/config.exs` and add it to your systems.
