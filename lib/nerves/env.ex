@@ -88,24 +88,6 @@ defmodule Nerves.Env do
   end
 
   @doc """
-  Return the Nerves package config for the specified application
-
-  ## Options
-    * `app` - The atom of the app to load
-    * `path` - Optional path for the app
-  """
-  @spec ensure_loaded(app :: atom, path :: String.t() | nil) ::
-          {:ok, Nerves.Package.t()} | {:error, term}
-  def ensure_loaded(app, path \\ nil) do
-    path = path || File.cwd!()
-
-    case Package.load_config({app, path}) do
-      :error -> {:error, "Nerves package config for #{inspect(app)} was not found at #{path}"}
-      %Nerves.Package{} = package -> {:ok, package}
-    end
-  end
-
-  @doc """
   Returns the architecture for the host system.
 
   ## Example return values
@@ -167,7 +149,11 @@ defmodule Nerves.Env do
   """
   @spec packages() :: [Nerves.Package.t()]
   def packages() do
-    load_packages()
+    Mix.Project.deps_paths()
+    |> Map.put(Mix.Project.config()[:app], File.cwd!())
+    |> Enum.map(&Package.load_config/1)
+    |> Enum.filter(&(&1 != :error))
+    |> validate_packages()
   end
 
   @doc """
@@ -392,15 +378,6 @@ defmodule Nerves.Env do
       :error ->
         {:error, "SOURCE_DATE_EPOCH should be a positive integer, received: #{inspect(sde)}"}
     end
-  end
-
-  @doc false
-  defp load_packages() do
-    Mix.Project.deps_paths()
-    |> Map.put(Mix.Project.config()[:app], File.cwd!())
-    |> Enum.map(&Package.load_config/1)
-    |> Enum.filter(&(&1 != :error))
-    |> validate_packages()
   end
 
   @doc false
