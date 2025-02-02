@@ -28,11 +28,13 @@ defmodule Mix.Tasks.Compile.NervesPackage do
     if Nerves.Env.enabled?() do
       bootstrap_check!()
 
-      package =
-        case Nerves.Env.ensure_loaded(Mix.Project.config()[:app]) do
-          {:ok, package} -> package
-          {:error, err} -> Mix.raise(err)
-        end
+      app = Mix.Project.config()[:app]
+      path = File.cwd!()
+      package = Nerves.Package.load_config({app, path})
+
+      if package == :error do
+        Mix.raise("Nerves package config for #{inspect(app)} was not found at #{path}")
+      end
 
       toolchain = Nerves.Env.toolchain!()
 
