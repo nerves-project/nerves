@@ -130,34 +130,20 @@ defmodule Nerves.Env do
   """
   @spec host_arch() :: String.t()
   def host_arch() do
-    case System.get_env("HOST_ARCH") do
-      nil ->
-        :erlang.system_info(:system_architecture)
-        |> to_string
-        |> parse_arch
-
-      host_arch ->
-        host_arch
+    case System.fetch_env("HOST_ARCH") do
+      {:ok, arch} -> arch
+      :error -> :erlang.system_info(:system_architecture) |> to_string() |> parse_arch()
     end
   end
 
   @doc false
-  @spec parse_arch(String.t() | [String.t()]) :: String.t()
+  @spec parse_arch(String.t()) :: String.t()
   def parse_arch(arch) when is_binary(arch) do
-    arch
-    |> String.split("-")
-    |> parse_arch
-  end
-
-  @doc false
-  def parse_arch(arch) when is_list(arch) do
-    arch = List.first(arch)
-
-    case arch do
-      <<"win", _rest::binary>> -> "x86_64"
-      <<"arm", _rest::binary>> -> "arm"
-      "aarch64" -> "aarch64"
-      "x86_64" -> "x86_64"
+    case String.split(arch, "-") do
+      [<<"win", _rest::binary>> | _] -> "x86_64"
+      [<<"arm", _rest::binary>> | _] -> "arm"
+      ["aarch64" | _] -> "aarch64"
+      ["x86_64" | _] -> "x86_64"
       _anything_else -> "x86_64"
     end
   end
@@ -172,39 +158,23 @@ defmodule Nerves.Env do
   """
   @spec host_os() :: String.t()
   def host_os() do
-    case System.get_env("HOST_OS") do
-      nil ->
-        :erlang.system_info(:system_architecture)
-        |> to_string
-        |> parse_platform
+    case System.fetch_env("HOST_OS") do
+      {:ok, os} ->
+        os
 
-      host_os ->
-        host_os
+      :error ->
+        :erlang.system_info(:system_architecture) |> to_string() |> parse_platform()
     end
   end
 
   @doc false
-  @spec parse_platform(String.t() | [String.t()]) :: String.t()
+  @spec parse_platform(String.t()) :: String.t()
   def parse_platform(platform) when is_binary(platform) do
-    platform
-    |> String.split("-")
-    |> parse_platform
-  end
-
-  @doc false
-  def parse_platform(platform) when is_list(platform) do
-    case platform do
-      [<<"win", _tail::binary>> | _] ->
-        "win"
-
-      [_, _, "linux" | _] ->
-        "linux"
-
-      [_, _, <<"darwin", _tail::binary>> | _] ->
-        "darwin"
-
-      _ ->
-        Mix.raise("Could not determine your host platform from system: #{platform}")
+    case String.split(platform, "-") do
+      [<<"win", _tail::binary>> | _] -> "win"
+      [_, _, "linux" | _] -> "linux"
+      [_, _, <<"darwin", _tail::binary>> | _] -> "darwin"
+      _ -> Mix.raise("Could not determine your host platform from system: #{platform}")
     end
   end
 
