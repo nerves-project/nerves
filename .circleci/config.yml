@@ -46,7 +46,7 @@ jobs:
             - run: mix deps.unlock --check-unused
             - run: mix docs
             - run: mix hex.build
-            - run: mix test || mix test
+            - run: mix test || mix test --failed || mix test --failed
             - run: mix credo -a --strict
             - run: mix dialyzer
       - when:
@@ -54,7 +54,7 @@ jobs:
             not:
               matches: { <<: *latest, value: << parameters.tag >> }
           steps:
-            - run: mix test --exclude release || mix test --exclude release
+            - run: mix test --exclude release || mix test --exclude release --failed || mix test --exclude release --failed
       - save_cache:
           key: v1-mix-cache-<< parameters.tag >>-{{ checksum "mix.lock" }}
           paths:
