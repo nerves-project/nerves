@@ -448,3 +448,18 @@ git push
 ```
 
 Now you can go to your `nerves_systems/config/config.exs` and add it to your systems.
+
+You can also use it in your nerves project as `:github` dependency now.
+
+```elixir
+# Add system into targets
+@alltargets [
+  :custom_rpi3,
+  :rpi,
+  ...
+]
+
+
+# Update the `custom_rpi3` dep in your `deps/0` function.
+{:custom_rpi3, github: "YourGitHubUserName/custom_rpi3", runtime: false, targets: :custom_rpi3}
+```
