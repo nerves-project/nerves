@@ -463,3 +463,60 @@ You can also use it in your nerves project as `:github` dependency now.
 # Update the `custom_rpi3` dep in your `deps/0` function.
 {:custom_rpi3, github: "YourGitHubUserName/custom_rpi3", runtime: false, targets: :custom_rpi3}
 ```
+
+## Adding a custom Buildroot Package
+
+If you have a non-Elixir program that's too complicated to compile with
+[elixir_make](https://github.com/elixir-lang/elixir_make) and not included in
+Buildroot, you'll need to add instructions for how to build it to your system.
+This is called a "custom Buildroot package" and the process to add one in a
+Nerves System is nearly the same as in Buildroot. This is documented in the
+[Adding new package](http://nightly.buildroot.org/manual.html#adding-packages)
+chapter of the Buildroot manual. The main difference with Nerves is the
+directory.
+
+As you go through this process, please consider whether it makes sense to
+contributor your package upstream to Buildroot.
+
+A Nerves System will need the following files in the root of the custom system
+directory `src/<nerves_system_name>`:
+
+1. `Config.in` - Includes each package's `Config.in` file
+2. `external.mk` - Includes each package's `<package-name>.mk` file
+3. `packages` - Directory containing your custom package directories
+
+Each directory _inside_ the `packages` directory should contain two things:
+
+1. `Config.in` - Defines package information
+2. `<package-name>.mk` - Defines how a package is built.
+
+So if you wanted to build a package `libfoo`, first create the `Config.in` and
+`external.mk` files at the base directory of your system.
+
+`/Config.in`:
+
+```plain
+menu "Custom Packages"
+
+source "$NERVES_DEFCONFIG_DIR/packages/libfoo/Config.in"
+
+endmenu
+```
+
+`/external.mk`:
+
+```make
+include $(sort $(wildcard $(NERVES_DEFCONFIG_DIR)/packages/*/*.mk))
+```
+
+Then create the package directory and package files:
+
+```bash
+mkdir -p packages/libfoo
+touch packages/libfoo/Config.in
+touch packages/libfoo/libfoo.mk
+```
+
+At this point, you should follow the Official Buildroot documentation for what
+should be added to these files. Often the easiest route is to find a similar
+package in Buildroot and copy/paste the contains with appropriate renaming.
