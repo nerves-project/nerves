@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2019 Frank Hunleth
+# SPDX-FileCopyrightText: 2019 Justin Schneck
+# SPDX-FileCopyrightText: 2021 Connor Rigby
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.ErlinitTest do
   use NervesTest.Case
 

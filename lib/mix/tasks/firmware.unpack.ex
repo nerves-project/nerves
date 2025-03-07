@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Firmware.Unpack do
   @shortdoc "Unpack a firmware bundle for inspection"
 

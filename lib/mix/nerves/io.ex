@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Nerves.IO do
   @moduledoc false
   @app Mix.Project.config()[:app]

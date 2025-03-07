@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2018 Connor Rigby
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2023 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.BuildRunners.Local do
   @moduledoc """
   Builds an artifact locally.

@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2020 Justin Schneck
+# SPDX-FileCopyrightText: 2021 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Port do
   @moduledoc """
   The code from this file was copied in from MuonTrap

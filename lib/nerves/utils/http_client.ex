@@ -1,3 +1,13 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2018 Michael Schmidt
+# SPDX-FileCopyrightText: 2020 Tomasz Kazimierz Motyl
+# SPDX-FileCopyrightText: 2021 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Jon Carstens
+# SPDX-FileCopyrightText: 2021 Jon Thacker
+# SPDX-FileCopyrightText: 2022 Martin Wagner
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Utils.HTTPClient do
   @moduledoc false
   use GenServer

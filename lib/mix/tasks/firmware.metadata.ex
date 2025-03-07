@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2024 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Firmware.Metadata do
   @shortdoc "Print out metadata for the current firmware"
 

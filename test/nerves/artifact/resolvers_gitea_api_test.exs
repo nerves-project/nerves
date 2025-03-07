@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 James Harton
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   use ExUnit.Case, async: true
 

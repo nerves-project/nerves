@@ -1,3 +1,12 @@
+# SPDX-FileCopyrightText: 2018 Jonathan Merriweather
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2019 Greg Mefford
+# SPDX-FileCopyrightText: 2020 Hideki TAKASE
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Utils.WSL do
   @moduledoc """
   This module contains utility functions to assist in detecting a Windows

@@ -1,3 +1,12 @@
+# SPDX-FileCopyrightText: 2018 Joel Byler
+# SPDX-FileCopyrightText: 2019 Greg Mefford
+# SPDX-FileCopyrightText: 2019 Justin Schneck
+# SPDX-FileCopyrightText: 2019 Matt Willy
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Burn do
   @shortdoc "Write a firmware image to an SDCard"
 

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2019 Justin Schneck
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.MixTest do
   use NervesTest.Case, async: false
 

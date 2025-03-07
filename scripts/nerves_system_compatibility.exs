@@ -1,4 +1,10 @@
 #!/usr/bin/env elixir
+# SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+# SPDX-FileCopyrightText: 2023 Jon Carstens
+# SPDX-FileCopyrightText: 2025 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 #
 # Write the Nerves System compatibility information to local `tmp` directory.
 # The information is gathered from Nerves Project's Github repos.

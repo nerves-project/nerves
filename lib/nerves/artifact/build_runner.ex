@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.BuildRunner do
   @moduledoc """
   Defines the Nerves build runner behaviour

@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+# SPDX-FileCopyrightText: 2022 Udo Schneider
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Nerves.Artifact.Details do
   @shortdoc "Prints Nerves artifact details"
   @moduledoc """

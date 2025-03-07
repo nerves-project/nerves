@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2021 Connor Rigby
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Firmware.Gen.Gdb do
   @shortdoc "Generates a helper shell script for using gdb to analyze core dumps"
   @moduledoc """

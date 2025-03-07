@@ -1,3 +1,13 @@
+# SPDX-FileCopyrightText: 2016 Frank Hunleth
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2017 Dorian Karter
+# SPDX-FileCopyrightText: 2017 Greg Mefford
+# SPDX-FileCopyrightText: 2018 Wojtek Mach
+# SPDX-FileCopyrightText: 2020 Jon Carstens
+# SPDX-FileCopyrightText: 2025 Lars Wikman
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Firmware do
   @shortdoc "Build a firmware bundle"
 

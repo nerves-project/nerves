@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2019 Justin Schneck
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 # credo:disable-for-this-file
 defmodule Nerves.Release do
   @moduledoc false

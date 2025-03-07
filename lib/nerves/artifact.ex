@@ -1,3 +1,11 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2019 Jon Carstens
+# SPDX-FileCopyrightText: 2021 Jaremy J. Creechley
+# SPDX-FileCopyrightText: 2023 James Harton
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact do
   @moduledoc """
   Package artifacts are the product of compiling a package with a

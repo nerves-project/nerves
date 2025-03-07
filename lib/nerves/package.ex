@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2017 Frank Hunleth
+# SPDX-FileCopyrightText: 2017 Greg Mefford
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Package do
   @moduledoc """
   Defines a Nerves package struct and helper functions.

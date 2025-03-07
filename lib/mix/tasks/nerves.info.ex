@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2017 Justin Schneck
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Nerves.Info do
   @shortdoc "Prints Nerves information"
 

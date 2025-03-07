@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2017 Greg Mefford
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Compile.NervesPackage do
   @shortdoc "Nerves Package Compiler"
   @moduledoc """

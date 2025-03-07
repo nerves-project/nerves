@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2021 Frank Hunleth
+# SPDX-FileCopyrightText: 2021 Jon Thacker
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.ResolverTest do
   use NervesTest.Case
 

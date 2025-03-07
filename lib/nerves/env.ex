@@ -1,3 +1,12 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2017 Greg Mefford
+# SPDX-FileCopyrightText: 2019 peter madsen
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2020 Jon Carstens
+# SPDX-FileCopyrightText: 2021 Jaremy J. Creechley
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Env do
   @moduledoc """
   Contains package info for Nerves dependencies

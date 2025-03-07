@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 # noninteractive-build.sh \
 #  nerves_system_ev3-0.7.0.armv5tejl_unknown_linux_musleabi \
 #  /nerves/env/platform \

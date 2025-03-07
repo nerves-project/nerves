@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2017 Justin Schneck
+# SPDX-FileCopyrightText: 2024 Eric Rauer
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.BuildRunners.DockerTest do
   use NervesTest.Case
 

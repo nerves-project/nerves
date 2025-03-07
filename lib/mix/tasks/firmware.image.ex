@@ -1,3 +1,11 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2017 Connor Rigby
+# SPDX-FileCopyrightText: 2017 Frank Hunleth
+# SPDX-FileCopyrightText: 2018 Wojtek Mach
+# SPDX-FileCopyrightText: 2019 Greg Mefford
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Firmware.Image do
   @shortdoc "Create a firmware image file"
 

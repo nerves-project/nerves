@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.Resolvers.URI do
   @moduledoc """
   Downloads an artifact from a remote http location.

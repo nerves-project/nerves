@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2018 Jonathan Merriweather
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2019 Greg Mefford
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.MixUtilsTest do
   use NervesTest.Case
 

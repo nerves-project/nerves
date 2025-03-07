@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2018 Matt Ludwigs
+# SPDX-FileCopyrightText: 2022 Frank Hunleth
+# SPDX-FileCopyrightText: 2023 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.Resolvers.GithubAPI do
   @moduledoc false
   @behaviour Nerves.Artifact.Resolver

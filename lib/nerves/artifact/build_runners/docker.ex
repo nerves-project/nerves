@@ -1,3 +1,13 @@
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2017 Greg Mefford
+# SPDX-FileCopyrightText: 2018 Frank Hunleth
+# SPDX-FileCopyrightText: 2018 Matt Ludwigs
+# SPDX-FileCopyrightText: 2020 Hideki TAKASE
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+# SPDX-FileCopyrightText: 2024 Jon Ringle
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.BuildRunners.Docker do
   @moduledoc """
   Produce an artifact for a package using Docker.

@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+# SPDX-FileCopyrightText: 2024 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Nerves.Precompile do
   @moduledoc false
   use Mix.Task

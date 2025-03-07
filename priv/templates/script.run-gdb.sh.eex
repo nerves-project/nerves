@@ -1,4 +1,8 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2021 Connor Rigby
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
 #
 # Helper script to get GDB running against an executable and a core dump.

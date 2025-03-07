@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Nerves.System.Shell do
   @shortdoc "Enter a shell to configure a custom system"
 

@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2020 Justin Schneck
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 # Makefile for building the Nerves port monitor process
 #
 # This code is always run on the host as opposed to nearly everything else with

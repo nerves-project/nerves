@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2021 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 System.put_env("NERVES_PATH", File.cwd!())
 
 File.cwd!()

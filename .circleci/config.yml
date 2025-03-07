@@ -5,7 +5,7 @@ latest: &latest
 
 tags: &tags
   [
-    1.18.1-erlang-27.2-alpine-3.20.3,
+    1.18.3-erlang-27.3-alpine-3.21.3,
     1.17.3-erlang-27.2-alpine-3.20.3,
     1.16.3-erlang-26.2.5-alpine-3.20.0,
     1.15.7-erlang-26.2.1-alpine-3.18.4,
@@ -14,6 +14,13 @@ tags: &tags
   ]
 
 jobs:
+  check-license:
+    docker:
+      - image: fsfe/reuse:latest
+    steps:
+      - checkout
+      - run: reuse lint
+
   build-test:
     parameters:
       tag:
@@ -63,7 +70,7 @@ jobs:
 
   automerge:
     docker:
-      - image: alpine:3.21.0
+      - image: alpine:3.21.3
     steps:
       - run:
           name: Install GitHub CLI
@@ -82,6 +89,10 @@ jobs:
 workflows:
   checks:
     jobs:
+      - check-license:
+          filters:
+            tags:
+              only: /.*/
       - build-test:
           name: << matrix.tag >>
           matrix:

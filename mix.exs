@@ -87,18 +87,21 @@ defmodule Nerves.MixProject do
       files: [
         "CHANGELOG.md",
         "lib",
-        "LICENSE",
+        "LICENSES/*",
+        "Makefile",
         "mix.exs",
+        "NOTICE",
         "README.md",
+        "REUSE.toml",
         "scripts",
-        "src",
-        "Makefile"
+        "src"
       ],
       licenses: ["Apache-2.0"],
       links: %{
         "Home page" => "https://www.nerves-project.org/",
         "GitHub" => @source_url,
-        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md",
+        "REUSE Compliance" => "https://api.reuse.software/info/github.com/nerves-project/nerves"
       }
     ]
   end

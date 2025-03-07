@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2020 Justin Schneck
+//
+// SPDX-License-Identifier: Apache-2.0
+//
 #include <err.h>
 #include <errno.h>
 #include <fcntl.h>

@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2016 Frank Hunleth
+# SPDX-FileCopyrightText: 2016 Justin Schneck
+# SPDX-FileCopyrightText: 2018 Joel Byler
+# SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Tasks.Firmware.Burn do
   @shortdoc "Build a firmware bundle and write it to an SDCard"
 

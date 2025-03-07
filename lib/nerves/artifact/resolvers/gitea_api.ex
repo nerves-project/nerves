@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2023 James Harton
+# SPDX-FileCopyrightText: 2024 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Artifact.Resolvers.GiteaAPI do
   @moduledoc false
   @behaviour Nerves.Artifact.Resolver

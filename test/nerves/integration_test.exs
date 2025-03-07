@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2018 Justin Schneck
+# SPDX-FileCopyrightText: 2023 Jon Carstens
+# SPDX-FileCopyrightText: 2025 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.IntegrationTest do
   use NervesTest.Case, async: true
 

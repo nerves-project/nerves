@@ -1,3 +1,10 @@
+# SPDX-FileCopyrightText: 2019 Greg Mefford
+# SPDX-FileCopyrightText: 2020 Frank Hunleth
+# SPDX-FileCopyrightText: 2020 Justin Schneck
+# SPDX-FileCopyrightText: 2022 Jon Carstens
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Mix.Nerves.Preflight do
   @moduledoc false
   alias Nerves.Utils.WSL
