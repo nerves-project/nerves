@@ -354,7 +354,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   defp mounts(pkg) do
     build_paths = build_paths(pkg)
     build_volume = Docker.Volume.name(pkg)
-    download_dir = Nerves.Env.download_dir() |> Path.expand()
+    download_dir = Nerves.Paths.download_dir()
     mounts = ["--env", "NERVES_BR_DL_DIR=/nerves/dl"]
 
     mounts =

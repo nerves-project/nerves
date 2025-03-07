@@ -123,16 +123,11 @@ defmodule Nerves.Artifact do
   @doc """
   Get the base dir for where an artifact for a package should be stored.
 
-  The directory for artifacts will be found in the directory returned
-  by `Nerves.Env.data_dir/0` (i.e. `"#{Nerves.Env.data_dir()}/artifacts/"`).
-  This location can be overridden by the environment variable `NERVES_ARTIFACTS_DIR`.
   """
+  @deprecated "Use Nerves.Paths.artifacts_dir/0"
   @spec base_dir() :: String.t()
   def base_dir() do
-    case System.get_env("NERVES_ARTIFACTS_DIR") do
-      nil -> Path.join(Nerves.Env.data_dir(), "artifacts")
-      dir -> dir
-    end
+    Nerves.Paths.artifacts_dir()
   end
 
   @doc """
@@ -286,11 +281,7 @@ defmodule Nerves.Artifact do
   """
   @spec download_path(Nerves.Package.t()) :: String.t()
   def download_path(pkg) do
-    name = download_name(pkg) <> ext(pkg)
-
-    Nerves.Env.download_dir()
-    |> Path.join(name)
-    |> Path.expand()
+    Path.join(Nerves.Paths.download_dir(), download_name(pkg) <> ext(pkg))
   end
 
   @doc """

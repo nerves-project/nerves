@@ -65,17 +65,6 @@ defmodule Nerves.EnvTest do
     assert_raise Mix.Error, err_regex, fn -> compile_fixture!("umbrella", tmp) end
   end
 
-  describe "data_dir/0" do
-    test "XDG_DATA_HOME" do
-      System.put_env("XDG_DATA_HOME", "xdg_data_home")
-      assert "xdg_data_home/nerves" = Nerves.Env.data_dir()
-    end
-
-    test "falls back to $HOME/.nerves" do
-      System.delete_env("XDG_DATA_HOME")
-      assert Path.expand("~/.nerves") == Nerves.Env.data_dir()
-    end
-  end
 
   describe "source_date_epoch" do
     setup do

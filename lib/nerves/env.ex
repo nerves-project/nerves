@@ -51,33 +51,6 @@ defmodule Nerves.Env do
     System.get_env("NERVES_ENV_BOOTSTRAP") != nil
   end
 
-  @doc """
-  The download location for artifact downloads.
-
-  Placing an artifact tar in this location will bypass the need for it to
-  be downloaded.
-  """
-  @spec download_dir() :: path :: String.t()
-  def download_dir() do
-    (System.get_env("NERVES_DL_DIR") || Path.join(data_dir(), "dl"))
-    |> Path.expand()
-  end
-
-  @doc """
-  The location for storing global nerves data.
-
-  The base directory is normally set by the `XDG_DATA_HOME`
-  environment variable (i.e. `$XDG_DATA_HOME/nerves/`).
-  If `XDG_DATA_HOME` is unset, the user's home directory
-  is used (i.e. `$HOME/.nerves`).
-  """
-  @spec data_dir() :: path :: String.t()
-  def data_dir() do
-    case System.get_env("XDG_DATA_HOME") do
-      directory when is_binary(directory) -> Path.join(directory, "nerves")
-      nil -> Path.expand("~/.nerves")
-    end
-  end
 
   @doc """
   Cleans the artifacts for the package build_runners of all specified packages.
