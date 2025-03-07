@@ -54,7 +54,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     Download File Name: #{Artifact.download_name(package)}#{Artifact.ext(package)}
     Download Path:      #{Artifact.download_path(package)}
     Sites:              #{inspect(Keyword.get(package.config, :artifact_sites, []))}
-    Base Directory:     #{Artifact.base_dir()}
+    Base Directory:     #{Nerves.Paths.artifacts_dir()}
     Path:               #{Artifact.dir(package)}
     Build Path:         #{Artifact.build_path(package)}
     """)

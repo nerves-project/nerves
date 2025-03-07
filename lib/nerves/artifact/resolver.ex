@@ -26,7 +26,7 @@ defmodule Nerves.Artifact.Resolver do
     case resolver.get(opts) do
       {:ok, data} ->
         file = Nerves.Artifact.download_path(pkg)
-        File.mkdir_p!(Nerves.Env.download_dir())
+        File.mkdir_p!(Nerves.Paths.download_dir())
         File.write!(file, data)
 
         case Nerves.Utils.File.validate(file) do
