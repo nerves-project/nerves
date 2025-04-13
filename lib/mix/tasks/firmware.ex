@@ -208,7 +208,7 @@ defmodule Mix.Tasks.Firmware do
       If you're using asdf to manage Elixir versions, run:
 
       asdf install elixir #{System.version()}-otp-#{System.otp_release()}
-      asdf global elixir #{System.version()}-otp-#{System.otp_release()}
+      asdf set -u elixir #{System.version()}-otp-#{System.otp_release()}
       """)
     end
   end
