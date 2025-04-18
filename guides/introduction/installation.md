@@ -198,16 +198,16 @@ Erlang/OTP and Elixir:
 asdf plugin add erlang
 asdf plugin add elixir
 
-asdf install erlang 27.3.2
+asdf install erlang 27.3.3
 asdf install elixir 1.18.3-otp-27
-asdf set -u erlang 27.3.2
+asdf set -u erlang 27.3.3
 asdf set -u elixir 1.18.3-otp-27
 ```
 
 ### mise
 
 ```sh
-mise use -g erlang@27.3.2
+mise use -g erlang@27.3.3
 mise use -g elixir@1.18.3-otp-27
 ```
 
