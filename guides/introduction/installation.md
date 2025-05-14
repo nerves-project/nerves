@@ -73,7 +73,7 @@ First, install a few packages.
 ### Ubuntu and Debian
 
 ```bash
-sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev
+sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev libnl-genl-3-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev
 ```
 
 Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
