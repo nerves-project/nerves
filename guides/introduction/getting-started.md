@@ -207,7 +207,7 @@ Once you are connected to your target device, an `IEx` prompt will appear with
 ```bash
 ssh nerves.local
 
-Interactive Elixir (1.13.4) - press Ctrl+C to exit (type h() ENTER for help)
+Interactive Elixir (1.18.3) - press Ctrl+C to exit (type h() ENTER for help)
 ████▄▄    ▐███
 █▌  ▀▀██▄▄  ▐█
 █▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
