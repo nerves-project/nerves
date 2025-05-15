@@ -166,12 +166,7 @@ defmodule NervesTest.Case do
           ]
           |> IO.iodata_to_binary()
 
-        if function_exported?(Mix, :raise, 2) do
-          # since 1.12.3
-          Mix.raise(msg, exit_status: err)
-        else
-          Mix.raise(msg)
-        end
+        Mix.raise(msg, exit_status: err)
     end
   end
 
