@@ -8,7 +8,7 @@ defmodule Nerves.MixProject do
     [
       app: :nerves,
       version: @version,
-      elixir: "~> 1.14.0 or ~> 1.15.1 or ~> 1.16.0 or ~> 1.17.0 or ~> 1.18.0",
+      elixir: "~> 1.14.0 or ~> 1.15.1 or ~> 1.16.0 or ~> 1.17.0 or ~> 1.18.0 or ~> 1.19.0-dev",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       description: description(),
@@ -18,12 +18,6 @@ defmodule Nerves.MixProject do
       make_clean: ["clean"],
       docs: docs(),
       dialyzer: dialyzer(),
-      preferred_cli_env: %{
-        credo: :dev,
-        docs: :docs,
-        "hex.publish": :docs,
-        "hex.build": :docs
-      },
       aliases: ["archive.build": &raise_on_archive_build/1],
       xref: [exclude: [Nerves.Bootstrap]]
     ]
@@ -31,6 +25,10 @@ defmodule Nerves.MixProject do
 
   def application do
     [extra_applications: [:ssl, :inets, :eex, :nerves_bootstrap]]
+  end
+
+  def cli do
+    [preferred_envs: %{docs: :docs, credo: :dev, "hex.publish": :docs, "hex.build": :docs}]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
