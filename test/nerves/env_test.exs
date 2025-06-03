@@ -56,11 +56,7 @@ defmodule Nerves.EnvTest do
 
   @tag :tmp_dir
   test "compiling Nerves packages from the top of an umbrella raises an error", %{tmp_dir: tmp} do
-    err_regex = ~r"""
-    When compiling from an Umbrella project you must also ensure:
-
-    \* You are compiling from an application directory, not the root of the Umbrella
-    """
+    err_regex = ~r"You are compiling from an application directory, not the root of the Umbrella"
 
     assert_raise Mix.Error, err_regex, fn -> compile_fixture!("umbrella", tmp) end
   end
