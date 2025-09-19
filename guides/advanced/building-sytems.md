@@ -289,13 +289,13 @@ Customizing the build allows you to tailor the Nerves system to meet specific re
 
 ### Modify Buildroot Package Configuration
 
-Navigate to the output directory of system you wish to modify.
+Navigate to the output directory of the system you wish to modify.
 
 ```bash
 cd o/<system short name>
 ```
 
-Workflow for customizing a Nerves system is the same as when using Buildroot outside of Nerves,
+The workflow to customize a Nerves system is the same as when using Buildroot outside of Nerves,
 using `make menuconfig` and `make savedefconfig`.
 
 The main package configuration workflows are divided into three categories,
