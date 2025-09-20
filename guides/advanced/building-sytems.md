@@ -298,16 +298,15 @@ cd o/<system short name>
 The workflow to customize a Nerves system is the same as when using Buildroot outside of Nerves,
 using `make menuconfig` and `make savedefconfig`.
 
-The main package configuration workflows are divided into three categories,
-depending on what you want to configure:
+If you wish to make configuration changes to your system's kernel, then you will need to use 
+`make linux-menuconfig`
 
-1. Select base packages by running `make menuconfig`
-2. Modify the Linux kernel and kernel modules with `make linux-menuconfig`
-3. Enable more command line utilities using `make busybox-menuconfig`
+It is also possible to change the busybox configuration using
+`make busybox-menuconfig`
 
-When you quit from the `menuconfig` interface, the changes are stored
-temporarily. To save them back to your system source directory, follow the
-appropriate steps below:
+
+When you quit one of these `menuconfig` interfaces, the changes are stored
+in your buildroot folder and not reflected in your nerves system directory. For this to happen, you will need to run the appropriate command, depending on what you just modified.
 
 1. After `make menuconfig`:
 
