@@ -334,16 +334,16 @@ in your buildroot folder and not reflected in your nerves system directory. For 
     cp build/busybox-1.27.2/.config ../src/<full system name>/busybox.config
     ```
 
-Your Buildroot configuration will need to be
-updated to point to your busybox custom config. This can be done by typing `make menuconfig`.
-Go to **Target Packages** and under the **Busybox** line, change the path that is inside **Busybox configuration file to use?** to the one saved in your nerves system directory.
+    Your Buildroot configuration will need to be
+    updated to point to your busybox custom config. This can be done by typing `make menuconfig`.
+    Go to **Target Packages** and under the **Busybox** line, change the path that is inside
+    **Busybox configuration file to use?** to the one saved in your nerves system directory
+    `${NERVES_DEFCONFIG_DIR}/busybox.config`.
+
 
     > NOTE: If your system uses **Additional BusyBox configuration fragment files**
     option under it needs to be disabled for `make busybox-update-config` to work.
 
-    ```bash
-    ${NERVES_DEFCONFIG_DIR}/busybox.config
-    ```
 
     Run `make busybox-update-config` to update `busybox.config` in your system.
 
@@ -455,7 +455,6 @@ You can also use it in your nerves project as `:github` dependency now.
   :rpi,
   ...
 ]
-
 
 # Update the `custom_rpi3` dep in your `deps/0` function.
 {:custom_rpi3, github: "YourGitHubUserName/custom_rpi3", runtime: false, targets: :custom_rpi3}
