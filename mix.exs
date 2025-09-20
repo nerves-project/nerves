@@ -18,12 +18,6 @@ defmodule Nerves.MixProject do
       make_clean: ["clean"],
       docs: docs(),
       dialyzer: dialyzer(),
-      preferred_cli_env: %{
-        credo: :dev,
-        docs: :docs,
-        "hex.publish": :docs,
-        "hex.build": :docs
-      },
       aliases: ["archive.build": &raise_on_archive_build/1],
       xref: [exclude: [Nerves.Bootstrap]]
     ]
@@ -35,6 +29,10 @@ defmodule Nerves.MixProject do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  def cli do
+    [preferred_envs: %{docs: :docs, credo: :dev, "hex.publish": :docs, "hex.build": :docs}]
+  end
 
   defp deps do
     [
