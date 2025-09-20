@@ -311,7 +311,7 @@ appropriate steps below:
 
 1. After `make menuconfig`:
 
-    Run `make savedefconfig` to update the `nerves_defconfig` in your System.
+    Run `make savedefconfig` to update the `nerves_defconfig` file in your System.
 
 2. After `make linux-menuconfig`:
 
@@ -335,11 +335,9 @@ appropriate steps below:
     cp build/busybox-1.27.2/.config ../src/<full system name>/busybox.config
     ```
 
-    Like the Linux configuration, the Buildroot configuration will need to be
-    updated to point to the custom config. This can be done via `make menuconfig`
-    and navigating to **Target Packages** and finding the
-    **BusyBox configuration file to use** option under the
-    **BusyBox** package.
+Your Buildroot configuration will need to be
+updated to point to your busybox custom config. This can be done by typing `make menuconfig`.
+Go to **Target Packages** and under the **Busybox** line, change the path that is inside **Busybox configuration file to use?** to the one saved in your nerves system directory.
 
     > NOTE: If your system uses **Additional BusyBox configuration fragment files**
     option under it needs to be disabled for `make busybox-update-config` to work.
