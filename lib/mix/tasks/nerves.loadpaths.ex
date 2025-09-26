@@ -10,7 +10,9 @@ defmodule Mix.Tasks.Nerves.Loadpaths do
 
   @impl Mix.Task
   def run(_args) do
-    if System.get_env("NERVES_PRECOMPILE") != "1" do
+    [task | _] = System.argv()
+
+    if System.get_env("NERVES_PRECOMPILE") != "1" and task != "nerves.system.shell" do
       debug_info("Loadpaths Start")
 
       Mix.Task.run("nerves.precompile", ["--no-loadpaths"])
