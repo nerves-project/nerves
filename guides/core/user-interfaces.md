@@ -1,34 +1,5 @@
 # User Interfaces
 
-## Phoenix web interface
-
-The [Phoenix] web framework makes an excellent companion to [Nerves]-based devices
-that need to serve content over HTTP directly from the device. For example, a
-device with no display might provide administration and configuration
-interfaces intended to be accessed from a computer or mobile device.
-
-Phoenix can also be used for systems with a built-in display or connected to a
-display. This is commonly done for kiosks or digital signage. For this the
-Nerves system itself needs the ability to show the browser. The
-[Nerves Web Kiosks] systems can do this.
-
-LiveView does very well in local network embedded setups as there is usually no
-significant latency to the server (the device) and it gives you a lot of tools
-for building out UI.
-
-To get started with a project combining Nerves and Phoenix the
-[Hello LiveView] example is recommended. There are many approaches to setting
-up a combined Nerves and Phoenix project as Nerves and Phoenix are both really
-just Elixir projects.
-
-In the past this guide addressed both umbrellas and ponchos. Those are advanced
-topics. This is all a starting point and the example project is a better place
-to begin.
-
-[Nerves]: https://www.nerves-project.org/
-[Phoenix]: http://www.phoenixframework.org/
-[Hello LiveView]: https://github.com/nerves-project/nerves_examples/tree/main/hello_live_view
-
 ## Scenic
 
 Scenic is 2D UI framework written in Elixir that's designed with
