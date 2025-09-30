@@ -3,7 +3,7 @@
 ## Introduction
 
 Nerves provides tooling and libraries for building software images to run on embedded systems.
-It uses the the rock-solid [Erlang virtual machine](https://www.erlang.org/) support of Linux, 
+It uses the the rock-solid [Erlang virtual machine](https://www.erlang.org/), 
 and brings the happy development experience of Elixir to your micro computers. 
 
 While the Nerves project provides base runtime libraries for hardware access and
@@ -31,17 +31,17 @@ Nerves tutorials from the comfort of your browser.
 [fantastic video](https://www.youtube.com/watch?v=-b5TPb_MwQE)
 to help walk-through the entire setup process.
 
-If you'd rather build your own firmware from scratch, make yourself at ease, you're in the right place, just keep scrolling...
+If you'd rather build your own firmware from scratch, make yourself at ease, you're in the right place.
 
 ## Burning your first firmware
 
-Let's get you setup and through your first `Hello World` moment. If you already have some experience with Nerves, you should skip this section and go straight to the core documentation.
+Let's get you set up and through your first `Hello World` moment. If you already have some experience with Nerves, you should skip this section and go straight to the core documentation.
 
 Before you start using Nerves, it is important that you follow the instructions from 
 the [Installation Guide](installation.html). It will help you get your machine
 configured for running Nerves. Come back here when you're done!
 
-Back already? Let the fun begin... Let's create a new Nerves project. The `nerves.new` project generator can be called
+Let's create a new Nerves project. The `nerves.new` project generator can be called
 from anywhere and can take either an absolute path or a relative path.
 
 ``` bash
@@ -57,7 +57,7 @@ What is a target? It is the platform for which your firmware is built (for examp
 
 In the introduction, we mentioned that Nerves uses Linux as its foundation. But we don't use a pre-existing Linux distribution, instead, we use a `build system` to compile only what we need, that is what [Buildroot](https://buildroot.org) is for. It allows us to use just the right amount of Linux software we need to keep our images as small as possible. Don't worry, you don't need to understand how Buildroot works at this point, but in order to be able to continue, you need to know which `Nerves System` you will need for your target.
 
-The `Nerves System` is a pre-compiled Linux Operating System, built with Buildroot, on which you will run your application. But to avoid having to compile our system each time we build a firmware, we leverage on `pre-compiled systems`. Assuming you are using Nerves for the first time on a Raspberry Pi, this is the list of systems for each Pi version (Target):
+The `Nerves System` is a pre-compiled Linux Operating System, built with Buildroot, on which you will run your application. But to avoid having to compile our Nerves system each time we build a firmware, we leverage  `pre-compiled Nerves systems`. Assuming you are using Nerves for the first time on a Raspberry Pi, this is the list of Nerves systems for each Pi version (Target):
 
 Target | System | Tag
 ------ | ------ | ---
@@ -69,13 +69,14 @@ Raspberry Pi 3 B, B+ | [nerves_system_rpi3](https://github.com/nerves-project/ne
 Raspberry Pi 4 | [nerves_system_rpi4](https://github.com/nerves-project/nerves_system_rpi4) | `rpi4`
 Raspberry Pi 5 | [nerves_system_rpi5](https://github.com/nerves-project/nerves_system_rpi5) | `rpi5`
 
-Note that some Pi versions or variations share the same system! For instance, you'll need to use `nerves_system_rpi3a` for a Raspberry Pi Zero 2W, so look carefully to make sure you pick the right system.
+> #### One Nerves System can support multiple Pis {: .info}
+> Note that some Pi versions or variations share the same system! For instance, you'll need to use `nerves_system_rpi3a` for a Raspberry Pi Zero 2W, so look carefully to make sure you pick the right system.
 
 The complete list of supported targets and their respective systems can be found on the [Supported Targets Page](supported-targets.html). So if you are not using a Raspberry Pi to follow this guide, you should go take a look and identify the system you need. What is relevant at this point is what's in the `tag` column. 
 
 The target is chosen using a shell environment variable called `MIX_TARGET`. Do not forget to replace the `rpi0` in the examples below with the right `tag` for your target, which you can find in the list above or on the [Supported Targets Page](supported-targets.html).
 
-> __Pro tip__
+> #### MIX_TARGET Pro tip {: .tip}
 >
 > It is not mandatory, but you can set the `MIX_TARGET` environment variable once and for all in your current shell using:
 >
@@ -147,14 +148,15 @@ Once it is booted, you can access your Raspberry Pi with the following command:
 ssh nerves.local
 ```
 
-Be patient though, as it can take some time at first boot. You can run `ping nerves.local` to know when your pi is up and running. If for some reason you can't reach `nerves.local` but you see a nertwork interface with an IP address lokking like `172.31.XXX.XX`, it means your computer was assigned an IP address from the Pi, and you should be able to access it with `ssh 172.31.XXX.X5` instead.
+Be patient though, as it can take 30 seconds or more at first boot. You can run `ping nerves.local` to know when your Pi is up and running.
 
-Beautifull isn't it? The way nerves does that is by copying your ssh public keys in the firmware and setting all up with [Vintage Net Direct](https://github.com/nerves-networking/vintage_net_direct), one of the supported [Vintage Net](https://github.com/nerves-networking/vintage_net) configurations.
+The way nerves does that is by copying your ssh public keys in the firmware and setting all up with [Vintage Net Direct](https://github.com/nerves-networking/vintage_net_direct), one of the supported [Vintage Net](https://github.com/nerves-networking/vintage_net) configurations.
 
->__Note__
->
->Since Nerves copies your SSH public keys in the firmware image, make sure you use the same computer to 
-> create the firmware and to connect to the device. Otherwise, you will be met with a login prompt.
+> #### SSH public keys {: .info}
+> Since Nerves copies your SSH public keys in the firmware image, make sure you use the same computer to create the firmware and to connect to the device. Otherwise, you will be met with a login prompt.
+
+> #### I can't reach nerves.local {: .warning}
+> If for some reason you can't reach nerves.local, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
 
 If you are using an HDMI capable Pi and USB is really not working for you, try to connect it to a screen or a TV and see if it displays the [IEX prompt](#using-iex).
 
@@ -368,4 +370,4 @@ iex> HelloNerves.hello()
 :nerves
 ```
 
-Congratulations! 🎊 You've just reached your very own Nerves `Hello world` moment and have assimilated all the basic concepts you need to [go further](going-further.md). Whether you want to [Run a phoenix app](./going-further.md#phoenix-web-interface), play around with your Pi's [GPIO](./going-further.md#elixir-circuits), the world is now your oyster. If at any point in your journey you fell stuck, reach out to the Nerves community through [our communication channels](./going-further.md#community-links). Welcome to Nerves!
+Congratulations! 🎊 You've just reached your very own Nerves `Hello world` moment and have assimilated all the basic concepts you need to [go further](going-further.md). Whether you want to [Run a phoenix app](./going-further.md#phoenix-web-interface), play around with your Pi's [GPIO](./going-further.md#elixir-circuits), the world is now your oyster. If at any point in your journey you feel stuck, reach out to the Nerves community through [our communication channels](./going-further.md#community-links). Welcome to Nerves!
