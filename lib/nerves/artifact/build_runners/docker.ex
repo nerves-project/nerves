@@ -113,27 +113,37 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   def build(pkg, _toolchain, opts) do
     _ = preflight(pkg)
 
-    {:ok, pid} = Nerves.Utils.Stream.start_link(file: build_log_path())
-    stream = IO.stream(pid, :line)
+    cmd1 = create_build_cmd(pkg)
+    cmd2 = make_cmd(pkg, opts)
+    cmd3 = make_artifact_cmd(pkg)
+    cmd4 = copy_artifact_cmd(pkg)
 
-    :ok = create_build(pkg, stream)
-    :ok = make(pkg, stream, opts)
-    Mix.shell().info("\n")
-    :ok = make_artifact(pkg, stream)
-    Mix.shell().info("\n")
-    {:ok, path} = copy_artifact(pkg, stream)
-    Mix.shell().info("\n")
-    _ = Nerves.Utils.Stream.stop(pid)
+    cmd =
+      Enum.join(cmd1, " ") <>
+        " && " <>
+        Enum.join(cmd2, " ") <>
+        " && " <>
+        Enum.join(cmd3, " ") <>
+        " && " <>
+        Enum.join(cmd4, " ")
+
+    run(pkg, cmd)
+
+    path = Artifact.download_path(pkg)
     {:ok, path}
   end
 
   @impl Nerves.Artifact.BuildRunner
   def archive(pkg, _toolchain, _opts) do
-    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
-    stream = IO.stream(pid, :line)
+    cmd3 = make_artifact_cmd(pkg)
+    cmd4 = copy_artifact_cmd(pkg)
 
-    make_artifact(pkg, stream)
-    copy_artifact(pkg, stream)
+    cmd =
+      Enum.join(cmd3, " ") <>
+        " && " <>
+        Enum.join(cmd4, " ")
+
+    run(pkg, cmd)
   end
 
   @impl Nerves.Artifact.BuildRunner
@@ -168,42 +178,19 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
     create_build = create_build_cmd(pkg) |> Enum.join(" ")
 
-    if String.to_integer(System.otp_release()) < 26 do
-      # Legacy shell support
-      initial_input = [
-        "echo Updating build directory.",
-        "echo This will take a while if it is the first time...",
-        "#{create_build} >/dev/null"
-      ]
+    exec_input = [
+      "echo -e '\\e[25F\\e[0J\\e[1;7m\\n  Preparing Nerves Shell  \\e[0m'",
+      "echo -e '\\e]0;Nerves Shell\\a'",
+      "echo \\\"PS1='\\e[1;7m Nerves \\e[0;1m \\W > \\e[0m'\\\" >> ~/.bashrc",
+      "echo \\\"PS2='\\e[1;7m Nerves \\e[0;1m \\W ..\\e[0m'\\\" >> ~/.bashrc",
+      "echo 'Updating build directory.'",
+      "echo 'This will take a while if it is the first time...'",
+      "#{create_build} >/dev/null",
+      "echo -e '\\nUse \\e[33mctrl+d\\e[0m or \\e[33mexit\\e[0m to leave the container shell\\n'",
+      "exec /bin/bash"
+    ]
 
-      Mix.Nerves.Shell.open(shell, initial_input)
-    else
-      Mix.Nerves.IO.shell_warn("shell start deprecated", """
-      OTP 26 made several changes to the serial interface handling. Unfortunately, this
-      is a regression in preventing the Nerves tooling from starting a system sub-shell.
-
-      However, the Docker environment has been configured and can be used the same as
-      before by manually running the command below which creates the build directory
-      and gives you a shell running in the container to interact with the system:
-      """)
-
-      exec_input = [
-        "echo -e '\\e[25F\\e[0J\\e[1;7m\\n  Preparing Nerves Shell  \\e[0m'",
-        "echo -e '\\e]0;Nerves Shell\\a'",
-        "echo \\\"PS1='\\e[1;7m Nerves \\e[0;1m \\W > \\e[0m'\\\" >> ~/.bashrc",
-        "echo \\\"PS2='\\e[1;7m Nerves \\e[0;1m \\W ..\\e[0m'\\\" >> ~/.bashrc",
-        "echo 'Updating build directory.'",
-        "echo 'This will take a while if it is the first time...'",
-        "#{create_build} >/dev/null",
-        "echo -e '\\nUse \\e[33mctrl+d\\e[0m or \\e[33mexit\\e[0m to leave the container shell\\n'",
-        "exec /bin/bash"
-      ]
-
-      # >= OTP 26 will just output this command to the user for them to run
-      # With Docker, we want create-build.sh to run and then to exec the shell
-      # to keep the docker container open as an interactive shell
-      Mix.shell().info(~s(#{shell} -c "#{Enum.join(exec_input, " ; ")}"))
-    end
+    Mix.Nerves.Shell.open(~s(#{shell} -c "#{Enum.join(exec_input, " ; ")}"))
   end
 
   defp preflight(pkg) do
@@ -223,37 +210,28 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
     ["/nerves/env/platform/create-build.sh", defconfig, working_dir()]
   end
 
-  defp create_build(pkg, stream) do
-    cmd = create_build_cmd(pkg)
-    shell_info("Starting Build... (this may take a while)")
-    run(pkg, cmd, stream)
-  end
-
-  defp make(pkg, stream, opts) do
+  defp make_cmd(pkg, opts) do
     make_args = Keyword.get(opts, :make_args, [])
-    run(pkg, ["make" | make_args], stream)
+    ["make" | make_args]
   end
 
-  defp make_artifact(pkg, stream) do
+  defp make_artifact_cmd(pkg) do
     name = Artifact.download_name(pkg)
-    shell_info("Creating artifact archive")
-    cmd = ["make", "system", "NERVES_ARTIFACT_NAME=#{name}"]
-    run(pkg, cmd, stream)
+    ["make", "system", "NERVES_ARTIFACT_NAME=#{name}"]
   end
 
-  defp copy_artifact(pkg, stream) do
-    shell_info("Copying artifact archive to host")
+  defp copy_artifact_cmd(pkg) do
     name = Artifact.download_name(pkg) <> Artifact.ext(pkg)
-    cmd = ["cp", name, "/nerves/dl/#{name}"]
-
-    run(pkg, cmd, stream)
-    path = Artifact.download_path(pkg)
-    {:ok, path}
+    ["cp", name, "/nerves/dl/#{name}"]
   end
 
   # Helpers
 
-  defp run(pkg, cmd, stream) do
+  defp run(pkg, cmd) do
+    cmd_script_name = "__run.sh"
+    cmd_script_path = Path.join(Nerves.Env.download_dir(), cmd_script_name)
+
+    File.write!(cmd_script_path, cmd)
     set_volume_permissions(pkg)
 
     {_dockerfile, image} = config(pkg)
@@ -267,23 +245,27 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
         "stdout",
         "-a",
         "stderr"
-      ] ++ env() ++ mounts(pkg) ++ ssh_mount() ++ [image | cmd]
+      ] ++ env() ++ mounts(pkg) ++ ssh_mount() ++ [image]
 
-    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
-      {_result, 0} ->
-        :ok
+    line = "docker  #{Enum.join(args, " ")} sh /nerves/dl/#{cmd_script_name}"
 
-      {_result, _} ->
-        Mix.raise("""
-        The Nerves Docker build_runner encountered an error while building:
-
-        -----
-        #{end_of_build_log()}
-        -----
-
-        See #{build_log_path()}.
-        """)
-    end
+    Mix.Nerves.Shell.open(line)
+    #    case Mix.Nerves.Utils.shell("docker", args, stream: stream) do
+    #      {_result, 0} ->
+    #        :ok
+    #
+    #      {_result, _} ->
+    #        Mix.raise("""
+    #        The Nerves Docker build_runner encountered an error while building:
+    #
+    #        -----
+    #        #{end_of_build_log()}
+    #        -----
+    #
+    #        See #{build_log_path()}.
+    #        """)
+    #    end
+    #File.rm!(cmd_script_path)
   end
 
   defp set_volume_permissions(pkg) do

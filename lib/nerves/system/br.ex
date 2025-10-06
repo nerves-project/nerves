@@ -78,15 +78,10 @@ defmodule Nerves.System.BR do
     defconfig = Path.join("#{pkg.path}", platform_config)
     _ = shell(script, [defconfig, dest])
 
-    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
-    stream = IO.stream(pid, :line)
-
     make_args = Keyword.get(opts, :make_args, [])
+    make_args = ["-C", dest | make_args]
 
-    case shell("make", make_args, cd: dest, stream: stream) do
-      {_, 0} -> {:ok, dest}
-      {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
-    end
+    _ = shell("make", make_args)
   end
 
   defp make(type, _pkg, _toolchain, _opts) do
@@ -97,13 +92,8 @@ defmodule Nerves.System.BR do
     name = Artifact.download_name(pkg)
     dest = Artifact.build_path(pkg)
 
-    {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
-    stream = IO.stream(pid, :line)
-
-    case shell("make", ["system", "NERVES_ARTIFACT_NAME=#{name}"], cd: dest, stream: stream) do
-      {_, 0} -> {:ok, Path.join(dest, name <> Artifact.ext(pkg))}
-      {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
-    end
+    _ = shell("make", ["-C", dest, "system", "NERVES_ARTIFACT_NAME=#{name}"])
+    {:ok, Path.join(dest, name <> Artifact.ext(pkg))}
   end
 
   defp make_archive(type, _pkg, _toolchain, _opts) do

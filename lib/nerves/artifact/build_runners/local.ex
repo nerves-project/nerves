@@ -72,32 +72,18 @@ defmodule Nerves.Artifact.BuildRunners.Local do
 
     shell = System.find_executable("bash") || System.find_executable("sh") || Mix.raise(error)
 
-    script = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
+    create_build_path = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("#{pkg.path}", platform_config)
 
-    if String.to_integer(System.otp_release()) < 26 do
-      initial_input = [
-        "echo Updating build directory.",
-        "echo This will take a while if it is the first time...",
-        "#{script} #{defconfig} #{dest} >/dev/null",
-        "cd #{dest}"
-      ]
+    Mix.shell().info("""
+    Updating or refreshing the build directory.
 
-      Mix.Nerves.Shell.open(shell, initial_input)
-    else
-      Mix.Nerves.IO.shell_warn("shell start deprecated", """
-      OTP 26 made several changes to the serial interface handling. Unfortunately, this
-      is a regression in preventing the Nerves tooling from starting a system sub-shell.
+    This may take a while if it is the first time.
+    """)
 
-      However, compilation is supported on this host and this native shell can be used.
-      Run the commands below to create the build directory and perform all the same
-      interactions as before within it:
-      """)
+    script = "#{create_build_path} #{defconfig} #{dest} >/dev/null && cd #{dest} && exec #{shell}"
 
-      # Leave as it's own info line so users could pipe/eval this as a workaround
-      # i.e eval "$(mix nerves.system.shell | tail -n 1)"
-      Mix.shell().info("  #{script} #{defconfig} #{dest} >/dev/null && cd #{dest}")
-    end
+    Mix.Nerves.Shell.open(script)
   end
 end

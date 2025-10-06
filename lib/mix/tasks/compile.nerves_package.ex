@@ -25,7 +25,7 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   def run(_args) do
     debug_info("Compile.NervesPackage start")
 
-    if Nerves.Env.enabled?() do
+    if Nerves.Env.enabled?() and not skip_compilation?() do
       bootstrap_check!()
 
       package =
@@ -112,4 +112,12 @@ defmodule Mix.Tasks.Compile.NervesPackage do
 
     File.exists?(mix_path) && File.exists?(apps_path)
   end
+
+  defp skip_compilation?(argv \\ System.argv())
+
+  defp skip_compilation?(["help" | _]), do: true
+  defp skip_compilation?(["nerves.clean" | _]), do: true
+  defp skip_compilation?(["nerves.system.lint" | _]), do: true
+  defp skip_compilation?(["nerves.system.shell" | _]), do: true
+  defp skip_compilation?(_), do: false
 end
