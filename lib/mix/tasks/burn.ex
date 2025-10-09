@@ -109,7 +109,7 @@ defmodule Mix.Tasks.Burn do
           raise "Unable to burn firmware on your host #{inspect(type)}"
       end
 
-    shell(cmd, args)
+    interactive_shell(cmd, args)
   end
 
   defp maybe_elevated_user_fwup(dev, args) do
@@ -125,20 +125,12 @@ defmodule Mix.Tasks.Burn do
             {"fwup", args}
 
           {:error, :eacces} ->
-            elevate_user()
             {"sudo", provision_env() ++ [fwup] ++ args}
         end
 
       _ ->
-        elevate_user()
         {"sudo", provision_env() ++ [fwup] ++ args}
     end
-  end
-
-  # Requests an elevation of user through askpass
-  defp elevate_user() do
-    ask_pass = System.get_env("SUDO_ASKPASS") || "/usr/bin/ssh-askpass"
-    System.put_env("SUDO_ASKPASS", ask_pass)
   end
 
   # This is a fix for linux when running through sudo.

@@ -206,9 +206,10 @@ mix firmware      # Cross-compile dependencies and create a .fw file
 mix firmware.burn # Burn firmware to an inserted SD card
 ```
 
-**Note:** The `mix firmware.burn` target relies on the presence of `ssh-askpass`. Some
-users may need to export the `SUDO_ASKPASS` environment variable to point to their askpass
-binary.  On Arch Linux systems, this is in `/usr/lib/ssh/ssh-askpass`
+**Note:** The `mix firmware.burn` target uses `sudo` to be able to write to a
+MicroSD card on Linux. You will be asked for a password. You can also set the
+`SUDO_ASKPASS` environment variable if you'd prefer an alternative way of
+requesting the password. E.g., `export SUDO_ASKPASS=ssh-askpass`.
 
 ## Docs
 

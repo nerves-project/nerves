@@ -73,7 +73,7 @@ First, install a few packages.
 ### Ubuntu and Debian
 
 ```bash
-sudo apt install build-essential automake autoconf git squashfs-tools ssh-askpass pkg-config curl libmnl-dev libnl-genl-3-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev file unzip libgnutls28-dev
+sudo apt install build-essential automake autoconf git squashfs-tools pkg-config curl libmnl-dev libnl-genl-3-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev file unzip libgnutls28-dev
 ```
 
 Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
@@ -89,11 +89,8 @@ asdf set -u fwup latest
 ### Fedora
 
 ```bash
-sudo dnf install @development-tools automake autoconf git squashfs-tools openssh-askpass pkgconf-pkg-config curl libmnl-devel openssl-devel ncurses-devel help2man libconfuse-devel libarchive-devel
+sudo dnf install @development-tools automake autoconf git squashfs-tools pkgconf-pkg-config curl libmnl-devel openssl-devel ncurses-devel help2man libconfuse-devel libarchive-devel
 ```
-
-Some Fedora have reported that they had to create a symlink
-from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
 Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
 manually from source. Nerves uses `fwup` in the build process to create firmware
@@ -108,11 +105,8 @@ asdf set -u fwup latest
 ### Arch
 
 ```bash
-yay -S base-devel ncurses5-compat-libs openssh-askpass git squashfs-tools curl
+yay -S base-devel ncurses5-compat-libs git squashfs-tools curl
 ```
-
-Some users have reported that they had to
-create a symlink from `/usr/bin/ssh-askpass` to `/usr/bin/qt4-ssh-askpass`.
 
 ### NixOS
 
@@ -135,12 +129,8 @@ mkShell {
     pkgs.beam.packages.erlangR25.elixir
     rebar3
     squashfsTools
-    x11_ssh_askpass
     pkg-config
   ];
-  shellHook = ''
-    SUDO_ASKPASS=${pkgs.x11_ssh_askpass}/libexec/x11-ssh-askpass
-  '';
 }
 ```
 
@@ -150,16 +140,6 @@ needed for building firmware.
 If instead, you'd like to install the dependencies on your host system, you can
 include the same packages listed under `buildInputs` in the
 `environment.systemPackages` section of your NixOS `configuration.nix` file.
-
-Please note that you may need to adjust the `SUDO_ASKPASS` environment
-variable to include the correct path to the askpass program of your choice. A
-known, working alternative to `x11_ssh_askpass` is `lxqt.lxqt-openssh-askpass`.
-To use this instead change the package name and change the definition of
-`SUDO_ASKPASS` to:
-
-```nix
-SUDO_ASKPASS=${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass
-```
 <!-- tabs-close -->
 
 If these instructions aren't accurate, please consider [sending us an improvement to this
