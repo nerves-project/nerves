@@ -124,13 +124,20 @@ cd hello_nerves
 MIX_TARGET=rpi0 mix deps.get
 ```
 
-An often used approach is to have two shell windows open: one for running
-commands against the `host` target, and one with the desired `MIX_TARGET`
-variable set.
+You should now have installed all the dependencies required! If you encounter any issues at this point, make sure you've followed the [Installation Guide](installation.html) properly. It's time to build our first firmware with:
 
-This allows you quick access to use host-based tooling in the former and
-deploy updated firmware from the latter, all without having to modify the
-`MIX_TARGET` variable in your shell.
+```bash
+MIX_TARGET=rpi0 mix firmware
+```
+
+After a couple minutes at most, you should see the following message:
+
+```plain
+Firmware built successfully! 🎉
+
+Now you may install it to a MicroSD card using `mix burn` or upload it
+to a device with `mix upload` or `mix firmware.gen.script`+`./upload.sh`.
+```
 
 ## Deploying your firmware
 
