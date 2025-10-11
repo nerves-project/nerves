@@ -16,20 +16,6 @@ the first OS processes and lets Erlang and Elixir take over from there. Not to
 fear, if you need something from Linux, Nerves provides a way to use most of the
 packages available through [Buildroot](https://buildroot.org).
 
-## Common terms
-
-In the following guides, support channels, and forums, you may hear the
-following terms being used.
-
-| Term            | Definition |
-| --------------- | ---------- |
-| host            | The computer on which you are editing source code, compiling, and assembling firmware |
-| target          | The platform for which your firmware is built (for example, Raspberry Pi Zero W, Raspberry Pi 4, or Beaglebone Black) |
-| toolchain       | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime |
-| system          | A lean Buildroot-based Linux distribution that has been customized and cross-compiled for a particular target |
-| firmware bundle | A single file that contains an assembled version of everything needed to burn firmware |
-| firmware image  | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc. |
-
 ## Development environment
 
 Before you create your first Nerves project or explore Nerves with Livebook,
@@ -467,6 +453,20 @@ export MIX_TARGET=rpi0
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
+
+## Common terms
+
+In the following guides, support channels, and forums, you may hear the
+following terms being used.
+
+| Term            | Definition |
+| --------------- | ---------- |
+| host            | The computer on which you are editing source code, compiling, and assembling firmware |
+| target          | The platform for which your firmware is built (for example, Raspberry Pi Zero W, Raspberry Pi 4, or Beaglebone Black) |
+| toolchain       | The tools required to build code for the target, such as compilers, linkers, binutils, and C runtime |
+| system          | A lean Buildroot-based Linux distribution that has been customized and cross-compiled for a particular target |
+| firmware bundle | A single file that contains an assembled version of everything needed to burn firmware |
+| firmware image  | Built from a firmware bundle and contains the partition table, partitions, bootloader, etc. |
 
 ## Community links
 
