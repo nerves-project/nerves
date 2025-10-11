@@ -16,13 +16,6 @@ the first OS processes and lets Erlang and Elixir take over from there. Not to
 fear, if you need something from Linux, Nerves provides a way to use most of the
 packages available through [Buildroot](https://buildroot.org).
 
-## Development environment
-
-Before you create your first Nerves project or explore Nerves with Livebook,
-you will need to make sure to [install some system
-packages](installation.html) required by the Framework, Platform,
-and Tooling.
-
 ## Nerves + Livebook
 
 A great path to exploring Nerves for the first time is by setting up the
@@ -40,15 +33,17 @@ to help walk-through the entire setup process.
 
 If you'd rather build your own firmware from scratch, make yourself at ease, you're in the right place.
 
-## Creating a project
-
-Let's get you set up and through your first `Hello World` moment. If you already have some experience with Nerves, you should skip this section and go straight to the core documentation.
+## Development environment
 
 Before you start using Nerves, it is important that you follow the instructions from
 the [Installation Guide](installation.html). It will help you get your machine
 configured for running Nerves. Come back here when you're done!
 
-Let's create a new Nerves project. The `nerves.new` project generator can be called
+## Creating a project
+
+Let's get you set up and through your first `Hello World` moment. If you already have some experience with Nerves, you should skip this section and go straight to the core documentation.
+
+We will start by creating a new Nerves project. The `nerves.new` project generator can be called
 from anywhere and can take either an absolute path or a relative path.
 
 ``` bash
