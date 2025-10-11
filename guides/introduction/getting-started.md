@@ -117,15 +117,9 @@ The target is chosen using a shell environment variable called `MIX_TARGET`. Do 
 > deploy updated firmware from the latter, all without having to modify the
 > `MIX_TARGET` variable in your shell.
 
-``` bash
-cd hello_nerves
-export MIX_TARGET=rpi0
-mix deps.get
-```
+Let's get all the dependencies that our system needs.
 
-Alternatively, you can prefix each command with the environment variable.
-
-``` bash
+```bash
 cd hello_nerves
 MIX_TARGET=rpi0 mix deps.get
 ```
