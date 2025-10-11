@@ -30,7 +30,7 @@ mix firmware
 or
 
 ```bash
-MIX_TARGET=rpi0 mix firmware
+MIX_TARGET=rpi3a mix firmware
 ```
 
 This will result in a `hello_nerves.fw` firmware bundle file.
@@ -46,7 +46,7 @@ mix firmware.burn
 or
 
 ```bash
-MIX_TARGET=rpi0 mix firmware.burn
+MIX_TARGET=rpi3a mix firmware.burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your
@@ -90,5 +90,5 @@ For more info, refer to [Connecting to your Nerves Target](connecting-to-a-nerve
 > #### What features does Nerves support for my device? {: .tip}
 >
 > Refer to the documentation of `nerves_system_<target>` projects for their
-> supported features. As an example, when your target is `rpi0`,
-> visit https://hexdocs.pm/nerves_system_rpi0.
+> supported features. As an example, when your target is `rpi3a`,
+> visit https://hexdocs.pm/nerves_system_rpi3a.

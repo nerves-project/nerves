@@ -55,7 +55,7 @@ Nerves will generate the required files and directory structure for your applica
 As described by the project generator, the next step is to change to the project
 directory, choose a target, and fetch the target-specific dependencies.
 
-What is a target? It is the platform for which your firmware is built (for example, a Raspberry Pi Zero). The firmware is a binary image containing both the Linux operating system we need, as well as your Nerves project. This is what we will build with Nerves and then flash on the target. For the rest of this section, we will assume that you are working with a Raspberry Pi board, but the instructions apply to other targets as well. If you ever get confused about the terms we use in this guide, we've consolidated a list of [common terms](#common-terms) for you.
+What is a target? It is the platform for which your firmware is built (for example, a Raspberry Pi Zero 2W). The firmware is a binary image containing both the Linux operating system we need, as well as your Nerves project. This is what we will build with Nerves and then flash on the target. For the rest of this section, we will assume that you are working with a Raspberry Pi board, but the instructions apply to other targets as well. If you ever get confused about the terms we use in this guide, we've consolidated a list of [common terms](#common-terms) for you.
 
 In the introduction, we mentioned that Nerves uses Linux as its foundation. But we don't use a pre-existing Linux distribution, instead, we use a `build system` to compile only what we need, that is what [Buildroot](https://buildroot.org) is for. It allows us to use just the right amount of Linux software we need to keep our images as small as possible. Don't worry, you don't need to understand how Buildroot works at this point, but in order to be able to continue, you need to know which `Nerves System` you will need for your target.
 
@@ -80,13 +80,15 @@ Raspberry Pi 5 | [nerves_system_rpi5](https://github.com/nerves-project/nerves_s
 > use for each of the boards that Nerves supports. The default target is `host`
 > unless you specify a different target in your environment. If you are not using a Raspberry Pi to follow this guide, you should go take a look and identify the system you need. What is relevant at this point is what's in the `tag` column.
 
-The target is chosen using a shell environment variable called `MIX_TARGET`. Do not forget to replace the `rpi0` in the examples below with the right `tag` for your target.
+Since the Raspberry Pi Zero 2W is the cheapest device you can find that supports Nerves, we will assume that's the target you are using for the rest of this guide.
+
+The target is chosen using a shell environment variable called `MIX_TARGET`. Do not forget to replace the `rpi3a` in the examples below with the right `tag` for your target.
 
 > #### MIX_TARGET Pro tip {: .tip}
 >
 > It is not mandatory, but you can set the `MIX_TARGET` environment variable once and for all in your current shell using:
 >
-> `export MIX_TARGET=rpi0`
+> `export MIX_TARGET=rpi3a`
 >
 > You will have to do this again if you close your terminal or if you open a new one though.
 >
@@ -102,13 +104,13 @@ Let's get all the dependencies that our system needs.
 
 ```bash
 cd hello_nerves
-MIX_TARGET=rpi0 mix deps.get
+MIX_TARGET=rpi3a mix deps.get
 ```
 
 You should now have installed all the dependencies required! If you encounter any issues at this point, make sure you've followed the [Installation Guide](installation.html) properly. It's time to build our first firmware with:
 
 ```bash
-MIX_TARGET=rpi0 mix firmware
+MIX_TARGET=rpi3a mix firmware
 ```
 
 After a couple minutes at most, you should see the following message:
@@ -125,7 +127,7 @@ It's time to burn our firmware and try it out on our Raspberry Pi! 🔥
 Insert your MicroSD card in your computer and run the following command:
 
 ```bash
-MIX_TARGET=rpi0 mix firmware.burn
+MIX_TARGET=rpi3a mix firmware.burn
 ```
 
 Nerves should automatically discover the right drive to flash the image and ask you to confirm. If you have more than one device available, Nerves might get confused and fail here. In that case, check the [Create a bootable SD card](#create-a-bootable-sd-card) section for more guidance. But here is an example of what you should see:
@@ -134,7 +136,7 @@ Nerves should automatically discover the right drive to flash the image and ask 
 ==> hello_nerves
 
 Nerves environment
-  MIX_TARGET:   rpi0
+  MIX_TARGET:   rpi3a
   MIX_ENV:      dev
 
 Use XX.X GiB memory card found at /dev/sdX? [Yn]
@@ -181,7 +183,7 @@ Interactive Elixir (1.18.3) - press Ctrl+C to exit (type h() ENTER for help)
 █▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
 █▌  ▀▀██▄▄  ▐█
 ███▌    ▀▀████
-hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi0
+hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi3a
   Uptime       : 1 days, 3 hours, 6 minutes and 29 seconds
   Clock        : 2022-08-11 21:44:09 EDT
 
@@ -360,13 +362,13 @@ Let's just change `:world` to `:nerves` 😉
 Save the file and rebuild the firmware with:
 
 ```bash
-MIX_TARGET=rpi0 mix firmware
+MIX_TARGET=rpi3a mix firmware
 ```
 
 Now, instead of `burn` like before, and since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network with:
 
 ```bash
-MIX_TARGET=rpi0 mix upload
+MIX_TARGET=rpi3a mix upload
 ```
 
 It will push your new version of the firmware and reboot the target. Once it is accessible again, run `ssh nerves.local`. When you get to the IEX prompt, you should see the following when calling the `hello` function:
@@ -397,7 +399,7 @@ on your target to confirm that it works in the simplest case.
 
 ```bash
 git clone https://github.com/nerves-project/nerves_examples
-export MIX_TARGET=rpi0
+export MIX_TARGET=rpi3a
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
