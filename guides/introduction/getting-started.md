@@ -334,6 +334,52 @@ The module named `HelloNerves.Application` is located in the project's `lib/hell
 
 If you have any experience with Elixir, this should feel like home. A Nerves Application is just a good old [Elixir OTP application](https://hexdocs.pm/elixir/Application.html) where we implement the `Application` behaviour. The `start/2` callback starts a supervison tree, just like any other [Elixir OTP application](https://hexdocs.pm/elixir/Application.html).
 
+## Updating your firmware
+
+Working on a Nerves project, you'll find yourself making changes to your application and wanting to try these changes on your target. However, we don't want to always remove the MicroSD card from the target, which means we will update the firmware over the network. Make sure you can [connect to your device with USB](#connecting-to-nerves-via-usb) before following this section.
+
+Something easy we can change is the `hello` function in our `HelloNerves` module located in `lib/hello_nerves.ex`:
+
+```elixir
+defmodule HelloNerves do
+  # ...
+  def hello do
+    :world
+  end
+end
+```
+
+Let's just change `:world` to `:nerves` 😉
+
+```elixir
+  def hello do
+    :nerves
+  end
+```
+
+Save the file and rebuild the firmware with:
+
+```bash
+MIX_TARGET=rpi0 mix firmware
+```
+
+Now, instead of `burn` like before, and since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network with:
+
+```bash
+MIX_TARGET=rpi0 mix upload
+```
+
+It will push your new version of the firmware and reboot the target. Once it is accessible again, run `ssh nerves.local`. When you get to the IEX prompt, you should see the following when calling the `hello` function:
+
+```elixir
+iex> HelloNerves.hello()
+:nerves
+```
+
+Congratulations! 🎊 You've just reached your very own Nerves `Hello world` moment and have assimilated all the basic concepts you need to go further. Whether you want to [Run a phoenix app](./user-interfaces.html#phoenix-web-interface), play around with your Pi's [GPIO](./hardware-interfaces.html#elixir-circuits), the world is now your oyster. If at any point in your journey you feel stuck, reach out to the Nerves community through [our communication channels](#community-links). Welcome to Nerves!
+
+
+
 ## Example projects
 
 If you are interested in exploring other Nerve codebases and projects, you can
@@ -465,6 +511,9 @@ following terms being used.
 
 ## Community links
 
+Do not hesitate to seek for help if you feel stuck at any point during your journey with Nerves.
+
+- [Elixir Slack #nerves channel](https://elixir-slack.community/)
 - [Elixir Discord #nerves channel](https://discord.gg/elixir)
 - [Nerves Forum](https://elixirforum.com/c/elixir-framework-forums/nerves-forum/74)
 - [Nerves Meetup](https://www.meetup.com/nerves)
