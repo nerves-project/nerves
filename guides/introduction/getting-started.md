@@ -39,7 +39,7 @@ and Tooling.
 
 ## Nerves + Livebook
 
-The best path to exploring Nerves for the first time is by setting up the
+A great path to exploring Nerves for the first time is by setting up the
 [Nerves Livebook project](https://github.com/nerves-livebook/nerves_livebook).
 This allows you to try out the Nerves project on real hardware without needing
 to build a project from scratch.
@@ -51,6 +51,8 @@ Nerves tutorials from the comfort of your browser.
 [Underjord](https://www.youtube.com/c/Underjord) has put together a
 [fantastic video](https://www.youtube.com/watch?v=-b5TPb_MwQE)
 to help walk-through the entire setup process.
+
+If you'd rather build your own firmware from scratch, make yourself at ease, you're in the right place.
 
 ## Creating a project
 
