@@ -3,8 +3,8 @@
 ## Introduction
 
 Nerves provides tooling and libraries for building software images to run on embedded systems.
-It uses the the rock-solid [Erlang virtual machine](https://www.erlang.org/), 
-and brings the happy development experience of Elixir to your micro computers. 
+It uses the the rock-solid [Erlang virtual machine](https://www.erlang.org/),
+and brings the happy development experience of Elixir to your micro computers.
 
 While the Nerves project provides base runtime libraries for hardware access and
 network configuration, nearly all of the Elixir ecosystem is available.
@@ -56,20 +56,20 @@ If you'd rather build your own firmware from scratch, make yourself at ease, you
 
 ## Creating a project
 
-Before you start using Nerves, it is important that you take a minute to read
-the [Installation Guide](installation.html).  It will help you get your machine
-configured for running Nerves.
+Let's get you set up and through your first `Hello World` moment. If you already have some experience with Nerves, you should skip this section and go straight to the core documentation.
 
-Let's create a new project.  The `nerves.new` project generator can be called
+Before you start using Nerves, it is important that you follow the instructions from
+the [Installation Guide](installation.html). It will help you get your machine
+configured for running Nerves. Come back here when you're done!
+
+Let's create a new Nerves project. The `nerves.new` project generator can be called
 from anywhere and can take either an absolute path or a relative path.
 
 ``` bash
 mix nerves.new hello_nerves
 ```
 
-Nerves will generate the required files and directory structure for your
-application. If you chose not to fetch dependencies during project generation,
-you will need to do that yourself.
+Nerves will generate the required files and directory structure for your application. We'll give more details about them in the [Anatomy of a Nerves project](#anatomy-of-a-nerves-project) section.
 
 As described by the project generator, the next step is to change to the project
 directory, choose a target, and fetch the target-specific dependencies.
@@ -242,6 +242,122 @@ Go ahead and try them out to explore your target's runtime environment.
 
 For more info on Nerves-specific use of the IEx prompt, refer to
 [IEx with Nerves Page](https://hexdocs.pm/nerves/iex-with-nerves.html).
+
+## Anatomy of a Nerves project
+
+Now that we have managed to boot our Pi with our own firmware, let's see what a Nerves project actually looks like:
+
+```plain
+hello_nerves
+├── config
+├── lib
+├── mix.exs
+├── README.md
+├── test
+└── rootfs-overlay
+    └── etc
+        └── iex.exs
+```
+
+The `mix.exs` is where we make the link between our firmware and the Nerves System that is needed for our target.
+
+```elixir
+defmodule HelloNerves.MixProject do
+  use Mix.Project
+
+  @app :hello_nerves
+  @version "0.1.0"
+  @all_targets [
+    :rpi,
+    :rpi0,
+    :rpi2,
+    :rpi3,
+    :rpi3a,
+    :rpi4,
+    :rpi5,
+    :bbb,
+    :osd32mp1,
+    :x86_64,
+    :grisp2,
+    :mangopi_mq_pro
+  ]
+
+  def project do
+    [
+      app: @app,
+      version: @version,
+      elixir: "~> 1.17",
+      archives: [nerves_bootstrap: "~> 1.13"],
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      releases: [{@app, release()}],
+      preferred_cli_target: [run: :host, test: :host]
+    ]
+  end
+
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    [
+      extra_applications: [:logger, :runtime_tools],
+      mod: {HelloNerves.Application, []}
+    ]
+  end
+
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      # Dependencies for all targets
+      {:nerves, "~> 1.10", runtime: false},
+      {:shoehorn, "~> 0.9.1"},
+      {:ring_logger, "~> 0.11.0"},
+      {:toolshed, "~> 0.4.0"},
+
+      # Allow Nerves.Runtime on host to support development, testing and CI.
+      # See config/host.exs for usage.
+      {:nerves_runtime, "~> 0.13.0"},
+
+      # Dependencies for all targets except :host
+      {:nerves_pack, "~> 0.7.1", targets: @all_targets},
+
+      # ...
+      {:nerves_system_rpi, "~> 1.24", runtime: false, targets: :rpi},
+      {:nerves_system_rpi0, "~> 1.24", runtime: false, targets: :rpi0},
+      {:nerves_system_rpi2, "~> 1.24", runtime: false, targets: :rpi2},
+      {:nerves_system_rpi3, "~> 1.24", runtime: false, targets: :rpi3},
+      {:nerves_system_rpi3a, "~> 1.24", runtime: false, targets: :rpi3a},
+      {:nerves_system_rpi4, "~> 1.24", runtime: false, targets: :rpi4},
+      {:nerves_system_rpi5, "~> 0.2", runtime: false, targets: :rpi5},
+      {:nerves_system_bbb, "~> 2.19", runtime: false, targets: :bbb},
+      {:nerves_system_osd32mp1, "~> 0.15", runtime: false, targets: :osd32mp1},
+      {:nerves_system_x86_64, "~> 1.24", runtime: false, targets: :x86_64},
+      {:nerves_system_grisp2, "~> 0.8", runtime: false, targets: :grisp2},
+      {:nerves_system_mangopi_mq_pro, "~> 0.6", runtime: false, targets: :mangopi_mq_pro}
+    ]
+  end
+
+  def release do
+    [
+      overwrite: true,
+      #...
+      cookie: "#{@app}_cookie",
+      include_erts: &Nerves.Release.erts/0,
+      steps: [&Nerves.Release.init/1, :assemble],
+      strip_beams: Mix.env() == :prod or [keep: ["Docs"]]
+    ]
+  end
+end
+
+```
+
+As you can see in the `@all_targets` global variable and in the `deps` function, we list all the official Nerves Systems, but only the one selected with `MIX_TARGET` as explained above will be used when you build your firmware.
+
+Just like any Elixir project, `deps` is where you can add additional dependencies that you need.
+
+The `application` function is where you describe your whole application. The `:mod` key let's you define the module that will be invoked when the application is started. At this point in your Nerves journey, this is the only part that matters, but you're welcome to read more about the `application` function by running `mix help compile.app` in your terminal.
+
+The module named `HelloNerves.Application` is located in the project's `lib/hello_nerves` directory.
+
+If you have any experience with Elixir, this should feel like home. A Nerves Application is just a good old [Elixir OTP application](https://hexdocs.pm/elixir/Application.html) where we implement the `Application` behaviour. The `start/2` callback starts a supervison tree, just like any other [Elixir OTP application](https://hexdocs.pm/elixir/Application.html).
 
 ## Example projects
 
