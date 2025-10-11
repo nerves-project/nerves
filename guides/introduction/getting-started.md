@@ -139,6 +139,30 @@ Now you may install it to a MicroSD card using `mix burn` or upload it
 to a device with `mix upload` or `mix firmware.gen.script`+`./upload.sh`.
 ```
 
+It's time to burn our firmware and try it out on our Raspberry Pi! 🔥
+
+Insert your MicroSD card in your computer and run the following command:
+
+```bash
+MIX_TARGET=rpi0 mix firmware.burn
+```
+
+Nerves should automatically discover the right drive to flash the image and ask you to confirm. If you have more than one device available, Nerves might get confused and fail here. In that case, check the [Create a bootable SD card](#create-a-bootable-sd-card) section for more guidance. But here is an example of what you should see:
+
+```plain
+==> hello_nerves
+
+Nerves environment
+  MIX_TARGET:   rpi0
+  MIX_ENV:      dev
+
+Use XX.X GiB memory card found at /dev/sdX? [Yn]
+```
+
+Press `Y` or the ̀`Enter` key and after a few seconds or minutes, your card will be burnt with your brand new nerves firmware. You can now insert your MicroSD card in your Raspberry Pi!
+
+Before you boot it, we need to choose a way to connect with it once Nerves is launched. We will describe the easiest method (Ethernet over USB) in this guide, but there are more on the [Connecting to your Nerves Target](connecting-to-a-nerves-target.html) page if you want to take a look at it.
+
 ## Deploying your firmware
 
 Once you have installed your project dependencies you can build a Nerves
