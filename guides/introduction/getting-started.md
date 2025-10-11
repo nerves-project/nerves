@@ -173,7 +173,7 @@ The way Nerves does this is by copying your ssh public keys in the firmware and 
 > #### I can't reach nerves.local {: .warning}
 > If for some reason you can't reach nerves.local, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
 
-If you are using an HDMI capable Pi and USB is really not working for you, try to connect it to a screen or a TV and see if it displays the [IEX prompt](#using-iex).
+If you are using an HDMI capable Pi and USB is really not working for you, try to connect it to a screen or a TV and see if it displays the [IEx prompt](#using-iex).
 
 ## Using `IEx`
 
@@ -207,7 +207,7 @@ Toolshed imported. Run h(Toolshed) for more info.
 iex(nerves@nerves.local)1>
 ```
 
-In the IEX prompt type `HelloNerves.hello()`, and you should see your first Elixir application output! 🥳
+In the IEx prompt type `HelloNerves.hello()`, and you should see your first Elixir application output! 🥳
 
 ```elixir
 iex> HelloNerves.hello()
