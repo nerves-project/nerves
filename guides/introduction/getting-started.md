@@ -163,6 +163,28 @@ Press `Y` or the ̀`Enter` key and after a few seconds or minutes, your card wil
 
 Before you boot it, we need to choose a way to connect with it once Nerves is launched. We will describe the easiest method (Ethernet over USB) in this guide, but there are more on the [Connecting to your Nerves Target](connecting-to-a-nerves-target.html) page if you want to take a look at it.
 
+## Connecting to Nerves via USB
+
+By default, on most systems, Nerves provides an [ethernet over USB interface](https://en.wikipedia.org/wiki/Ethernet_over_USB) interface. It means that you just need to plug your Pi to your computer with the appropriate USB cable to be able to interact with it. Once it is booted, you will see a new network interface created on your own computer with an IP assigned. If you run into some issues trying to connect with USB, check the [USB Data Cable](#usb-data-cable) section to help you as it might be related to the cable you are using.
+
+Once it is booted, you can access your Raspberry Pi with the following command:
+
+```bash
+ssh nerves.local
+```
+
+Be patient though, as it can take 30 seconds or more at first boot. You can run `ping nerves.local` to know when your Pi is up and running.
+
+The way nerves does that is by copying your ssh public keys in the firmware and setting all up with [Vintage Net Direct](https://github.com/nerves-networking/vintage_net_direct), one of the supported [Vintage Net](https://github.com/nerves-networking/vintage_net) configurations.
+
+> #### SSH public keys {: .info}
+> Since Nerves copies your SSH public keys in the firmware image, make sure you use the same computer to create the firmware and to connect to the device. Otherwise, you will be met with a login prompt.
+
+> #### I can't reach nerves.local {: .warning}
+> If for some reason you can't reach nerves.local, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
+
+If you are using an HDMI capable Pi and USB is really not working for you, try to connect it to a screen or a TV and see if it displays the [IEX prompt](#using-iex).
+
 ## Deploying your firmware
 
 Once you have installed your project dependencies you can build a Nerves
