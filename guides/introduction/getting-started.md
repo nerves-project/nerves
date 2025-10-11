@@ -2,21 +2,19 @@
 
 ## Introduction
 
-Nerves defines a new way to build embedded systems using
-[Elixir](https://elixir-lang.org/). It is
-specifically designed for embedded systems, not desktop or server systems.  You
-can think of Nerves as containing three parts:
+Nerves provides tooling and libraries for building software images to run on embedded systems.
+It uses the the rock-solid [Erlang virtual machine](https://www.erlang.org/), 
+and brings the happy development experience of Elixir to your micro computers. 
 
-- **Platform** - a customized, minimal
-[Buildroot](https://buildroot.org)-derived Linux that boots directly to the
-[BEAM VM](https://en.wikipedia.org/wiki/BEAM_(Erlang_virtual_machine)).
-- **Framework** - ready-to-go library of Elixir modules to get you up and
-running quickly.
-- **Tooling** - powerful command-line tools to manage builds, update firmware,
-configure devices, and more.
+While the Nerves project provides base runtime libraries for hardware access and
+network configuration, nearly all of the Elixir ecosystem is available.
 
-Taken together, the Nerves platform, framework, and tooling provide a highly
-specialized environment for using Elixir to build advanced embedded devices.
+Nerves uses the Linux kernel to support a large variety of hardware. It is not a
+Linux distribution, though, and contains little of what you would find on a
+typical embedded Linux system. Instead, it starts the Erlang runtime as one of
+the first OS processes and lets Erlang and Elixir take over from there. Not to
+fear, if you need something from Linux, Nerves provides a way to use most of the
+packages available through [Buildroot](https://buildroot.org).
 
 ## Common terms
 
