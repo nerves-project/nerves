@@ -130,6 +130,13 @@ Insert your MicroSD card in your computer and run the following command:
 MIX_TARGET=rpi3a mix firmware.burn
 ```
 
+> #### Warning - This will wipe any existing data on your card {: .warning}
+>
+> Nerves will replace any existing partition or data on your MicroSD card. Make sure you save any important data you have on it before burning it with your Nerves firmware.
+> You do not need to partition the card before you use it, Nerves takes care of everything for you.
+>
+> Most MicroSD cards should be suitable, but in case you have issues with your Raspberry Pi booting with it, check if there is not a compatibility issue by reading the [SD Cards](https://www.raspberrypi.com/documentation/accessories/sd-cards.html) section of the official documentation and search online for best brands and models for your board.
+
 Nerves should automatically discover the right drive to flash the image and ask you to confirm. If you have more than one device available, Nerves might get confused and fail here. In that case, check the [Create a bootable SD card](#create-a-bootable-sd-card) section for more guidance. But here is an example of what you should see:
 
 ```plain
