@@ -151,7 +151,7 @@ Use XX.X GiB memory card found at /dev/sdX? [Yn]
 
 Press `Y` or the ̀`Enter` key and after a few seconds or minutes, your card will be burnt with your brand new nerves firmware. You can now insert your MicroSD card in your Raspberry Pi!
 
-Before you boot it, we need to choose a way to connect with it once Nerves is launched. We will describe the easiest method (Ethernet over USB) in this guide, but there are more on the [Connecting to your Nerves Target](connecting-to-a-nerves-target.html) page if you want to take a look at it.
+Before you boot it, we need to choose a way to connect with it once Nerves is launched. We will describe the easiest method (Ethernet over USB) in this guide, but there is more on the [Connecting to your Nerves Target](connecting-to-a-nerves-target.html) page if you want to take a look at it.
 
 ## Connecting to Nerves via USB
 
@@ -165,7 +165,7 @@ ssh nerves.local
 
 Be patient though, as it can take 30 seconds or more at first boot. You can run `ping nerves.local` to know when your Pi is up and running.
 
-The way nerves does that is by copying your ssh public keys in the firmware and setting all up with [Vintage Net Direct](https://github.com/nerves-networking/vintage_net_direct), one of the supported [Vintage Net](https://github.com/nerves-networking/vintage_net) configurations.
+The way Nerves does this is by copying your ssh public keys in the firmware and setting all up with [Vintage Net Direct](https://github.com/nerves-networking/vintage_net_direct), one of the supported [Vintage Net](https://github.com/nerves-networking/vintage_net) configurations.
 
 > #### SSH public keys {: .info}
 > Since Nerves copies your SSH public keys in the firmware image, make sure you use the same computer to create the firmware and to connect to the device. Otherwise, you will be met with a login prompt.
@@ -372,13 +372,13 @@ Save the file and rebuild the firmware with:
 MIX_TARGET=rpi3a mix firmware
 ```
 
-Now, instead of `burn` like before, and since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network with:
+Since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network. We don't need to run `firmware.burn` anymore.
 
 ```bash
 MIX_TARGET=rpi3a mix upload
 ```
 
-It will push your new version of the firmware and reboot the target. Once it is accessible again, run `ssh nerves.local`. When you get to the IEX prompt, you should see the following when calling the `hello` function:
+It will push your new version of the firmware and reboot the target. Once it is accessible again, run `ssh nerves.local`. When you get to the IEx prompt, you should see the following when calling the `hello` function:
 
 ```elixir
 iex> HelloNerves.hello()
