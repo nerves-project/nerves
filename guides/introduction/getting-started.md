@@ -74,15 +74,48 @@ Nerves will generate the required files and directory structure for your applica
 As described by the project generator, the next step is to change to the project
 directory, choose a target, and fetch the target-specific dependencies.
 
+What is a target? It is the platform for which your firmware is built (for example, a Raspberry Pi Zero). The firmware is a binary image containing both the Linux operating system we need, as well as your Nerves project. This is what we will build with Nerves and then flash on the target. For the rest of this section, we will assume that you are working with a Raspberry Pi board, but the instructions apply to other targets as well. If you ever get confused about the terms we use in this guide, we've consolidated a list of [common terms](#common-terms) for you.
+
+In the introduction, we mentioned that Nerves uses Linux as its foundation. But we don't use a pre-existing Linux distribution, instead, we use a `build system` to compile only what we need, that is what [Buildroot](https://buildroot.org) is for. It allows us to use just the right amount of Linux software we need to keep our images as small as possible. Don't worry, you don't need to understand how Buildroot works at this point, but in order to be able to continue, you need to know which `Nerves System` you will need for your target.
+
+The `Nerves System` is a pre-compiled Linux Operating System, built with Buildroot, on which you will run your application. But to avoid having to compile our Nerves system each time we build a firmware, we leverage  `pre-compiled Nerves systems`. Assuming you are using Nerves for the first time on a Raspberry Pi, this is the list of Nerves systems for each Pi version (Target):
+
+Target | System | Tag
+------ | ------ | ---
+Raspberry Pi A+, B, B+ | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | `rpi`
+Raspberry Pi Zero and Zero W | [nerves_system_rpi0](https://github.com/nerves-project/nerves_system_rpi0) | `rpi0`
+Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
+Raspberry Pi 3A and Zero 2 W | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
+Raspberry Pi 3 B, B+ | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
+Raspberry Pi 4 | [nerves_system_rpi4](https://github.com/nerves-project/nerves_system_rpi4) | `rpi4`
+Raspberry Pi 5 | [nerves_system_rpi5](https://github.com/nerves-project/nerves_system_rpi5) | `rpi5`
+
+> #### One Nerves System can support multiple Pis {: .info}
+> Note that some Pi versions or variations share the same system! For instance, you'll need to use `nerves_system_rpi3a` for a Raspberry Pi Zero 2W, so look carefully to make sure you pick the right system.
+
 > #### What is my device's _MIX_TARGET_? {: .tip}
 >
 > Visit the [Supported Targets Page](supported-targets.html) for information on what target name to
 > use for each of the boards that Nerves supports. The default target is `host`
-> unless you specify a different target in your environment.
+> unless you specify a different target in your environment. If you are not using a Raspberry Pi to follow this guide, you should go take a look and identify the system you need. What is relevant at this point is what's in the `tag` column.
 
-The target is chosen using a shell environment variable. You can use the
-`export` command, which will remain in effect as long as you leave your
-shell window open.
+The target is chosen using a shell environment variable called `MIX_TARGET`. Do not forget to replace the `rpi0` in the examples below with the right `tag` for your target.
+
+> #### MIX_TARGET Pro tip {: .tip}
+>
+> It is not mandatory, but you can set the `MIX_TARGET` environment variable once and for all in your current shell using:
+>
+> `export MIX_TARGET=rpi0`
+>
+> You will have to do this again if you close your terminal or if you open a new one though.
+>
+> An often used approach is to have two shell windows open: one for running
+> commands against your local machine (the `host` target), and one with the desired `MIX_TARGET`
+> variable set.
+>
+> This allows you quick access to use host-based tooling in the former and
+> deploy updated firmware from the latter, all without having to modify the
+> `MIX_TARGET` variable in your shell.
 
 ``` bash
 cd hello_nerves
