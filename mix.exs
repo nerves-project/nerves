@@ -4,6 +4,12 @@ defmodule Nerves.MixProject do
   @version "1.11.3"
   @source_url "https://github.com/nerves-project/nerves"
 
+  # Fail quickly on OTP 25 and earlier rather than letting them fail at runtime
+  @otp_release :erlang.system_info(:otp_release) |> List.to_integer()
+  if @otp_release < 26 do
+    raise "nerves requires OTP 26 or later. Current OTP version: #{@otp_release}"
+  end
+
   def project do
     [
       app: :nerves,
