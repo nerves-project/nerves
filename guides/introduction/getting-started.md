@@ -23,8 +23,8 @@ A great path to exploring Nerves for the first time is by setting up the
 This allows you to try out the Nerves project on real hardware without needing
 to build a project from scratch.
 
-Within minutes, you'll have a Raspberry Pi or Beaglebone running Livebook on top of Nerves. You'll
-be able to run code in [Livebook](https://livebook.dev/) and work through
+Within minutes, you'll have a Raspberry Pi or Beaglebone running Livebook on top of Nerves.
+You'll be able to run code in [Livebook](https://livebook.dev/) and work through
 Nerves tutorials from the comfort of your browser.
 
 [Underjord](https://www.youtube.com/c/Underjord) has put together a
