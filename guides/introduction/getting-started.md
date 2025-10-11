@@ -310,12 +310,19 @@ Toolshed imported. Run h(Toolshed) for more info.
 iex(nerves@nerves.local)1>
 ```
 
+In the IEX prompt type `HelloNerves.hello()`, and you should see your first Elixir application output! 🥳
+
+```elixir
+iex> HelloNerves.hello()
+:world
+```
+
 The [Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package contains
 many useful commands. Enter the following command to display the help for the
 [Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package.
 
 ```elixir
-h Toolshed
+iex> h Toolshed
 ```
 
 Go ahead and try them out to explore your target's runtime environment.
