@@ -49,6 +49,9 @@ defmodule Mix.Tasks.Burn do
   @switches [device: :string, task: :string, firmware: :string]
   @aliases [d: :device, t: :task, i: :firmware]
 
+  # Maximum size for files to check for asdf shims (10KB)
+  @max_shim_size 10_000
+
   @impl Mix.Task
   def run(argv) do
     Preflight.check!()
@@ -145,8 +148,9 @@ defmodule Mix.Tasks.Burn do
   # Detect if fwup is managed by asdf by checking if it's a shim
   defp fwup_managed_by_asdf?(fwup) do
     # Only check files that are actually executable and not too large
-    with {:ok, %File.Stat{type: :regular, size: size}} when size < 10_000 <- File.stat(fwup),
-         {:ok, content} <- File.read(fwup, [:read]) do
+    with {:ok, %File.Stat{type: :regular, size: size}} when size < @max_shim_size <-
+           File.stat(fwup),
+         {:ok, content} <- File.read(fwup) do
       # asdf shims are bash scripts with a specific pattern
       # Check for both the shebang and the asdf exec command to avoid false positives
       String.match?(content, ~r/^#!.*bash.*\n.*asdf exec/s)
