@@ -125,11 +125,46 @@ defmodule Mix.Tasks.Burn do
             {"fwup", args}
 
           {:error, :eacces} ->
-            {"sudo", provision_env() ++ [fwup] ++ args}
+            {"sudo", asdf_aware_env(fwup) ++ [fwup] ++ args}
         end
 
       _ ->
-        {"sudo", provision_env() ++ [fwup] ++ args}
+        {"sudo", asdf_aware_env(fwup) ++ [fwup] ++ args}
+    end
+  end
+
+  # Check if fwup is managed by asdf and return appropriate environment variables
+  defp asdf_aware_env(fwup) do
+    if fwup_managed_by_asdf?(fwup) do
+      provision_env() ++ asdf_env_vars()
+    else
+      provision_env()
+    end
+  end
+
+  # Detect if fwup is managed by asdf by checking if it's a shim
+  defp fwup_managed_by_asdf?(fwup) do
+    case File.read(fwup) do
+      {:ok, content} ->
+        String.contains?(content, "asdf exec")
+
+      _ ->
+        false
+    end
+  end
+
+  # Get the appropriate asdf environment variables
+  defp asdf_env_vars() do
+    # Check for ASDF_DATA_DIR first (0.16+), then ASDF_DIR (0.15 and earlier)
+    cond do
+      data_dir = System.get_env("ASDF_DATA_DIR") ->
+        ["ASDF_DATA_DIR=#{data_dir}"]
+
+      dir = System.get_env("ASDF_DIR") ->
+        ["ASDF_DIR=#{dir}"]
+
+      true ->
+        []
     end
   end
 
