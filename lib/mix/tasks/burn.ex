@@ -49,9 +49,6 @@ defmodule Mix.Tasks.Burn do
   @switches [device: :string, task: :string, firmware: :string]
   @aliases [d: :device, t: :task, i: :firmware]
 
-  # Maximum size for files to check for asdf shims (10KB)
-  @max_shim_size 10_000
-
   @impl Mix.Task
   def run(argv) do
     Preflight.check!()
@@ -145,18 +142,9 @@ defmodule Mix.Tasks.Burn do
     end
   end
 
-  # Detect if fwup is managed by asdf by checking if it's a shim
+  # Detect if fwup is managed by asdf by checking if it's in the asdf shims directory
   defp fwup_managed_by_asdf?(fwup) do
-    # Only check files that are actually executable and not too large
-    with {:ok, %File.Stat{type: :regular, size: size}} when size < @max_shim_size <-
-           File.stat(fwup),
-         {:ok, content} <- File.read(fwup) do
-      # asdf shims are bash scripts with a specific pattern
-      # Check for both the shebang and the asdf exec command to avoid false positives
-      String.match?(content, ~r/^#!.*bash.*\n.*asdf exec/s)
-    else
-      _ -> false
-    end
+    String.contains?(fwup, ".asdf/shims")
   end
 
   # Get the appropriate asdf environment variables
@@ -170,7 +158,22 @@ defmodule Mix.Tasks.Burn do
         ["ASDF_DIR=#{dir}"]
 
       true ->
-        []
+        Mix.raise("""
+        fwup is installed via asdf, but the required environment variable is not set.
+
+        For asdf 0.16 and later, you need to set ASDF_DATA_DIR in your shell configuration.
+        For asdf 0.15 and earlier, you need to set ASDF_DIR in your shell configuration.
+
+        Please add one of the following to your shell configuration file (~/.bashrc, ~/.zshrc, etc.):
+
+          export ASDF_DATA_DIR="$HOME/.asdf"  # for asdf 0.16+
+
+        or
+
+          export ASDF_DIR="$HOME/.asdf"  # for asdf 0.15 and earlier
+
+        After updating your shell configuration, restart your terminal or run `source ~/.bashrc` (or equivalent).
+        """)
     end
   end
 
