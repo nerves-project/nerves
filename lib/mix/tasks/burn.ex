@@ -144,12 +144,14 @@ defmodule Mix.Tasks.Burn do
 
   # Detect if fwup is managed by asdf by checking if it's a shim
   defp fwup_managed_by_asdf?(fwup) do
-    case File.read(fwup) do
-      {:ok, content} ->
-        String.contains?(content, "asdf exec")
-
-      _ ->
-        false
+    # Only check files that are actually executable and not too large
+    with {:ok, %File.Stat{type: :regular, size: size}} when size < 10_000 <- File.stat(fwup),
+         {:ok, content} <- File.read(fwup, [:read]) do
+      # asdf shims are bash scripts with a specific pattern
+      # Check for both the shebang and the asdf exec command to avoid false positives
+      String.match?(content, ~r/^#!.*bash.*\n.*asdf exec/s)
+    else
+      _ -> false
     end
   end
 
