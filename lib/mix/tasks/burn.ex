@@ -125,11 +125,55 @@ defmodule Mix.Tasks.Burn do
             {"fwup", args}
 
           {:error, :eacces} ->
-            {"sudo", provision_env() ++ [fwup] ++ args}
+            {"sudo", asdf_aware_env(fwup) ++ [fwup] ++ args}
         end
 
       _ ->
-        {"sudo", provision_env() ++ [fwup] ++ args}
+        {"sudo", asdf_aware_env(fwup) ++ [fwup] ++ args}
+    end
+  end
+
+  # Check if fwup is managed by asdf and return appropriate environment variables
+  defp asdf_aware_env(fwup) do
+    if fwup_managed_by_asdf?(fwup) do
+      provision_env() ++ asdf_env_vars()
+    else
+      provision_env()
+    end
+  end
+
+  # Detect if fwup is managed by asdf by checking if it's in the asdf shims directory
+  defp fwup_managed_by_asdf?(fwup) do
+    String.contains?(fwup, ".asdf/shims")
+  end
+
+  # Get the appropriate asdf environment variables
+  defp asdf_env_vars() do
+    # Check for ASDF_DATA_DIR first (0.16+), then ASDF_DIR (0.15 and earlier)
+    cond do
+      data_dir = System.get_env("ASDF_DATA_DIR") ->
+        ["ASDF_DATA_DIR=#{data_dir}"]
+
+      dir = System.get_env("ASDF_DIR") ->
+        ["ASDF_DIR=#{dir}"]
+
+      true ->
+        Mix.raise("""
+        fwup is installed via asdf, but the required environment variable is not set.
+
+        For asdf 0.16 and later, you need to set ASDF_DATA_DIR in your shell configuration.
+        For asdf 0.15 and earlier, you need to set ASDF_DIR in your shell configuration.
+
+        Please add one of the following to your shell configuration file (~/.bashrc, ~/.zshrc, etc.):
+
+          export ASDF_DATA_DIR="$HOME/.asdf"  # for asdf 0.16+
+
+        or
+
+          export ASDF_DIR="$HOME/.asdf"  # for asdf 0.15 and earlier
+
+        After updating your shell configuration, restart your terminal or run `source ~/.bashrc` (or equivalent).
+        """)
     end
   end
 
