@@ -314,8 +314,17 @@ defmodule Mix.Tasks.Firmware do
 
   defp config_arg(:fwup_conf, firmware_config) do
     case firmware_config[:fwup_conf] do
-      nil -> []
-      fwup_conf -> ["-c", Path.join(File.cwd!(), fwup_conf)]
+      nil ->
+        []
+
+      fwup_conf ->
+        path = Path.expand(fwup_conf)
+
+        if not File.exists?(path) do
+          Mix.raise("File referenced in :nerves, :firmware, :fwup_conf not found. Tried: #{path}")
+        end
+
+        ["-c", path]
     end
   end
 
