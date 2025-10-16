@@ -419,7 +419,7 @@ defmodule Nerves.Env do
     |> Map.put(Mix.Project.config()[:app], File.cwd!())
     |> Enum.filter(&nerves_package?/1)
     |> Enum.map(&Package.load_config/1)
-    |> validate_packages
+    |> validate_packages()
   end
 
   @doc false

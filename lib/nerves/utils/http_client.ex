@@ -145,7 +145,7 @@ defmodule Nerves.Utils.HTTPClient do
 
         {_, filename} ->
           filename
-          |> to_string
+          |> to_string()
           |> String.split(";")
           |> List.last()
           |> String.trim()

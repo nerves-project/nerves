@@ -16,7 +16,7 @@ defmodule Nerves.EnvTest do
 
       env_pkgs =
         packages
-        |> load_env
+        |> load_env()
         |> Enum.map(& &1.app)
         |> Enum.map(&Atom.to_string/1)
         |> Enum.sort()
@@ -156,7 +156,7 @@ defmodule Nerves.EnvTest do
     test "exported at bootstrap" do
       in_fixture("simple_app", fn ->
         ~w(system toolchain system_platform toolchain_platform)
-        |> load_env
+        |> load_env()
 
         System.delete_env("TARGET_CPU")
         System.delete_env("TARGET_GCC_FLAGS")

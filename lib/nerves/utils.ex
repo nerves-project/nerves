@@ -20,7 +20,7 @@ defmodule Nerves.Utils do
   @spec random_alpha_num(non_neg_integer()) :: String.t()
   def random_alpha_num(length) do
     Enum.take_random(@alphanum, length)
-    |> to_string
+    |> to_string()
   end
 
   @spec untar(Path.t(), Path.t() | nil) :: {Collectable.t(), exit_status :: non_neg_integer()}
