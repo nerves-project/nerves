@@ -29,13 +29,13 @@ system and the `$MIX_TARGET` tag to use.
 Target | System | Tag
 ------ | ------ | ---
 Raspberry Pi A+, B, B+ | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | `rpi`
-Raspberry Pi 3A and Zero 2 W (32 bits) | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
-Raspberry Pi 3A and Zero 2 W (64 bits) | [nerves_system_rpi0_2](https://github.com/nerves-project/nerves_system_rpi0_2) | `rpi0_2`
 Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
-Raspberry Pi 3A and Zero 2 W | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
 Raspberry Pi 3 B, B+ | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
 Raspberry Pi 4 | [nerves_system_rpi4](https://github.com/nerves-project/nerves_system_rpi4) | `rpi4`
 Raspberry Pi 5 | [nerves_system_rpi5](https://github.com/nerves-project/nerves_system_rpi5) | `rpi5`
+Raspberry Pi Zero | [nerves_system_rpi0](https://github.com/nerves-project/nerves_system_rpi) | `rpi0`
+Raspberry Pi Zero 2W and 3A (32 bits) | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
+Raspberry Pi Zero 2W and 3A (64 bits) | [nerves_system_rpi0_2](https://github.com/nerves-project/nerves_system_rpi0_2) | `rpi0_2`
 BeagleBone Black, BeagleBone Green, BeagleBone Green Wireless, and PocketBeagle. | [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) | `bbb`
 Generic x86_64 | [nerves_system_x86_64](https://github.com/nerves-project/nerves_system_x86_64) | `x86_64`
 OSD32MP1 | [nerves_system_osd32mp1](https://github.com/nerves-project/nerves_system_osd32mp1) | `osd32mp1`
