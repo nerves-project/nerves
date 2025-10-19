@@ -149,7 +149,7 @@ Nerves environment
 Use XX.X GiB memory card found at /dev/sdX? [Yn]
 ```
 
-Press `Y` or the ̀`Enter` key and after a few seconds or minutes, your card will be burnt with your brand new nerves firmware. You can now insert your MicroSD card in your Raspberry Pi!
+Press `Y` or the `Enter` key and after a few seconds or minutes, your card will be burnt with your brand new nerves firmware. You can now insert your MicroSD card in your Raspberry Pi!
 
 Before you boot it, we need to choose a way to connect with it once Nerves is launched. We will describe the easiest method (Ethernet over USB) in this guide, but there is more on the [Connecting to your Nerves Target](connecting-to-a-nerves-target.html) page if you want to take a look at it.
 
