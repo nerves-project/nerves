@@ -29,7 +29,8 @@ system and the `$MIX_TARGET` tag to use.
 Target | System | Tag
 ------ | ------ | ---
 Raspberry Pi A+, B, B+ | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | `rpi`
-Raspberry Pi Zero and Zero W | [nerves_system_rpi0](https://github.com/nerves-project/nerves_system_rpi0) | `rpi0`
+Raspberry Pi 3A and Zero 2 W (32 bits) | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
+Raspberry Pi 3A and Zero 2 W (64 bits) | [nerves_system_rpi0_2](https://github.com/nerves-project/nerves_system_rpi0_2) | `rpi0_2`
 Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
 Raspberry Pi 3A and Zero 2 W | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
 Raspberry Pi 3 B, B+ | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
