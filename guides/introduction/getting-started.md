@@ -24,6 +24,8 @@ This tool removes the friction of burning your first MicroSD card. Nerves Burner
 - [Nerves Livebook](#nerves-livebook) to run Livebook on your device and play with Elixir in no time
 - [Circuits Quickstart](hardware-interfaces.html#elixir-circuits) to learn about controlling leds, and other hardware components with Elixir
 
+This is what [Nerves Burner](https://github.com/nerves-project/nerves_burner) looks like:
+
 ![Nerves burner demo](https://raw.githubusercontent.com/nerves-project/nerves_burner/refs/heads/main/demo.gif)
 
 ## Nerves + Livebook
@@ -182,7 +184,7 @@ The way Nerves does this is by copying your ssh public keys in the firmware and 
 > Since Nerves copies your SSH public keys in the firmware image, make sure you use the same computer to create the firmware and to connect to the device. Otherwise, you will be met with a login prompt.
 
 > #### I can't reach nerves.local {: .warning}
-> If for some reason you can't reach nerves.local, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
+> If for some reason you can't reach `nerves.local`, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
 
 If you are using an HDMI capable Pi and USB is really not working for you, try to connect it to a screen or a TV and see if it displays the [IEx prompt](#using-iex).
 
@@ -404,7 +406,7 @@ Congratulations! 🎊 You've just reached your very own Nerves `Hello world` mom
 
 ## Example projects
 
-If you are interested in exploring other Nerve codebases and projects, you can
+If you are interested in exploring other Nerves codebases and projects, you can
 check out our [collection of example projects](https://github.com/nerves-project/nerves_examples).
 
 Be sure to set your `MIX_TARGET` environment variable appropriately for the
