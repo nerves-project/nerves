@@ -23,6 +23,7 @@ Looking for the fastest way to get started with discovering Nerves? Then we stro
 This tool removes the friction of burning your first MicroSD card. Nerves Burner supports:
 - [Nerves Livebook](#nerves-livebook) to run Livebook on your device and play with Elixir in no time
 - [Circuits Quickstart](hardware-interfaces.html#elixir-circuits) to learn about controlling leds, and other hardware components with Elixir
+- Setting up Wifi so you can easily connect to your device
 
 This is what [Nerves Burner](https://github.com/nerves-project/nerves_burner) looks like:
 
