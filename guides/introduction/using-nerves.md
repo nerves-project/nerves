@@ -61,7 +61,7 @@ host.
 > `-d <device>` argument to the command. For example
 > `mix firmware.burn -d /dev/rdisk3`
 >
-> You can alse use `-d <filename>` to specify an output file that is a raw
+> You can also use `-d <filename>` to specify an output file that is a raw
 > image of the SD card. This binary image can be burned to an SD card using
 > [Raspberry Pi Imager](https://www.raspberrypi.com/software/), [Etcher](https://www.balena.io/etcher/), `dd`, `Win32DiskImager`, or other image copying utilities.
 
