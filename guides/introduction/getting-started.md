@@ -16,6 +16,16 @@ the first OS processes and lets Erlang and Elixir take over from there. Not to
 fear, if you need something from Linux, Nerves provides a way to use most of the
 packages available through [Buildroot](https://buildroot.org).
 
+## Nerves Burner
+
+Looking for the fastest way to get started with discovering Nerves? Then we strongly recommend to check out [Nerves Burner](https://github.com/nerves-project/nerves_burner).
+
+This tool removes the friction of burning your first MicroSD card. Nerves Burner supports:
+- [Nerves Livebook](#nerves-livebook) to run Livebook on your device and play with Elixir in no time
+- [Circuits Quickstart](hardware-interfaces.html#elixir-circuits) to learn about controlling leds, and other hardware components with Elixir
+
+![Nerves burner demo](https://raw.githubusercontent.com/nerves-project/nerves_burner/refs/heads/main/demo.gif)
+
 ## Nerves + Livebook
 
 A great path to exploring Nerves for the first time is by setting up the
