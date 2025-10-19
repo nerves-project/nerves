@@ -76,13 +76,14 @@ Target | System | Tag
 Raspberry Pi A+, B, B+ | [nerves_system_rpi](https://github.com/nerves-project/nerves_system_rpi) | `rpi`
 Raspberry Pi Zero and Zero W | [nerves_system_rpi0](https://github.com/nerves-project/nerves_system_rpi0) | `rpi0`
 Raspberry Pi 2 | [nerves_system_rpi2](https://github.com/nerves-project/nerves_system_rpi2) | `rpi2`
-Raspberry Pi 3A and Zero 2 W | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
+Raspberry Pi 3A and Zero 2 W (32 bits) | [nerves_system_rpi3a](https://github.com/nerves-project/nerves_system_rpi3a) | `rpi3a`
+Raspberry Pi 3A and Zero 2 W (64 bits) | [nerves_system_rpi0_2](https://github.com/nerves-project/nerves_system_rpi0_2) | `rpi0_2`
 Raspberry Pi 3 B, B+ | [nerves_system_rpi3](https://github.com/nerves-project/nerves_system_rpi3) | `rpi3`
 Raspberry Pi 4 | [nerves_system_rpi4](https://github.com/nerves-project/nerves_system_rpi4) | `rpi4`
 Raspberry Pi 5 | [nerves_system_rpi5](https://github.com/nerves-project/nerves_system_rpi5) | `rpi5`
 
 > #### One Nerves System can support multiple Pis {: .info}
-> Note that some Pi versions or variations share the same system! For instance, you'll need to use `nerves_system_rpi3a` for a Raspberry Pi Zero 2W, so look carefully to make sure you pick the right system.
+> Note that some Pi versions or variations share the same system! For instance, you'll need to use `nerves_system_rpi3a` for a Raspberry Pi Zero 2W running at 32 bits and `nerves_system_rpi0_2` for a Raspberry Pi Zero 2W 64 bits, so look carefully to make sure you pick the right system.
 
 > #### What is my device's _MIX_TARGET_? {: .tip}
 >
@@ -90,15 +91,15 @@ Raspberry Pi 5 | [nerves_system_rpi5](https://github.com/nerves-project/nerves_s
 > use for each of the boards that Nerves supports. The default target is `host`
 > unless you specify a different target in your environment. If you are not using a Raspberry Pi to follow this guide, you should go take a look and identify the system you need. What is relevant at this point is what's in the `tag` column.
 
-Since the Raspberry Pi Zero 2W is the cheapest device you can find that supports Nerves, we will assume that's the target you are using for the rest of this guide.
+Since the Raspberry Pi Zero 2W is the cheapest device you can find that supports Nerves, we will assume that's the target you are using for the rest of this guide. We will use the 64 bits flavour of the system, hence using the tag `rpi0_2` throughout this guide.
 
-The target is chosen using a shell environment variable called `MIX_TARGET`. Do not forget to replace the `rpi3a` in the examples below with the right `tag` for your target.
+The target is chosen using a shell environment variable called `MIX_TARGET`. Do not forget to replace the `rpi0_2` in the examples below with the right `tag` for your target.
 
 > #### MIX_TARGET Pro tip {: .tip}
 >
 > It is not mandatory, but you can set the `MIX_TARGET` environment variable once and for all in your current shell using:
 >
-> `export MIX_TARGET=rpi3a`
+> `export MIX_TARGET=rpi0_2`
 >
 > You will have to do this again if you close your terminal or if you open a new one though.
 >
@@ -114,13 +115,13 @@ Let's get all the dependencies that our system needs.
 
 ```bash
 cd hello_nerves
-MIX_TARGET=rpi3a mix deps.get
+MIX_TARGET=rpi0_2 mix deps.get
 ```
 
 You should now have installed all the dependencies required! If you encounter any issues at this point, make sure you've followed the [Installation Guide](installation.html) properly. It's time to build our first firmware with:
 
 ```bash
-MIX_TARGET=rpi3a mix firmware
+MIX_TARGET=rpi0_2 mix firmware
 ```
 
 After a couple minutes at most, you should see the following message:
@@ -137,7 +138,7 @@ It's time to burn our firmware and try it out on our Raspberry Pi! 🔥
 Insert your MicroSD card in your computer and run the following command:
 
 ```bash
-MIX_TARGET=rpi3a mix firmware.burn
+MIX_TARGET=rpi0_2 mix firmware.burn
 ```
 
 > #### Warning - This will wipe any existing data on your card {: .warning}
@@ -153,7 +154,7 @@ Nerves should automatically discover the right drive to flash the image and ask 
 ==> hello_nerves
 
 Nerves environment
-  MIX_TARGET:   rpi3a
+  MIX_TARGET:   rpi0_2
   MIX_ENV:      dev
 
 Use XX.X GiB memory card found at /dev/sdX? [Yn]
@@ -200,7 +201,7 @@ Interactive Elixir (1.18.3) - press Ctrl+C to exit (type h() ENTER for help)
 █▌  ▄▄  ▀▀  ▐█   N  E  R  V  E  S
 █▌  ▀▀██▄▄  ▐█
 ███▌    ▀▀████
-hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi3a
+hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi0_2
   Uptime       : 1 days, 3 hours, 6 minutes and 29 seconds
   Clock        : 2022-08-11 21:44:09 EDT
 
@@ -264,6 +265,7 @@ defmodule HelloNerves.MixProject do
   @all_targets [
     :rpi,
     :rpi0,
+    :rpi0_2,
     :rpi2,
     :rpi3,
     :rpi3a,
@@ -316,6 +318,7 @@ defmodule HelloNerves.MixProject do
       # ...
       {:nerves_system_rpi, "~> 1.24", runtime: false, targets: :rpi},
       {:nerves_system_rpi0, "~> 1.24", runtime: false, targets: :rpi0},
+      {:nerves_system_rpi0_2, "~> 1.24", runtime: false, targets: :rpi0_2},
       {:nerves_system_rpi2, "~> 1.24", runtime: false, targets: :rpi2},
       {:nerves_system_rpi3, "~> 1.24", runtime: false, targets: :rpi3},
       {:nerves_system_rpi3a, "~> 1.24", runtime: false, targets: :rpi3a},
@@ -379,13 +382,13 @@ Let's just change `:world` to `:nerves` 😉
 Save the file and rebuild the firmware with:
 
 ```bash
-MIX_TARGET=rpi3a mix firmware
+MIX_TARGET=rpi0_2 mix firmware
 ```
 
 Since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network. We don't need to run `firmware.burn` anymore.
 
 ```bash
-MIX_TARGET=rpi3a mix upload
+MIX_TARGET=rpi0_2 mix upload
 ```
 
 It will push your new version of the firmware and reboot the target. Once it is accessible again, run `ssh nerves.local`. When you get to the IEx prompt, you should see the following when calling the `hello` function:
@@ -416,7 +419,7 @@ on your target to confirm that it works in the simplest case.
 
 ```bash
 git clone https://github.com/nerves-project/nerves_examples
-export MIX_TARGET=rpi3a
+export MIX_TARGET=rpi0_2
 cd nerves_examples/blinky
 mix do deps.get, firmware, firmware.burn
 ```
