@@ -1,3 +1,12 @@
+<!--
+  SPDX-FileCopyrightText: 2018 Frank Hunleth
+  SPDX-FileCopyrightText: 2018 Justin Schneck
+  SPDX-FileCopyrightText: 2019 Jason Axelson
+  SPDX-FileCopyrightText: 2020 Kian-Meng, Ang
+  SPDX-FileCopyrightText: 2024 Eric Rauer
+  SPDX-FileCopyrightText: 2024 Lucas Sifoni
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Updating Projects
 
 Please review this guide before updating your projects. Help is available via

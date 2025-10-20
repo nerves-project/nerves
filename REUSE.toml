@@ -21,31 +21,6 @@ SPDX-License-Identifier = "CC0-1.0"
 
 [[annotations]]
 path = [
- "README.md",
- "guides/advanced/environment-variables.md",
- "guides/advanced/updating-projects.md",
- "guides/advanced/advanced-configuration.md",
- "guides/advanced/customizing-systems.md",
- "guides/advanced/internals.md",
- "guides/advanced/systems.md",
- "guides/advanced/compiling-non-beam-code.md",
- "guides/advanced/building-sytems.md",
- "guides/advanced/experimental-features.md",
- "guides/core/faq.md",
- "guides/core/supported-targets.md",
- "guides/core/iex-with-nerves.md",
- "guides/core/connecting-to-a-nerves-target.md",
- "guides/core/user-interfaces.md",
- "guides/introduction/getting-started.md",
- "guides/introduction/installation.md",
- "guides/README.md"
-]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2016 Frank Hunleth, Justin Schneck"
-SPDX-License-Identifier = "CC-BY-4.0"
-
-[[annotations]]
-path = [
  "resources/logo-color.png",
  "resources/logo.png"
 ]

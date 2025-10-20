@@ -1,3 +1,7 @@
+<!--
+  SPDX-FileCopyrightText: 2025 Marc Lainez
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Hardware Interfaces
 
 ## Elixir Circuits

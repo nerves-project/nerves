@@ -1,3 +1,16 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2017 Frank Hunleth
+  SPDX-FileCopyrightText: 2017 Greg Mefford
+  SPDX-FileCopyrightText: 2017 Jeff Smith
+  SPDX-FileCopyrightText: 2017 Xavier Damman
+  SPDX-FileCopyrightText: 2020 Jon Carstens
+  SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2022 Rui Lopes
+  SPDX-FileCopyrightText: 2023 Dave Purrington
+  SPDX-FileCopyrightText: 2024 Cocoa Xu
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Nerves
 
 [![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)

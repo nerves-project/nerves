@@ -1,3 +1,12 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2019 Greg Mefford
+  SPDX-FileCopyrightText: 2021 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2022 Jon Carstens
+  SPDX-FileCopyrightText: 2024 Christoph Lupprich
+  SPDX-FileCopyrightText: 2024 Lars Wikman
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # User Interfaces
 
 ## Phoenix web interface

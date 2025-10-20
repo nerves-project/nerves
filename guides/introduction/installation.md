@@ -1,3 +1,21 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Frank Hunleth
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2017 Greg Mefford
+  SPDX-FileCopyrightText: 2018 Nick Veys
+  SPDX-FileCopyrightText: 2020 Connor Rigby
+  SPDX-FileCopyrightText: 2020 J Allen
+  SPDX-FileCopyrightText: 2020 Kian-Meng, Ang
+  SPDX-FileCopyrightText: 2020 Petrus Janse van Rensburg
+  SPDX-FileCopyrightText: 2020 aguirrem
+  SPDX-FileCopyrightText: 2022 Jason Johnson
+  SPDX-FileCopyrightText: 2022 Travis Graham
+  SPDX-FileCopyrightText: 2023 Joel Shprentz
+  SPDX-FileCopyrightText: 2023 Matteo Briani
+  SPDX-FileCopyrightText: 2024 Emmanuel Ferdman
+  SPDX-FileCopyrightText: 2024 Jon Carstens
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Installation
 
 Nerves requires a number of programs on your system to work. These include

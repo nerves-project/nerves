@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2024 Damir Batinović
+  SPDX-FileCopyrightText: 2024 Masatoshi Nishiguchi
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Building Nerves Systems using `nerves_systems` repository
 
 This guide provides instructions for building custom Nerves systems using the [`nerves_systems`](https://github.com/nerves-project/nerves_systems) repository.

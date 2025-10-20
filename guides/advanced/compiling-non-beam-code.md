@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2021 Frank Hunleth
+  SPDX-FileCopyrightText: 2022 Jon Carstens
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Compiling Non-BEAM Code
 
 It's almost guaranteed that you'll have some code in your project that won't be

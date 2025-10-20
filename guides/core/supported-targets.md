@@ -1,3 +1,15 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2017 Frank Hunleth
+  SPDX-FileCopyrightText: 2017 Greg Mefford
+  SPDX-FileCopyrightText: 2017 Tim Mecklem
+  SPDX-FileCopyrightText: 2018 Anders
+  SPDX-FileCopyrightText: 2020 parkerduckworth
+  SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-FileCopyrightText: 2024 Peter
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Supported Targets
 
 Nerves supports a variety of hardware. These are called targets and are

@@ -1,3 +1,10 @@
+<!--
+  SPDX-FileCopyrightText: 2020 Frank Hunleth
+  SPDX-FileCopyrightText: 2020 Justin Schneck
+  SPDX-FileCopyrightText: 2020 Kian-Meng, Ang
+  SPDX-FileCopyrightText: 2021 Bruce Wong
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Experimental features
 
 The features described in this document are experimental. They are under

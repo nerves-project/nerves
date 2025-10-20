@@ -1,3 +1,10 @@
+<!--
+  SPDX-FileCopyrightText: 2017 Michael Schmidt
+  SPDX-FileCopyrightText: 2018 Connor Rigby
+  SPDX-FileCopyrightText: 2018 Justin Schneck
+  SPDX-FileCopyrightText: 2020 Kian-Meng, Ang
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Nerves Internals
 
 The nerves bootstrapping process has several steps.  Its goal is to locate

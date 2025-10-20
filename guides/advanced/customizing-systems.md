@@ -1,3 +1,14 @@
+<!--
+  SPDX-FileCopyrightText: 2019 Connor Rigby
+  SPDX-FileCopyrightText: 2019 Frank Hunleth
+  SPDX-FileCopyrightText: 2019 Greg Mefford
+  SPDX-FileCopyrightText: 2020 Jon Carstens
+  SPDX-FileCopyrightText: 2020 Matt Ludwigs
+  SPDX-FileCopyrightText: 2022 Jason Axelson
+  SPDX-FileCopyrightText: 2023 James Harton
+  SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Customizing Your Nerves System
 
 Before following this guide, you should probably read about

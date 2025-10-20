@@ -1,3 +1,8 @@
+<!--
+  SPDX-FileCopyrightText: 2022 Jon Carstens
+  SPDX-FileCopyrightText: 2023 Frank Hunleth
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Environment variables
 
 Nerves uses environment variables to control the build process and pass

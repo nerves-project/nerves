@@ -1,3 +1,17 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2017 Greg Mefford
+  SPDX-FileCopyrightText: 2018 Connor Rigby
+  SPDX-FileCopyrightText: 2018 Frank Hunleth
+  SPDX-FileCopyrightText: 2018 Matt Ludwigs
+  SPDX-FileCopyrightText: 2018 Tim Mecklem
+  SPDX-FileCopyrightText: 2019 Alexander Buch
+  SPDX-FileCopyrightText: 2019 Jon Carstens
+  SPDX-FileCopyrightText: 2019 Peter Kropf
+  SPDX-FileCopyrightText: 2021 Rick Carlino
+  SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Systems
 
 ## Using a Nerves System

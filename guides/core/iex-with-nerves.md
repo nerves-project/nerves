@@ -1,3 +1,9 @@
+<!--
+  SPDX-FileCopyrightText: 2021 Frank Hunleth
+  SPDX-FileCopyrightText: 2022 Jon Carstens
+  SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # IEx with Nerves
 
 Nerves greets you with a prompt for Elixir's interactive shell (IEx). This

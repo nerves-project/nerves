@@ -1,3 +1,13 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Greg Mefford
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2018 Brien Wankel
+  SPDX-FileCopyrightText: 2018 Frank Hunleth
+  SPDX-FileCopyrightText: 2019 Dean Chouinard
+  SPDX-FileCopyrightText: 2021 Jason Axelson
+  SPDX-FileCopyrightText: 2025 Lars Wikman
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Advanced Configuration
 
 ## Target-Specific Configuration

@@ -1,3 +1,14 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Justin Schneck
+  SPDX-FileCopyrightText: 2017 Greg Mefford
+  SPDX-FileCopyrightText: 2018 Frank Hunleth
+  SPDX-FileCopyrightText: 2019 Dean Chouinard
+  SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2023 Andrew Henkel
+  SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-FileCopyrightText: 2025 Marc Lainez
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Getting Started
 
 ## Introduction

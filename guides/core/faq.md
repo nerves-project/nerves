@@ -1,3 +1,12 @@
+<!--
+  SPDX-FileCopyrightText: 2016 Greg Mefford
+  SPDX-FileCopyrightText: 2020 Frank Hunleth
+  SPDX-FileCopyrightText: 2020 Kian-Meng, Ang
+  SPDX-FileCopyrightText: 2021 Jason Axelson
+  SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-FileCopyrightText: 2024 Lucas Sifoni
+  SPDX-License-Identifier: CC-BY-4.0
+-->
 # Frequently Asked Questions
 
 This is a collection of questions that often come up as people are getting
