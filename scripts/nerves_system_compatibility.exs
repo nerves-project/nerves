@@ -148,7 +148,7 @@ defmodule NervesSystemCompatibility do
         nerves_system_br_version: nerves_system_br_version,
         linux_version: Database.get({target, version, :linux_version}),
         buildroot_version: Database.get({:br, nerves_system_br_version, :buildroot_version}),
-        otp_version: Database.get({:br, nerves_system_br_version, :otp_version})
+        otp_version: Database.get({target, version, :otp_version})
       }
     end
 
@@ -188,9 +188,11 @@ defmodule NervesSystemCompatibility do
         put({target, :versions}, versions)
 
         for version <- versions do
+          nerves_system_br_version = Repo.get_nerves_system_br_version_for_target(target, version)
+
           put(
             {target, version, :nerves_system_br_version},
-            Repo.get_nerves_system_br_version_for_target(target, version)
+            nerves_system_br_version
           )
 
           put(
@@ -201,6 +203,11 @@ defmodule NervesSystemCompatibility do
           put(
             {target, version, :linux_version},
             Repo.get_linux_version_for_target(target, version)
+          )
+
+          put(
+            {target, version, :otp_version},
+            Repo.get_otp_version_for_target(target, version, nerves_system_br_version)
           )
 
           IO.write(".")
@@ -288,17 +295,17 @@ defmodule NervesSystemCompatibility do
       cd = "#{@download_dir}/nerves_system_#{target}"
 
       cmd =
-        "cd #{cd} && git checkout v#{version} > /dev/null 2>&1 && grep :nerves_system_br, mix.exs"
+        "cd #{cd} && git checkout v#{version} > /dev/null 2>&1 && cat mix.lock"
 
       case System.shell(cmd) do
         {result, 0} ->
           captures =
             Regex.named_captures(
-              ~r/:nerves_system_br, "(?<nerves_system_br_version>.*)"/i,
+              ~r/"nerves_system_br".*:nerves_system_br, "(?<nerves_system_br_version>[0-9.]+)"/,
               result
             )
 
-          captures["nerves_system_br_version"]
+          if captures, do: captures["nerves_system_br_version"]
 
         _ ->
           nil
@@ -347,79 +354,113 @@ defmodule NervesSystemCompatibility do
     end
 
     def get_otp_version(nerves_system_br_version) do
-      cond do
-        Version.match?(nerves_system_br_version, ">= 1.12.0") ->
-          get_otp_version_from_nerves_system_br_tool_versions(nerves_system_br_version)
+      # Get the default OTP version from the patch file (the else clause)
+      get_otp_version_from_patch_file(nerves_system_br_version)
+    end
 
-        Version.match?(nerves_system_br_version, ">= 1.7.3") ->
-          get_otp_version_from_dockerfile(nerves_system_br_version)
+    def get_otp_version_from_patch_file(nerves_system_br_version) do
+      cd = "#{@download_dir}/nerves_system_br"
 
-        Version.match?(nerves_system_br_version, ">= 0.2.3") ->
-          get_otp_version_from_patch(nerves_system_br_version)
+      patch_cmd =
+        "cd #{cd} && git checkout v#{nerves_system_br_version} > /dev/null 2>&1 && find patches/buildroot -name '*erlang-support-OTP*.patch' -exec cat {} \\; 2>/dev/null"
 
-        true ->
-          raise "unsupported nerves_system_br version #{nerves_system_br_version}"
+      case System.shell(patch_cmd) do
+        {patch_content, 0} when patch_content != "" ->
+          version_map = parse_erlang_versions_from_patch(patch_content)
+          Map.get(version_map, :default)
+
+        _ ->
+          # Fallback to old method for older versions
+          get_otp_version_from_patch_filename(nerves_system_br_version)
       end
     end
 
-    def get_otp_version_from_nerves_system_br_tool_versions(nerves_system_br_version) do
-      cd = "#{@download_dir}/nerves_system_br"
+    defp parse_erlang_versions_from_patch(patch_content) do
+      lines = String.split(patch_content, "\n")
 
-      cmd =
-        "cd #{cd} && git checkout v#{nerves_system_br_version} > /dev/null 2>&1 && cat .tool-versions"
+      {version_map, _current_condition} =
+        Enum.reduce(lines, {%{}, nil}, fn line, {map, current_condition} ->
+          cond do
+            # Match ifeq condition for specific OTP major version
+            String.contains?(line, "ifeq") && String.contains?(line, "BR2_PACKAGE_ERLANG_") ->
+              case Regex.named_captures(~r/BR2_PACKAGE_ERLANG_(?<major>\d+)/, line) do
+                %{"major" => major} -> {map, String.to_integer(major)}
+                _ -> {map, current_condition}
+              end
 
-      case System.shell(cmd) do
-        {result, 0} ->
-          captures = Regex.named_captures(~r/erlang (?<otp_version>[0-9.]*)/, result)
-          captures["otp_version"]
+            # Match ERLANG_VERSION line with a current condition (specific major version)
+            String.contains?(line, "ERLANG_VERSION = ") && current_condition != nil ->
+              case Regex.named_captures(~r/ERLANG_VERSION = (?<version>[\d.]+)/, line) do
+                %{"version" => version} ->
+                  {Map.put(map, current_condition, version), current_condition}
+
+                _ ->
+                  {map, current_condition}
+              end
+
+            # Match ERLANG_VERSION in else clause (no condition = default)
+            String.contains?(line, "ERLANG_VERSION = ") && current_condition == nil ->
+              case Regex.named_captures(~r/ERLANG_VERSION = (?<version>[\d.]+)/, line) do
+                %{"version" => version} ->
+                  {Map.put(map, :default, version), current_condition}
+
+                _ ->
+                  {map, current_condition}
+              end
+
+            # Reset condition on else
+            String.contains?(line, "+else") ->
+              {map, nil}
+
+            true ->
+              {map, current_condition}
+          end
+        end)
+
+      version_map
+    end
+
+    def get_otp_version_for_target(target, version, nerves_system_br_version) do
+      cd = "#{@download_dir}/nerves_system_#{target}"
+
+      defconfig_cmd =
+        "cd #{cd} && git checkout v#{version} > /dev/null 2>&1 && cat nerves_defconfig"
+
+      case System.shell(defconfig_cmd) do
+        {defconfig_content, 0} ->
+          # Look for BR2_PACKAGE_ERLANG_XX=y in nerves_defconfig
+          case Regex.named_captures(~r/BR2_PACKAGE_ERLANG_(?<major>\d+)=y/, defconfig_content) do
+            %{"major" => major} ->
+              # Get the version from the patch file for this major version
+              get_otp_version_for_major(nerves_system_br_version, String.to_integer(major))
+
+            _ ->
+              # No specific version specified, use the default from patch file
+              get_otp_version(nerves_system_br_version)
+          end
 
         _ ->
           nil
       end
     end
 
-    def get_otp_version_from_dockerfile(nerves_system_br_version) do
-      dockerfile =
-        cond do
-          Version.match?(nerves_system_br_version, "> 1.4.0") ->
-            "support/docker/nerves_system_br/Dockerfile"
-
-          Version.match?(nerves_system_br_version, ">= 0.16.2") ->
-            "support/docker/nerves/Dockerfile"
-
-          true ->
-            raise "no dockerfile before 0.16.2"
-        end
-
+    defp get_otp_version_for_major(nerves_system_br_version, major_version) do
       cd = "#{@download_dir}/nerves_system_br"
 
-      cmd =
-        "cd #{cd} && git checkout v#{nerves_system_br_version} > /dev/null 2>&1 && cat #{dockerfile}"
+      patch_cmd =
+        "cd #{cd} && git checkout v#{nerves_system_br_version} > /dev/null 2>&1 && find patches/buildroot -name '*erlang-support-OTP*.patch' -exec cat {} \\; 2>/dev/null"
 
-      case System.shell(cmd) do
-        {result, 0} ->
-          captures =
-            [
-              Regex.named_captures(
-                ~r/FROM hexpm\/erlang\:(?<otp_version>(\d+\.)?(\d+\.)?(\*|\d+))/i,
-                result
-              ),
-              Regex.named_captures(
-                ~r/ERLANG_OTP_VERSION=(?<otp_version>(\d+\.)?(\d+\.)?(\*|\d+))/i,
-                result
-              )
-            ]
-            |> Enum.reject(&is_nil/1)
-            |> List.first()
-
-          if captures, do: captures["otp_version"]
+      case System.shell(patch_cmd) do
+        {patch_content, 0} when patch_content != "" ->
+          version_map = parse_erlang_versions_from_patch(patch_content)
+          Map.get(version_map, major_version) || Map.get(version_map, :default)
 
         _ ->
           nil
       end
     end
 
-    def get_otp_version_from_patch(nerves_system_br_version) do
+    def get_otp_version_from_patch_filename(nerves_system_br_version) do
       cd = "#{@download_dir}/nerves_system_br"
 
       cmd =
