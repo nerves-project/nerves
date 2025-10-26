@@ -14,7 +14,7 @@
 ## Introduction
 
 Nerves provides tooling and libraries for building software images to run on embedded systems.
-It uses the the rock-solid [Erlang virtual machine](https://www.erlang.org/),
+It uses the rock-solid [Erlang virtual machine](https://www.erlang.org/),
 and brings the happy development experience of Elixir to your micro computers.
 
 While the Nerves project provides base runtime libraries for hardware access and
