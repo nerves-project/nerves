@@ -76,7 +76,7 @@ you produce a system directly using Buildroot and want to force Nerves to use it
 ### nerves_env.exs
   * Sets the cross compile flags
   * NERVES_SYSTEM and NERVES_TOOLCHAIN must be defined prior
-  * Everything thing run after will try to cross compile
+  * Everything run after will try to cross compile
 
 ### nerves_system/.nerves/artifacts/nerves_system_*
    * "package" directory
