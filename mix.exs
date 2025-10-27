@@ -14,7 +14,7 @@ defmodule Nerves.MixProject do
     [
       app: :nerves,
       version: @version,
-      elixir: "~> 1.14.0 or ~> 1.15.1 or ~> 1.16.0 or ~> 1.17.0 or ~> 1.18.0",
+      elixir: "~> 1.14.0 or ~> 1.15.1 or ~> 1.16.0 or ~> 1.17.0 or ~> 1.18.0 or ~> 1.19.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       description: description(),
@@ -25,7 +25,8 @@ defmodule Nerves.MixProject do
       docs: docs(),
       dialyzer: dialyzer(),
       aliases: ["archive.build": &raise_on_archive_build/1],
-      xref: [exclude: [Nerves.Bootstrap]]
+      xref: [exclude: [Nerves.Bootstrap]],
+      test_ignore_filters: [~r/test.fixtures.*/]
     ]
   end
 
