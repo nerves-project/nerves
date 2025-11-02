@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.12.0 - 2025-11-01
+
+This release includes support for Elixir 1.19 (minimum is 1.15.1).
+
+The getting started and Nerves system building guides have many improvements
+throughout. Thanks to @mlainez and @Damirados for their many contributions.
+
+* Changes
+  * The ssh-askpass program is no longer required on Linux to elevate privileges
+    to flash MicroSD cards. Password entry is via the CLI.
+  * `mix burn` now works with asdf-installed versions of `fwup`
+  * Allow the `:nerves, :firmware, :fwup_conf` configuration option to be an
+    absolute path
+
+* Known issues
+  * Concurrent compilation is not supported on Elixir 1.19. Nerves will
+    automatically force `MIX_OS_DEPS_COMPILE_PARTITION_COUNT` to `1` if it is
+    set.
+
 ## v1.11.3 - 2025-01-06
 
 This release supports warning-free builds with Elixir 1.18. It should be a low
