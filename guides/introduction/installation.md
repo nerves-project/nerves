@@ -141,10 +141,10 @@ mkShell {
     autoconf
     automake
     curl
-    erlangR25
+    erlangR28
     fwup
     git
-    pkgs.beam.packages.erlangR25.elixir
+    pkgs.beam.packages.erlangR28.elixir
     rebar3
     squashfsTools
     pkg-config
@@ -196,17 +196,17 @@ Erlang/OTP and Elixir:
 asdf plugin add erlang
 asdf plugin add elixir
 
-asdf install erlang 27.3.3
-asdf install elixir 1.18.3-otp-27
-asdf set -u erlang 27.3.3
-asdf set -u elixir 1.18.3-otp-27
+asdf install erlang 28.1.1
+asdf install elixir 1.19.1-otp-28
+asdf set -u erlang 28.1.1
+asdf set -u elixir 1.19.1-otp-28
 ```
 
 ### mise
 
 ```sh
-mise use -g erlang@27.3.3
-mise use -g elixir@1.18.3-otp-27
+mise use -g erlang@28.1.1
+mise use -g elixir@1.19.1-otp-28
 ```
 
 > #### Auto plugin install {: .tip}
