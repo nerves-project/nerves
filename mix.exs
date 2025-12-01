@@ -45,6 +45,7 @@ defmodule Nerves.MixProject do
     [
       {:castore, "~> 0.1 or ~> 1.0"},
       {:elixir_make, "~> 0.6", runtime: false},
+      {:interactive_cmd, "~> 0.1.2"},
       {:jason, "~> 1.2"},
       {:credo, "~> 1.6", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
