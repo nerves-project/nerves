@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Burn do
       end
 
     set_provisioning(firmware_config[:provisioning])
-    _ = burn(fw, dev, opts, argv)
+    burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
     WSL.cleanup_file(fw, firmware_location)
@@ -106,10 +106,13 @@ defmodule Mix.Tasks.Burn do
           {"fwup", args}
 
         {_, type} ->
-          raise "Unable to burn firmware on your host #{inspect(type)}"
+          Mix.raise("Unable to burn firmware on your host #{inspect(type)}")
       end
 
-    interactive_shell(cmd, args)
+    case InteractiveCmd.cmd(cmd, args) do
+      {_, 0} -> :ok
+      {_, status} -> Mix.raise("fwup exited with an error status: #{status}")
+    end
   end
 
   defp maybe_elevated_user_fwup(dev, args) do
