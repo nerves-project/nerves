@@ -71,7 +71,7 @@ Hardware alternative: you can add your own external resistor (e.g., 10 kΩ) inst
 
 Choose one style and keep it consistent in wiring + code:
 - Button to GND + pull-up (recommended) will read 0 when pressed
-- Button to 3.3 V + pull-down will read 1 when pressed
+- Button to 3.3 V + pull-up will read 0 when pressed
 
 ### Recommended pins on a Raspberry Pi
 
@@ -79,7 +79,7 @@ To keep things consistent with common examples:
 
 - LED output: GPIO 17 (aka BCM/GPIO 17, physical pin 11)
 - Button input: GPIO 27 (aka BCM/GPIO 27, physical pin 13)
-- Ground: any GND pin (e.g., physical pin 9 or 6)
+- Ground: any GND pin (e.g., physical pin 9)
 - 3.3 V power: physical pin 1 (for other circuits; not needed for the LED with the wiring below)
 
 If you’re unsure about pin names vs. physical locations, see the [Raspberry Pi pinout](https://pinout.xyz/). "BCM/GPIO" numbers are what you’ll use in software.
@@ -90,16 +90,40 @@ If you’re unsure about pin names vs. physical locations, see the [Raspberry Pi
 2. Connect a resistor (220–330 Ω) from the long leg to a row on the breadboard.
 3. Use a female‑to‑male jumper to connect that resistor’s other end to the Pi’s physical pin 11 (BCM/GPIO 17).
 4. Connect the LED’s short leg to GND (e.g., physical pin 9) using another jumper.
+5. Now start your pi and connect to it via ssh.
+6. In IEx, you can now run the following commands to light up your LED!
+
+```elixir
+# We set GPIO 17 as output pin
+{:ok, led} = Circuits.GPIO.open("GPIO17", :output)
+# We set it to high, so 3.3V
+Circuits.GPIO.write(led, 1)
+```
+
+![Connecting an LED to the rpi zero 2W](assets/nerves_led_rpi0_2W.png)
 
 This makes the LED turn on when GPIO 17 is set HIGH (3.3 V) and off when set LOW (0 V).
+
+For a concrete example using this in an actual firmware, you can check the [Hello GPIO example](https://github.com/nerves-project/nerves_examples/tree/main/hello_gpio) on github.
 
 ### Wire the button (input)
 
 1. Place a 6×6 mm tactile button so it straddles the breadboard gap (so its two sides aren’t already connected).
 2. Connect one leg of the button to the Pi’s physical pin 13 (BCM/GPIO 27).
 3. Connect the opposite leg of the button to GND (e.g., physical pin 9).
+4. Now start your pi and connect to is via ssh.
+5. In IEx, you can run the following code to see how the button behaves!
 
-In software, you’ll enable the GPIO’s internal pull‑up so that the input reads “1” normally and “0” when the button is pressed (because it’s connected to GND).
+```elixir
+# We set GPIO 27 as input, with the internal pullup resistor
+{:ok, btn} = Circuits.GPIO.open("GPIO27", :input, pull_mode: :pullup)
+Circuits.GPIO.read(btn)
+# Run this while holding the button pressed or released to see change
+```
+
+![Connecting a push button to the rpi zero 2W](assets/nerves_press_rpi0_2W.png)
+
+For a concrete example using this in an actual firmware, you can check the [Hello GPIO example](https://github.com/nerves-project/nerves_examples/tree/main/hello_gpio) on github.
 
 ### Common mistakes
 
