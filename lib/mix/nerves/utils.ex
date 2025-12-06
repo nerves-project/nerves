@@ -25,59 +25,6 @@ defmodule Mix.Nerves.Utils do
     Nerves.Port.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 
-  @doc """
-  Starts an interactive shell
-
-  This shell will take over the terminal so that it's possible for the user
-  to interact with whatever program is run. All input is sent to the called
-  application including CTRL+C.
-
-  It's not possible to get the exit code, so this only returns `:ok`.
-
-  Options:
-  * `:env` - a map of string key/value pairs to be put into the environment.
-    See `System.put_env/1`.
-  """
-  @spec interactive_shell(binary(), [binary()], keyword()) :: :ok
-  def interactive_shell(cmd, args, options \\ []) do
-    original_env = System.get_env()
-
-    quoted_args = Enum.map(args, &shell_quote/1)
-    command = Enum.join([shell_quote(cmd) | quoted_args], " ")
-
-    # Everything after the trailing ; gets trimmed, so
-    # the filename that's appended to the end by Erlang's
-    # prompt editor support will get ignored.
-    script_cmd =
-      case :os.type() do
-        {:unix, :linux} -> "script -q /dev/null -c #{shell_quote(command)};"
-        {:unix, _bsd} -> "script -q /dev/null #{command};"
-      end
-
-    System.put_env(Keyword.get(options, :env, %{}))
-    System.put_env("VISUAL", script_cmd)
-    send(:user_drv, {self(), {:open_editor, ""}})
-
-    receive do
-      {_pid, {:editor_data, _result}} -> :ok
-    end
-
-    restore_env(original_env)
-  end
-
-  defp restore_env(original) do
-    env = System.get_env()
-    System.put_env(original)
-
-    to_delete = Map.keys(env) -- Map.keys(original)
-    Enum.each(to_delete, &System.delete_env/1)
-  end
-
-  defp shell_quote(str) do
-    escaped = String.replace(str, "'", "'\\''")
-    "'#{escaped}'"
-  end
-
   @spec debug_info(String.t()) :: :ok
   def debug_info(msg) do
     if System.get_env("NERVES_DEBUG") == "1" do
