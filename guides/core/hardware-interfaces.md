@@ -69,10 +69,6 @@ In software with Circuits.GPIO you choose the mode when opening the pin:
 
 Hardware alternative: you can add your own external resistor (e.g., 10 kΩ) instead of using the internal one. Beginners usually start with the internal version because it’s simpler.
 
-Choose one style and keep it consistent in wiring + code:
-- Button to GND + pull-up (recommended) will read 0 when pressed
-- Button to 3.3 V + pull-up will read 0 when pressed
-
 ### Recommended pins on a Raspberry Pi
 
 To keep things consistent with common examples:
