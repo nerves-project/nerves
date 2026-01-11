@@ -47,6 +47,8 @@ defmodule Nerves.MixProject do
       {:elixir_make, "~> 0.6", runtime: false},
       {:interactive_cmd, "~> 0.1.2"},
       {:jason, "~> 1.2"},
+      {:nerves_discovery, "~> 0.1.0"},
+      {:tablet, "~> 0.3.1"},
       {:credo, "~> 1.6", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
