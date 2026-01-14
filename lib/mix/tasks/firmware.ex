@@ -285,7 +285,7 @@ defmodule Mix.Tasks.Firmware do
           Path.wildcard([p, "/*"]) != [],
           do: Path.relative_to_cwd(p)
 
-    if length(shadow_mounts) > 0 do
+    if shadow_mounts != [] do
       Mix.raise("""
       The firmware contains overlay files which reference directories that are
       mounted as file systems on the device. The filesystem mount will completely
