@@ -456,7 +456,7 @@ following terms being used.
 
 Do not hesitate to seek for help if you feel stuck at any point during your journey with Nerves.
 
-- [Nerves Discord](https://discord.gg/mJwvhHDV)
+- [Nerves Discord](https://discord.gg/7TqSpepHw7)
 - [Nerves Forum](https://elixirforum.com/c/elixir-framework-forums/nerves-forum/74)
 - [Nerves Meetup](https://www.meetup.com/nerves)
 - [Nerves Newsletter](https://underjord.io/nerves-newsletter.html)
