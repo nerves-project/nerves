@@ -5,6 +5,18 @@
 
 # Changelog
 
+## v1.13.0 - 2025-01-21
+
+This release adds the `nerves.discover` mix task to make it easier to find
+Nerves devices. It discovers devices using mDNS and reports existing devices
+that have hostnames starting with `nerves-`. See
+[nerves_discovery](https://github.com/nerves-networking/nerves_discovery) for
+updating your projects to return much more information.
+
+* Changes
+  * Documentation updates including more information for beginners. (@mlainez)
+  * Return error exit status when `mix burn` fails
+
 ## v1.12.0 - 2025-11-01
 
 This release includes support for Elixir 1.19 (minimum is 1.15.1).
