@@ -251,3 +251,112 @@ Ethernet, refer to the [`nerves_pack`] documentation and the underlying
 [`vintage_net_direct`]: https://hexdocs.pm/vintage_net_direct
 [`nerves_pack`]: https://hexdocs.pm/nerves_pack
 [`vintage_net`]: https://hexdocs.pm/vintage_net
+
+
+### Discovering Nerves Devices on your network
+
+Nerves provides a mix task that you can use to connect to devices running on your network, it allows you to connect to them without needing to keep track of their IP addresses or hostnames. The `mix nerves.discover` task uses mDNS (multicast DNS) to help you find any Nerves device on your network.
+
+#### Using mix nerves.discover
+
+The discovery task scans your local network for Nerves devices and displays their information in a convenient table format:
+
+```bash
+$ mix nerves.discover
+Discovering Nerves devices (waiting up to 5000ms)...
+
+NAME         IP             SERIAL            VERSION  PRODUCT     PLATFORM  UUID
+nerves-0316  192.168.7.128  55e77bfdd5030316  0.2.1    kiosk_demo  rpi5      cbf8c271-2673-51f7-ab08-3de09af404eb
+nerves-8465  192.168.7.48
+```
+
+> #### For Linux users {: .tip}
+> Linux users should install `avahi-utils` for better discovery results.
+> ```bash
+> # On Ubuntu/Debian
+> sudo apt-get install avahi-utils
+> # On Fedora/RHEL
+> sudo dnf install avahi-tools
+> ```
+
+#### Command options
+
+The `mix nerves.discover` supports the following option:
+
+* `--timeout` - Timeout in milliseconds to wait for device replies. Default is 5000ms (5 seconds).
+
+##### Examples
+
+Wait longer for devices to respond (useful on slower networks):
+
+```bash
+mix nerves.discover --timeout 10000
+```
+
+Quick scan with default timeout:
+
+```bash
+mix nerves.discover
+```
+
+#### Understanding the output
+
+The `mix nerves.discover` output displays the following information when available:
+
+| Column | Description |
+| ------ | ----------- |
+| NAME | The hostname of the device |
+| IP | The IP address of the device on the local network |
+| SERIAL | The device serial number (if available) |
+| VERSION | The firmware version running on the device (if available) |
+| PRODUCT | The product name configured in the firmware (if available) |
+| PLATFORM | The target platform (e.g., rpi5, rpi0) (if available) |
+| UUID | The unique identifier for the device (if available) |
+
+> #### Limited information? {: .info}
+>
+> If a device only shows NAME and IP, it means the device isn't
+> advertising firmware attributes. You can still connect to it, but detailed
+> information is not available through this task.
+
+#### Connecting to discovered devices
+
+Once you've discovered devices on your network, you can connect to them using their IP address or their hostname. For SSH access:
+
+```bash
+ssh nerves-0316.local
+```
+
+Or using the IP address directly:
+
+```bash
+ssh 192.168.7.128
+```
+
+#### Troubleshooting
+
+##### No devices found
+
+If `mix nerves.discover` reports "No devices found", try the following:
+
+1. **Verify network connectivity** - Ensure your host and your Nerves devices are on the same local network. mDNS typically doesn't work across network subnets.
+
+2. **Check device status** - Confirm your Nerves devices are powered on and fully booted.
+
+3. **Increase timeout** - Some networks may require a longer discovery period:
+   ```bash
+   mix nerves.discover --timeout 15000
+   ```
+
+4. **Check mDNS service** - On Linux, ensure the Avahi daemon is running:
+   ```bash
+   systemctl status avahi-daemon
+   ```
+
+5. **Firewall settings** - Ensure your firewall isn't blocking mDNS traffic (UDP port 5353).
+
+##### Using the nerves_discovery library
+
+The discovery functionality is provided by the [`nerves_discovery`](https://hex.pm/packages/nerves_discovery) library, which can be used directly in your Elixir programs for programmatic device discovery. This is useful for building custom tooling or integrating discovery into your applications.
+
+See the [`nerves_discovery` documentation](https://hexdocs.pm/nerves_discovery) for more information on using the library in your own code.
