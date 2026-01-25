@@ -198,7 +198,7 @@ The way Nerves does this is by copying your ssh public keys in the firmware and 
 > #### I can't reach nerves.local {: .warning}
 > If for some reason you can't reach `nerves.local`, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
 
-## Connectig to a Nerves target on your network
+## Connecting to a Nerves target on your network
 
 Once you have Nerves devices running on your network (Ethernet or Wifi), you may want to discover and connect to them without manually tracking IP addresses or their hostnames. The `mix nerves.discover` task makes this easy by automatically finding Nerves devices on your local network using mDNS (multicast DNS).
 
