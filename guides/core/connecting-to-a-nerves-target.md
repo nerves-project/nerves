@@ -206,7 +206,7 @@ ssh nerves.local
 You should find yourself at the `iex(hello_nerves@nerves.local)1>` prompt.
 
 To end your ssh connection type `exit`, or you can use the `ssh` command
-`<enter>~.`
+`~.`
 
 > #### _nerves.local_ is an mDNS address {: .info}
 >
@@ -255,7 +255,7 @@ Ethernet, refer to the [`nerves_pack`] documentation and the underlying
 
 ### Discovering Nerves Devices on your network
 
-Nerves provides a mix task that you can use to connect to devices running on your network, it allows you to connect to them without needing to keep track of their IP addresses or hostnames. The `mix nerves.discover` task uses mDNS (multicast DNS) to help you find any Nerves device on your network.
+Nerves provides a mix task that you can use to find devices running on your network, it allows you to connect to them later on without needing to keep track of their IP addresses or hostnames. The `mix nerves.discover` task uses mDNS (multicast DNS) to help you find any Nerves device on your network.
 
 #### Using mix nerves.discover
 
