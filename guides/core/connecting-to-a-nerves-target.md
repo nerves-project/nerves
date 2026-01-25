@@ -206,7 +206,7 @@ ssh nerves.local
 You should find yourself at the `iex(hello_nerves@nerves.local)1>` prompt.
 
 To end your ssh connection type `exit`, or you can use the `ssh` command
-`~.`
+`<enter>~.`
 
 > #### _nerves.local_ is an mDNS address {: .info}
 >
