@@ -198,6 +198,36 @@ The way Nerves does this is by copying your ssh public keys in the firmware and 
 > #### I can't reach nerves.local {: .warning}
 > If for some reason you can't reach `nerves.local`, check your operating system's network settings. You should see a network interface with an IP address starting with `172.31.`. Check the details of that interface and in the `DHCP` settings, check for the `gateway` IP address, this is your target's IP and you can `ssh` to that IP instead of `nerves.local`.
 
+## Connectig to a Nerves target on your network
+
+Once you have Nerves devices running on your network (Ethernet or Wifi), you may want to discover and connect to them without manually tracking IP addresses or their hostnames. The `mix nerves.discover` task makes this easy by automatically finding Nerves devices on your local network using mDNS (multicast DNS).
+
+## Using mix nerves.discover
+
+The discovery task scans your local network for Nerves devices and displays their information in a convenient table format:
+
+```bash
+$ mix nerves.discover
+Discovering Nerves devices (waiting up to 5000ms)...
+
+NAME         IP             SERIAL            VERSION  PRODUCT     PLATFORM  UUID
+nerves-0316  192.168.7.128  55e77bfdd5030316  0.2.1    kiosk_demo  rpi5      cbf8c271-2673-51f7-ab08-3de09af404eb
+nerves-8465  192.168.7.48
+```
+
+> #### For Linux users {: .tip}
+> Linux users should install `avahi-utils` for better discovery results.
+> ```bash
+> # On Ubuntu/Debian
+> sudo apt-get install avahi-utils
+> # On Fedora/RHEL
+> sudo dnf install avahi-tools
+> ```
+
+If you want to know more about `mix nerves.discover`, check the [Discovering Nerves Devices on your network](../core/connecting-to-a-nerves-target.md#discovering-nerves-devices-on-your-network)
+
+## Connecting with HDMI
+
 If you are using an HDMI capable Pi and USB is really not working for you, try to connect it to a screen or a TV and see if it displays the [IEx prompt](#using-iex).
 
 ## Using `IEx`
