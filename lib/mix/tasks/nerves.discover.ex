@@ -50,8 +50,8 @@ defmodule Mix.Tasks.Nerves.Discover do
 
     optional_columns = [
       :serial,
-      :version,
       :product,
+      :version,
       :platform,
       :uuid
     ]
