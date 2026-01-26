@@ -210,7 +210,7 @@ The discovery task scans your local network for Nerves devices and displays thei
 $ mix nerves.discover
 Discovering Nerves devices (waiting up to 5000ms)...
 
-NAME         IP             SERIAL            VERSION  PRODUCT     PLATFORM  UUID
+NAME         ADDRESSES      SERIAL            VERSION  PRODUCT     PLATFORM  UUID
 nerves-0316  192.168.7.128  55e77bfdd5030316  0.2.1    kiosk_demo  rpi5      cbf8c271-2673-51f7-ab08-3de09af404eb
 nerves-8465  192.168.7.48
 ```

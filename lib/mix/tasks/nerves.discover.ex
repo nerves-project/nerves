@@ -46,7 +46,7 @@ defmodule Mix.Tasks.Nerves.Discover do
   end
 
   defp tablet_options(devices) do
-    base_columns = [:name, :ip]
+    base_columns = [:name, :addresses]
 
     optional_columns = [
       :serial,
@@ -79,5 +79,9 @@ defmodule Mix.Tasks.Nerves.Discover do
   defp set_put_many(set, values), do: Enum.reduce(values, set, &MapSet.put(&2, &1))
 
   defp formatter(:__header__, key), do: {:ok, key |> to_string() |> String.upcase()}
+
+  defp formatter(:addresses, addresses),
+    do: {:ok, addresses |> Enum.map(&:inet.ntoa/1) |> Enum.map_join("\n", &to_string/1)}
+
   defp formatter(_, _), do: :default
 end
