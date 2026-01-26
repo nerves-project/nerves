@@ -25,6 +25,8 @@ defmodule Mix.Tasks.Nerves.Discover do
   """
   use Mix.Task
 
+  alias Nerves.Fwup.Word34567
+
   @switches [timeout: :integer]
 
   @impl Mix.Task
@@ -83,5 +85,22 @@ defmodule Mix.Tasks.Nerves.Discover do
   defp formatter(:addresses, addresses),
     do: {:ok, addresses |> Enum.map(&:inet.ntoa/1) |> Enum.map_join("\n", &to_string/1)}
 
+  defp formatter(:uuid, uuid) when byte_size(uuid) == 36,
+    do: {:ok, "#{uuid_to_nickname(uuid)} (#{uuid})"}
+
   defp formatter(_, _), do: :default
+
+  # Convert a UUID to a nickname using the fwup algorithm
+  defp uuid_to_nickname(uuid) do
+    # Remove hyphens from UUID and convert to binary
+    uuid_binary =
+      uuid
+      |> String.replace("-", "")
+      |> Base.decode16!(case: :mixed)
+
+    # Get the first two bytes (most significant)
+    <<first::8, second::8, _rest::binary>> = uuid_binary
+
+    "#{Word34567.word(first)}-#{Word34567.word(second)}"
+  end
 end

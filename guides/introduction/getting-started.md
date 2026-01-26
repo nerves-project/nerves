@@ -211,7 +211,7 @@ $ mix nerves.discover
 Discovering Nerves devices (waiting up to 5000ms)...
 
 NAME         ADDRESSES      SERIAL            PRODUCT     VERSION  PLATFORM  UUID
-nerves-0316  192.168.7.128  55e77bfdd5030316  kiosk_demo  0.2.1    rpi5      cbf8c271-2673-51f7-ab08-3de09af404eb
+nerves-0316  192.168.7.128  55e77bfdd5030316  kiosk_demo  0.2.1    rpi5      salute-valley (cbf8c271-2673-51f7-ab08-3de09af404eb)
 nerves-8465  192.168.7.48
 ```
 
