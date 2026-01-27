@@ -269,6 +269,40 @@ defmodule Nerves.Env do
     toolchain().platform
   end
 
+  # Validates environment variable directory paths.
+  # For local Nerves systems, allows uncompiled paths with a warning.
+  # For other cases, exits with an error if the directory doesn't exist.
+  defp validate_env_directory(k, v) do
+    with "NERVES_SYSTEM" <- k,
+         %{app: app, dep: :path} <- system() do
+      Mix.shell().info([
+        :yellow,
+        """
+        Local Nerves system detected but is not compiled:
+
+          #{app}
+        """,
+        :reset
+      ])
+
+      # Since this is a local system, let this be set
+      # so that the compilation check later on can handle if
+      # it should be compiled or not
+      System.put_env(k, v)
+    else
+      _err ->
+        Mix.shell().error("""
+        #{k} is set to a path which does not exist:
+        #{v}
+
+        Try running `mix deps.get` to see if this resolves the issue by
+        downloading the missing artifact.
+        """)
+
+        exit({:shutdown, 1})
+    end
+  end
+
   @doc """
   Export environment variables used by Elixir, Erlang, C/C++ and other tools
   so that they use Nerves toolchain parameters and not the host's.
@@ -293,34 +327,7 @@ defmodule Nerves.Env do
           Mix.shell().info("#{k} is unset")
 
         File.dir?(v) != true ->
-          with "NERVES_SYSTEM" <- k,
-               %{app: app, dep: :path} <- system() do
-            Mix.shell().info([
-              :yellow,
-              """
-              Local Nerves system detected but is not compiled:
-
-                #{app}
-              """,
-              :reset
-            ])
-
-            # Since this is a local system, let this be set
-            # so that the compilation check later on can handle if
-            # it should be compiled or not
-            System.put_env(k, v)
-          else
-            _err ->
-              Mix.shell().error("""
-              #{k} is set to a path which does not exist:
-              #{v}
-
-              Try running `mix deps.get` to see if this resolves the issue by
-              downloading the missing artifact.
-              """)
-
-              exit({:shutdown, 1})
-          end
+          validate_env_directory(k, v)
 
         true ->
           System.put_env(k, v)
