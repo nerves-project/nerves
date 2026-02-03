@@ -5,7 +5,14 @@
 
 # Changelog
 
-## v1.13.0 - 2025-01-21
+## v1.13.1 - 2026-02-02
+
+* Changes
+  * Fix `nerves.loadpaths` crash when using ElixirLS (@bjyoungblood)
+  * Minor improvements to `nerves.discover` including showing multiple IP
+    addresses for multi-homed devices and firmware nicknames
+
+## v1.13.0 - 2026-01-21
 
 This release adds the `nerves.discover` mix task to make it easier to find
 Nerves devices. It discovers devices using mDNS and reports existing devices
