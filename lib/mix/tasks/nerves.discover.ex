@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Nerves.Discover do
   end
 
   defp tablet_options(devices) do
-    base_columns = [:name, :addresses]
+    base_columns = [:hostname, :addresses]
 
     optional_columns = [
       :serial,
