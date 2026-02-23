@@ -22,6 +22,7 @@ device-specific code.
 | `NERVES_DEBUG`                    | Set to `1` to print out debug info during compilation |
 | `NERVES_LOG_DISABLE_PROGRESS_BAR` | Set to `1` to disable progress bar output when fetching artifacts (typically for CI) |
 | `SOURCE_DATE_EPOCH`               | Used for [reproducable builds](https://reproducible-builds.org). Can also be set via `config :nerves, source_date_epoch: val` |
+| `TMPDIR`                          | Root directory for temporary files. Usually already set by the shell.  |
 
 ## Nerves-provided environment variables
 
