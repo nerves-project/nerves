@@ -233,7 +233,10 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   defp progress?(%{progress?: progress?}) do
-    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil and progress?
+    System.get_env("DEBIAN_FRONTEND") != "noninteractive" and
+      System.get_env("CI") == nil and
+      System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil and 
+      progress?
   end
 
   defp tuple_to_charlist({k, v}) do
