@@ -233,7 +233,20 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   defp progress?(%{progress?: progress?}) do
-    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil and progress?
+    progress? and progress_enabled?() and interactive_terminal?()
+  end
+
+  defp progress_enabled?() do
+    System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil
+  end
+
+  defp interactive_terminal?() do
+    # There's no Erlang isatty() call for checking for an interactive terminal,
+    # but it can be inferred from whether Erlang knows the terminal size.
+    case :io.columns() do
+      {:ok, _cols} -> true
+      _ -> false
+    end
   end
 
   defp tuple_to_charlist({k, v}) do
