@@ -5,7 +5,7 @@ defmodule SimpleApp.Fixture do
     [
       app: :simple_app,
       version: "0.1.0",
-      archives: [nerves_bootstrap: "~> 1.0"],
+      archives: [nerves_bootstrap: "~> 1.15"],
       deps: deps()
     ]
   end
