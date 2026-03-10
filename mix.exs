@@ -25,13 +25,12 @@ defmodule Nerves.MixProject do
       docs: docs(),
       dialyzer: dialyzer(),
       aliases: ["archive.build": &raise_on_archive_build/1],
-      xref: [exclude: [Nerves.Bootstrap]],
       test_ignore_filters: [~r/test.fixtures.*/]
     ]
   end
 
   def application do
-    [extra_applications: [:ssl, :inets, :eex, :nerves_bootstrap]]
+    [extra_applications: [:ssl, :inets, :eex]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
