@@ -26,11 +26,18 @@ defmodule Nerves.Utils.Proxy do
 
     _ =
       if uri.host && uri.port do
+        ensure_httpc_profile_started()
         host = String.to_charlist(uri.host)
         :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
       end
 
     uri
+  end
+
+  defp ensure_httpc_profile_started() do
+    _ = :inets.start()
+    _ = :inets.start(:httpc, profile: :nerves)
+    :ok
   end
 
   defp scheme(scheme) do
