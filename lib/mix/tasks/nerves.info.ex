@@ -29,9 +29,19 @@ defmodule Mix.Tasks.Nerves.Info do
 
     Mix.Tasks.Nerves.Env.run(["--info", "--disable"])
     Mix.shell().info("Nerves:           #{Nerves.version()}")
-    Mix.shell().info("Nerves Bootstrap: #{Nerves.Bootstrap.version()}")
+    Mix.shell().info("Nerves Bootstrap: #{bootstrap_version()}")
     Mix.shell().info("Elixir:           #{System.version()}")
     Nerves.Env.enable()
     debug_info("Info End")
+  end
+
+  defp bootstrap_version() do
+    archives_path = Mix.path_for(:archives)
+    prefix = Path.join(archives_path, "nerves_bootstrap-")
+
+    case Path.wildcard("#{prefix}*") do
+      [] -> "not installed"
+      [entry | _] -> String.trim_leading(entry, prefix)
+    end
   end
 end
