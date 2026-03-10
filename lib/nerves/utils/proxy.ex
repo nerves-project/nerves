@@ -24,20 +24,20 @@ defmodule Nerves.Utils.Proxy do
   defp set(scheme, proxy) do
     uri = URI.parse(proxy)
 
-    _ =
-      if uri.host && uri.port do
-        ensure_httpc_profile_started()
-        host = String.to_charlist(uri.host)
+    if uri.host && uri.port do
+      host = String.to_charlist(uri.host)
+
+      try do
         :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
+      catch
+        # Profile may not be started yet. That's OK since HTTPClient.start_link/0
+        # starts it before making requests and Proxy.config/1 provides proxy_auth
+        # as request-level options.
+        :exit, _ -> :ok
       end
+    end
 
     uri
-  end
-
-  defp ensure_httpc_profile_started() do
-    _ = :inets.start()
-    _ = :inets.start(:httpc, profile: :nerves)
-    :ok
   end
 
   defp scheme(scheme) do
