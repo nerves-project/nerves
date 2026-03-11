@@ -66,7 +66,6 @@ defmodule Nerves.Utils.HTTPClient do
        content_length: 0,
        buffer: "",
        buffer_size: 0,
-       filename: "",
        caller: nil,
        number_of_redirects: 0,
        progress?: true,
@@ -138,21 +137,7 @@ defmodule Nerves.Utils.HTTPClient do
           content_length
       end
 
-    filename =
-      case Enum.find(headers, fn {key, _} -> key == ~c"content-disposition" end) do
-        nil ->
-          Path.basename(s.url)
-
-        {_, filename} ->
-          filename
-          |> to_string()
-          |> String.split(";")
-          |> List.last()
-          |> String.trim()
-          |> String.trim("filename=")
-      end
-
-    {:noreply, %{s | content_length: content_length, filename: filename}}
+    {:noreply, %{s | content_length: content_length}}
   end
 
   def handle_info({:http, {_, :stream, data}}, s) do
@@ -172,7 +157,7 @@ defmodule Nerves.Utils.HTTPClient do
     end
 
     GenServer.reply(s.caller, {:ok, s.buffer})
-    {:noreply, %{s | filename: "", content_length: 0, buffer: "", buffer_size: 0, url: nil}}
+    {:noreply, %{s | content_length: 0, buffer: "", buffer_size: 0, url: nil}}
   end
 
   def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
