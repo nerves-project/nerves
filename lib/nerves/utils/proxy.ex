@@ -26,15 +26,7 @@ defmodule Nerves.Utils.Proxy do
 
     if uri.host && uri.port do
       host = String.to_charlist(uri.host)
-
-      try do
-        :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
-      catch
-        # Profile may not be started yet. That's OK since HTTPClient.start_link/0
-        # starts it before making requests and Proxy.config/1 provides proxy_auth
-        # as request-level options.
-        :exit, _ -> :ok
-      end
+      :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
     end
 
     uri
