@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Nerves.Artifact.Resolvers.GithubAPITest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias Nerves.Artifact.Resolvers.GithubAPI
 
