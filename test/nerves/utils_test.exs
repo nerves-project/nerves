@@ -11,6 +11,11 @@ defmodule Nerves.UtilsTest do
 
   alias Nerves.Utils
 
+  setup_all do
+    _ = :inets.start(:httpc, profile: :nerves)
+    :ok
+  end
+
   @tag :linux
   test "proxy_config returns no credentials when no proxy supplied" do
     assert Utils.Proxy.config("http://nerves-project.org") == []

@@ -32,7 +32,6 @@ defmodule Nerves.Utils.HTTPClient do
   @spec start_link() :: GenServer.on_start()
   def start_link() do
     {:ok, _} = Application.ensure_all_started(:nerves)
-    _ = start_httpc()
     GenServer.start_link(__MODULE__, [])
   end
 
@@ -60,6 +59,7 @@ defmodule Nerves.Utils.HTTPClient do
 
   @impl GenServer
   def init([]) do
+    start_httpc()
     {:ok,
      %{
        url: nil,
@@ -212,7 +212,7 @@ defmodule Nerves.Utils.HTTPClient do
       pipeline_timeout: 60_000
     ]
 
-    :httpc.set_options(opts, :nerves)
+    :ok = :httpc.set_options(opts, :nerves)
   end
 
   defp bytes_to_mb(bytes) do
