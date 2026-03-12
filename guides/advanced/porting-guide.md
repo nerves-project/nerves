@@ -40,7 +40,7 @@ The bootloader tells the kernel where to find the rootfs through the kernel comm
 
 ## What Buildroot is and why you need it first
 
-[Buildroot](https://buildroot.org) is a build system that cross-compiles a complete Linux system from source. It takes a configuration file (called a `defconfig`) and produces a kernel, a root filesystem, and optionally a complete disk image. The output is a small, purpose-built system, typically 20 to 60 MB -with only what you asked for.
+[Buildroot](https://buildroot.org) is a build system that cross-compiles a complete Linux system from source. It takes a configuration file (called a `defconfig`) and produces a kernel, a root filesystem, and optionally a complete disk image. The output is a small, purpose-built system, typically 20 to 60 MB, with only what you asked for.
 
 Nerves uses Buildroot under the hood. The `nerves_system_br` package is essentially a Buildroot [external tree](https://buildroot.org/downloads/manual/manual.html#outside-br-custom) with Nerves-specific packages and configuration.
 
@@ -60,7 +60,7 @@ To get started, you need a few things from the manufacturer or from the communit
 
 4. **Firmware blobs.** Some peripherals (WiFi, Bluetooth, GPU) require proprietary firmware files that the kernel loads at runtime on the peripheral's microcontroller. These usually live in `/lib/firmware/` and you can find them in the [linux-firmware](https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/) repository or in the manufacturer's documentation.
 
-If you're struggling to find any of these, search for your SoC on the following sites -chances are someone has already done the hard work:
+If you're struggling to find any of these, search for your SoC on the following sites, chances are someone has already done the hard work:
 
 - [Armbian](https://www.armbian.com/), great for SBCs, has working kernel configs and U-Boot for hundreds of boards
 - [Buildroot defconfigs](https://git.buildroot.net/buildroot/tree/configs), Buildroot ships with configs for many boards out of the box
@@ -92,9 +92,9 @@ Flash it to an SD card, boot it, get a shell. If it works, great. If it doesn't,
 
 - **Wrong device tree**: The kernel boots but peripherals don't work. Double-check that you're using the exact DTB for your board, not just the SoC family.
 - **Missing firmware blobs**: WiFi or other peripherals are silent. Some hardware needs proprietary blobs loaded at runtime.
-- **Bootloader can't find the kernel**: This is usually a U-Boot configuration problem. Check the [U-Boot environment variables](https://docs.u-boot.org/en/latest/usage/environment.html) -specifically `bootcmd`, `kernel_addr_r`, and `fdt_addr_r`. These control what U-Boot loads and where it loads it to. If your board uses a boot script (`boot.scr`), make sure it's actually on the boot partition and that U-Boot is looking in the right place. The [U-Boot partition syntax](https://docs.u-boot.org/en/latest/usage/partitions.html) (`mmc 0:1`, etc.) trips people up, `0` is the device number and `1` is the partition number, and they don't always map to what you'd expect.
-- **U-Boot SPL doesn't start**: On many ARM boards, the boot ROM loads a small first-stage loader (SPL) from a specific offset on the SD card. If it's at the wrong offset, you get nothing -no output, no signs of life. Check the [SPL boot documentation](https://docs.u-boot.org/en/latest/usage/spl_boot.html) for how the TPL → SPL → U-Boot chain works, and look up your SoC in the [board-specific docs](https://docs.u-boot.org/en/latest/board/index.html) (organized by vendor: Allwinner, Amlogic, Rockchip, TI, NXP, etc.) for the exact offset.
-- **Wrong kernel command line**: `root=` pointing to the wrong partition, or missing `rootwait` which causes the kernel to panic before the SD card driver is ready. U-Boot passes this through `bootargs` -see the [environment variables reference](https://docs.u-boot.org/en/latest/usage/environment.html) for the full list of standard variables.
+- **Bootloader can't find the kernel**: This is usually a U-Boot configuration problem. Check the [U-Boot environment variables](https://docs.u-boot.org/en/latest/usage/environment.html), specifically `bootcmd`, `kernel_addr_r`, and `fdt_addr_r`. These control what U-Boot loads and where it loads it to. If your board uses a boot script (`boot.scr`), make sure it's actually on the boot partition and that U-Boot is looking in the right place. The [U-Boot partition syntax](https://docs.u-boot.org/en/latest/usage/partitions.html) (`mmc 0:1`, etc.) trips people up, `0` is the device number and `1` is the partition number, and they don't always map to what you'd expect.
+- **U-Boot SPL doesn't start**: On many ARM boards, the boot ROM loads a small first-stage loader (SPL) from a specific offset on the SD card. If it's at the wrong offset, you get nothing, no output, no signs of life. Check the [SPL boot documentation](https://docs.u-boot.org/en/latest/usage/spl_boot.html) for how the TPL → SPL → U-Boot chain works, and look up your SoC in the [board-specific docs](https://docs.u-boot.org/en/latest/board/index.html) (organized by vendor: Allwinner, Amlogic, Rockchip, TI, NXP, etc.) for the exact offset.
+- **Wrong kernel command line**: `root=` pointing to the wrong partition, or missing `rootwait` which causes the kernel to panic before the SD card driver is ready. U-Boot passes this through `bootargs`, see the [environment variables reference](https://docs.u-boot.org/en/latest/usage/environment.html) for the full list of standard variables.
 
 #### When in doubt, connect a serial console
 
@@ -532,7 +532,7 @@ define(NERVES_FW_APPLICATION_PART0_FSTYPE, "f2fs")
 define(NERVES_FW_APPLICATION_PART0_TARGET, "/data")
 ```
 
-All values are in 512-byte blocks. So `65536` blocks = 32 MiB. Notice the offsets chain together using `define-eval` -you only need to set the first offset and the sizes, and everything else follows.
+All values are in 512-byte blocks. So `65536` blocks = 32 MiB. Notice the offsets chain together using `define-eval`, you only need to set the first offset and the sizes, and everything else follows.
 
 You might be wondering why the app partition is `mmcblk0p3` when there are clearly more than 3 regions on disk. That's because the U-Boot env and the raw U-Boot binary (if any) live *before* the MBR partition table and aren't real partitions. Nerves uses only 3 MBR entries: one for the active boot slot, one for the active rootfs slot, and one for the app data. During an OTA update, fwup rewrites the MBR to swap which physical regions partition 1 and 2 point to, that's the A/B slot switching mechanism.
 
@@ -626,7 +626,7 @@ task upgrade.b {
 }
 ```
 
-This is simplified -real fwup configs also handle U-Boot environment writes, provisioning, and validation. The best approach is to look at an existing official system that's close to your board and adapt it. The [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) (BeagleBone) is a clean example for MBR-based U-Boot systems.
+This is simplified. Real fwup configs also handle U-Boot environment writes, provisioning, and validation. The best approach is to look at an existing official system that's close to your board and adapt it. The [nerves_system_bbb](https://github.com/nerves-project/nerves_system_bbb) (BeagleBone) is a clean example for MBR-based U-Boot systems.
 
 #### The fwup-ops.conf file
 
@@ -640,7 +640,7 @@ Here's what `nerves-config` selects:
 
 | Package                          | What it does                                                        |
 | :--------------------------------| :------------------------------------------------------------------ |
-| **erlang**                       | The BEAM VM and OTP -this is what runs your Elixir application      |
+| **erlang**                       | The BEAM VM and OTP, this is what runs your Elixir application      |
 | **erlinit**                      | Replacement for `/sbin/init`. Runs as PID 1, starts the BEAM        |
 | **fwup**                         | Firmware update tool, used for OTA updates from within Elixir       |
 | **host-fwup**                    | Host-side fwup, used during the build to create `.fw` files         |
@@ -670,7 +670,7 @@ Your system's `rootfs_overlay/` directory contains files that get copied into th
 
 ### erlinit.config
 
-This is the configuration for erlinit -the PID 1 process that starts the BEAM. A typical one looks like:
+This is the configuration for erlinit, the PID 1 process that starts the BEAM. A typical one looks like:
 
 ```
 # erlinit.config for my_board
@@ -689,7 +689,7 @@ This is the configuration for erlinit -the PID 1 process that starts the BEAM. A
 --mount /dev/mmcblk0p3:/data:f2fs::
 ```
 
-The `--ctty` flag sets the console TTY. This depends on your board -`ttyS0` is common for boards with a UART debug port, `ttyAMA0` for some ARM boards, `tty1` for HDMI output.
+The `--ctty` flag sets the console TTY. This depends on your board, `ttyS0` is common for boards with a UART debug port, `ttyAMA0` for some ARM boards, `tty1` for HDMI output.
 
 The `--mount` flag tells erlinit to mount the application data partition. The path must match what you defined in `fwup-common.conf`.
 
@@ -763,7 +763,7 @@ If your U-Boot is configured for distroboot, you don't need a `boot.cmd` at all.
 
 ### Raspberry Pi (proprietary bootloader)
 
-The Raspberry Pi doesn't use U-Boot at all. It has its own proprietary boot chain: the VideoCore GPU firmware (`start4.elf`, `fixup4.dat`) reads a `config.txt` and `cmdline.txt` from the FAT boot partition. The kernel command line goes in `cmdline.txt`, and hardware configuration (UART, overlays, GPU memory split) goes in `config.txt`. If you're porting to an RPi, you won't need a boot script -check the [official Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/config_txt.html) for the config.txt format.
+The Raspberry Pi doesn't use U-Boot at all. It has its own proprietary boot chain: the VideoCore GPU firmware (`start4.elf`, `fixup4.dat`) reads a `config.txt` and `cmdline.txt` from the FAT boot partition. The kernel command line goes in `cmdline.txt`, and hardware configuration (UART, overlays, GPU memory split) goes in `config.txt`. If you're porting to an RPi, you won't need a boot script, check the [official Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/config_txt.html) for the config.txt format.
 
 ### U-Boot with FIT images
 
