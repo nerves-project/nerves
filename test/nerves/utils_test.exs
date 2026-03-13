@@ -11,6 +11,16 @@ defmodule Nerves.UtilsTest do
 
   alias Nerves.Utils
 
+  setup do
+    _ = :inets.start(:httpc, profile: :nerves)
+
+    on_exit(fn ->
+      # Stop the httpc profile to clear proxy settings that persist
+      # and would otherwise poison the :nerves profile for resolver tests
+      _ = :inets.stop(:httpc, :nerves)
+    end)
+  end
+
   test "proxy_config returns no credentials when no proxy supplied" do
     assert Utils.Proxy.config("http://nerves-project.org") == []
   end
