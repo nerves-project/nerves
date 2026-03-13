@@ -19,7 +19,7 @@ Mix.shell(Mix.Shell.Process)
 # Clear the project stack in preparation for loading and unloading fixtures
 Mix.ProjectStack.clear_stack()
 
-excludes = if :os.type() != {:unix, :linux}, do: [:linux, :skip], else: [:skip]
+excludes = [:skip]
 
 # Long assert receive timeout is for CircleCI.
 ExUnit.start(exclude: excludes, assert_receive_timeout: 500)

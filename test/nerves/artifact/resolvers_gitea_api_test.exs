@@ -13,7 +13,7 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
       opts: [
         base_url: "https://gitea.com",
         artifact_name: "nerves_system_rpi-portable-1.0.0-1234567.tar.gz",
-        http_client: NervesTest.HTTPClient,
+        http_client: NervesTest.TestHTTPClient,
         tag: "v1.0.0",
         token: "1234"
       ]

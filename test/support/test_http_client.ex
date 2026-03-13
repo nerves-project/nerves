@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule NervesTest.HTTPClient do
+defmodule NervesTest.TestHTTPClient do
   @moduledoc """
   Test HTTPClient to use in tests
 

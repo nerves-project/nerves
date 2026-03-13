@@ -12,7 +12,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
       repo: "nerves-project/nerves_system_rpi4",
       opts: [
         artifact_name: "nerves_system_rpi-portable-1.0.0-1234567.tar.gz",
-        http_client: NervesTest.HTTPClient,
+        http_client: NervesTest.TestHTTPClient,
         tag: "v1.0.0",
         token: "1234"
       ]

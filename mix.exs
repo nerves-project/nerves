@@ -51,7 +51,9 @@ defmodule Nerves.MixProject do
       {:tablet, "~> 0.3.1"},
       {:credo, "~> 1.6", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false}
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:bandit, "~> 1.0", only: :test},
+      {:plug, "~> 1.10", only: :test}
     ]
   end
 
