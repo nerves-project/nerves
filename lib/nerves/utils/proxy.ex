@@ -26,7 +26,7 @@ defmodule Nerves.Utils.Proxy do
 
     if uri.host && uri.port do
       host = String.to_charlist(uri.host)
-      :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
+      :ok = :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
     end
 
     uri
