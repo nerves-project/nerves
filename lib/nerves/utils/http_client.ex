@@ -60,6 +60,7 @@ defmodule Nerves.Utils.HTTPClient do
   @impl GenServer
   def init([]) do
     start_httpc()
+
     {:ok,
      %{
        url: nil,
