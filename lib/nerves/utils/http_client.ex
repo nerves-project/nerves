@@ -120,6 +120,7 @@ defmodule Nerves.Utils.HTTPClient do
   @impl GenServer
   def handle_info({:http, {_ref, {:error, {:failed_connect, _}} = err}}, s) do
     GenServer.reply(s.caller, err)
+    {:noreply, s}
   end
 
   def handle_info({:http, {_, :stream_start, headers}}, s) do
@@ -175,6 +176,7 @@ defmodule Nerves.Utils.HTTPClient do
 
       _ ->
         GenServer.reply(s.caller, {:error, format_error(status_code, reason)})
+        {:noreply, s}
     end
   end
 
