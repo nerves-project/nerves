@@ -1,4 +1,8 @@
-# Porting Nerves to a New Device
+<!--
+  SPDX-FileCopyrightText: 2025 Marc Lainez
+  SPDX-License-Identifier: CC-BY-4.0
+-->
+## Porting Nerves to a New Device
 
 ## Who is this guide for?
 
