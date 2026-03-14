@@ -194,7 +194,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
 
   defp start_http_client!(context, returns, echo \\ nil) do
     client = context.opts[:http_client]
-    opts = [name: context.test, returns: returns, echo: echo]
+    opts = [returns: returns, echo: echo]
     http_pid = start_supervised!({client, opts})
     put_in(context, [:opts, :http_pid], http_pid)
   end

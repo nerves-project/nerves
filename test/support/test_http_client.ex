@@ -14,12 +14,11 @@ defmodule NervesTest.HTTPClient do
   """
   use GenServer
 
-  @type opt :: {:name, GenServer.name()} | {:returns, [any()]} | {:echo, pid()}
+  @type opt :: {:returns, [any()]} | {:echo, pid()}
 
   @spec start_link([opt()]) :: GenServer.on_start()
   def start_link(opts) do
-    name = opts[:name] || __MODULE__
-    GenServer.start_link(__MODULE__, opts, name: name)
+    GenServer.start_link(__MODULE__, opts)
   end
 
   defdelegate stop(pid), to: GenServer
