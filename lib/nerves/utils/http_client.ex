@@ -19,7 +19,6 @@ defmodule Nerves.Utils.HTTPClient do
           {:timeout, timeout()}
           | {:connect_timeout, timeout()}
           | {:ssl, [:ssl.tls_option()]}
-          | {:essl, [:ssl.tls_option()]}
           | {:autoredirect, boolean()}
           | {:proxy_auth, {charlist(), charlist()}}
           | {:relaxed, boolean()}
@@ -62,7 +61,6 @@ defmodule Nerves.Utils.HTTPClient do
   def init([]) do
     {:ok,
      %{
-       url: nil,
        content_length: 0,
        buffer: "",
        buffer_size: 0,
@@ -76,7 +74,7 @@ defmodule Nerves.Utils.HTTPClient do
   @impl GenServer
   def handle_call({:get, _url, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
     GenServer.reply(s.caller, {:error, :too_many_redirects})
-    {:noreply, %{s | url: nil, number_of_redirects: 0, caller: nil}}
+    {:noreply, %{s | number_of_redirects: 0, caller: nil}}
   end
 
   def handle_call({:get, url, opts}, from, s) do
@@ -114,7 +112,7 @@ defmodule Nerves.Utils.HTTPClient do
         :nerves
       )
 
-    {:noreply, %{s | url: url, caller: from, get_opts: opts, progress?: progress?}}
+    {:noreply, %{s | caller: from, get_opts: opts, progress?: progress?}}
   end
 
   @impl GenServer
@@ -158,7 +156,7 @@ defmodule Nerves.Utils.HTTPClient do
     end
 
     GenServer.reply(s.caller, {:ok, s.buffer})
-    {:noreply, %{s | content_length: 0, buffer: "", buffer_size: 0, url: nil}}
+    {:noreply, %{s | content_length: 0, buffer: "", buffer_size: 0}}
   end
 
   def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
