@@ -7,46 +7,49 @@
 #
 defmodule Nerves.Utils.Proxy do
   @moduledoc false
-  # Special thanks to Hex.
 
-  @spec config(String.t()) :: [proxy_auth: {charlist(), charlist()}]
-  def config(url) do
-    {http_proxy, https_proxy} = setup()
-    auth(URI.parse(url), http_proxy, https_proxy)
-  end
+  @http_proxy_key "HTTP_PROXY"
+  @https_proxy_key "HTTPS_PROXY"
 
-  defp setup() do
-    http_proxy = (proxy = System.get_env("HTTP_PROXY")) && set(:http, proxy)
-    https_proxy = (proxy = System.get_env("HTTPS_PROXY")) && set(:https, proxy)
-    {http_proxy, https_proxy}
-  end
-
-  defp set(scheme, proxy) do
-    uri = URI.parse(proxy)
-
-    _ =
-      if uri.host && uri.port do
-        host = String.to_charlist(uri.host)
-        :httpc.set_options([{scheme(scheme), {{host, uri.port}, []}}], :nerves)
-      end
-
-    uri
-  end
-
-  defp scheme(scheme) do
-    case scheme do
-      :http -> :proxy
-      :https -> :https_proxy
+  @doc """
+  Return additional request options for the specified URL
+  """
+  @spec request_options(URI.t() | String.t()) :: [proxy_auth: {charlist(), charlist()}]
+  def request_options(url) do
+    case URI.parse(url) do
+      %URI{scheme: "http"} -> get_env_url(@http_proxy_key) |> auth()
+      %URI{scheme: "https"} -> get_env_url(@https_proxy_key) |> auth()
+      _ -> []
     end
   end
 
-  defp auth(%URI{scheme: "http"}, http_proxy, _https_proxy), do: auth(http_proxy)
-  defp auth(%URI{scheme: "https"}, _http_proxy, https_proxy), do: auth(https_proxy)
+  @doc """
+  Return proxy options for configuring an httpc profile
+  """
+  @spec httpc_options() :: keyword()
+  def httpc_options() do
+    http_proxy = get_env_url(@http_proxy_key)
+    https_proxy = get_env_url(@https_proxy_key)
+    httpc_options(http_proxy, https_proxy)
+  end
 
-  defp auth(nil), do: []
-  defp auth(%URI{userinfo: nil}), do: []
+  defp get_env_url(key), do: System.get_env(key) |> may_parse_uri()
+  defp may_parse_uri(nil), do: nil
+  defp may_parse_uri(uri), do: URI.parse(uri)
 
-  defp auth(%URI{userinfo: auth}) do
+  defp httpc_options(http_proxy, https_proxy) do
+    httpc_option(:proxy, http_proxy) ++ httpc_option(:https_proxy, https_proxy)
+  end
+
+  defp httpc_option(key, %URI{host: host, port: port})
+       when is_binary(host) and is_integer(port) do
+    host = String.to_charlist(host)
+    [{key, {{host, port}, []}}]
+  end
+
+  defp httpc_option(_key, _uri), do: []
+
+  defp auth(%URI{userinfo: auth}) when is_binary(auth) do
     destructure [user, pass], String.split(auth, ":", parts: 2)
 
     user = String.to_charlist(user)
@@ -54,4 +57,6 @@ defmodule Nerves.Utils.Proxy do
 
     [proxy_auth: {user, pass}]
   end
+
+  defp auth(_uri), do: []
 end

@@ -11,6 +11,8 @@
 defmodule Nerves.Utils.HTTPClient do
   @moduledoc false
 
+  alias Nerves.Utils.Proxy
+
   @progress_steps 50
   @max_redirects 5
 
@@ -81,8 +83,7 @@ defmodule Nerves.Utils.HTTPClient do
           ]
         ]
       ]
-      |> Keyword.merge(Nerves.Utils.Proxy.config(url))
-      |> Keyword.merge(Keyword.get(opts, :http_opts, []))
+      |> Keyword.merge(Proxy.request_options(url))
 
     {:ok, request_ref} =
       :httpc.request(
@@ -167,13 +168,14 @@ defmodule Nerves.Utils.HTTPClient do
   defp start_httpc() do
     _ = :inets.start(:httpc, profile: :nerves)
 
-    opts = [
-      max_sessions: 8,
-      max_keep_alive_length: 4,
-      max_pipeline_length: 4,
-      keep_alive_timeout: 120_000,
-      pipeline_timeout: 60_000
-    ]
+    opts =
+      [
+        max_sessions: 8,
+        max_keep_alive_length: 4,
+        max_pipeline_length: 4,
+        keep_alive_timeout: 120_000,
+        pipeline_timeout: 60_000
+      ] ++ Proxy.httpc_options()
 
     :ok = :httpc.set_options(opts, :nerves)
   end
