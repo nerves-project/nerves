@@ -17,8 +17,6 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   defstruct artifact_name: nil,
             base_url: @base_url,
             headers: [],
-            http_client: HTTPClient,
-            http_pid: nil,
             public?: false,
             opts: [],
             repo: nil,
@@ -33,13 +31,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
       %{struct(__MODULE__, opts) | opts: opts, repo: org_proj}
       |> maybe_adjust_token()
       |> add_http_opts()
-      |> maybe_start_http()
 
-    result = fetch_artifact(opts)
-
-    opts.http_client.stop(opts.http_pid)
-
-    result
+    fetch_artifact(opts)
   end
 
   defp add_http_opts(opts) do
@@ -74,13 +67,6 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
     end
   end
 
-  defp maybe_start_http(%{http_pid: pid} = opts) when is_pid(pid), do: opts
-
-  defp maybe_start_http(opts) do
-    {:ok, http_pid} = opts.http_client.start_link()
-    %{opts | http_pid: http_pid}
-  end
-
   defp fetch_artifact(opts) do
     info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
 
@@ -88,14 +74,12 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
     with {:ok, assets_or_url} <- release_details(opts),
          {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
-      opts.http_client.get(opts.http_pid, asset_url,
-        headers: [{"Accept", "application/octet-stream"} | opts.headers]
-      )
+      HTTPClient.get(asset_url, headers: [{"Accept", "application/octet-stream"} | opts.headers])
     end
   end
 
   defp release_details(opts) do
-    case opts.http_client.get(opts.http_pid, opts.url, headers: opts.headers, progress?: false) do
+    case HTTPClient.get(opts.url, headers: opts.headers, progress?: false) do
       {:ok, data} ->
         Jason.decode(data)
 

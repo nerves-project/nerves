@@ -4,15 +4,16 @@
 #
 defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   use ExUnit.Case, async: true
+  use Mimic
 
   alias Nerves.Artifact.Resolvers.GithubAPI
+  alias Nerves.Utils.HTTPClient
 
   setup do
     %{
       repo: "nerves-project/nerves_system_rpi4",
       opts: [
         artifact_name: "nerves_system_rpi-portable-1.0.0-1234567.tar.gz",
-        http_client: NervesTest.HTTPClient,
         tag: "v1.0.0",
         token: "1234"
       ]
@@ -20,7 +21,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   end
 
   test "public release not found", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     opts =
       context.opts
@@ -31,13 +32,13 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   end
 
   test "private release not found", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     assert GithubAPI.get({context.repo, context.opts}) == {:error, "No release"}
   end
 
   test "private release fails without token", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     opts = Keyword.delete(context.opts, :token)
 
@@ -55,7 +56,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   end
 
   test "private release fails with nil token", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     opts = Keyword.put(context.opts, :token, nil)
 
@@ -73,8 +74,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   end
 
   test "mismatched checksum", context do
-    details = {:ok, Jason.encode!(%{assets: [%{name: "howdy.tar.xz"}]})}
-    context = start_http_client!(context, [details])
+    details = Jason.encode!(%{assets: [%{name: "howdy.tar.xz"}]})
+    HTTPClient |> expect(:get, fn _url, _opts -> {:ok, details} end)
 
     assert {:error, msg} = GithubAPI.get({context.repo, context.opts})
 
@@ -85,8 +86,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   end
 
   test "no artifacts in release", context do
-    no_artifacts = {:ok, Jason.encode!(%{assets: []})}
-    context = start_http_client!(context, [no_artifacts])
+    no_artifacts = Jason.encode!(%{assets: []})
+    HTTPClient |> expect(:get, fn _url, _opts -> {:ok, no_artifacts} end)
 
     assert {:error, "No release artifacts"} = GithubAPI.get({context.repo, context.opts})
   end
@@ -95,21 +96,22 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     artifact_url = "http://example.com"
 
     details =
-      {:ok, Jason.encode!(%{assets: [%{name: context.opts[:artifact_name], url: artifact_url}]})}
+      Jason.encode!(%{assets: [%{name: context.opts[:artifact_name], url: artifact_url}]})
 
-    data = {:ok, "artifact data!"}
-    context = start_http_client!(context, [details, data], self())
-
-    assert ^data = GithubAPI.get({context.repo, context.opts})
-
-    # Requests the GitHubAPI for release details first
     expected_details_url =
       "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
 
-    assert_receive {:get, ^expected_details_url, _opts}
+    HTTPClient
+    |> expect(:get, fn url, _opts ->
+      assert url == expected_details_url
+      {:ok, details}
+    end)
+    |> expect(:get, fn url, _opts ->
+      assert url == artifact_url
+      {:ok, "artifact data!"}
+    end)
 
-    # Uses the URL for the artifact provided by GitHub to download
-    assert_receive {:get, ^artifact_url, _opts}
+    assert {:ok, "artifact data!"} = GithubAPI.get({context.repo, context.opts})
   end
 
   test "GITHUB_TOKEN takes precedence", context do
@@ -117,85 +119,72 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     gh_token = "dont-look-at-me!"
     refute context.opts[:token] == env_token
     refute context.opts[:token] == gh_token
-    context = start_http_client!(context, [], self())
+
+    HTTPClient
+    |> expect(:get, fn _url, opts ->
+      [{"Authorization", "Basic " <> encoded}] = opts[:headers]
+      [_, req_token] = String.split(Base.decode64!(encoded), ":")
+      assert req_token == env_token
+      :ok
+    end)
 
     System.put_env("GITHUB_TOKEN", env_token)
     System.put_env("GH_TOKEN", gh_token)
     _ = GithubAPI.get({context.repo, context.opts})
     System.delete_env("GITHUB_TOKEN")
     System.delete_env("GH_TOKEN")
-
-    assert_receive {:get, _url, opts}
-
-    # A bit hacky since you need to know the internals, but this
-    # breaks apart the Authorization header that was created with
-    # the token given to the request and confirms it is the one
-    # we wanted
-    [{"Authorization", "Basic " <> encoded}] = opts[:headers]
-    [_, req_token] = String.split(Base.decode64!(encoded), ":")
-
-    assert env_token == req_token
   end
 
   test "supports GH_TOKEN shorthand", context do
     env_token = "look-at-me!"
     refute context.opts[:token] == env_token
 
-    context = start_http_client!(context, [], self())
+    HTTPClient
+    |> expect(:get, fn _url, opts ->
+      # A bit hacky since you need to know the internals, but this
+      # breaks apart the Authorization header that was created with
+      # the token given to the request and confirms it is the one
+      # we wanted
+      [{"Authorization", "Basic " <> encoded}] = opts[:headers]
+      [_, req_token] = String.split(Base.decode64!(encoded), ":")
+      assert req_token == env_token
+      :ok
+    end)
 
     System.put_env("GH_TOKEN", env_token)
     _ = GithubAPI.get({context.repo, context.opts})
     System.delete_env("GH_TOKEN")
-
-    assert_receive {:get, _url, opts}
-
-    # A bit hacky since you need to know the internals, but this
-    # breaks apart the Authorization header that was created with
-    # the token given to the request and confirms it is the one
-    # we wanted
-    [{"Authorization", "Basic " <> encoded}] = opts[:headers]
-    [_, req_token] = String.split(Base.decode64!(encoded), ":")
-
-    assert env_token == req_token
   end
 
   test "public release uses public download when API rate limit reached", context do
-    data = {:ok, "artifact data!"}
-
-    context =
-      start_http_client!(context, [{:error, "Status 403 rate limit exceeded"}, data], self())
+    expected_details_url =
+      "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
 
     opts =
       context.opts
       |> Keyword.put(:public?, true)
       |> Keyword.delete(:token)
 
-    assert ^data = GithubAPI.get({context.repo, opts})
-
-    # Requests the GitHubAPI for release details first
-    expected_details_url =
-      "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
-
-    assert_receive {:get, ^expected_details_url, _opts}
-
-    # Rate limit reached, so downloads the usual public URL
     expected_public_download_url =
       "https://github.com/#{context.repo}/releases/download/#{opts[:tag]}/#{opts[:artifact_name]}"
 
-    assert_receive {:get, ^expected_public_download_url, _opts}
+    HTTPClient
+    |> expect(:get, fn url, _opts ->
+      assert url == expected_details_url
+      {:error, "Status 403 rate limit exceeded"}
+    end)
+    |> expect(:get, fn url, _opts ->
+      assert url == expected_public_download_url
+      {:ok, "artifact data!"}
+    end)
+
+    assert {:ok, "artifact data!"} = GithubAPI.get({context.repo, opts})
   end
 
   test "private release fails when API rate limit reached", context do
-    err = {:error, "Status 403 rate limit exceeded"}
-    context = start_http_client!(context, [err], self())
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 403 rate limit exceeded"} end)
 
-    assert ^err = GithubAPI.get({context.repo, context.opts})
-  end
-
-  defp start_http_client!(context, returns, echo \\ nil) do
-    client = context.opts[:http_client]
-    opts = [returns: returns, echo: echo]
-    http_pid = start_supervised!({client, opts})
-    put_in(context, [:opts, :http_pid], http_pid)
+    assert {:error, "Status 403 rate limit exceeded"} =
+             GithubAPI.get({context.repo, context.opts})
   end
 end

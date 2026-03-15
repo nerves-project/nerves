@@ -53,6 +53,7 @@ defmodule Nerves.MixProject do
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:bandit, "~> 1.0", only: :test},
+      {:mimic, "~> 1.7", only: :test},
       {:plug, "~> 1.10", only: :test}
     ]
   end

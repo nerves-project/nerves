@@ -13,8 +13,9 @@ Application.start(:logger)
 Logger.configure(handle_sasl_reports: true)
 Logger.remove_backend(:console)
 
-Code.compiler_options(ignore_module_conflict: true)
 Mix.shell(Mix.Shell.Process)
+Mimic.copy(Nerves.Utils.HTTPClient)
+Code.compiler_options(ignore_module_conflict: true)
 
 # Clear the project stack in preparation for loading and unloading fixtures
 Mix.ProjectStack.clear_stack()

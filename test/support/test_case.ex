@@ -35,13 +35,7 @@ defmodule NervesTest.Case do
 
       Mix.Task.clear()
       Mix.Shell.Process.flush()
-
-      # < Elixir 1.10.0
-      if elixir_minor() < 10 do
-        Mix.ProjectStack.clear_cache()
-      else
-        Mix.State.clear_cache()
-      end
+      Mix.State.clear_cache()
 
       Mix.ProjectStack.clear_stack()
       delete_tmp_paths()
@@ -231,6 +225,9 @@ defmodule NervesTest.Case do
       fixture_to_tmp(package, path)
     end)
 
+    # Mimic's lazy module copying resets ignore_module_conflict to false,
+    # so re-enable it before reloading mix.exs to avoid redefinition warnings.
+    Code.compiler_options(ignore_module_conflict: true)
     _ = Code.require_file(Path.expand("mix.exs"))
 
     # TODO: Move this next line to a more appropriate place

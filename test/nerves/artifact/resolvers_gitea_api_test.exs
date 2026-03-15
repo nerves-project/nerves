@@ -4,8 +4,10 @@
 #
 defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   use ExUnit.Case, async: true
+  use Mimic
 
   alias Nerves.Artifact.Resolvers.GiteaAPI
+  alias Nerves.Utils.HTTPClient
 
   setup do
     %{
@@ -13,7 +15,6 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
       opts: [
         base_url: "https://gitea.com",
         artifact_name: "nerves_system_rpi-portable-1.0.0-1234567.tar.gz",
-        http_client: NervesTest.HTTPClient,
         tag: "v1.0.0",
         token: "1234"
       ]
@@ -21,7 +22,7 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   end
 
   test "public release not found", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     opts =
       context.opts
@@ -32,13 +33,13 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   end
 
   test "private release not found", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     assert GiteaAPI.get({context.repo, context.opts}) == {:error, "No release"}
   end
 
   test "private release fails without token", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     opts = Keyword.delete(context.opts, :token)
 
@@ -56,7 +57,7 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   end
 
   test "private release fails with nil token", context do
-    context = start_http_client!(context, [{:error, "Status 404 Not Found"}])
+    HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
     opts = Keyword.put(context.opts, :token, nil)
 
@@ -74,8 +75,8 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   end
 
   test "mismatched checksum", context do
-    details = {:ok, Jason.encode!(%{assets: [%{name: "howdy.tar.xz"}]})}
-    context = start_http_client!(context, [details])
+    details = Jason.encode!(%{assets: [%{name: "howdy.tar.xz"}]})
+    HTTPClient |> expect(:get, fn _url, _opts -> {:ok, details} end)
 
     assert {:error, msg} = GiteaAPI.get({context.repo, context.opts})
 
@@ -86,8 +87,8 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
   end
 
   test "no artifacts in release", context do
-    no_artifacts = {:ok, Jason.encode!(%{assets: []})}
-    context = start_http_client!(context, [no_artifacts])
+    no_artifacts = Jason.encode!(%{assets: []})
+    HTTPClient |> expect(:get, fn _url, _opts -> {:ok, no_artifacts} end)
 
     assert {:error, "No release artifacts"} = GiteaAPI.get({context.repo, context.opts})
   end
@@ -96,24 +97,24 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
     artifact_url = "http://example.com"
 
     details =
-      {:ok,
-       Jason.encode!(%{
-         assets: [%{name: context.opts[:artifact_name], browser_download_url: artifact_url}]
-       })}
+      Jason.encode!(%{
+        assets: [%{name: context.opts[:artifact_name], browser_download_url: artifact_url}]
+      })
 
-    data = {:ok, "artifact data!"}
-    context = start_http_client!(context, [details, data], self())
-
-    assert ^data = GiteaAPI.get({context.repo, context.opts})
-
-    # Requests the GiteaAPI for release details first
     expected_details_url =
       "https://gitea.com/api/v1/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
 
-    assert_receive {:get, ^expected_details_url, _opts}
+    HTTPClient
+    |> expect(:get, fn url, _opts ->
+      assert url == expected_details_url
+      {:ok, details}
+    end)
+    |> expect(:get, fn url, _opts ->
+      assert url == artifact_url
+      {:ok, "artifact data!"}
+    end)
 
-    # Uses the URL for the artifact provided by Gitea to download
-    assert_receive {:get, ^artifact_url, _opts}
+    assert {:ok, "artifact data!"} = GiteaAPI.get({context.repo, context.opts})
   end
 
   test "GITEA_TOKEN takes precedence", context do
@@ -121,27 +122,16 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
     gitea_token = "dont-look-at-me!"
     refute context.opts[:token] == env_token
     refute context.opts[:token] == gitea_token
-    context = start_http_client!(context, [], self())
+
+    HTTPClient
+    |> expect(:get, fn _url, opts ->
+      [{"Authorization", "token " <> req_token}] = opts[:headers]
+      assert req_token == env_token
+      :ok
+    end)
 
     System.put_env("GITEA_TOKEN", env_token)
     _ = GiteaAPI.get({context.repo, context.opts})
     System.delete_env("GITEA_TOKEN")
-
-    assert_receive {:get, _url, opts}
-
-    # A bit hacky since you need to know the internals, but this
-    # breaks apart the Authorization header that was created with
-    # the token given to the request and confirms it is the one
-    # we wanted
-    [{"Authorization", "token " <> req_token}] = opts[:headers]
-
-    assert env_token == req_token
-  end
-
-  defp start_http_client!(context, returns, echo \\ nil) do
-    client = context.opts[:http_client]
-    opts = [name: context.test, returns: returns, echo: echo]
-    http_pid = start_supervised!({client, opts})
-    put_in(context, [:opts, :http_pid], http_pid)
   end
 end

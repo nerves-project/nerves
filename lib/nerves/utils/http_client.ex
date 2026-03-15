@@ -10,9 +10,9 @@
 #
 defmodule Nerves.Utils.HTTPClient do
   @moduledoc false
-  use GenServer
 
   @progress_steps 50
+  @max_redirects 5
 
   # See https://www.erlang.org/doc/man/httpc.html#request-5
   @type http_opts ::
@@ -24,61 +24,49 @@ defmodule Nerves.Utils.HTTPClient do
           | {:relaxed, boolean()}
   @type opts :: [
           progress?: boolean(),
-          headers: [{String.t() | charlist(), String.t() | charlist()}]
+          headers: [{String.t() | charlist(), String.t() | charlist()}],
+          http_opts: [http_opts()]
         ]
 
-  @spec start_link() :: GenServer.on_start()
-  def start_link() do
-    {:ok, _} = Application.ensure_all_started(:nerves)
-    start_httpc()
-    GenServer.start_link(__MODULE__, [])
-  end
+  @type request_state :: %{
+          buffer: String.t(),
+          buffer_size: non_neg_integer(),
+          content_length: non_neg_integer(),
+          get_opts: opts(),
+          progress?: boolean(),
+          redirects: non_neg_integer()
+        }
 
-  @spec stop(GenServer.server()) :: :ok
-  def stop(pid) do
-    GenServer.stop(pid)
-  end
-
-  @spec get(GenServer.server(), URI.t() | String.t(), opts()) ::
+  @spec get(URI.t() | String.t(), opts()) ::
           {:ok, String.t()} | {:error, String.t() | :too_many_redirects | atom()}
-  def get(_, _, _ \\ [])
+  def get(url_or_uri, opts \\ [])
 
-  def get(_pid, %URI{host: nil, path: path}, _opts) do
+  def get(%URI{host: nil, path: path}, _opts) do
     path
     |> Path.expand()
     |> File.read()
   end
 
-  def get(pid, %URI{} = uri, opts) do
-    url = URI.to_string(uri)
-    get(pid, url, opts)
+  def get(%URI{} = uri, opts) do
+    uri
+    |> URI.to_string()
+    |> get(opts)
   end
 
-  def get(pid, url, opts) do
-    GenServer.call(pid, {:get, url, opts}, :infinity)
+  def get(url, opts) do
+    {:ok, _} = Application.ensure_all_started(:nerves)
+    start_httpc()
+
+    url
+    |> request(opts, 0)
+    |> await_response()
   end
 
-  @impl GenServer
-  def init([]) do
-    {:ok,
-     %{
-       content_length: 0,
-       buffer: "",
-       buffer_size: 0,
-       caller: nil,
-       number_of_redirects: 0,
-       progress?: true,
-       get_opts: []
-     }}
+  defp request(_url, _opts, redirects) when redirects > @max_redirects do
+    {:done, {:error, :too_many_redirects}}
   end
 
-  @impl GenServer
-  def handle_call({:get, _url, _opts}, _from, %{number_of_redirects: n} = s) when n > 5 do
-    GenServer.reply(s.caller, {:error, :too_many_redirects})
-    {:noreply, %{s | number_of_redirects: 0, caller: nil}}
-  end
-
-  def handle_call({:get, url, opts}, from, s) do
+  defp request(url, opts, redirects) do
     progress? = Keyword.get(opts, :progress?, true)
 
     user_headers = Keyword.get(opts, :headers, []) |> Enum.map(&tuple_to_charlist/1)
@@ -104,7 +92,7 @@ defmodule Nerves.Utils.HTTPClient do
       |> Keyword.merge(Nerves.Utils.Proxy.config(url))
       |> Keyword.merge(Keyword.get(opts, :http_opts, []))
 
-    {:ok, _} =
+    {:ok, request_ref} =
       :httpc.request(
         :get,
         {String.to_charlist(url), headers},
@@ -113,75 +101,77 @@ defmodule Nerves.Utils.HTTPClient do
         :nerves
       )
 
-    {:noreply, %{s | caller: from, get_opts: opts, progress?: progress?}}
+    {:await, request_ref,
+     %{
+       buffer: "",
+       buffer_size: 0,
+       content_length: 0,
+       get_opts: opts,
+       progress?: progress?,
+       redirects: redirects
+     }}
   end
 
-  @impl GenServer
-  def handle_info({:http, {_ref, {:error, {:failed_connect, _}} = err}}, s) do
-    GenServer.reply(s.caller, err)
-    {:noreply, s}
-  end
+  defp await_response({:done, result}), do: result
 
-  def handle_info({:http, {_, :stream_start, headers}}, s) do
-    content_length =
-      case Enum.find(headers, fn {key, _} -> key == ~c"content-length" end) do
-        nil ->
-          0
+  defp await_response({:await, request_ref, state}) do
+    receive do
+      {:http, {^request_ref, {:error, {:failed_connect, _}} = err}} ->
+        err
 
-        {_, content_length} ->
-          {content_length, _} =
-            content_length
-            |> to_string()
-            |> Integer.parse()
+      {:http, {^request_ref, :stream_start, headers}} ->
+        await_response({:await, request_ref, %{state | content_length: content_length(headers)}})
 
-          content_length
-      end
+      {:http, {^request_ref, :stream, data}} ->
+        size = byte_size(data) + state.buffer_size
+        buffer = state.buffer <> data
 
-    {:noreply, %{s | content_length: content_length}}
-  end
+        if progress?(state) do
+          put_progress(size, state.content_length)
+        end
 
-  def handle_info({:http, {_, :stream, data}}, s) do
-    size = byte_size(data) + s.buffer_size
-    buffer = s.buffer <> data
+        await_response({:await, request_ref, %{state | buffer_size: size, buffer: buffer}})
 
-    if progress?(s) do
-      put_progress(size, s.content_length)
-    end
+      {:http, {^request_ref, :stream_end, _headers}} ->
+        if progress?(state) do
+          IO.write(:stderr, "\n")
+        end
 
-    {:noreply, %{s | buffer_size: size, buffer: buffer}}
-  end
+        {:ok, state.buffer}
 
-  def handle_info({:http, {_, :stream_end, _headers}}, s) do
-    if progress?(s) do
-      IO.write(:stderr, "\n")
-    end
+      {:http, {^request_ref, {{_, status_code, reason}, headers, _body}}}
+      when div(status_code, 100) == 3 ->
+        case Enum.find(headers, fn {key, _} -> key == ~c"location" end) do
+          {~c"location", next_location} ->
+            next_get_opts = Keyword.drop(state.get_opts, [:headers])
 
-    GenServer.reply(s.caller, {:ok, s.buffer})
-    {:noreply, %{s | content_length: 0, buffer: "", buffer_size: 0}}
-  end
+            next_location
+            |> List.to_string()
+            |> request(next_get_opts, state.redirects + 1)
+            |> await_response()
 
-  def handle_info({:http, {_ref, {{_, status_code, reason}, headers, _body}}}, s)
-      when div(status_code, 100) == 3 do
-    case Enum.find(headers, fn {key, _} -> key == ~c"location" end) do
-      {~c"location", next_location} ->
-        next_get_opts = Keyword.drop(s.get_opts, [:headers])
+          _ ->
+            {:error, format_error(status_code, reason)}
+        end
 
-        handle_call({:get, List.to_string(next_location), next_get_opts}, s.caller, %{
-          s
-          | buffer: "",
-            buffer_size: 0,
-            number_of_redirects: s.number_of_redirects + 1
-        })
-
-      _ ->
-        GenServer.reply(s.caller, {:error, format_error(status_code, reason)})
-        {:noreply, s}
+      {:http, {^request_ref, {{_, status_code, reason}, _headers, _body}}} ->
+        {:error, format_error(status_code, reason)}
     end
   end
 
-  def handle_info({:http, {_ref, {{_, status_code, reason}, _headers, _body}}}, s) do
-    GenServer.reply(s.caller, {:error, format_error(status_code, reason)})
-    {:noreply, s}
+  defp content_length(headers) do
+    case Enum.find(headers, fn {key, _} -> key == ~c"content-length" end) do
+      nil ->
+        0
+
+      {_, header_value} ->
+        {content_length, _} =
+          header_value
+          |> to_string()
+          |> Integer.parse()
+
+        content_length
+    end
   end
 
   defp put_progress(size, max) do
