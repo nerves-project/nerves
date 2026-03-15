@@ -16,7 +16,7 @@ defmodule Nerves.Artifact.Resolvers.URI do
   def get({location, opts}) do
     Nerves.Utils.Shell.info("  => Trying #{location}")
 
-    query_params = Keyword.get(opts, :query_params, %{})
+    {query_params, opts} = Keyword.pop(opts, :query_params, %{})
 
     uri =
       location

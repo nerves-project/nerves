@@ -14,18 +14,9 @@ defmodule Nerves.Utils.HTTPClient do
   @progress_steps 50
   @max_redirects 5
 
-  # See https://www.erlang.org/doc/man/httpc.html#request-5
-  @type http_opts ::
-          {:timeout, timeout()}
-          | {:connect_timeout, timeout()}
-          | {:ssl, [:ssl.tls_option()]}
-          | {:autoredirect, boolean()}
-          | {:proxy_auth, {charlist(), charlist()}}
-          | {:relaxed, boolean()}
   @type opts :: [
           progress?: boolean(),
-          headers: [{String.t() | charlist(), String.t() | charlist()}],
-          http_opts: [http_opts()]
+          headers: [{String.t() | charlist(), String.t() | charlist()}]
         ]
 
   @type request_state :: %{
@@ -54,6 +45,7 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def get(url, opts) do
+    _ = Keyword.validate!(opts, [:headers, :progress?])
     {:ok, _} = Application.ensure_all_started(:nerves)
     start_httpc()
 
