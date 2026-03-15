@@ -46,7 +46,6 @@ defmodule Nerves.Utils.HTTPClient do
 
   def get(url, opts) do
     _ = Keyword.validate!(opts, [:headers, :progress?])
-    {:ok, _} = Application.ensure_all_started(:nerves)
     start_httpc()
 
     url
