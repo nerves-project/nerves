@@ -58,7 +58,8 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   defp request(url, opts, redirects) do
-    progress? = Keyword.get(opts, :progress?, true)
+    progress? =
+      Keyword.get(opts, :progress?, true) and progress_enabled?() and interactive_terminal?()
 
     user_headers = Keyword.get(opts, :headers, []) |> Enum.map(&tuple_to_charlist/1)
 
@@ -117,17 +118,11 @@ defmodule Nerves.Utils.HTTPClient do
         size = byte_size(data) + state.buffer_size
         buffer = state.buffer <> data
 
-        if progress?(state) do
-          put_progress(size, state.content_length)
-        end
-
+        put_progress(state, size)
         await_response({:await, request_ref, %{state | buffer_size: size, buffer: buffer}})
 
       {:http, {^request_ref, :stream_end, _headers}} ->
-        if progress?(state) do
-          IO.write(:stderr, "\n")
-        end
-
+        progress_done(state)
         {:ok, state.buffer}
 
       {:http, {^request_ref, {{_, status_code, reason}, headers, _body}}}
@@ -165,18 +160,6 @@ defmodule Nerves.Utils.HTTPClient do
     end
   end
 
-  defp put_progress(size, max) do
-    fraction = size / max
-    completed = trunc(fraction * @progress_steps)
-    percent = trunc(fraction * 100)
-    unfilled = @progress_steps - completed
-
-    IO.write(
-      :stderr,
-      "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{bytes_to_mb(size)} / #{bytes_to_mb(max)}) MB"
-    )
-  end
-
   defp format_error(status_code, reason) do
     "Status #{to_string(status_code)} #{to_string(reason)}"
   end
@@ -195,14 +178,6 @@ defmodule Nerves.Utils.HTTPClient do
     :ok = :httpc.set_options(opts, :nerves)
   end
 
-  defp bytes_to_mb(bytes) do
-    trunc(bytes / 1024 / 1024)
-  end
-
-  defp progress?(%{progress?: progress?}) do
-    progress? and progress_enabled?() and interactive_terminal?()
-  end
-
   defp progress_enabled?() do
     System.get_env("NERVES_LOG_DISABLE_PROGRESS_BAR") == nil
   end
@@ -214,6 +189,28 @@ defmodule Nerves.Utils.HTTPClient do
       {:ok, _cols} -> true
       _ -> false
     end
+  end
+
+  defp put_progress(%{progress?: true} = state, size) do
+    max = state.content_length
+    fraction = size / max
+    completed = trunc(fraction * @progress_steps)
+    percent = trunc(fraction * 100)
+    unfilled = @progress_steps - completed
+
+    IO.write(
+      :stderr,
+      "\r|#{String.duplicate("=", completed)}#{String.duplicate(" ", unfilled)}| #{percent}% (#{bytes_to_mb(size)} / #{bytes_to_mb(max)}) MB"
+    )
+  end
+
+  defp put_progress(_state, _size), do: :ok
+
+  defp progress_done(%{progress?: true} = _state), do: IO.write(:stderr, "\n")
+  defp progress_done(_state), do: :ok
+
+  defp bytes_to_mb(bytes) do
+    trunc(bytes / 1024 / 1024)
   end
 
   defp tuple_to_charlist({k, v}) do
