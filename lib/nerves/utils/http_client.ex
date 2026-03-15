@@ -24,8 +24,7 @@ defmodule Nerves.Utils.HTTPClient do
           | {:relaxed, boolean()}
   @type opts :: [
           progress?: boolean(),
-          headers: [{String.t() | charlist(), String.t() | charlist()}],
-          http_opts: http_opts()
+          headers: [{String.t() | charlist(), String.t() | charlist()}]
         ]
 
   @spec start_link() :: GenServer.on_start()
@@ -55,7 +54,9 @@ defmodule Nerves.Utils.HTTPClient do
     get(pid, url, opts)
   end
 
-  def get(pid, url, opts), do: GenServer.call(pid, {:get, url, opts}, :infinity)
+  def get(pid, url, opts) do
+    GenServer.call(pid, {:get, url, opts}, :infinity)
+  end
 
   @impl GenServer
   def init([]) do
