@@ -17,27 +17,46 @@ defmodule Nerves.Utils.HTTPClient do
   @max_redirects 5
 
   @type opts :: [
+          into: Collectable.t(),
           progress?: boolean(),
           headers: [{String.t() | charlist(), String.t() | charlist()}]
         ]
 
   @type request_state :: %{
-          buffer: String.t(),
-          buffer_size: non_neg_integer(),
+          collector: (term(), Collectable.command() -> term()),
+          collector_acc: term(),
           content_length: non_neg_integer(),
           get_opts: opts(),
           progress?: boolean(),
+          received: non_neg_integer(),
           redirects: non_neg_integer()
         }
 
+  @doc """
+  Make an HTTP GET request and collect the response body.
+
+  The `:into` option accepts any `Collectable.t()`. Defaults to `""` which
+  collects the response into a string. Pass a `File.Stream` to write directly
+  to a file.
+
+  Returns `{:ok, collected}` or `{:error, reason}`.
+  """
   @spec get(URI.t() | String.t(), opts()) ::
-          {:ok, String.t()} | {:error, String.t() | :too_many_redirects | atom()}
+          {:ok, Collectable.t()} | {:error, String.t() | :too_many_redirects | atom()}
   def get(url_or_uri, opts \\ [])
 
-  def get(%URI{host: nil, path: path}, _opts) do
-    path
-    |> Path.expand()
-    |> File.read()
+  def get(%URI{host: nil, path: path}, opts) do
+    into = Keyword.get(opts, :into, "")
+
+    case File.read(Path.expand(path)) do
+      {:ok, data} ->
+        {acc, collector} = Collectable.into(into)
+        acc = collector.(acc, {:cont, data})
+        {:ok, collector.(acc, :done)}
+
+      {:error, _} = error ->
+        error
+    end
   end
 
   def get(%URI{} = uri, opts) do
@@ -47,21 +66,24 @@ defmodule Nerves.Utils.HTTPClient do
   end
 
   def get(url, opts) do
-    _ = Keyword.validate!(opts, [:headers, :progress?])
+    _ = Keyword.validate!(opts, [:headers, :into, :progress?])
     start_httpc()
 
     url
-    |> request(opts, 0)
+    |> start_request(opts, 0)
     |> await_response()
   end
 
-  defp request(_url, _opts, redirects) when redirects > @max_redirects do
+  defp start_request(_url, _opts, redirects) when redirects > @max_redirects do
     {:done, {:error, :too_many_redirects}}
   end
 
-  defp request(url, opts, redirects) do
+  defp start_request(url, opts, redirects) do
     progress? =
       Keyword.get(opts, :progress?, true) and progress_enabled?() and interactive_terminal?()
+
+    into = Keyword.get(opts, :into, "")
+    {acc, collector} = Collectable.into(into)
 
     user_headers = Keyword.get(opts, :headers, []) |> Enum.map(&tuple_to_charlist/1)
 
@@ -96,11 +118,12 @@ defmodule Nerves.Utils.HTTPClient do
 
     {:await, request_ref,
      %{
-       buffer: "",
-       buffer_size: 0,
+       collector: collector,
+       collector_acc: acc,
        content_length: 0,
        get_opts: opts,
        progress?: progress?,
+       received: 0,
        redirects: redirects
      }}
   end
@@ -116,25 +139,26 @@ defmodule Nerves.Utils.HTTPClient do
         await_response({:await, request_ref, %{state | content_length: content_length(headers)}})
 
       {:http, {^request_ref, :stream, data}} ->
-        size = byte_size(data) + state.buffer_size
-        buffer = state.buffer <> data
-
+        size = byte_size(data) + state.received
+        acc = state.collector.(state.collector_acc, {:cont, data})
         put_progress(state, size)
-        await_response({:await, request_ref, %{state | buffer_size: size, buffer: buffer}})
+        await_response({:await, request_ref, %{state | received: size, collector_acc: acc}})
 
       {:http, {^request_ref, :stream_end, _headers}} ->
         progress_done(state)
-        {:ok, state.buffer}
+        {:ok, state.collector.(state.collector_acc, :done)}
 
       {:http, {^request_ref, {{_, status_code, reason}, headers, _body}}}
       when div(status_code, 100) == 3 ->
+        state.collector.(state.collector_acc, :halt)
+
         case Enum.find(headers, fn {key, _} -> key == ~c"location" end) do
           {~c"location", next_location} ->
             next_get_opts = Keyword.drop(state.get_opts, [:headers])
 
             next_location
             |> List.to_string()
-            |> request(next_get_opts, state.redirects + 1)
+            |> start_request(next_get_opts, state.redirects + 1)
             |> await_response()
 
           _ ->
@@ -142,6 +166,7 @@ defmodule Nerves.Utils.HTTPClient do
         end
 
       {:http, {^request_ref, {{_, status_code, reason}, _headers, _body}}} ->
+        state.collector.(state.collector_acc, :halt)
         {:error, format_error(status_code, reason)}
     end
   end

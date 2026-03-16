@@ -77,7 +77,11 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPI do
 
     with {:ok, assets_or_url} <- release_details(opts),
          {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
-      HTTPClient.get(asset_url, headers: [{"Accept", "application/octet-stream"} | opts.headers])
+      http_opts =
+        Keyword.take(opts.opts, [:into])
+        |> Keyword.put(:headers, [{"Accept", "application/octet-stream"} | opts.headers])
+
+      HTTPClient.get(asset_url, http_opts)
     end
   end
 
