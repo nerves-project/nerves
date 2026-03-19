@@ -31,7 +31,9 @@ defmodule Nerves.MixProject do
   end
 
   def application do
-    [extra_applications: [:ssl, :inets, :eex]]
+    # Remove :nerves_bootstrap after allowing time for everyone to upgrade to
+    # 1.15.1 or later.
+    [extra_applications: [:ssl, :inets, :eex, :nerves_bootstrap]]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
