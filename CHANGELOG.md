@@ -5,6 +5,20 @@
 
 # Changelog
 
+## v1.13.2 - 2026-03-19
+
+This release starts a process of modernizing the Nerves tooling. Most updates
+are behind the scenes so the plan is to roll them out incrementally to minimize
+the changes per release. This release focused on internal updates to HTTP
+request handling.
+
+* Changes
+  * Turn off artifact download progress for non-interactive terminals
+  * Show the `.local` hostname with `nerves.discover` rather than just the
+    hostname. This makes it better for copy/paste use.
+  * Download artifacts to disk rather than buffering entire contents before
+    writing. This helps memory usage especially for large artifacts.
+
 ## v1.13.1 - 2026-02-02
 
 * Changes
