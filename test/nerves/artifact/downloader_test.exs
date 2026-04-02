@@ -7,7 +7,7 @@
 defmodule Nerves.Artifact.DownloaderTest do
   use NervesTest.Case
 
-  alias Nerves.Artifact
+  alias Nerves.Artifact.Downloader
 
   setup_all do
     {:ok, pid} = Nerves.TestServer.Router.start_link()
@@ -24,8 +24,8 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
+      downloaders = Downloader.expand_sites(pkg)
+      assert {:ok, _path} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -39,8 +39,8 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
+      downloaders = Downloader.expand_sites(pkg)
+      assert {:ok, _path} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -55,8 +55,8 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
+      downloaders = Downloader.expand_sites(pkg)
+      assert {:ok, _path} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -70,8 +70,8 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
-      assert {:error, _reason} = Artifact.Downloader.download(downloaders, pkg)
+      downloaders = Downloader.expand_sites(pkg)
+      assert {:error, _reason} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -87,8 +87,8 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
+      downloaders = Downloader.expand_sites(pkg)
+      assert {:ok, _path} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -104,8 +104,8 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
-      assert {:error, _} = Artifact.Downloader.download(downloaders, pkg)
+      downloaders = Downloader.expand_sites(pkg)
+      assert {:error, _} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -119,10 +119,10 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
+      downloaders = Downloader.expand_sites(pkg)
 
       assert_raise Mix.Error, fn ->
-        Artifact.Downloader.download(downloaders, pkg)
+        Downloader.download(downloaders, pkg)
       end
     end)
   end
@@ -138,9 +138,9 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
+      downloaders = Downloader.expand_sites(pkg)
 
-      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
+      assert {:ok, _path} = Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -152,9 +152,9 @@ defmodule Nerves.Artifact.DownloaderTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      downloaders = Artifact.expand_sites(pkg)
+      downloaders = Downloader.expand_sites(pkg)
 
-      assert {:error, _reason} = Artifact.Downloader.download(downloaders, pkg)
+      assert {:error, _reason} = Downloader.download(downloaders, pkg)
       output = "     Status 404 Not Found"
       assert_receive {:mix_shell, :info, [^output]}
     end)

@@ -11,9 +11,9 @@ defmodule Nerves.Artifact do
   Package artifacts are the product of compiling a package with a
   specific toolchain.
   """
+  alias Nerves.Artifact.Archive
   alias Nerves.Artifact.BuildRunners
   alias Nerves.Artifact.Cache
-  alias Nerves.Artifact.Downloaders
 
   @checksum_short 7
 
@@ -118,6 +118,22 @@ defmodule Nerves.Artifact do
   def download_name(pkg, opts \\ []) do
     checksum_short = opts[:checksum_short] || @checksum_short
     "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: checksum_short)}"
+  end
+
+  @doc """
+  Get the list of possible artifact download filenames.
+
+  Returns all combinations of the download name base with supported archive
+  extensions. These are the filenames to search for when downloading or
+  locating a cached artifact.
+  """
+  @spec download_names(Nerves.Package.t()) :: [String.t()]
+  def download_names(pkg) do
+    base = download_name(pkg)
+
+    for ext <- Archive.supported_extensions() do
+      base <> ext
+    end
   end
 
   @doc """
@@ -232,38 +248,6 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Expands the sites helpers from `artifact_sites` in the nerves_package config.
-
-  Artifact sites can pass options as a third parameter for adding headers
-  or query string parameters. For example, if you are trying to resolve
-  artifacts hosted in a private Github repo, use `:github_api` and
-  pass a user, tag, and personal access token into the sites helper:
-
-  ```elixir
-  {:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}
-  ```
-
-  Or pass query parameters for the URL:
-
-  ```elixir
-  {:prefix, "https://my-organization.com", query_params: %{"id" => "1234567", "token" => "abcd"}}
-  ```
-
-  You can also use this to add an authorization header for files behind basic auth.
-
-  ```elixir
-  {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
-  ```
-  """
-  @spec expand_sites(Nerves.Package.t()) :: [
-          {Downloaders.URI | Downloaders.GithubAPI | Downloaders.GiteaAPI, {Path.t(), Keyword.t()}}
-        ]
-  def expand_sites(pkg) do
-    Keyword.get(pkg.config, :artifact_sites, [])
-    |> Enum.map(&expand_site(&1, pkg))
-  end
-
-  @doc """
   Get the path to where the artifact archive is downloaded to.
   """
   @spec download_path(Nerves.Package.t()) :: String.t()
@@ -353,79 +337,4 @@ defmodule Nerves.Artifact do
     |> Keyword.put_new(:name, name)
     |> Keyword.put_new(:path, File.cwd!())
   end
-
-  defp expand_site(_, _, _ \\ [])
-
-  defp expand_site({:github_releases, org_proj}, pkg, opts) do
-    opts =
-      opts
-      |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
-      |> Keyword.put(:public?, true)
-      |> update_in([:tag], &(&1 || "v#{pkg.version}"))
-
-    {Downloaders.GithubAPI, {org_proj, opts}}
-  end
-
-  defp expand_site({:gitea_releases, repo_uri}, pkg, opts) when is_binary(repo_uri),
-    do: expand_site({:gitea_releases, URI.parse(repo_uri)}, pkg, opts)
-
-  defp expand_site({:gitea_releases, repo_uri}, pkg, opts)
-       when is_nil(repo_uri.scheme) and is_nil(repo_uri.host),
-       do: expand_site({:gitea_releases, URI.parse("https://#{repo_uri.path}")}, pkg, opts)
-
-  defp expand_site({:gitea_releases, repo_uri}, pkg, opts) do
-    repo_uri = URI.parse(repo_uri)
-    base_url = %{repo_uri | path: "/"} |> to_string()
-    org_proj = repo_uri.path |> String.trim_leading("/")
-
-    opts =
-      opts
-      |> Keyword.put(:base_url, base_url)
-      |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
-      |> Keyword.put(:public?, true)
-      |> update_in([:tag], &(&1 || "v#{pkg.version}"))
-
-    {Downloaders.GiteaAPI, {org_proj, opts}}
-  end
-
-  defp expand_site({:prefix, url}, pkg, opts) do
-    expand_site({:prefix, url, []}, pkg, opts)
-  end
-
-  defp expand_site({:prefix, path, resolver_opts}, pkg, opts) do
-    path = Path.join(path, download_name(pkg, opts) <> ext(pkg))
-    {Downloaders.URI, {path, resolver_opts}}
-  end
-
-  defp expand_site({:github_api, org_proj, resolver_opts}, pkg, opts) do
-    resolver_opts =
-      Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
-
-    {Downloaders.GithubAPI, {org_proj, resolver_opts}}
-  end
-
-  defp expand_site({:gitea_api, org_proj, resolver_opts}, pkg, opts) do
-    resolver_opts =
-      Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
-
-    {Downloaders.GiteaAPI, {org_proj, resolver_opts}}
-  end
-
-  defp expand_site(site, _pkg, _opts),
-    do:
-      Mix.raise("""
-      Unsupported artifact site
-      #{inspect(site)}
-
-      Supported artifact sites:
-      {:github_releases, "owner/repo"}
-      {:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"}
-      {:gitea_releases, "host/owner/repo"},
-      {:gitea_api, "owner/repo", base_url: "https://gitea.com", token: "123456", tag: "v0.1.0"}
-      {:prefix, "http://myserver.com/artifacts"}
-      {:prefix, "http://myserver.com/artifacts", headers: [{"Authorization", "Basic: 1234567=="}]}
-      {:prefix, "http://myserver.com/artifacts", query_params: %{"id" => "1234567"}}
-      {:prefix, "file:///my_artifacts/"}
-      {:prefix, "/users/my_user/artifacts/"}
-      """)
 end

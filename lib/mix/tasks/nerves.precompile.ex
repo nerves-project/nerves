@@ -59,7 +59,7 @@ defmodule Mix.Tasks.Nerves.Precompile do
     # universally take long to build so force the user to acknowledge it.
     Mix.Project.config()[:app] != package.app and
       :nerves_package in Map.get(package, :compilers, Mix.compilers()) and
-      Nerves.Artifact.expand_sites(package) != [] and
+      Nerves.Artifact.Downloader.expand_sites(package) != [] and
       Nerves.Artifact.stale?(package) and
       package.dep_opts[:compile] != true
   end

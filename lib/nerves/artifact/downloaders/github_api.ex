@@ -14,7 +14,8 @@ defmodule Nerves.Artifact.Downloaders.GithubAPI do
 
   @base_url "https://api.github.com/"
 
-  defstruct artifact_name: nil,
+  defstruct dest_dir: nil,
+            download_names: [],
             base_url: @base_url,
             headers: [],
             public?: false,
@@ -26,13 +27,37 @@ defmodule Nerves.Artifact.Downloaders.GithubAPI do
             username: ""
 
   @impl Nerves.Artifact.Downloader
-  def download({org_proj, opts}, dest_path) do
-    opts =
+  def expand_site({:github_releases, org_proj}, info) do
+    opts = [
+      public?: true,
+      tag: "v#{info[:version]}"
+    ]
+
+    {:ok, {org_proj, opts}}
+  end
+
+  def expand_site({:github_api, org_proj, resolver_opts}, _info) do
+    {:ok, {org_proj, resolver_opts}}
+  end
+
+  def expand_site(_site_config, _info), do: :skip
+
+  @impl Nerves.Artifact.Downloader
+  def download(org_proj, opts) do
+    s =
       %{struct(__MODULE__, opts) | opts: opts, repo: org_proj}
       |> maybe_adjust_token()
       |> add_http_opts()
 
-    fetch_artifact(dest_path, opts)
+    fetch_artifact(s)
+  end
+
+  @impl Nerves.Artifact.Downloader
+  def site_help() do
+    [
+      ~s({:github_releases, "owner/repo"}),
+      ~s({:github_api, "owner/repo", username: "skroob", token: "1234567", tag: "v0.1.0"})
+    ]
   end
 
   defp add_http_opts(opts) do
@@ -67,16 +92,50 @@ defmodule Nerves.Artifact.Downloaders.GithubAPI do
     end
   end
 
-  defp fetch_artifact(dest_path, opts) do
-    info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
+  defp fetch_artifact(opts) do
+    info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: hd(opts.download_names)
 
     Shell.info(["  [GitHub] ", info])
 
-    with {:ok, assets_or_url} <- release_details(opts),
-         {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
-      http_opts = [headers: [{"Accept", "application/octet-stream"} | opts.headers]]
+    case release_details(opts) do
+      {:ok, {:fallback_url, name, url}} ->
+        do_download(url, name, opts)
 
-      HTTPClient.download(asset_url, dest_path, http_opts)
+      {:ok, %{"assets" => assets}} ->
+        download_from_assets(assets, opts)
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  defp download_from_assets([], _opts), do: {:error, "No release artifacts"}
+
+  defp download_from_assets(assets, opts) do
+    case find_matching_asset(assets, opts.download_names) do
+      {%{"url" => url}, name} ->
+        do_download(url, name, opts)
+
+      nil ->
+        available = for %{"name" => name} <- assets, do: ["       * ", name, "\n"]
+        {:error, ["No artifact with valid checksum\n\n     Found:\n", available]}
+    end
+  end
+
+  defp find_matching_asset(assets, download_names) do
+    Enum.find_value(download_names, fn name ->
+      asset = Enum.find(assets, fn %{"name" => n} -> String.equivalent?(name, n) end)
+      if asset, do: {asset, name}
+    end)
+  end
+
+  defp do_download(url, name, opts) do
+    dest_path = Path.join(opts.dest_dir, name)
+    http_opts = [headers: [{"Accept", "application/octet-stream"} | opts.headers]]
+
+    case HTTPClient.download(url, dest_path, http_opts) do
+      :ok -> {:ok, dest_path}
+      {:error, _} = error -> error
     end
   end
 
@@ -91,8 +150,11 @@ defmodule Nerves.Artifact.Downloaders.GithubAPI do
         # If the release doesn't exist, we won't be able help provide hints about
         # a checksum mismatch or bad name, but the tradeoff is worth it if the
         # release actually does exist
+        name = hd(opts.download_names)
+
         {:ok,
-         "https://github.com/#{opts.repo}/releases/download/#{opts.tag}/#{opts.artifact_name}"}
+         {:fallback_url, name,
+          "https://github.com/#{opts.repo}/releases/download/#{opts.tag}/#{name}"}}
 
       {:error, "Status 404 Not Found"} ->
         invalid_token? = is_nil(opts.token) or opts.token == ""
@@ -114,38 +176,8 @@ defmodule Nerves.Artifact.Downloaders.GithubAPI do
 
         {:error, msg}
 
-      result ->
-        result
+      {:error, reason} ->
+        {:error, reason}
     end
-  end
-
-  defp get_asset_url(url, _opts) when is_binary(url), do: {:ok, url}
-
-  defp get_asset_url(%{"assets" => []}, _opts) do
-    {:error, "No release artifacts"}
-  end
-
-  defp get_asset_url(%{"assets" => assets}, %{artifact_name: artifact_name})
-       when is_list(assets) do
-    ret =
-      Enum.find(assets, fn %{"name" => name} ->
-        String.equivalent?(artifact_name, name)
-      end)
-
-    case ret do
-      nil ->
-        available = for %{"name" => name} <- assets, do: ["       * ", name, "\n"]
-        msg = ["No artifact with valid checksum\n\n     Found:\n", available]
-
-        {:error, msg}
-
-      %{"url" => url} ->
-        {:ok, url}
-    end
-  end
-
-  defp get_asset_url(response, _opts) do
-    truncated = inspect(response, limit: 10, printable_limit: 200)
-    {:error, "Unexpected API response when querying assets: #{truncated}"}
   end
 end

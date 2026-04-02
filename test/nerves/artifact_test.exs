@@ -10,6 +10,7 @@ defmodule Nerves.ArtifactTest do
 
   alias Nerves.Artifact
   alias Nerves.Artifact.BuildRunners, as: P
+  alias Nerves.Artifact.Downloader
   alias Nerves.Artifact.Downloaders.GiteaAPI
   alias Nerves.Artifact.Downloaders.GithubAPI
   alias Nerves.Env
@@ -76,6 +77,17 @@ defmodule Nerves.ArtifactTest do
     end)
   end
 
+  test "unsupported artifact site raises" do
+    assert_raise Mix.Error, fn ->
+      Downloader.expand_sites(%{
+        app: :test,
+        config: [artifact_sites: [{:broken}]],
+        version: "1.0.0",
+        path: "./"
+      })
+    end
+  end
+
   test "checksum short length" do
     in_fixture("system", fn ->
       File.cwd!()
@@ -101,10 +113,9 @@ defmodule Nerves.ArtifactTest do
       config: [artifact_sites: [{:github_releases, repo}]]
     }
 
-    checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
-
-    [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
-    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+    [{GithubAPI, {^repo, opts}}] = Downloader.expand_sites(pkg)
+    assert opts[:public?] == true
+    assert opts[:tag] == "v1.0.0"
   end
 
   test "Gitea artifact sites are expanded" do
@@ -117,10 +128,10 @@ defmodule Nerves.ArtifactTest do
       config: [artifact_sites: [{:gitea_releases, repo}]]
     }
 
-    checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
-
-    assert [{GiteaAPI, {"jmshrtn/nerves_artifact_test", opts}}] = Artifact.expand_sites(pkg)
-    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+    assert [{GiteaAPI, {"jmshrtn/nerves_artifact_test", opts}}] = Downloader.expand_sites(pkg)
+    assert opts[:public?] == true
+    assert opts[:base_url] == "https://gitea.com/"
+    assert opts[:tag] == "v1.0.0"
   end
 
   test "precompile will raise if packages are stale and not fetched" do

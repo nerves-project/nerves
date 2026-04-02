@@ -10,6 +10,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   use Mix.Task
 
   alias Nerves.Artifact
+  alias Nerves.Artifact.Archive
   alias Nerves.Artifact.Cache
   alias Nerves.Artifact.Downloader
 
@@ -51,17 +52,17 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   end
 
   defp get_artifact(pkg) do
-    archive = Artifact.download_path(pkg)
+    archive = Downloader.find_archive(pkg)
     Nerves.Utils.Shell.success("  Checking #{pkg.app}...")
 
-    with true <- File.exists?(archive),
-         :ok <- Nerves.Artifact.Archive.validate(archive) do
-      Nerves.Utils.Shell.info("  => Trying #{archive}")
-      put_cache(pkg, archive)
+    with path when path != nil <- archive,
+         :ok <- Archive.validate(path) do
+      Nerves.Utils.Shell.info("  => Trying #{path}")
+      put_cache(pkg, path)
     else
       _error ->
-        _ = File.rm(archive)
-        downloaders = Artifact.expand_sites(pkg)
+        _ = if archive, do: File.rm(archive)
+        downloaders = Downloader.expand_sites(pkg)
         get_artifact(pkg, downloaders)
     end
   end

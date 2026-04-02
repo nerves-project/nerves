@@ -51,7 +51,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     Checksum Short:     #{Artifact.checksum(package, short: Artifact.__checksum_short_length__())}
     Name:               #{Artifact.name(package)}
     Download Name:      #{Artifact.download_name(package)}
-    Download File Name: #{Artifact.download_name(package)}#{Artifact.ext(package)}
+    Download File Names: #{Enum.join(Artifact.download_names(package), ", ")}
     Download Path:      #{Artifact.download_path(package)}
     Sites:              #{inspect(Keyword.get(package.config, :artifact_sites, []))}
     Base Directory:     #{Artifact.base_dir()}

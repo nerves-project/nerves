@@ -9,9 +9,8 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
   alias Nerves.Artifact.Downloaders.GithubAPI
   alias Nerves.Utils.HTTPClient
 
-  # These are just markers for easier debug. Files should never be created since the HTTP downloader is mocked.
-  @invalid_download_path "/should_not_work.tgz"
-  @good_download_path "good_path.tar.gz"
+  @download_name "nerves_system_rpi-portable-1.0.0-1234567"
+  @download_names [@download_name <> ".tar.gz", @download_name <> ".tar.xz"]
 
   @no_artifacts_response Jason.encode!(%{assets: []})
 
@@ -25,7 +24,8 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
     %{
       repo: "nerves-project/nerves_system_rpi4",
       opts: [
-        artifact_name: "nerves_system_rpi-portable-1.0.0-1234567.tar.gz",
+        dest_dir: "/tmp/test",
+        download_names: @download_names,
         tag: "v1.0.0",
         token: "1234"
       ]
@@ -34,28 +34,30 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
 
   test "public release not found", context do
     HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
+    reject(&HTTPClient.download/3)
 
     opts =
       context.opts
       |> Keyword.put(:public?, true)
       |> Keyword.delete(:token)
 
-    assert GithubAPI.download({context.repo, opts}, @invalid_download_path) == {:error, "No release"}
+    assert GithubAPI.download(context.repo, opts) == {:error, "No release"}
   end
 
   test "private release not found", context do
     HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
+    reject(&HTTPClient.download/3)
 
-    assert GithubAPI.download({context.repo, context.opts}, @invalid_download_path) ==
-             {:error, "No release"}
+    assert GithubAPI.download(context.repo, context.opts) == {:error, "No release"}
   end
 
   test "private release fails without token", context do
     HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
+    reject(&HTTPClient.download/3)
 
     opts = Keyword.delete(context.opts, :token)
 
-    assert {:error, msg} = GithubAPI.download({context.repo, opts}, @invalid_download_path)
+    assert {:error, msg} = GithubAPI.download(context.repo, opts)
 
     assert msg == """
            Missing token
@@ -70,10 +72,11 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
 
   test "private release fails with nil token", context do
     HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
+    reject(&HTTPClient.download/3)
 
     opts = Keyword.put(context.opts, :token, nil)
 
-    assert {:error, msg} = GithubAPI.download({context.repo, opts}, @invalid_download_path)
+    assert {:error, msg} = GithubAPI.download(context.repo, opts)
 
     assert msg == """
            Missing token
@@ -91,7 +94,7 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
     HTTPClient |> expect(:get, fn _url, _opts -> {:ok, details} end)
     reject(&HTTPClient.download/3)
 
-    assert {:error, msg} = GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
+    assert {:error, msg} = GithubAPI.download(context.repo, context.opts)
 
     assert msg == [
              "No artifact with valid checksum\n\n     Found:\n",
@@ -103,31 +106,33 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
     HTTPClient |> expect(:get, fn _url, _opts -> {:ok, @no_artifacts_response} end)
     reject(&HTTPClient.download/3)
 
-    assert {:error, "No release artifacts"} =
-             GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
+    assert {:error, "No release artifacts"} = GithubAPI.download(context.repo, context.opts)
   end
 
   test "valid artifact", context do
     artifact_url = "http://example.com"
+    artifact_name = @download_name <> ".tar.gz"
 
     details =
-      Jason.encode!(%{assets: [%{name: context.opts[:artifact_name], url: artifact_url}]})
+      Jason.encode!(%{assets: [%{name: artifact_name, url: artifact_url}]})
 
     expected_details_url =
       "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
+
+    expected_dest = Path.join(context.opts[:dest_dir], artifact_name)
 
     HTTPClient
     |> expect(:get, fn url, _opts ->
       assert url == expected_details_url
       {:ok, details}
     end)
-    |> expect(:download, 1, fn url, path, _opts ->
+    |> expect(:download, fn url, dest_path, _opts ->
       assert url == artifact_url
-      assert path == @good_download_path
+      assert dest_path == expected_dest
       :ok
     end)
 
-    assert :ok = GithubAPI.download({context.repo, context.opts}, @good_download_path)
+    assert {:ok, ^expected_dest} = GithubAPI.download(context.repo, context.opts)
   end
 
   test "GITHUB_TOKEN takes precedence", context do
@@ -148,10 +153,7 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
 
     System.put_env("GITHUB_TOKEN", env_token)
     System.put_env("GH_TOKEN", gh_token)
-
-    {:error, "No release artifacts"} =
-      GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
-
+    _ = GithubAPI.download(context.repo, context.opts)
     System.delete_env("GITHUB_TOKEN")
     System.delete_env("GH_TOKEN")
   end
@@ -169,13 +171,13 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
       [{"Authorization", "Basic " <> encoded}] = opts[:headers]
       [_, req_token] = String.split(Base.decode64!(encoded), ":")
       assert req_token == env_token
-      {:ok, ""}
+      {:error, "test complete"}
     end)
 
     reject(&HTTPClient.download/3)
 
     System.put_env("GH_TOKEN", env_token)
-    _ = GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
+    _ = GithubAPI.download(context.repo, context.opts)
     System.delete_env("GH_TOKEN")
   end
 
@@ -189,20 +191,22 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
       |> Keyword.delete(:token)
 
     expected_public_download_url =
-      "https://github.com/#{context.repo}/releases/download/#{opts[:tag]}/#{opts[:artifact_name]}"
+      "https://github.com/#{context.repo}/releases/download/#{opts[:tag]}/#{@download_name}.tar.gz"
+
+    expected_dest = Path.join(opts[:dest_dir], @download_name <> ".tar.gz")
 
     HTTPClient
     |> expect(:get, fn url, _opts ->
       assert url == expected_details_url
       {:error, "Status 403 rate limit exceeded"}
     end)
-    |> expect(:download, 1, fn url, path, _opts ->
+    |> expect(:download, fn url, dest_path, _opts ->
       assert url == expected_public_download_url
-      assert path == @good_download_path
+      assert dest_path == expected_dest
       :ok
     end)
 
-    assert :ok = GithubAPI.download({context.repo, opts}, @good_download_path)
+    assert {:ok, ^expected_dest} = GithubAPI.download(context.repo, opts)
   end
 
   test "private release fails when API rate limit reached", context do
@@ -210,6 +214,6 @@ defmodule Nerves.Artifact.Downloaders.GithubAPITest do
     reject(&HTTPClient.download/3)
 
     assert {:error, "Status 403 rate limit exceeded"} =
-             GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
+             GithubAPI.download(context.repo, context.opts)
   end
 end

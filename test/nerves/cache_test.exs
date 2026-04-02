@@ -49,8 +49,9 @@ defmodule Nerves.CacheTest do
 
       package = Nerves.Env.package(:system)
 
-      dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
+      dl_name = Nerves.Artifact.download_name(package) <> ".tar.gz"
       dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
+
       File.mkdir_p!(Nerves.Env.download_dir())
       create_tgz(dl_path, [])
 
@@ -59,6 +60,9 @@ defmodule Nerves.CacheTest do
       Mix.Tasks.Nerves.Artifact.Get.get(:system)
       output = "  => Trying #{dl_path}"
       assert_receive {:mix_shell, :info, [^output]}
+      assert_receive {:mix_shell, :info, ["  Checking system..."]}
+      assert_receive {:mix_shell, :info, ["  => Success"]}
+      refute_receive _
     end)
   end
 

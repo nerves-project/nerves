@@ -7,6 +7,7 @@
 defmodule Nerves.Artifact.Cache do
   @moduledoc false
   alias Nerves.Artifact
+  alias Nerves.Artifact.Archive
   alias Nerves.Package
 
   @checksum "CHECKSUM"
@@ -24,14 +25,13 @@ defmodule Nerves.Artifact.Cache do
 
   @spec put(Package.t(), binary()) :: :ok | {:error, File.posix()}
   def put(pkg, path) do
-    ext = Artifact.ext(pkg)
     dest = path(pkg)
 
     _ = File.rm_rf(dest)
 
-    if String.ends_with?(path, ext) do
+    if Archive.valid_name?(path) do
       File.mkdir_p!(dest)
-      :ok = Nerves.Artifact.Archive.extract(path, dest)
+      :ok = Archive.extract(path, dest)
     else
       Path.dirname(dest)
       |> File.mkdir_p!()

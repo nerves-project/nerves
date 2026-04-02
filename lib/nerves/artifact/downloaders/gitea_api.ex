@@ -10,7 +10,8 @@ defmodule Nerves.Artifact.Downloaders.GiteaAPI do
   alias Nerves.Utils.HTTPClient
   alias Nerves.Utils.Shell
 
-  defstruct artifact_name: nil,
+  defstruct dest_dir: nil,
+            download_names: [],
             base_url: nil,
             headers: [],
             public?: false,
@@ -21,13 +22,55 @@ defmodule Nerves.Artifact.Downloaders.GiteaAPI do
             url: nil
 
   @impl Nerves.Artifact.Downloader
-  def download({repo, opts}, dest_path) do
-    opts =
+  def expand_site({:gitea_releases, repo_uri}, info) when is_binary(repo_uri) do
+    expand_gitea_releases(URI.parse(repo_uri), info)
+  end
+
+  def expand_site({:gitea_releases, %URI{} = repo_uri}, info) do
+    expand_gitea_releases(repo_uri, info)
+  end
+
+  def expand_site({:gitea_api, org_proj, resolver_opts}, _info) do
+    {:ok, {org_proj, resolver_opts}}
+  end
+
+  def expand_site(_site_config, _info), do: :skip
+
+  @impl Nerves.Artifact.Downloader
+  def download(repo, opts) do
+    s =
       %{struct(__MODULE__, opts) | opts: opts, repo: repo}
       |> maybe_adjust_token()
       |> add_http_opts()
 
-    fetch_artifact(dest_path, opts)
+    fetch_artifact(s)
+  end
+
+  @impl Nerves.Artifact.Downloader
+  def site_help() do
+    [
+      ~s({:gitea_releases, "host/owner/repo"}),
+      ~s({:gitea_api, "owner/repo", base_url: "https://gitea.com", token: "123456", tag: "v0.1.0"})
+    ]
+  end
+
+  # Private
+
+  defp expand_gitea_releases(%URI{scheme: nil, host: nil, path: path}, info) do
+    expand_gitea_releases(URI.parse("https://#{path}"), info)
+  end
+
+  defp expand_gitea_releases(%URI{} = repo_uri, info) do
+    base_url = %{repo_uri | path: "/"} |> to_string()
+    org_proj = repo_uri.path |> String.trim_leading("/")
+
+    opts = [
+      base_url: base_url,
+      public?: true,
+      tag: "v#{info[:version]}"
+    ]
+
+    {:ok, {org_proj, opts}}
   end
 
   defp add_http_opts(opts) do
@@ -70,16 +113,47 @@ defmodule Nerves.Artifact.Downloaders.GiteaAPI do
     end
   end
 
-  defp fetch_artifact(dest_path, opts) do
-    info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
+  defp fetch_artifact(opts) do
+    info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: hd(opts.download_names)
 
     Shell.info(["  [Gitea] ", info])
 
-    with {:ok, assets_or_url} <- release_details(opts),
-         {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
-      http_opts = [headers: [{"Accept", "application/octet-stream"} | opts.headers]]
+    case release_details(opts) do
+      {:ok, %{"assets" => assets}} ->
+        download_from_assets(assets, opts)
 
-      HTTPClient.download(asset_url, dest_path, http_opts)
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  defp download_from_assets([], _opts), do: {:error, "No release artifacts"}
+
+  defp download_from_assets(assets, opts) do
+    case find_matching_asset(assets, opts.download_names) do
+      {%{"browser_download_url" => url}, name} ->
+        do_download(url, name, opts)
+
+      nil ->
+        available = for %{"name" => name} <- assets, do: ["       * ", name, "\n"]
+        {:error, ["No artifact with valid checksum\n\n     Found:\n", available]}
+    end
+  end
+
+  defp find_matching_asset(assets, download_names) do
+    Enum.find_value(download_names, fn name ->
+      asset = Enum.find(assets, fn %{"name" => n} -> String.equivalent?(name, n) end)
+      if asset, do: {asset, name}
+    end)
+  end
+
+  defp do_download(url, name, opts) do
+    dest_path = Path.join(opts.dest_dir, name)
+    http_opts = [headers: [{"Accept", "application/octet-stream"} | opts.headers]]
+
+    case HTTPClient.download(url, dest_path, http_opts) do
+      :ok -> {:ok, dest_path}
+      {:error, _} = error -> error
     end
   end
 
@@ -110,30 +184,6 @@ defmodule Nerves.Artifact.Downloaders.GiteaAPI do
 
       {:error, reason} ->
         {:error, reason}
-    end
-  end
-
-  defp get_asset_url(url, _) when is_binary(url), do: {:ok, url}
-
-  defp get_asset_url(%{"assets" => []}, _opts) do
-    {:error, "No release artifacts"}
-  end
-
-  defp get_asset_url(%{"assets" => assets}, %{artifact_name: artifact_name}) do
-    ret =
-      Enum.find(assets, fn %{"name" => name} ->
-        String.equivalent?(artifact_name, name)
-      end)
-
-    case ret do
-      nil ->
-        available = for %{"name" => name} <- assets, do: ["       * ", name, "\n"]
-        msg = ["No artifact with valid checksum\n\n     Found:\n", available]
-
-        {:error, msg}
-
-      %{"browser_download_url" => url} ->
-        {:ok, url}
     end
   end
 end
