@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.Artifact.ResolverTest do
+defmodule Nerves.Artifact.DownloaderTest do
   use NervesTest.Case
 
   alias Nerves.Artifact
@@ -14,7 +14,7 @@ defmodule Nerves.Artifact.ResolverTest do
     [server: pid]
   end
 
-  test "artifact resolver can download from open sites" do
+  test "downloader can download from open sites" do
     in_fixture("resolver", fn ->
       set_artifact_path()
 
@@ -24,12 +24,12 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+      downloaders = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
-  test "artifact resolver can download using query param token auth" do
+  test "downloader can download using query param token auth" do
     in_fixture("resolver", fn ->
       set_artifact_path()
 
@@ -39,12 +39,12 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+      downloaders = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
-  test "artifact resolver can download using query param token auth with reserved chars" do
+  test "downloader can download using query param token auth with reserved chars" do
     in_fixture("resolver", fn ->
       set_artifact_path()
 
@@ -55,12 +55,12 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+      downloaders = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
-  test "artifact resolver unauthorized using incorrect token auth" do
+  test "downloader unauthorized using incorrect token auth" do
     in_fixture("resolver", fn ->
       set_artifact_path()
 
@@ -70,12 +70,12 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
-      assert {:error, _reason} = Artifact.Resolver.get(resolvers, pkg)
+      downloaders = Artifact.expand_sites(pkg)
+      assert {:error, _reason} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
-  test "artifact resolver can download using authorization header" do
+  test "downloader can download using authorization header" do
     in_fixture("resolver", fn ->
       set_artifact_path()
       token = Base.encode64("abcd:1234")
@@ -87,12 +87,12 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
-      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+      downloaders = Artifact.expand_sites(pkg)
+      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
-  test "artifact resolver unauthorized using incorrect authorization header" do
+  test "downloader unauthorized using incorrect authorization header" do
     in_fixture("resolver", fn ->
       set_artifact_path()
       token = Base.encode64("abcd:5678")
@@ -104,8 +104,8 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
-      assert {:error, _} = Artifact.Resolver.get(resolvers, pkg)
+      downloaders = Artifact.expand_sites(pkg)
+      assert {:error, _} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
@@ -119,10 +119,10 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
+      downloaders = Artifact.expand_sites(pkg)
 
       assert_raise Mix.Error, fn ->
-        Artifact.Resolver.get(resolvers, pkg)
+        Artifact.Downloader.download(downloaders, pkg)
       end
     end)
   end
@@ -138,13 +138,13 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
+      downloaders = Artifact.expand_sites(pkg)
 
-      assert {:ok, _path} = Artifact.Resolver.get(resolvers, pkg)
+      assert {:ok, _path} = Artifact.Downloader.download(downloaders, pkg)
     end)
   end
 
-  test "http resolver status codes are rendered" do
+  test "http downloader status codes are rendered" do
     in_fixture("resolver", fn ->
       sites = [
         {:prefix, "http://127.0.0.1:4000/doe_not_exist/"}
@@ -152,9 +152,9 @@ defmodule Nerves.Artifact.ResolverTest do
 
       pkg = %{app: :example, version: "0.1.0", path: "./", config: [artifact_sites: sites]}
 
-      resolvers = Artifact.expand_sites(pkg)
+      downloaders = Artifact.expand_sites(pkg)
 
-      assert {:error, _reason} = Artifact.Resolver.get(resolvers, pkg)
+      assert {:error, _reason} = Artifact.Downloader.download(downloaders, pkg)
       output = "     Status 404 Not Found"
       assert_receive {:mix_shell, :info, [^output]}
     end)

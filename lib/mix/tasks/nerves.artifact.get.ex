@@ -11,7 +11,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
 
   alias Nerves.Artifact
   alias Nerves.Artifact.Cache
-  alias Nerves.Artifact.Resolver
+  alias Nerves.Artifact.Downloader
 
   @impl Mix.Task
   def run(_opts) do
@@ -61,15 +61,15 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
     else
       _error ->
         _ = File.rm(archive)
-        resolvers = Artifact.expand_sites(pkg)
-        get_artifact(pkg, resolvers)
+        downloaders = Artifact.expand_sites(pkg)
+        get_artifact(pkg, downloaders)
     end
   end
 
   defp get_artifact(pkg, []), do: Nerves.Utils.Shell.warn("  Skipping #{pkg.app}")
 
-  defp get_artifact(pkg, resolvers) do
-    case Resolver.get(resolvers, pkg) do
+  defp get_artifact(pkg, downloaders) do
+    case Downloader.download(downloaders, pkg) do
       {:ok, archive} ->
         put_cache(pkg, archive)
 

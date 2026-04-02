@@ -13,7 +13,7 @@ defmodule Nerves.Artifact do
   """
   alias Nerves.Artifact.BuildRunners
   alias Nerves.Artifact.Cache
-  alias Nerves.Artifact.Resolvers
+  alias Nerves.Artifact.Downloaders
 
   @checksum_short 7
 
@@ -256,7 +256,7 @@ defmodule Nerves.Artifact do
   ```
   """
   @spec expand_sites(Nerves.Package.t()) :: [
-          {Resolvers.URI | Resolvers.GithubAPI | Resolvers.GiteaAPI, {Path.t(), Keyword.t()}}
+          {Downloaders.URI | Downloaders.GithubAPI | Downloaders.GiteaAPI, {Path.t(), Keyword.t()}}
         ]
   def expand_sites(pkg) do
     Keyword.get(pkg.config, :artifact_sites, [])
@@ -363,7 +363,7 @@ defmodule Nerves.Artifact do
       |> Keyword.put(:public?, true)
       |> update_in([:tag], &(&1 || "v#{pkg.version}"))
 
-    {Resolvers.GithubAPI, {org_proj, opts}}
+    {Downloaders.GithubAPI, {org_proj, opts}}
   end
 
   defp expand_site({:gitea_releases, repo_uri}, pkg, opts) when is_binary(repo_uri),
@@ -385,7 +385,7 @@ defmodule Nerves.Artifact do
       |> Keyword.put(:public?, true)
       |> update_in([:tag], &(&1 || "v#{pkg.version}"))
 
-    {Resolvers.GiteaAPI, {org_proj, opts}}
+    {Downloaders.GiteaAPI, {org_proj, opts}}
   end
 
   defp expand_site({:prefix, url}, pkg, opts) do
@@ -394,21 +394,21 @@ defmodule Nerves.Artifact do
 
   defp expand_site({:prefix, path, resolver_opts}, pkg, opts) do
     path = Path.join(path, download_name(pkg, opts) <> ext(pkg))
-    {Resolvers.URI, {path, resolver_opts}}
+    {Downloaders.URI, {path, resolver_opts}}
   end
 
   defp expand_site({:github_api, org_proj, resolver_opts}, pkg, opts) do
     resolver_opts =
       Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
 
-    {Resolvers.GithubAPI, {org_proj, resolver_opts}}
+    {Downloaders.GithubAPI, {org_proj, resolver_opts}}
   end
 
   defp expand_site({:gitea_api, org_proj, resolver_opts}, pkg, opts) do
     resolver_opts =
       Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
 
-    {Resolvers.GiteaAPI, {org_proj, resolver_opts}}
+    {Downloaders.GiteaAPI, {org_proj, resolver_opts}}
   end
 
   defp expand_site(site, _pkg, _opts),

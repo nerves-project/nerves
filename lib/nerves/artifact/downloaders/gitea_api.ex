@@ -1,34 +1,29 @@
-# SPDX-FileCopyrightText: 2018 Justin Schneck
-# SPDX-FileCopyrightText: 2018 Matt Ludwigs
-# SPDX-FileCopyrightText: 2022 Frank Hunleth
-# SPDX-FileCopyrightText: 2023 Jon Carstens
+# SPDX-FileCopyrightText: 2023 James Harton
+# SPDX-FileCopyrightText: 2024 Frank Hunleth
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.Artifact.Resolvers.GithubAPI do
+defmodule Nerves.Artifact.Downloaders.GiteaAPI do
   @moduledoc false
-  @behaviour Nerves.Artifact.Resolver
+  @behaviour Nerves.Artifact.Downloader
 
   alias Nerves.Utils.HTTPClient
   alias Nerves.Utils.Shell
 
-  @base_url "https://api.github.com/"
-
   defstruct artifact_name: nil,
-            base_url: @base_url,
+            base_url: nil,
             headers: [],
             public?: false,
             opts: [],
             repo: nil,
             tag: "",
             token: "",
-            url: nil,
-            username: ""
+            url: nil
 
-  @impl Nerves.Artifact.Resolver
-  def get({org_proj, opts}, dest_path) do
+  @impl Nerves.Artifact.Downloader
+  def download({repo, opts}, dest_path) do
     opts =
-      %{struct(__MODULE__, opts) | opts: opts, repo: org_proj}
+      %{struct(__MODULE__, opts) | opts: opts, repo: repo}
       |> maybe_adjust_token()
       |> add_http_opts()
 
@@ -42,22 +37,30 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
       else
         # make safe values here in case nil was supplied as an option
         # The request will fail and error will be reported later on
-        user = opts.username || ""
         token = opts.token || ""
 
-        credentials = Base.encode64(user <> ":" <> token)
-        [{"Authorization", "Basic " <> credentials}]
+        [{"Authorization", "token " <> token}]
       end
 
     %{
       opts
       | headers: headers,
-        url: Path.join([opts.base_url, "repos", opts.repo, "releases", "tags", opts.tag])
+        url:
+          Path.join([
+            opts.base_url,
+            "api",
+            "v1",
+            "repos",
+            opts.repo,
+            "releases",
+            "tags",
+            opts.tag
+          ])
     }
   end
 
   defp maybe_adjust_token(opts) do
-    token = System.get_env("GITHUB_TOKEN") || System.get_env("GH_TOKEN")
+    token = System.get_env("GITEA_TOKEN")
 
     if token do
       # Let the env var take precedence
@@ -70,7 +73,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   defp fetch_artifact(dest_path, opts) do
     info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
 
-    Shell.info(["  [GitHub] ", info])
+    Shell.info(["  [Gitea] ", info])
 
     with {:ok, assets_or_url} <- release_details(opts),
          {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
@@ -85,15 +88,6 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
       {:ok, data} ->
         Jason.decode(data)
 
-      {:error, "Status 403 rate limit exceeded"} when opts.public? ->
-        # Apparently this user has made too many public API requests from their IP
-        # so let's just fallback to the old way of fetching via a release download.
-        # If the release doesn't exist, we won't be able help provide hints about
-        # a checksum mismatch or bad name, but the tradeoff is worth it if the
-        # release actually does exist
-        {:ok,
-         "https://github.com/#{opts.repo}/releases/download/#{opts.tag}/#{opts.artifact_name}"}
-
       {:error, "Status 404 Not Found"} ->
         invalid_token? = is_nil(opts.token) or opts.token == ""
 
@@ -105,8 +99,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
                  For private releases, you must authenticate the request to fetch release assets.
                  You can do this in a few ways:
 
-                   * export or set GITHUB_TOKEN=<your-token>
-                   * set `token: <get-token-function>` for this GitHub repository in your Nerves system mix.exs
+                   * export or set GITEA_TOKEN=<your-token>
+                   * set `token: <get-token-function>` for this Gitea repository in your Nerves system mix.exs
             """
           else
             "No release"
@@ -114,19 +108,18 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
         {:error, msg}
 
-      result ->
-        result
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
-  defp get_asset_url(url, _opts) when is_binary(url), do: {:ok, url}
+  defp get_asset_url(url, _) when is_binary(url), do: {:ok, url}
 
   defp get_asset_url(%{"assets" => []}, _opts) do
     {:error, "No release artifacts"}
   end
 
-  defp get_asset_url(%{"assets" => assets}, %{artifact_name: artifact_name})
-       when is_list(assets) do
+  defp get_asset_url(%{"assets" => assets}, %{artifact_name: artifact_name}) do
     ret =
       Enum.find(assets, fn %{"name" => name} ->
         String.equivalent?(artifact_name, name)
@@ -139,13 +132,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
         {:error, msg}
 
-      %{"url" => url} ->
+      %{"browser_download_url" => url} ->
         {:ok, url}
     end
-  end
-
-  defp get_asset_url(response, _opts) do
-    truncated = inspect(response, limit: 10, printable_limit: 200)
-    {:error, "Unexpected API response when querying assets: #{truncated}"}
   end
 end

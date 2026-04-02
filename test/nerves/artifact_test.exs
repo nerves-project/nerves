@@ -10,8 +10,8 @@ defmodule Nerves.ArtifactTest do
 
   alias Nerves.Artifact
   alias Nerves.Artifact.BuildRunners, as: P
-  alias Nerves.Artifact.Resolvers.GiteaAPI
-  alias Nerves.Artifact.Resolvers.GithubAPI
+  alias Nerves.Artifact.Downloaders.GiteaAPI
+  alias Nerves.Artifact.Downloaders.GithubAPI
   alias Nerves.Env
 
   test "Fetch build_runner overrides" do

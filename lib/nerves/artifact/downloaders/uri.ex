@@ -3,17 +3,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.Artifact.Resolvers.URI do
+defmodule Nerves.Artifact.Downloaders.URI do
   @moduledoc """
   Downloads an artifact from a remote http location.
   """
-  @behaviour Nerves.Artifact.Resolver
+  @behaviour Nerves.Artifact.Downloader
 
   @doc """
   Download the artifact from an http location
   """
-  @impl Nerves.Artifact.Resolver
-  def get({location, opts}, dest_path) do
+  @impl Nerves.Artifact.Downloader
+  def download({location, opts}, dest_path) do
     Nerves.Utils.Shell.info("  => Trying #{location}")
 
     {query_params, opts} = Keyword.pop(opts, :query_params, %{})

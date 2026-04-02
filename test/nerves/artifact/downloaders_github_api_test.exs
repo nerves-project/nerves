@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.Artifact.Resolvers.GithubAPITest do
+defmodule Nerves.Artifact.Downloaders.GithubAPITest do
   use ExUnit.Case, async: true
   use Mimic
 
-  alias Nerves.Artifact.Resolvers.GithubAPI
+  alias Nerves.Artifact.Downloaders.GithubAPI
   alias Nerves.Utils.HTTPClient
 
   # These are just markers for easier debug. Files should never be created since the HTTP downloader is mocked.
@@ -40,13 +40,13 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
       |> Keyword.put(:public?, true)
       |> Keyword.delete(:token)
 
-    assert GithubAPI.get({context.repo, opts}, @invalid_download_path) == {:error, "No release"}
+    assert GithubAPI.download({context.repo, opts}, @invalid_download_path) == {:error, "No release"}
   end
 
   test "private release not found", context do
     HTTPClient |> expect(:get, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
 
-    assert GithubAPI.get({context.repo, context.opts}, @invalid_download_path) ==
+    assert GithubAPI.download({context.repo, context.opts}, @invalid_download_path) ==
              {:error, "No release"}
   end
 
@@ -55,7 +55,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
 
     opts = Keyword.delete(context.opts, :token)
 
-    assert {:error, msg} = GithubAPI.get({context.repo, opts}, @invalid_download_path)
+    assert {:error, msg} = GithubAPI.download({context.repo, opts}, @invalid_download_path)
 
     assert msg == """
            Missing token
@@ -73,7 +73,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
 
     opts = Keyword.put(context.opts, :token, nil)
 
-    assert {:error, msg} = GithubAPI.get({context.repo, opts}, @invalid_download_path)
+    assert {:error, msg} = GithubAPI.download({context.repo, opts}, @invalid_download_path)
 
     assert msg == """
            Missing token
@@ -91,7 +91,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     HTTPClient |> expect(:get, fn _url, _opts -> {:ok, details} end)
     reject(&HTTPClient.download/3)
 
-    assert {:error, msg} = GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
+    assert {:error, msg} = GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
 
     assert msg == [
              "No artifact with valid checksum\n\n     Found:\n",
@@ -104,7 +104,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     reject(&HTTPClient.download/3)
 
     assert {:error, "No release artifacts"} =
-             GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
+             GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
   end
 
   test "valid artifact", context do
@@ -127,7 +127,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
       :ok
     end)
 
-    assert :ok = GithubAPI.get({context.repo, context.opts}, @good_download_path)
+    assert :ok = GithubAPI.download({context.repo, context.opts}, @good_download_path)
   end
 
   test "GITHUB_TOKEN takes precedence", context do
@@ -150,7 +150,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     System.put_env("GH_TOKEN", gh_token)
 
     {:error, "No release artifacts"} =
-      GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
+      GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
 
     System.delete_env("GITHUB_TOKEN")
     System.delete_env("GH_TOKEN")
@@ -175,7 +175,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     reject(&HTTPClient.download/3)
 
     System.put_env("GH_TOKEN", env_token)
-    _ = GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
+    _ = GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
     System.delete_env("GH_TOKEN")
   end
 
@@ -202,7 +202,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
       :ok
     end)
 
-    assert :ok = GithubAPI.get({context.repo, opts}, @good_download_path)
+    assert :ok = GithubAPI.download({context.repo, opts}, @good_download_path)
   end
 
   test "private release fails when API rate limit reached", context do
@@ -210,6 +210,6 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     reject(&HTTPClient.download/3)
 
     assert {:error, "Status 403 rate limit exceeded"} =
-             GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
+             GithubAPI.download({context.repo, context.opts}, @invalid_download_path)
   end
 end
