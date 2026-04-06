@@ -68,12 +68,11 @@ defmodule Mix.Tasks.Nerves.Artifact do
     package = Nerves.Env.package(package_name)
     toolchain = Nerves.Env.toolchain()
 
-    _ =
-      if is_nil(package) do
-        Mix.raise("Could not find Nerves package #{package_name} in env")
-      else
-        Nerves.Artifact.archive(package, toolchain, opts)
-      end
+    if is_nil(package) do
+      Mix.raise("Could not find Nerves package #{package_name} in env")
+    else
+      Nerves.Artifact.create_archive(package, toolchain, opts)
+    end
 
     debug_info("Nerves.Artifact end")
   end

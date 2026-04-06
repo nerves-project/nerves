@@ -41,19 +41,19 @@ defmodule Nerves.Artifact do
     end
   end
 
-  @doc """
-  Produces an archive of the package artifact which can be fetched when
-  calling `nerves.artifact.get`.
-  """
-  @spec archive(Nerves.Package.t(), Nerves.Package.t(), keyword()) :: {:ok, String.t()}
-  def archive(%{app: app, build_runner: nil}, _toolchain, _opts) do
+  # Produce an archive of the package artifact
+  #
+  # The archive can be fetched when calling `nerves.artifact.get`.
+  @doc false
+  @spec create_archive(Nerves.Package.t(), Nerves.Package.t(), keyword()) :: :ok
+  def create_archive(%{app: app, build_runner: nil}, _toolchain, _opts) do
     Mix.raise("""
     #{inspect(app)} does not declare a build_runner and therefore cannot
     be used to produce an artifact archive.
     """)
   end
 
-  def archive(pkg, toolchain, opts) do
+  def create_archive(pkg, toolchain, opts) do
     Mix.shell().info("Creating Artifact Archive")
     opts = default_archive_opts(pkg, opts)
 
@@ -71,7 +71,7 @@ defmodule Nerves.Artifact do
       File.cp!(archive_path, path)
     end
 
-    {:ok, archive_path}
+    :ok
   end
 
   @doc """
