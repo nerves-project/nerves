@@ -28,7 +28,7 @@ defmodule Nerves.CacheTest do
       config: [checksum: ["tester"]]
     }
 
-    artifact_name = Artifact.download_name(package) <> Artifact.ext(package)
+    artifact_name = Artifact.archive_name(package)
     artifact_tar = Path.join(tmp, artifact_name)
 
     create_tgz(artifact_tar, [{"artifact/tester", ""}])
@@ -49,7 +49,7 @@ defmodule Nerves.CacheTest do
 
       package = Nerves.Env.package(:system)
 
-      dl_name = Nerves.Artifact.download_name(package) <> ".tar.gz"
+      dl_name = Nerves.Artifact.archive_basename(package) <> ".tar.gz"
       dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
 
       File.mkdir_p!(Nerves.Env.download_dir())
@@ -74,7 +74,7 @@ defmodule Nerves.CacheTest do
 
       package = Nerves.Env.package(:system)
 
-      dl_name = Nerves.Artifact.download_name(package) <> Nerves.Artifact.ext(package)
+      dl_name = Nerves.Artifact.archive_name(package)
       dl_path = Path.join(Nerves.Env.download_dir(), dl_name)
       File.mkdir_p!(Nerves.Env.download_dir())
 

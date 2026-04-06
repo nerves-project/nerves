@@ -43,7 +43,7 @@ defmodule Nerves.Package.Platform do
 
     def archive(pkg, _toolchain, _opts) do
       build_path = Artifact.build_path(pkg)
-      name = Artifact.download_name(pkg) <> Artifact.ext(pkg)
+      name = Artifact.archive_name(pkg)
       Nerves.Utils.File.tar(build_path, name)
       {:ok, Path.join(File.cwd!, name)}
     end

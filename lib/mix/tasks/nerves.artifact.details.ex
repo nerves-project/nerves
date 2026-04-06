@@ -46,17 +46,13 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     if is_nil(package), do: Mix.raise("Could not find Nerves package #{package_name} in env")
 
     Mix.shell().info("""
+    Name:               #{package.app}
     Version:            #{package.version}
     Checksum:           #{Artifact.checksum(package)}
-    Checksum Short:     #{Artifact.checksum(package, short: Artifact.__checksum_short_length__())}
-    Name:               #{Artifact.name(package)}
-    Download Name:      #{Artifact.download_name(package)}
-    Download File Names: #{Enum.join(Artifact.download_names(package), ", ")}
-    Download Path:      #{Artifact.download_path(package)}
+    Acceptable archive names: #{Enum.join(Artifact.archive_names(package), ", ")}
+    Downloaded archive: #{Artifact.cached_archive_path(package)}
+    Artifact location:  #{Artifact.dir(package)}
     Sites:              #{inspect(Keyword.get(package.config, :artifact_sites, []))}
-    Base Directory:     #{Artifact.base_dir()}
-    Path:               #{Artifact.dir(package)}
-    Build Path:         #{Artifact.build_path(package)}
     """)
 
     debug_info("Nerves.Artifact.Details end")

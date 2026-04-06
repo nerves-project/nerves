@@ -29,7 +29,7 @@ defmodule Nerves.Artifact.Downloader do
   @spec expand_sites(Nerves.Package.t()) :: [{module(), {term(), keyword()}}]
   def expand_sites(pkg) do
     info = [
-      download_names: Nerves.Artifact.download_names(pkg),
+      download_names: Nerves.Artifact.archive_names(pkg),
       version: pkg.version
     ]
 
@@ -46,7 +46,7 @@ defmodule Nerves.Artifact.Downloader do
   def find_archive(pkg) do
     dir = Nerves.Env.download_dir()
 
-    Enum.find_value(Nerves.Artifact.download_names(pkg), fn name ->
+    Enum.find_value(Nerves.Artifact.archive_names(pkg), fn name ->
       path = Path.join(dir, name) |> Path.expand()
       if File.exists?(path), do: path
     end)
@@ -92,7 +92,7 @@ defmodule Nerves.Artifact.Downloader do
   defp do_download([], _pkg, reason), do: Mix.raise(reason)
 
   defp do_download([{downloader, {source, opts}} | rest], pkg, raise_reason) do
-    download_names = Nerves.Artifact.download_names(pkg)
+    download_names = Nerves.Artifact.archive_names(pkg)
     dir = Nerves.Env.download_dir()
     File.mkdir_p!(dir)
 

@@ -21,8 +21,7 @@ defmodule Nerves.Artifact do
   def __checksum_short_length__(), do: @checksum_short
 
   @doc """
-  Builds the package and produces an  See Nerves.Artifact
-  for more information.
+  Build the package artifact
   """
   @spec build(Nerves.Package.t(), Nerves.Package.t()) :: :ok | {:error, File.posix()}
   def build(pkg, toolchain) do
@@ -65,7 +64,7 @@ defmodule Nerves.Artifact do
     path =
       opts[:path]
       |> Path.expand()
-      |> Path.join(download_name(pkg) <> ext(pkg))
+      |> Path.join(archive_name(pkg))
 
     if path != archive_path do
       File.cp!(archive_path, path)
@@ -75,7 +74,7 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Cleans the artifacts for the package build_runners of all packages.
+  Clean the artifacts for the package build_runners of all packages
   """
   @spec clean(Nerves.Package.t()) :: :ok | {:error, term}
   def clean(pkg) do
@@ -92,7 +91,7 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Determines if the artifact for a package is stale and needs to be rebuilt.
+  Determine if the artifact for a package is stale and needs to be rebuilt
   """
   @spec stale?(Nerves.Package.t()) :: boolean
   def stale?(pkg) do
@@ -104,32 +103,45 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Get the artifact name
+  Get the directory name for the artifact
+
+  This is the name used for the artifact directory when expanded from an
+  archive. It includes the app name, host tuple, and version.
   """
-  @spec name(Nerves.Package.t()) :: String.t()
-  def name(pkg) do
+  @spec dir_name(Nerves.Package.t()) :: String.t()
+  def dir_name(pkg) do
     "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}"
   end
 
   @doc """
-  Get the artifact download name
+  Get the base name for the artifact archive
+
+  This includes the app name, host tuple, version, and a short checksum.
   """
-  @spec download_name(Nerves.Package.t(), checksum_short: non_neg_integer()) :: String.t()
-  def download_name(pkg, opts \\ []) do
+  @spec archive_basename(Nerves.Package.t(), checksum_short: non_neg_integer()) :: String.t()
+  def archive_basename(pkg, opts \\ []) do
     checksum_short = opts[:checksum_short] || @checksum_short
     "#{pkg.app}-#{host_tuple(pkg)}-#{pkg.version}-#{checksum(pkg, short: checksum_short)}"
   end
 
   @doc """
-  Get the list of possible artifact download filenames.
+  Get the artifact archive filename including extension
+  """
+  @spec archive_name(Nerves.Package.t()) :: String.t()
+  def archive_name(pkg) do
+    archive_basename(pkg) <> ext(pkg)
+  end
 
-  Returns all combinations of the download name base with supported archive
+  @doc """
+  Get the list of possible artifact archive filenames
+
+  Returns all combinations of the archive name with supported archive
   extensions. These are the filenames to search for when downloading or
   locating a cached artifact.
   """
-  @spec download_names(Nerves.Package.t()) :: [String.t()]
-  def download_names(pkg) do
-    base = download_name(pkg)
+  @spec archive_names(Nerves.Package.t()) :: [String.t()]
+  def archive_names(pkg) do
+    base = archive_basename(pkg)
 
     for ext <- Archive.supported_extensions() do
       base <> ext
@@ -137,7 +149,7 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Get the base dir for where an artifact for a package should be stored.
+  Get the base dir for where an artifact for a package should be stored
 
   The directory for artifacts will be found in the directory returned
   by `Nerves.Env.data_dir/0` (i.e. `"#{Nerves.Env.data_dir()}/artifacts/"`).
@@ -156,12 +168,13 @@ defmodule Nerves.Artifact do
   """
   @spec build_path(Nerves.Package.t()) :: binary
   def build_path(pkg) do
-    Path.join([pkg.path, ".nerves", "artifacts", name(pkg)])
+    Path.join([pkg.path, ".nerves", "artifacts", dir_name(pkg)])
   end
 
   @doc """
-  Get the path where the global artifact will be linked to.
-  This path is typically a location within build_path, but can be
+  Get the path where the global artifact will be linked to
+
+  This path is typically a location within build_path, but can
   vary on different build platforms.
   """
   @spec build_path_link(Nerves.Package.t()) :: Path.t()
@@ -180,8 +193,9 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Produce a base16 encoded checksum for the package from the list of files
-  and expanded folders listed in the checksum config key.
+  Produce a base16 encoded checksum for the package
+
+  Uses the list of files and expanded folders listed in the checksum config key.
   """
   @spec checksum(Nerves.Package.t(), short: non_neg_integer()) :: String.t()
   def checksum(pkg, opts \\ []) do
@@ -206,20 +220,19 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  The full path to the artifact.
+  The full path to the artifact
   """
   @spec dir(Nerves.Package.t()) :: String.t()
   def dir(pkg) do
     if env_var?(pkg) do
       System.get_env(env_var(pkg)) |> Path.expand()
     else
-      base_dir()
-      |> Path.join(name(pkg))
+      Path.join(base_dir(), dir_name(pkg))
     end
   end
 
   @doc """
-  Check to see if the artifact path is being set from the system env.
+  Check to see if the artifact path is being set from the system env
   """
   @spec env_var?(Nerves.Package.t()) :: boolean
   def env_var?(pkg) do
@@ -229,7 +242,7 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Determine the environment variable which would be set to override the path.
+  Determine the environment variable which would be set to override the path
   """
   @spec env_var(Nerves.Package.t()) :: String.t()
   def env_var(pkg) do
@@ -248,11 +261,11 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Get the path to where the artifact archive is downloaded to.
+  Get the full path to the cached artifact archive
   """
-  @spec download_path(Nerves.Package.t()) :: String.t()
-  def download_path(pkg) do
-    name = download_name(pkg) <> ext(pkg)
+  @spec cached_archive_path(Nerves.Package.t()) :: String.t()
+  def cached_archive_path(pkg) do
+    name = archive_name(pkg)
 
     Nerves.Env.download_dir()
     |> Path.join(name)
@@ -260,9 +273,10 @@ defmodule Nerves.Artifact do
   end
 
   @doc """
-  Get the host_tuple for the package. Toolchains are specifically build to run
-  on a host for a target. Other packages are host agnostic for now. They are
-  marked as `portable`.
+  Get the host_tuple for the package
+
+  Toolchains are specifically built to run on a host for a target.
+  Other packages are host agnostic for now. They are marked as `portable`.
   """
   @spec host_tuple(Nerves.Package.t()) :: String.t()
   def host_tuple(%{type: :system}) do
@@ -282,7 +296,8 @@ defmodule Nerves.Artifact do
   defp normalize_osx(other), do: other
 
   @doc """
-  Determines the extension for an artifact based off its type.
+  Determine the extension for an artifact based on its type
+
   Toolchains use xz compression.
   """
   @spec ext(Nerves.Package.t()) :: String.t()
@@ -331,7 +346,7 @@ defmodule Nerves.Artifact do
   end
 
   defp default_archive_opts(pkg, opts) do
-    name = download_name(pkg) <> ext(pkg)
+    name = archive_name(pkg)
 
     opts
     |> Keyword.put_new(:name, name)

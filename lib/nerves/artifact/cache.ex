@@ -65,7 +65,7 @@ defmodule Nerves.Artifact.Cache do
   @spec path(Package.t()) :: binary()
   def path(pkg) do
     Artifact.base_dir()
-    |> Path.join(Artifact.name(pkg))
+    |> Path.join(Artifact.dir_name(pkg))
     |> Path.expand()
   end
 

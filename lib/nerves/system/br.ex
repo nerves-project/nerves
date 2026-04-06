@@ -94,14 +94,14 @@ defmodule Nerves.System.BR do
   end
 
   defp make_archive(:linux, pkg, _toolchain, _opts) do
-    name = Artifact.download_name(pkg)
+    name = Artifact.archive_basename(pkg)
     dest = Artifact.build_path(pkg)
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "archive.log")
     stream = IO.stream(pid, :line)
 
     case shell("make", ["system", "NERVES_ARTIFACT_NAME=#{name}"], cd: dest, stream: stream) do
-      {_, 0} -> {:ok, Path.join(dest, name <> Artifact.ext(pkg))}
+      {_, 0} -> {:ok, Path.join(dest, Artifact.archive_name(pkg))}
       {_error, _} -> {:error, Nerves.Utils.Stream.history(pid)}
     end
   end

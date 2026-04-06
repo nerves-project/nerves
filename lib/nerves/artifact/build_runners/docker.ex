@@ -235,7 +235,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
   end
 
   defp make_artifact(pkg, stream) do
-    name = Artifact.download_name(pkg)
+    name = Artifact.archive_basename(pkg)
     shell_info("Creating artifact archive")
     cmd = ["make", "system", "NERVES_ARTIFACT_NAME=#{name}"]
     run(pkg, cmd, stream)
@@ -243,11 +243,11 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
 
   defp copy_artifact(pkg, stream) do
     shell_info("Copying artifact archive to host")
-    name = Artifact.download_name(pkg) <> Artifact.ext(pkg)
+    name = Artifact.archive_name(pkg)
     cmd = ["cp", name, "/nerves/dl/#{name}"]
 
     run(pkg, cmd, stream)
-    path = Artifact.download_path(pkg)
+    path = Artifact.cached_archive_path(pkg)
     {:ok, path}
   end
 
