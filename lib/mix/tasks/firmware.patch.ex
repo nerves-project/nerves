@@ -33,6 +33,11 @@ defmodule Mix.Tasks.Firmware.Patch do
 
   @impl Mix.Task
   def run(args) do
+    Shell.warn("""
+    Please use https://hex.pm/packages/fwup_delta for generating patches now. It is
+    better maintained and has significant improvments over mix firmware.patch.
+    """)
+
     work_dir = Path.join(Nerves.Env.images_path(), "patch")
     _ = File.rm_rf!(work_dir)
     File.mkdir_p!(work_dir)
