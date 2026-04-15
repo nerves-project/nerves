@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Nerves.Artifact.Resolvers.GithubAPITest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Mimic
 
   alias Nerves.Artifact.Resolvers.GithubAPI
@@ -13,7 +13,14 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
   @invalid_download_path "/should_not_work.tgz"
   @good_download_path "good_path.tar.gz"
 
-  @no_artifacts_response %{"assets" => []}
+  @org_repo "nerves-project/nerves_system_rpi4"
+  @artifact_filename "nerves_system_rpi-portable-1.0.0-1234567.tar.gz"
+  @version "1.0.0"
+  @release_tag "v1.0.0"
+
+  @release_api_url "https://api.github.com/repos/#{@org_repo}/releases/tags/#{@release_tag}"
+  @asset_api_url "https://api.github.com/repos/#{@org_repo}/releases/assets/12345"
+  @release_download_url "https://github.com/#{@org_repo}/releases/download/#{@release_tag}/#{@artifact_filename}"
 
   setup do
     # Clean up any environment settings that affect tests. These should never
@@ -22,210 +29,302 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     System.delete_env("GITHUB_TOKEN")
     System.delete_env("GH_TOKEN")
 
-    %{
-      repo: "nerves-project/nerves_system_rpi4",
-      opts: [
-        artifact_name: "nerves_system_rpi-portable-1.0.0-1234567.tar.gz",
-        tag: "v1.0.0",
-        token: "1234"
-      ]
-    }
+    :ok
   end
 
-  test "public release not found", context do
-    HTTPClient |> expect(:get_json, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
+  defp plan(opts \\ []) do
+    {site, opts} = Keyword.pop(opts, :method, :github_releases)
+    opts = Keyword.put_new(opts, :use_gh_cli?, false)
 
-    opts =
-      context.opts
-      |> Keyword.put(:public?, true)
-      |> Keyword.delete(:token)
+    {GithubAPI, prepared} =
+      GithubAPI.plan({site, @org_repo, opts}, @version, @artifact_filename)
 
-    assert GithubAPI.get({context.repo, opts}, @invalid_download_path) == {:error, "No release"}
+    prepared
   end
 
-  test "private release not found", context do
-    HTTPClient |> expect(:get_json, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
-
-    assert GithubAPI.get({context.repo, context.opts}, @invalid_download_path) ==
-             {:error, "No release"}
+  defp release_json(assets \\ nil) do
+    assets = assets || [%{"name" => @artifact_filename, "url" => @asset_api_url}]
+    %{"tag_name" => @release_tag, "assets" => assets}
   end
 
-  test "private release fails without token", context do
-    HTTPClient |> expect(:get_json, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
+  # --- No token: uses direct web URL ---
 
-    opts = Keyword.delete(context.opts, :token)
-
-    assert {:error, msg} = GithubAPI.get({context.repo, opts}, @invalid_download_path)
-
-    assert msg == """
-           Missing token
-
-                For private releases, you must authenticate the request to fetch release assets.
-                You can do this in a few ways:
-
-                  * export or set GITHUB_TOKEN=<your-token>
-                  * set `token: <get-token-function>` for this GitHub repository in your Nerves system mix.exs
-           """
-  end
-
-  test "private release fails with nil token", context do
-    HTTPClient |> expect(:get_json, fn _url, _opts -> {:error, "Status 404 Not Found"} end)
-
-    opts = Keyword.put(context.opts, :token, nil)
-
-    assert {:error, msg} = GithubAPI.get({context.repo, opts}, @invalid_download_path)
-
-    assert msg == """
-           Missing token
-
-                For private releases, you must authenticate the request to fetch release assets.
-                You can do this in a few ways:
-
-                  * export or set GITHUB_TOKEN=<your-token>
-                  * set `token: <get-token-function>` for this GitHub repository in your Nerves system mix.exs
-           """
-  end
-
-  test "mismatched checksum", context do
-    details = %{"assets" => [%{"name" => "howdy.tar.xz"}]}
-    HTTPClient |> expect(:get_json, fn _url, _opts -> {:ok, details} end)
-    reject(&HTTPClient.download/3)
-
-    assert {:error, msg} = GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
-
-    assert msg == [
-             "No artifact with valid checksum\n\n     Found:\n",
-             [["       * ", "howdy.tar.xz", "\n"]]
-           ]
-  end
-
-  test "no artifacts in release", context do
-    HTTPClient |> expect(:get_json, fn _url, _opts -> {:ok, @no_artifacts_response} end)
-    reject(&HTTPClient.download/3)
-
-    assert {:error, "No release artifacts"} =
-             GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
-  end
-
-  test "valid artifact", context do
-    artifact_url = "http://example.com"
-
-    details = %{
-      "assets" => [%{"name" => context.opts[:artifact_name], "url" => artifact_url}]
-    }
-
-    expected_details_url =
-      "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
+  test "public release not found" do
+    prepared = plan()
 
     HTTPClient
-    |> expect(:get_json, fn url, _opts ->
-      assert url == expected_details_url
-      {:ok, details}
+    |> expect(:download, fn _url, _path, _opts -> {:error, "Status 404 Not Found"} end)
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Download failed"
+    assert msg =~ "#{@org_repo}/releases/tag/#{@release_tag}"
+  end
+
+  test "private release fails without token" do
+    prepared = %GithubAPI{
+      github_url: URI.parse("https://github.com"),
+      org_repo: @org_repo,
+      custom_auth_token: nil,
+      artifact_filename: @artifact_filename,
+      tag: @release_tag,
+      method: :github_release
+    }
+
+    HTTPClient
+    |> expect(:download, fn _url, _path, _opts -> {:error, "Status 404 Not Found"} end)
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Download failed"
+    assert msg =~ "#{@org_repo}/releases/tag/#{@release_tag}"
+  end
+
+  test "private release fails with nil token" do
+    prepared = %GithubAPI{
+      github_url: URI.parse("https://github.com"),
+      org_repo: @org_repo,
+      custom_auth_token: nil,
+      artifact_filename: @artifact_filename,
+      tag: @release_tag,
+      method: :github_release
+    }
+
+    HTTPClient
+    |> expect(:download, fn _url, _path, _opts -> {:error, "Status 404 Not Found"} end)
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Download failed"
+    assert msg =~ "#{@org_repo}/releases/tag/#{@release_tag}"
+  end
+
+  # --- With token: uses GitHub API ---
+
+  test "release API returns 404" do
+    prepared = plan(method: :github_api, token: "1234")
+
+    HTTPClient
+    |> expect(:get_json, fn url, opts ->
+      assert URI.to_string(url) == @release_api_url
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      {:error, "Status 404 Not Found"}
     end)
-    |> expect(:download, 1, fn url, path, _opts ->
-      assert url == artifact_url
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Download failed"
+    assert msg =~ "#{@org_repo}/releases/tag/#{@release_tag}"
+  end
+
+  test "asset not found in release" do
+    prepared = plan(method: :github_api, token: "1234")
+
+    HTTPClient
+    |> expect(:get_json, fn _url, _opts ->
+      {:ok, release_json([%{"name" => "wrong_filename.tar.gz", "url" => @asset_api_url}])}
+    end)
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Asset '#{@artifact_filename}' not found in release"
+  end
+
+  test "no artifacts in release" do
+    prepared = plan(method: :github_api, token: "1234")
+
+    HTTPClient
+    |> expect(:get_json, fn _url, _opts ->
+      {:ok, release_json([])}
+    end)
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Asset '#{@artifact_filename}' not found in release"
+  end
+
+  test "asset download fails" do
+    prepared = plan(method: :github_api, token: "1234")
+
+    HTTPClient
+    |> expect(:get_json, fn _url, _opts -> {:ok, release_json()} end)
+    |> expect(:download, fn _url, _path, _opts -> {:error, "Status 500 Internal Server Error"} end)
+
+    assert {:error, msg} = GithubAPI.get(prepared, @invalid_download_path)
+    assert msg =~ "Download failed"
+  end
+
+  test "valid artifact via API" do
+    prepared = plan(method: :github_api, token: "1234")
+
+    HTTPClient
+    |> expect(:get_json, fn url, opts ->
+      assert URI.to_string(url) == @release_api_url
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn url, path, opts ->
+      assert url == @asset_api_url
       assert path == @good_download_path
+      assert {"Accept", "application/octet-stream"} in opts[:headers]
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
       :ok
     end)
 
-    assert :ok = GithubAPI.get({context.repo, context.opts}, @good_download_path)
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
   end
 
-  test "username is ignored for backward compatibility", context do
-    opts = Keyword.put(context.opts, :username, "old_basic_auth_username")
+  test "username is ignored for backward compatibility" do
+    prepared = plan(method: :github_api, token: "1234", username: "old_basic_auth_username")
 
     HTTPClient
     |> expect(:get_json, fn _url, opts ->
-      [{"Authorization", "Bearer " <> req_token}] = opts[:headers]
-      assert req_token == context.opts[:token]
-      {:ok, @no_artifacts_response}
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn _url, _path, opts ->
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      :ok
     end)
 
-    reject(&HTTPClient.download/3)
-
-    assert {:error, "No release artifacts"} =
-             GithubAPI.get({context.repo, opts}, @invalid_download_path)
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
   end
 
-  test "GITHUB_TOKEN takes precedence", context do
+  test "GITHUB_TOKEN takes precedence" do
     env_token = "look-at-me!"
     gh_token = "dont-look-at-me!"
-    refute context.opts[:token] == env_token
-    refute context.opts[:token] == gh_token
-
-    HTTPClient
-    |> expect(:get_json, fn _url, opts ->
-      [{"Authorization", "Bearer " <> req_token}] = opts[:headers]
-      assert req_token == env_token
-      {:ok, @no_artifacts_response}
-    end)
-
-    reject(&HTTPClient.download/3)
 
     System.put_env("GITHUB_TOKEN", env_token)
     System.put_env("GH_TOKEN", gh_token)
 
-    {:error, "No release artifacts"} =
-      GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
-
-    System.delete_env("GITHUB_TOKEN")
-    System.delete_env("GH_TOKEN")
-  end
-
-  test "supports GH_TOKEN shorthand", context do
-    env_token = "look-at-me!"
-    refute context.opts[:token] == env_token
+    prepared = plan(method: :github_api, token: "explicit_token")
 
     HTTPClient
     |> expect(:get_json, fn _url, opts ->
-      [{"Authorization", "Bearer " <> req_token}] = opts[:headers]
-      assert req_token == env_token
-      {:ok, @no_artifacts_response}
+      assert {"Authorization", "Bearer " <> ^env_token} =
+               List.keyfind(opts[:headers], "Authorization", 0)
+
+      {:ok, release_json()}
     end)
+    |> expect(:download, fn _url, _path, opts ->
+      assert {"Authorization", "Bearer " <> ^env_token} =
+               List.keyfind(opts[:headers], "Authorization", 0)
 
-    reject(&HTTPClient.download/3)
-
-    System.put_env("GH_TOKEN", env_token)
-
-    {:error, "No release artifacts"} =
-      GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
-
-    System.delete_env("GH_TOKEN")
-  end
-
-  test "public release uses public download when API rate limit reached", context do
-    expected_details_url =
-      "https://api.github.com/repos/#{context.repo}/releases/tags/#{context.opts[:tag]}"
-
-    opts =
-      context.opts
-      |> Keyword.put(:public?, true)
-      |> Keyword.delete(:token)
-
-    expected_public_download_url =
-      "https://github.com/#{context.repo}/releases/download/#{opts[:tag]}/#{opts[:artifact_name]}"
-
-    HTTPClient
-    |> expect(:get_json, fn url, _opts ->
-      assert url == expected_details_url
-      {:error, "Status 403 rate limit exceeded"}
-    end)
-    |> expect(:download, 1, fn url, path, _opts ->
-      assert url == expected_public_download_url
-      assert path == @good_download_path
       :ok
     end)
 
-    assert :ok = GithubAPI.get({context.repo, opts}, @good_download_path)
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
   end
 
-  test "private release fails when API rate limit reached", context do
+  test "supports GH_TOKEN shorthand" do
+    env_token = "look-at-me!"
+
+    System.put_env("GH_TOKEN", env_token)
+
+    prepared = plan(method: :github_api)
+
     HTTPClient
-    |> expect(:get_json, fn _url, _opts -> {:error, "Status 403 rate limit exceeded"} end)
+    |> expect(:get_json, fn _url, opts ->
+      assert {"Authorization", "Bearer " <> ^env_token} =
+               List.keyfind(opts[:headers], "Authorization", 0)
 
-    reject(&HTTPClient.download/3)
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn _url, _path, opts ->
+      assert {"Authorization", "Bearer " <> ^env_token} =
+               List.keyfind(opts[:headers], "Authorization", 0)
 
-    assert {:error, "Status 403 rate limit exceeded"} =
-             GithubAPI.get({context.repo, context.opts}, @invalid_download_path)
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
+  # --- Other tests ---
+
+  test "custom tag without token uses web URL" do
+    prepared = plan(tag: "custom-tag")
+
+    expected_url =
+      URI.parse(
+        "https://github.com/#{@org_repo}/releases/download/custom-tag/#{@artifact_filename}"
+      )
+
+    HTTPClient
+    |> expect(:download, 1, fn url, _path, _opts ->
+      assert url == expected_url
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
+  test "custom tag with token uses API" do
+    prepared = plan(method: :github_api, tag: "custom-tag", token: "1234")
+
+    custom_release_url =
+      "https://api.github.com/repos/#{@org_repo}/releases/tags/custom-tag"
+
+    HTTPClient
+    |> expect(:get_json, fn url, _opts ->
+      assert URI.to_string(url) == custom_release_url
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn url, _path, _opts ->
+      assert url == @asset_api_url
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
+  test "github_api site is supported for backward compatibility" do
+    {GithubAPI, prepared} =
+      GithubAPI.plan({:github_api, @org_repo, [token: "1234"]}, @version, @artifact_filename)
+
+    HTTPClient
+    |> expect(:get_json, fn url, _opts ->
+      assert URI.to_string(url) == @release_api_url
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn url, _path, opts ->
+      assert url == @asset_api_url
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
+  test "unsupported site returns nil" do
+    assert nil == GithubAPI.plan({:prefix, "https://example.com"}, @version, @artifact_filename)
+  end
+
+  test "github_release with token uses direct download" do
+    prepared = plan(token: "1234")
+
+    expected_url = URI.parse(@release_download_url)
+
+    HTTPClient
+    |> stub(:get_json, fn _, _ -> flunk("get_json should not be called for :github_release") end)
+    |> expect(:download, fn url, _path, opts ->
+      assert url == expected_url
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
+  test "github_api without token uses API" do
+    prepared = plan(method: :github_api)
+
+    HTTPClient
+    |> expect(:get_json, fn url, opts ->
+      assert URI.to_string(url) == @release_api_url
+      assert opts[:headers] == []
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn url, _path, opts ->
+      assert url == @asset_api_url
+      assert opts[:headers] == [{"Accept", "application/octet-stream"}]
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
   end
 end

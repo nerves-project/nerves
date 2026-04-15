@@ -12,134 +12,145 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   alias Nerves.Utils.HTTPClient
   alias Nerves.Utils.Shell
 
-  @base_url "https://api.github.com/"
+  @github_url "https://github.com"
+  @github_api_url "https://api.github.com"
 
-  defstruct artifact_name: nil,
-            base_url: @base_url,
-            headers: [],
-            public?: false,
-            opts: [],
-            repo: nil,
-            tag: "",
-            token: "",
-            url: nil
+  defstruct [
+    :github_url,
+    :org_repo,
+    :custom_auth_token,
+    :artifact_filename,
+    :tag,
+    :method,
+    :use_gh_cli?
+  ]
 
   @impl Nerves.Artifact.Resolver
-  def get({org_proj, opts}, dest_path) do
-    opts =
-      %{struct(__MODULE__, opts) | opts: opts, repo: org_proj}
-      |> maybe_adjust_token()
-      |> add_http_opts()
+  def plan({:github_api, org_repo, opts}, version, artifact_filename) do
+    github_url = Keyword.get(opts, :github_url, @github_api_url) |> URI.parse()
 
-    fetch_artifact(dest_path, opts)
-  end
-
-  defp add_http_opts(opts) do
-    headers =
-      if opts.public? do
-        []
-      else
-        token = opts.token || ""
-        [{"Authorization", "Bearer " <> token}]
-      end
-
-    %{
-      opts
-      | headers: headers,
-        url: Path.join([opts.base_url, "repos", opts.repo, "releases", "tags", opts.tag])
+    prepared = %__MODULE__{
+      github_url: github_url,
+      org_repo: org_repo,
+      custom_auth_token: opts[:token],
+      artifact_filename: artifact_filename,
+      tag: Keyword.get(opts, :tag, "v#{version}"),
+      method: :github_api,
+      use_gh_cli?: Keyword.get(opts, :use_gh_cli?, true)
     }
+
+    {__MODULE__, prepared}
   end
 
-  defp maybe_adjust_token(opts) do
-    token = System.get_env("GITHUB_TOKEN") || System.get_env("GH_TOKEN")
-
-    if token do
-      # Let the env var take precedence
-      %{opts | token: token}
-    else
-      opts
-    end
+  def plan({:github_releases, org_repo}, version, artifact_filename) do
+    plan({:github_releases, org_repo, []}, version, artifact_filename)
   end
 
-  defp fetch_artifact(dest_path, opts) do
-    info = if System.get_env("NERVES_DEBUG") == "1", do: opts.url, else: opts.artifact_name
+  def plan({:github_releases, org_repo, opts}, version, artifact_filename) do
+    github_url = Keyword.get(opts, :github_url, @github_url) |> URI.parse()
+
+    prepared = %__MODULE__{
+      github_url: github_url,
+      org_repo: org_repo,
+      custom_auth_token: opts[:token],
+      artifact_filename: artifact_filename,
+      tag: Keyword.get(opts, :tag, "v#{version}"),
+      method: :github_release,
+      use_gh_cli?: Keyword.get(opts, :use_gh_cli?, true)
+    }
+
+    {__MODULE__, prepared}
+  end
+
+  def plan(_site, _version, _artifact_filename), do: nil
+
+  @impl Nerves.Artifact.Resolver
+  def get(%__MODULE__{} = opts, dest_path) do
+    info =
+      if System.get_env("NERVES_DEBUG") == "1",
+        do: "#{opts.org_repo} #{opts.tag}/#{opts.artifact_filename}",
+        else: opts.artifact_filename
 
     Shell.info(["  [GitHub] ", info])
 
-    with {:ok, assets_or_url} <- release_details(opts),
-         {:ok, asset_url} <- get_asset_url(assets_or_url, opts) do
-      http_opts = [headers: [{"Accept", "application/octet-stream"} | opts.headers]]
+    auth_token = get_auth_token(opts)
 
-      HTTPClient.download(asset_url, dest_path, http_opts)
+    auth_headers =
+      if auth_token,
+        do: [{"Authorization", "Bearer " <> auth_token}],
+        else: []
+
+    case download(opts.method, opts, dest_path, auth_headers) do
+      :ok ->
+        :ok
+
+      {:error, reason} ->
+        elided_token = if auth_token, do: String.slice(auth_token, 0, 6) <> "...", else: "unset"
+
+        {:error,
+         """
+         Download failed: #{reason}
+
+         If this is a private repository or you're getting rate limited, please check
+         if you have a GitHub auth token. Nerves supports the `GITHUB_TOKEN` and `GH_TOKEN`
+         environment variables and can call the GitHub CLI to find it. Alternatively, you
+         can set a default strategy in your Nerves system's `artifact_sites` specification.
+         For private repositories, `:github_api` is the recommended strategy.
+         `:github_release` may work with authentication, but release downloads can still
+         fail depending on GitHub's access controls and behavior.
+
+         This failure was specifically for downloading #{opts.artifact_filename}. Other
+         files could have been tried.
+
+         Check the release page for available artifacts:
+           "#{opts.github_url}/#{opts.org_repo}/releases/tag/#{opts.tag}"
+
+         Download method: #{opts.method}
+         GitHub auth token: #{elided_token}
+         """}
     end
   end
 
-  defp release_details(opts) do
-    case HTTPClient.get_json(opts.url, headers: opts.headers) do
-      {:ok, _} = ok ->
-        ok
+  defp download(:github_release, opts, dest_path, auth_headers) do
+    download_url =
+      URI.append_path(
+        opts.github_url,
+        "/#{opts.org_repo}/releases/download/#{opts.tag}/#{opts.artifact_filename}"
+      )
 
-      {:error, "Status 403 rate limit exceeded"} when opts.public? ->
-        # Apparently this user has made too many public API requests from their IP
-        # so let's just fallback to the old way of fetching via a release download.
-        # If the release doesn't exist, we won't be able help provide hints about
-        # a checksum mismatch or bad name, but the tradeoff is worth it if the
-        # release actually does exist
-        {:ok,
-         "https://github.com/#{opts.repo}/releases/download/#{opts.tag}/#{opts.artifact_name}"}
+    HTTPClient.download(download_url, dest_path, headers: auth_headers)
+  end
 
-      {:error, "Status 404 Not Found"} ->
-        invalid_token? = is_nil(opts.token) or opts.token == ""
+  defp download(:github_api, opts, dest_path, auth_headers) do
+    release_url =
+      URI.append_path(opts.github_url, "/repos/#{opts.org_repo}/releases/tags/#{opts.tag}")
 
-        msg =
-          if not opts.public? and invalid_token? do
-            """
-            Missing token
-
-                 For private releases, you must authenticate the request to fetch release assets.
-                 You can do this in a few ways:
-
-                   * export or set GITHUB_TOKEN=<your-token>
-                   * set `token: <get-token-function>` for this GitHub repository in your Nerves system mix.exs
-            """
-          else
-            "No release"
-          end
-
-        {:error, msg}
-
-      result ->
-        result
+    with {:ok, release} <- HTTPClient.get_json(release_url, headers: auth_headers),
+         {:ok, asset_api_url} <- find_asset_url(release, opts.artifact_filename) do
+      download_headers = [{"Accept", "application/octet-stream"} | auth_headers]
+      HTTPClient.download(asset_api_url, dest_path, headers: download_headers)
     end
   end
 
-  defp get_asset_url(url, _opts) when is_binary(url), do: {:ok, url}
-
-  defp get_asset_url(%{"assets" => []}, _opts) do
-    {:error, "No release artifacts"}
-  end
-
-  defp get_asset_url(%{"assets" => assets}, %{artifact_name: artifact_name})
-       when is_list(assets) do
-    ret =
-      Enum.find(assets, fn %{"name" => name} ->
-        String.equivalent?(artifact_name, name)
-      end)
-
-    case ret do
-      nil ->
-        available = for %{"name" => name} <- assets, do: ["       * ", name, "\n"]
-        msg = ["No artifact with valid checksum\n\n     Found:\n", available]
-
-        {:error, msg}
-
-      %{"url" => url} ->
-        {:ok, url}
+  defp find_asset_url(%{"assets" => assets}, filename) do
+    case Enum.find(assets, fn a -> a["name"] == filename end) do
+      %{"url" => url} -> {:ok, url}
+      nil -> {:error, "Asset '#{filename}' not found in release"}
     end
   end
 
-  defp get_asset_url(response, _opts) do
-    truncated = inspect(response, limit: 10, printable_limit: 200)
-    {:error, "Unexpected API response when querying assets: #{truncated}"}
+  defp get_auth_token(opts) do
+    # Environment variables always override. gh is used last.
+    System.get_env("GITHUB_TOKEN") || System.get_env("GH_TOKEN") || opts.custom_auth_token ||
+      (opts.use_gh_cli? && gh_token())
+  end
+
+  defp gh_token() do
+    with gh when not is_nil(gh) <- System.find_executable("gh"),
+         {result, 0} <- System.cmd(gh, ["auth", "token"]) do
+      String.trim(result)
+    else
+      _err -> nil
+    end
   end
 end

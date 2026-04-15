@@ -103,8 +103,8 @@ defmodule Nerves.ArtifactTest do
 
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
-    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+    [{GithubAPI, %GithubAPI{} = opts}] = Artifact.expand_sites(pkg)
+    assert String.ends_with?(opts.artifact_filename, checksum_short <> Artifact.ext(pkg))
   end
 
   test "GitHub API artifact sites are expanded" do
@@ -121,10 +121,10 @@ defmodule Nerves.ArtifactTest do
 
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    [{GithubAPI, {^repo, opts}}] = Artifact.expand_sites(pkg)
-    assert opts[:token] == "ghp_fake123"
-    assert opts[:tag] == "v1.0.0"
-    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+    [{GithubAPI, %GithubAPI{} = opts}] = Artifact.expand_sites(pkg)
+    assert opts.custom_auth_token == "ghp_fake123"
+    assert opts.tag == "v1.0.0"
+    assert String.ends_with?(opts.artifact_filename, checksum_short <> Artifact.ext(pkg))
   end
 
   test "Gitea artifact sites are expanded" do
@@ -139,8 +139,8 @@ defmodule Nerves.ArtifactTest do
 
     checksum_short = Nerves.Artifact.checksum(pkg, short: 7)
 
-    assert [{GiteaAPI, {"jmshrtn/nerves_artifact_test", opts}}] = Artifact.expand_sites(pkg)
-    assert String.ends_with?(opts[:artifact_name], checksum_short <> Artifact.ext(pkg))
+    assert [{GiteaAPI, %GiteaAPI{} = opts}] = Artifact.expand_sites(pkg)
+    assert String.ends_with?(opts.artifact_filename, checksum_short <> Artifact.ext(pkg))
   end
 
   test "precompile will raise if packages are stale and not fetched" do

@@ -15,6 +15,8 @@ defmodule Nerves.Artifact do
   alias Nerves.Artifact.Cache
   alias Nerves.Artifact.Resolvers
 
+  @resolver_modules [Resolvers.GithubAPI, Resolvers.GiteaAPI, Resolvers.URI]
+
   @checksum_short 7
 
   # credo:disable-for-next-line Credo.Check.Readability.Specs
@@ -255,9 +257,7 @@ defmodule Nerves.Artifact do
   {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
   ```
   """
-  @spec expand_sites(Nerves.Package.t()) :: [
-          {Resolvers.URI | Resolvers.GithubAPI | Resolvers.GiteaAPI, {Path.t(), Keyword.t()}}
-        ]
+  @spec expand_sites(Nerves.Package.t()) :: [{module(), term()}]
   def expand_sites(pkg) do
     Keyword.get(pkg.config, :artifact_sites, [])
     |> Enum.map(&expand_site(&1, pkg))
@@ -354,65 +354,10 @@ defmodule Nerves.Artifact do
     |> Keyword.put_new(:path, File.cwd!())
   end
 
-  defp expand_site(_, _, _ \\ [])
+  defp expand_site(site, pkg) do
+    name = download_name(pkg) <> ext(pkg)
 
-  defp expand_site({:github_releases, org_proj}, pkg, opts) do
-    opts =
-      opts
-      |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
-      |> Keyword.put(:public?, true)
-      |> update_in([:tag], &(&1 || "v#{pkg.version}"))
-
-    {Resolvers.GithubAPI, {org_proj, opts}}
-  end
-
-  defp expand_site({:gitea_releases, repo_uri}, pkg, opts) when is_binary(repo_uri),
-    do: expand_site({:gitea_releases, URI.parse(repo_uri)}, pkg, opts)
-
-  defp expand_site({:gitea_releases, repo_uri}, pkg, opts)
-       when is_nil(repo_uri.scheme) and is_nil(repo_uri.host),
-       do: expand_site({:gitea_releases, URI.parse("https://#{repo_uri.path}")}, pkg, opts)
-
-  defp expand_site({:gitea_releases, repo_uri}, pkg, opts) do
-    repo_uri = URI.parse(repo_uri)
-    base_url = %{repo_uri | path: "/"} |> to_string()
-    org_proj = repo_uri.path |> String.trim_leading("/")
-
-    opts =
-      opts
-      |> Keyword.put(:base_url, base_url)
-      |> Keyword.put(:artifact_name, download_name(pkg, opts) <> ext(pkg))
-      |> Keyword.put(:public?, true)
-      |> update_in([:tag], &(&1 || "v#{pkg.version}"))
-
-    {Resolvers.GiteaAPI, {org_proj, opts}}
-  end
-
-  defp expand_site({:prefix, url}, pkg, opts) do
-    expand_site({:prefix, url, []}, pkg, opts)
-  end
-
-  defp expand_site({:prefix, path, resolver_opts}, pkg, opts) do
-    path = Path.join(path, download_name(pkg, opts) <> ext(pkg))
-    {Resolvers.URI, {path, resolver_opts}}
-  end
-
-  defp expand_site({:github_api, org_proj, resolver_opts}, pkg, opts) do
-    resolver_opts =
-      Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
-
-    {Resolvers.GithubAPI, {org_proj, resolver_opts}}
-  end
-
-  defp expand_site({:gitea_api, org_proj, resolver_opts}, pkg, opts) do
-    resolver_opts =
-      Keyword.put(resolver_opts, :artifact_name, download_name(pkg, opts) <> ext(pkg))
-
-    {Resolvers.GiteaAPI, {org_proj, resolver_opts}}
-  end
-
-  defp expand_site(site, _pkg, _opts),
-    do:
+    Enum.find_value(@resolver_modules, fn mod -> mod.plan(site, pkg.version, name) end) ||
       Mix.raise("""
       Unsupported artifact site
       #{inspect(site)}
@@ -428,4 +373,5 @@ defmodule Nerves.Artifact do
       {:prefix, "file:///my_artifacts/"}
       {:prefix, "/users/my_user/artifacts/"}
       """)
+  end
 end

@@ -7,7 +7,22 @@
 defmodule Nerves.Artifact.Resolver do
   @moduledoc false
 
-  @callback get(tuple(), Path.t()) :: :ok | {:error, term}
+  @doc """
+  Build a plan for downloading a package
+
+  This function should not make any HTTP requests.
+
+  Return `nil` if the implementing module can't handle the site spec.
+  """
+  @callback plan(tuple(), version :: String.t(), artifact_filename :: String.t()) ::
+              {module(), map()} | nil
+
+  @doc """
+  Download the package based on a previously returned plan
+
+  This function should download to the specified path.
+  """
+  @callback get(map(), Path.t()) :: :ok | {:error, term()}
 
   @spec get(list(), pkg :: Nerves.Package.t()) :: {:ok, path :: Path.t()} | {:error, term}
   def get([], _pkg) do
@@ -22,11 +37,11 @@ defmodule Nerves.Artifact.Resolver do
   defp do_get([], _pkg, nil), do: {:error, :no_result}
   defp do_get([], _pkg, reason), do: Mix.raise(reason)
 
-  defp do_get([{resolver, {id, resolver_opts}} | resolvers], pkg, raise_reason) do
+  defp do_get([{resolver, resolver_opts} | resolvers], pkg, raise_reason) do
     file = Nerves.Artifact.download_path(pkg)
     File.mkdir_p!(Nerves.Env.download_dir())
 
-    case resolver.get({id, resolver_opts}, file) do
+    case resolver.get(resolver_opts, file) do
       :ok ->
         validate_and_continue(file, resolvers, pkg)
 
