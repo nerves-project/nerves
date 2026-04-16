@@ -62,7 +62,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
 
   test "private release fails without token" do
     prepared = %GithubAPI{
-      github_url: URI.parse("https://github.com"),
+      web_url: URI.parse("https://github.com"),
       org_repo: @org_repo,
       custom_auth_token: nil,
       artifact_filename: @artifact_filename,
@@ -80,7 +80,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
 
   test "private release fails with nil token" do
     prepared = %GithubAPI{
-      github_url: URI.parse("https://github.com"),
+      web_url: URI.parse("https://github.com"),
       org_repo: @org_repo,
       custom_auth_token: nil,
       artifact_filename: @artifact_filename,
@@ -322,6 +322,32 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     |> expect(:download, fn url, _path, opts ->
       assert url == @asset_api_url
       assert opts[:headers] == [{"Accept", "application/octet-stream"}]
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
+  test "github_release falls back to API on failure when token is set" do
+    prepared = plan(token: "1234")
+
+    expected_direct_url = URI.parse(@release_download_url)
+
+    HTTPClient
+    |> expect(:download, fn url, _path, _opts ->
+      assert url == expected_direct_url
+      {:error, "Status 404 Not Found"}
+    end)
+    |> expect(:get_json, fn url, opts ->
+      assert URI.to_string(url) == @release_api_url
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      {:ok, release_json()}
+    end)
+    |> expect(:download, fn url, path, opts ->
+      assert url == @asset_api_url
+      assert path == @good_download_path
+      assert {"Accept", "application/octet-stream"} in opts[:headers]
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
       :ok
     end)
 

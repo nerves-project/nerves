@@ -16,7 +16,8 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   @github_api_url "https://api.github.com"
 
   defstruct [
-    :github_url,
+    :api_url,
+    :web_url,
     :org_repo,
     :custom_auth_token,
     :artifact_filename,
@@ -27,10 +28,15 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
   @impl Nerves.Artifact.Resolver
   def plan({:github_api, org_repo, opts}, version, artifact_filename) do
-    github_url = Keyword.get(opts, :github_url, @github_api_url) |> URI.parse()
+    {api_url, web_url} =
+      case Keyword.get(opts, :github_url) do
+        nil -> {URI.parse(@github_api_url), URI.parse(@github_url)}
+        custom -> {URI.parse(custom), nil}
+      end
 
     prepared = %__MODULE__{
-      github_url: github_url,
+      api_url: api_url,
+      web_url: web_url,
       org_repo: org_repo,
       custom_auth_token: opts[:token],
       artifact_filename: artifact_filename,
@@ -47,10 +53,15 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
   end
 
   def plan({:github_releases, org_repo, opts}, version, artifact_filename) do
-    github_url = Keyword.get(opts, :github_url, @github_url) |> URI.parse()
+    {api_url, web_url} =
+      case Keyword.get(opts, :github_url) do
+        nil -> {URI.parse(@github_api_url), URI.parse(@github_url)}
+        custom -> {nil, URI.parse(custom)}
+      end
 
     prepared = %__MODULE__{
-      github_url: github_url,
+      api_url: api_url,
+      web_url: web_url,
       org_repo: org_repo,
       custom_auth_token: opts[:token],
       artifact_filename: artifact_filename,
@@ -87,6 +98,14 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
       {:error, reason} ->
         elided_token = if auth_token, do: String.slice(auth_token, 0, 6) <> "...", else: "unset"
 
+        check_message =
+          if opts.web_url,
+            do: """
+            Check the release page for available artifacts:
+              #{URI.to_string(opts.web_url)}/#{opts.org_repo}/releases/tag/#{opts.tag}
+            """,
+            else: ""
+
         {:error,
          """
          Download failed: #{reason}
@@ -102,28 +121,40 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
          This failure was specifically for downloading #{opts.artifact_filename}. Other
          files could have been tried.
 
-         Check the release page for available artifacts:
-           "#{opts.github_url}/#{opts.org_repo}/releases/tag/#{opts.tag}"
-
+         #{check_message}
          Download method: #{opts.method}
+         Web endpoint: #{safe_uri_to_string(opts.web_url)}
+         API endpoint: #{safe_uri_to_string(opts.api_url)}
+         Repository: #{opts.org_repo}
+         Release tag: #{opts.tag}
          GitHub auth token: #{elided_token}
          """}
     end
   end
 
+  defp safe_uri_to_string(nil), do: "nil"
+  defp safe_uri_to_string(uri), do: URI.to_string(uri)
+
   defp download(:github_release, opts, dest_path, auth_headers) do
     download_url =
       URI.append_path(
-        opts.github_url,
+        opts.web_url,
         "/#{opts.org_repo}/releases/download/#{opts.tag}/#{opts.artifact_filename}"
       )
 
-    HTTPClient.download(download_url, dest_path, headers: auth_headers)
+    result = HTTPClient.download(download_url, dest_path, headers: auth_headers)
+
+    if match?({:error, _}, result) and auth_headers != [] and opts.api_url != nil do
+      # Fall back to API if we have an auth token and know the API URL
+      download(:github_api, opts, dest_path, auth_headers)
+    else
+      result
+    end
   end
 
   defp download(:github_api, opts, dest_path, auth_headers) do
     release_url =
-      URI.append_path(opts.github_url, "/repos/#{opts.org_repo}/releases/tags/#{opts.tag}")
+      URI.append_path(opts.api_url, "/repos/#{opts.org_repo}/releases/tags/#{opts.tag}")
 
     with {:ok, release} <- HTTPClient.get_json(release_url, headers: auth_headers),
          {:ok, asset_api_url} <- find_asset_url(release, opts.artifact_filename) do
