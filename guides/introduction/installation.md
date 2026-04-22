@@ -123,7 +123,17 @@ asdf set -u fwup latest
 ### Arch
 
 ```bash
-yay -S base-devel ncurses5-compat-libs git squashfs-tools curl
+yay -S base-devel ncurses5-compat-libs git squashfs-tools curl wget bc cpio
+```
+
+Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
+manually from source. Nerves uses `fwup` in the build process to create firmware
+images. Here are the `asdf` instructions:
+
+```bash
+asdf plugin add fwup https://github.com/fwup-home/asdf-fwup.git
+asdf install fwup latest
+asdf set -u fwup latest
 ```
 
 ### NixOS
