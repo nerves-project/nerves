@@ -17,7 +17,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
     shell_info("Create image")
 
     if Mix.shell().yes?("The Nerves Docker build_runner needs to create the image.\nProceed? ") do
-      case Mix.Nerves.Utils.shell(cmd, args) do
+      case InteractiveCmd.cmd(cmd, args) do
         {_, 0} -> :ok
         _ -> Mix.raise("Nerves Docker build_runner could not create docker volume nerves_cache")
       end

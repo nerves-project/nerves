@@ -85,6 +85,6 @@ defmodule Mix.Tasks.Firmware.Image do
     Mix.shell().info("Writing to #{file}...")
     args = ["-a", "-i", fw, "-t", "complete", "-d", file]
     cmd = "fwup"
-    shell(cmd, args)
+    InteractiveCmd.cmd(cmd, args)
   end
 end

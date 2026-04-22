@@ -281,16 +281,14 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
           "-w=#{working_dir()}"
         ] ++ env(:root) ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", working_dir()]]
 
-      case Mix.Nerves.Utils.shell("docker", args) do
-        {_result, 0} ->
+      case InteractiveCmd.cmd("docker", args) do
+        {_, 0} ->
           :ok
 
-        {result, _} ->
-          Mix.raise("""
-          The Nerves Docker build_runner encountered an error while setting permissions:
-
-          #{inspect(result)}
-          """)
+        {_, status} ->
+          Mix.raise(
+            "The Nerves Docker build_runner encountered an error while setting permissions (exit #{status})"
+          )
       end
     end
   end

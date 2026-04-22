@@ -59,7 +59,7 @@ defmodule Mix.Tasks.Firmware.Metadata do
       Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
     end
 
-    shell("fwup", ["-m", "-i", fw])
+    System.cmd("fwup", ["-m", "-i", fw])
   end
 
   @spec firmware_file(keyword()) :: String.t()

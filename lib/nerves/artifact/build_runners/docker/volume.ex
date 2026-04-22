@@ -45,11 +45,11 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Volume do
     shell_info("Deleting build volume #{volume_name}")
     args = ["volume", "rm", volume_name]
 
-    case Mix.Nerves.Utils.shell("docker", args) do
-      {_result, 0} ->
+    case InteractiveCmd.cmd("docker", args) do
+      {_, 0} ->
         :ok
 
-      {_result, _} ->
+      _ ->
         Mix.raise("""
         Nerves Docker build_runner encountered an error while deleting volume #{volume_name}
         """)

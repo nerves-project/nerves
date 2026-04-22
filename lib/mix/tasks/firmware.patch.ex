@@ -23,7 +23,6 @@ defmodule Mix.Tasks.Firmware.Patch do
       firmware. Defaults to `Nerves.Env.firmware_path/1`
   """
   use Mix.Task
-  import Mix.Nerves.Utils
   alias Mix.Nerves.Preflight
   alias Nerves.Utils.Shell
 
@@ -75,19 +74,28 @@ defmodule Mix.Tasks.Firmware.Patch do
     File.mkdir_p!(target_work_dir)
     File.mkdir_p!(Path.join(output_work_dir, "data"))
 
-    {_, 0} = shell("unzip", ["-qq", source, "-d", source_work_dir])
-    {_, 0} = shell("unzip", ["-qq", target, "-d", target_work_dir])
+    {_, 0} = InteractiveCmd.cmd("unzip", ["-qq", source, "-d", source_work_dir])
+    {_, 0} = InteractiveCmd.cmd("unzip", ["-qq", target, "-d", target_work_dir])
 
     source_rootfs = Path.join([source_work_dir, "data", "rootfs.img"])
     target_rootfs = Path.join([target_work_dir, "data", "rootfs.img"])
     out_rootfs = Path.join([output_work_dir, "data", "rootfs.img"])
 
-    {_, 0} = shell("xdelta3", ["-A", "-S", "-f", "-s", source_rootfs, target_rootfs, out_rootfs])
+    {_, 0} =
+      InteractiveCmd.cmd("xdelta3", [
+        "-A",
+        "-S",
+        "-f",
+        "-s",
+        source_rootfs,
+        target_rootfs,
+        out_rootfs
+      ])
 
     File.mkdir_p!(Path.dirname(output))
     File.cp!(target, output)
 
-    {_, 0} = shell("zip", ["-qq", output, "data/rootfs.img"], cd: output_work_dir)
+    {_, 0} = InteractiveCmd.cmd("zip", ["-qq", output, "data/rootfs.img"], cd: output_work_dir)
 
     output_stats = File.stat!(output)
 
