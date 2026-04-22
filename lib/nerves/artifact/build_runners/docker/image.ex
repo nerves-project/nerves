@@ -30,18 +30,10 @@ defmodule Nerves.Artifact.BuildRunners.Docker.Image do
   @spec pull(String.t()) :: boolean()
   def pull(tag) do
     shell_info("Trying to pull image")
-    cmd = "docker"
-    args = ["pull", "#{tag}"]
 
-    case Nerves.Port.cmd(cmd, args, stderr_to_stdout: true) do
-      {<<"Cannot connect to the Docker daemon", _tail::binary>>, _} ->
-        Mix.raise("Nerves Docker build_runner is unable to connect to docker daemon")
-
-      {_, 0} ->
-        true
-
-      {_reason, _} ->
-        false
+    case InteractiveCmd.cmd("docker", ["pull", tag]) do
+      {_, 0} -> true
+      _ -> false
     end
   end
 
