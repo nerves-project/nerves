@@ -5,6 +5,15 @@
 
 # Changelog
 
+## (unreleased)
+
+* New features
+  * Added `:extra_rootfs_overlays` option to `config :nerves, :firmware`. Tools
+    that need to inject rootfs overlays programmatically (e.g. package
+    distribution libraries) can now append paths without overwriting the
+    user's own `:rootfs_overlay` setting. The two lists are concatenated
+    before being passed to `rel2fw.sh`.
+
 ## v1.14.1 - 2026-04-22
 
 This release makes `mix nerves.system.shell` work again. We still recommend

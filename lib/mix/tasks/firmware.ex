@@ -23,6 +23,17 @@ defmodule Mix.Tasks.Firmware do
     * `--verbose` - produce detailed output about release assembly
     * `--output` - (Optional) The path to the .fw file used to write the patch
       firmware. Defaults to `Nerves.Env.firmware_path/1`
+
+  ## Configuration
+
+  Set under `config :nerves, :firmware` in your project's config:
+
+    * `:extra_rootfs_overlays` - (Optional) Additional rootfs overlay paths
+      appended to `:rootfs_overlay`. Intended for tools that inject overlays
+      programmatically (e.g. package distribution libraries) and need to
+      coexist with the user's own `:rootfs_overlay` setting rather than
+      replace it.
+
   ## Environment variables
 
     * `NERVES_SYSTEM`    - may be set to a local directory to specify the Nerves
@@ -119,7 +130,10 @@ defmodule Mix.Tasks.Firmware do
 
     write_erlinit_config(build_rootfs_overlay)
 
-    project_rootfs_overlay = config_arg(:rootfs_overlay, firmware_config)
+    project_rootfs_overlay =
+      config_arg(:rootfs_overlay, firmware_config) ++
+        config_arg(:extra_rootfs_overlays, firmware_config)
+
     prevent_overlay_overwrites!(project_rootfs_overlay)
 
     rootfs_overlays =
@@ -309,6 +323,13 @@ defmodule Mix.Tasks.Firmware do
 
       overlay ->
         [Path.expand(overlay)]
+    end
+  end
+
+  defp config_arg(:extra_rootfs_overlays, firmware_config) do
+    case firmware_config[:extra_rootfs_overlays] do
+      nil -> []
+      overlays when is_list(overlays) -> overlays
     end
   end
 
