@@ -102,6 +102,7 @@ community.
 | **[NervesSystemX86_64](https://github.com/nerves-project/nerves_system_x86_64)** | Generic Nerves system configuration x86_64 based hardware | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_system_x86_64.svg)](https://hex.pm/packages/nerves_system_x86_64) |
 | **[NervesSystemGrisp2](https://github.com/nerves-project/nerves_system_grisp2)** |Base Nerves system configuration for the GRiSP 2 | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_system_grisp2.svg)](https://hex.pm/packages/nerves_system_grisp2) |
 | **[NervesSystemMangoPiMQPro](https://github.com/nerves-project/nerves_system_mangopi_mq_pro)** |Base Nerves system configuration for the MangoPi MQ-Pro | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_system_mangopi_mq_pro.svg)](https://hex.pm/packages/nerves_system_mangopi_mq_pro) |
+| **[NervesSystemQemuAarch64](https://github.com/nerves-project/nerves_system_qemu_aarch64)** | Base Nerves system configuration for the Qemu ARM system emulator | [![Hex.pm](https://img.shields.io/hexpm/v/nerves_system_qemu_aarch64)](https://hex.pm/packages/nerves_system_qemu_aarch64) |
 
 ### Networking
 
