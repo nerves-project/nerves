@@ -177,7 +177,9 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
       exec /bin/bash\
     """
 
-    case InteractiveCmd.shell(~s(#{shell} -c "#{exec_input}")) do
+    case InteractiveCmd.shell(~s(#{shell} -c "#{exec_input}"),
+           env: [{"PATH", Mix.Nerves.Utils.sanitize_path()}]
+         ) do
       {_, 0} -> :ok
       {_, status} -> Mix.raise("Nerves shell exited with status #{status}")
     end
@@ -281,7 +283,7 @@ defmodule Nerves.Artifact.BuildRunners.Docker do
           "-w=#{working_dir()}"
         ] ++ env(:root) ++ mounts(pkg) ++ [image | ["chown", "#{uid()}:#{gid()}", working_dir()]]
 
-      case InteractiveCmd.cmd("docker", args) do
+      case Mix.Nerves.Utils.shell("docker", args) do
         {_, 0} ->
           :ok
 

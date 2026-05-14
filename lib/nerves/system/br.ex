@@ -76,7 +76,7 @@ defmodule Nerves.System.BR do
     script = Path.join(Nerves.Env.package(:nerves_system_br).path, "create-build.sh")
     platform_config = pkg.config[:platform_config][:defconfig]
     defconfig = Path.join("#{pkg.path}", platform_config)
-    _ = InteractiveCmd.cmd(script, [defconfig, dest])
+    _ = shell(script, [defconfig, dest])
 
     {:ok, pid} = Nerves.Utils.Stream.start_link(file: "build.log")
     stream = IO.stream(pid, :line)

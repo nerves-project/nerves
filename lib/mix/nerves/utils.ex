@@ -13,16 +13,15 @@ defmodule Mix.Nerves.Utils do
   @spec shell(binary(), [binary()], keyword()) ::
           {Collectable.t(), exit_status :: non_neg_integer()}
   def shell(cmd, args, opts \\ []) do
-    stream = opts[:stream] || IO.binstream(:standard_io, :line)
-    std_err = opts[:stderr_to_stdout] || true
+    {stream, opts} = Keyword.pop(opts, :stream)
     env = Keyword.get(opts, :env, []) ++ [{"PATH", sanitize_path()}]
+    opts = opts |> Keyword.put(:env, env) |> Keyword.drop([:into, :stderr_to_stdout])
 
-    opts =
-      opts
-      |> Keyword.drop([:into, :stderr_to_stdout, :stream])
-      |> Keyword.put(:env, env)
-
-    Nerves.Port.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
+    if stream do
+      Nerves.Port.cmd(cmd, args, [into: stream, stderr_to_stdout: true] ++ opts)
+    else
+      InteractiveCmd.cmd(cmd, args, opts)
+    end
   end
 
   @spec debug_info(String.t()) :: :ok

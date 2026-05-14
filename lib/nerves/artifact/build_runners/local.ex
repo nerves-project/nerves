@@ -82,7 +82,9 @@ defmodule Nerves.Artifact.BuildRunners.Local do
       "exec #{shell}"
     ]
 
-    case InteractiveCmd.shell(Enum.join(exec_input, " && ")) do
+    case InteractiveCmd.shell(Enum.join(exec_input, " && "),
+           env: [{"PATH", Mix.Nerves.Utils.sanitize_path()}]
+         ) do
       {_, 0} -> :ok
       {_, status} -> Mix.raise("Nerves shell exited with status #{status}")
     end

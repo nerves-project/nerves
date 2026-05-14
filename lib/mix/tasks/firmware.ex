@@ -148,7 +148,7 @@ defmodule Mix.Tasks.Firmware do
     |> Nerves.Env.images_path()
     |> File.mkdir_p!()
 
-    InteractiveCmd.cmd(cmd, args, env: env)
+    shell(cmd, args, env: env)
     |> result()
   end
 
