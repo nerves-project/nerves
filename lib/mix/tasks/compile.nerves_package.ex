@@ -17,8 +17,6 @@ defmodule Mix.Tasks.Compile.NervesPackage do
   use Mix.Task
   import Mix.Nerves.IO
 
-  require Logger
-
   @recursive true
 
   @impl Mix.Task

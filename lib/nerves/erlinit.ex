@@ -134,7 +134,7 @@ defmodule Nerves.Erlinit do
 
   defp trim_quoted_string(<<?", rest::binary>>) do
     content_len = byte_size(rest) - 1
-    <<content::binary-size(content_len), _>> = rest
+    <<content::binary-size(^content_len), _>> = rest
     content
   end
 

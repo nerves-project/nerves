@@ -34,8 +34,6 @@ defmodule Mix.Tasks.Nerves.Artifact do
 
   import Mix.Nerves.IO
 
-  require Logger
-
   @recursive true
 
   @switches [path: :string]

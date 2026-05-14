@@ -23,8 +23,6 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
 
   alias Nerves.Artifact
 
-  require Logger
-
   @recursive true
 
   @impl Mix.Task
