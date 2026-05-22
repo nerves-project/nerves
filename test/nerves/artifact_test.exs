@@ -76,6 +76,25 @@ defmodule Nerves.ArtifactTest do
     end)
   end
 
+  test "raises when NERVES_SYSTEM is set to a non-directory path" do
+    in_fixture("simple_app", fn ->
+      packages = ~w(system toolchain)
+      _ = load_env(packages)
+
+      tmp_file = Path.join(File.cwd!(), "tmp/system.tar.gz")
+      File.mkdir_p!(Path.dirname(tmp_file))
+      File.write!(tmp_file, "")
+
+      System.put_env("NERVES_SYSTEM", tmp_file)
+
+      on_exit(fn -> System.delete_env("NERVES_SYSTEM") end)
+
+      assert_raise Mix.Error, ~r/NERVES_SYSTEM.*is not a directory/, fn ->
+        Artifact.dir(Env.system())
+      end
+    end)
+  end
+
   test "checksum short length" do
     in_fixture("system", fn ->
       File.cwd!()

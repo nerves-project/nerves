@@ -196,11 +196,24 @@ defmodule Nerves.Artifact do
   """
   @spec dir(Nerves.Package.t()) :: String.t()
   def dir(pkg) do
-    if env_var?(pkg) do
-      System.get_env(env_var(pkg)) |> Path.expand()
-    else
-      base_dir()
-      |> Path.join(name(pkg))
+    var_name = env_var(pkg)
+    var_value = System.get_env(var_name)
+
+    cond do
+      var_value != nil and File.dir?(var_value) ->
+        Path.expand(var_value)
+
+      var_value != nil and var_value != "" ->
+        Mix.raise("""
+        #{var_name} is set to "#{var_value}" but that path is not a directory.
+
+        If this is a compressed artifact, extract it first or unset #{var_name}
+        to let Nerves resolve the artifact automatically.
+        """)
+
+      true ->
+        base_dir()
+        |> Path.join(name(pkg))
     end
   end
 
