@@ -1,3 +1,7 @@
+<!--
+  SPDX-FileCopyrightText: None
+  SPDX-License-Identifier: CC0-1.0
+-->
 # Nerves Release Procedure
 
 * Bump `nerves_system_*` releases first, if needed (e.g. make sure they support

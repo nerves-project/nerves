@@ -5,12 +5,19 @@ version = 1
 
 [[annotations]]
 path = [
- "CHANGELOG.md",
- "CODE_REVIEW.md",
  "NOTICE",
- "RELEASE.md",
- "mix.exs",
- "mix.lock"
+ "mix.lock",
+ "**/VERSION",
+ "**/nerves_defconfig",
+ "**/darwin_defconfig",
+ "**/linux_defconfig",
+ "resources/menu-search-tip.gif",
+ "test/fixtures/resolver/artifact.tar.gz",
+ "test/fixtures/resolver/artifact.tar.xz",
+ "test/fixtures/resolver/artifact.tar.zst",
+ "test/fixtures/resolver/corrupt.tar.gz",
+ "test/fixtures/resolver/corrupt.tar.xz",
+ "test/fixtures/resolver/corrupt.tar.zst"
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "None"
@@ -24,66 +31,3 @@ path = [
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2018 Nerves Project Authors"
 SPDX-License-Identifier = "LicenseRef-Nerves-Logo"
-
-[[annotations]]
-path = [
- "resources/menu-search-tip.gif",
- "test/.gitignore",
- "test/fixtures/package_build_runner_override/mix.exs",
- "test/fixtures/package_build_runner_override/nerves_defconfig",
- "test/fixtures/package_build_runner_override/VERSION",
- "test/fixtures/integration_app/mix.exs",
- "test/fixtures/integration_app/config/config.exs",
- "test/fixtures/integration_app/.gitignore",
- "test/fixtures/simple_app/mix.exs",
- "test/fixtures/system_platform/mix.exs",
- "test/fixtures/system_platform/VERSION",
- "test/fixtures/system_platform/lib/system_platform.ex",
- "test/fixtures/release_app/mix.exs",
- "test/fixtures/release_app/config/config.exs",
- "test/fixtures/release_app/rel/vm.args.eex",
- "test/fixtures/system/mix.exs",
- "test/fixtures/system/nerves_defconfig",
- "test/fixtures/system/VERSION",
- "test/fixtures/system_artifact/mix.exs",
- "test/fixtures/system_artifact/nerves_defconfig",
- "test/fixtures/system_artifact/VERSION",
- "test/fixtures/toolchain_platform/mix.exs",
- "test/fixtures/toolchain_platform/VERSION",
- "test/fixtures/toolchain_platform/lib/toolchain_platform.ex",
- "test/fixtures/umbrella/mix.exs",
- "test/fixtures/umbrella/config/config.exs",
- "test/fixtures/umbrella/.gitignore",
- "test/fixtures/umbrella/apps/toolchain_platform/mix.exs",
- "test/fixtures/umbrella/apps/toolchain_platform/VERSION",
- "test/fixtures/umbrella/apps/toolchain_platform/lib/toolchain_platform.ex",
- "test/fixtures/umbrella/apps/toolchain/darwin_defconfig",
- "test/fixtures/umbrella/apps/toolchain/mix.exs",
- "test/fixtures/umbrella/apps/toolchain/linux_defconfig",
- "test/fixtures/umbrella/apps/toolchain/VERSION",
- "test/fixtures/port/do_nothing.c",
- "test/fixtures/port/Makefile",
- "test/fixtures/port/kill_self_with_signal.c",
- "test/fixtures/port/ignore_sigterm.c",
- "test/fixtures/package_build_runner_opts/mix.exs",
- "test/fixtures/package_build_runner_opts/nerves_defconfig",
- "test/fixtures/package_build_runner_opts/VERSION",
- "test/fixtures/package/mix.exs",
- "test/fixtures/package/nerves_defconfig",
- "test/fixtures/package/VERSION",
- "test/fixtures/resolver/artifact.tar.gz",
- "test/fixtures/resolver/artifact.tar.xz",
- "test/fixtures/resolver/artifact.tar.zst",
- "test/fixtures/resolver/corrupt.tar.gz",
- "test/fixtures/resolver/corrupt.tar.xz",
- "test/fixtures/resolver/corrupt.tar.zst",
- "test/fixtures/simple_app_artifact/mix.exs",
- "test/fixtures/toolchain/darwin_defconfig",
- "test/fixtures/toolchain/mix.exs",
- "test/fixtures/toolchain/linux_defconfig",
- "test/fixtures/toolchain/VERSION"
-]
-precedence = "aggregate"
-SPDX-FileCopyrightText = "None"
-SPDX-License-Identifier = "CC0-1.0"
-

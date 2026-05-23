@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: None
+//
+// SPDX-License-Identifier: CC0-1.0
+//
 #include <err.h>
 #include <signal.h>
 #include <stdlib.h>

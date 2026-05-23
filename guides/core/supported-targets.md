@@ -3,11 +3,11 @@
   SPDX-FileCopyrightText: 2017 Frank Hunleth
   SPDX-FileCopyrightText: 2017 Greg Mefford
   SPDX-FileCopyrightText: 2017 Tim Mecklem
-  SPDX-FileCopyrightText: 2018 Anders
-  SPDX-FileCopyrightText: 2020 parkerduckworth
+  SPDX-FileCopyrightText: 2018 Anders Smedegaard Pedersen
+  SPDX-FileCopyrightText: 2020 Parker Duckworth
   SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
   SPDX-FileCopyrightText: 2023 Josh Kalderimis
-  SPDX-FileCopyrightText: 2024 Peter
+  SPDX-FileCopyrightText: 2024 Peter Hoburg
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Supported Targets

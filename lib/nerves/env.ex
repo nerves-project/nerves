@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2016 Justin Schneck
 # SPDX-FileCopyrightText: 2017 Greg Mefford
-# SPDX-FileCopyrightText: 2019 peter madsen
+# SPDX-FileCopyrightText: 2019 Peter Madsen
 # SPDX-FileCopyrightText: 2020 Frank Hunleth
 # SPDX-FileCopyrightText: 2020 Jon Carstens
 # SPDX-FileCopyrightText: 2021 Jaremy J. Creechley

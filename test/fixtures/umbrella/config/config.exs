@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: None
+#
+# SPDX-License-Identifier: CC0-1.0
+#
 # This file is responsible for configuring your umbrella
 # and **all applications** and their dependencies with the
 # help of the Config module.

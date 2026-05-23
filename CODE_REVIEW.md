@@ -1,3 +1,7 @@
+<!--
+  SPDX-FileCopyrightText: None
+  SPDX-License-Identifier: CC0-1.0
+-->
 # Code review process
 
 * Each repository should have an owner and one or more maintainers.
