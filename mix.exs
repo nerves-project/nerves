@@ -18,7 +18,7 @@ defmodule Nerves.MixProject do
     [
       app: :nerves,
       version: @version,
-      elixir: "~> 1.15.1 or ~> 1.16.0 or ~> 1.17.0 or ~> 1.18.0 or ~> 1.19.0",
+      elixir: "~> 1.20.0-rc.5 or ~> 1.15.1 or ~> 1.16.0 or ~> 1.17.0 or ~> 1.18.0 or ~> 1.19.0",
       archives: [nerves_bootstrap: "~> 1.15.1 or ~> 1.16"],
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
