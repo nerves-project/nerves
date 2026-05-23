@@ -1,6 +1,7 @@
 <!--
   SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
   SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-FileCopyrightText: 2025 Frank Hunleth
   SPDX-FileCopyrightText: 2025 Marc Lainez
   SPDX-License-Identifier: CC-BY-4.0
 -->

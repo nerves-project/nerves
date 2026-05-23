@@ -1,5 +1,6 @@
 <!--
   SPDX-FileCopyrightText: 2025 Marc Lainez
+  SPDX-FileCopyrightText: 2026 Frank Hunleth
   SPDX-License-Identifier: CC-BY-4.0
 -->
 ## Porting Nerves to a New Device

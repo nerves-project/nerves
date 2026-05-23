@@ -1,6 +1,7 @@
 <!--
   SPDX-FileCopyrightText: 2024 Damir Batinović
   SPDX-FileCopyrightText: 2024 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2025 Frank Hunleth
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Building Nerves Systems using `nerves_systems` repository

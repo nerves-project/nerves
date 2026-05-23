@@ -9,6 +9,7 @@
   SPDX-FileCopyrightText: 2022 Rui Lopes
   SPDX-FileCopyrightText: 2023 Dave Purrington
   SPDX-FileCopyrightText: 2024 Cocoa Xu
+  SPDX-FileCopyrightText: 2026 Gus Workman
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Nerves

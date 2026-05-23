@@ -3,6 +3,8 @@
   SPDX-FileCopyrightText: 2018 Connor Rigby
   SPDX-FileCopyrightText: 2018 Justin Schneck
   SPDX-FileCopyrightText: 2020 Kian-Meng, Ang
+  SPDX-FileCopyrightText: 2025 Frank Hunleth
+  SPDX-FileCopyrightText: 2025 Ricardo Trindade
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Nerves Internals

@@ -5,6 +5,7 @@
   SPDX-FileCopyrightText: 2022 Jon Carstens
   SPDX-FileCopyrightText: 2024 Christoph Lupprich
   SPDX-FileCopyrightText: 2024 Lars Wikman
+  SPDX-FileCopyrightText: 2025 Frank Hunleth
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # User Interfaces

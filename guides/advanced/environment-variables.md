@@ -1,6 +1,7 @@
 <!--
   SPDX-FileCopyrightText: 2022 Jon Carstens
   SPDX-FileCopyrightText: 2023 Frank Hunleth
+  SPDX-FileCopyrightText: 2024 Rockwell Schrock
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Environment variables

@@ -14,6 +14,7 @@
   SPDX-FileCopyrightText: 2023 Matteo Briani
   SPDX-FileCopyrightText: 2024 Emmanuel Ferdman
   SPDX-FileCopyrightText: 2024 Jon Carstens
+  SPDX-FileCopyrightText: 2026 Henrik Rasmussen
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Installation

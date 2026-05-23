@@ -7,6 +7,7 @@
   SPDX-FileCopyrightText: 2023 Andrew Henkel
   SPDX-FileCopyrightText: 2023 Josh Kalderimis
   SPDX-FileCopyrightText: 2025 Marc Lainez
+  SPDX-FileCopyrightText: 2025 Ricardo Trindade
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Getting Started

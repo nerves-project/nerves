@@ -7,6 +7,7 @@
   SPDX-FileCopyrightText: 2022 Jason Axelson
   SPDX-FileCopyrightText: 2023 James Harton
   SPDX-FileCopyrightText: 2023 Josh Kalderimis
+  SPDX-FileCopyrightText: 2024 Rockwell Schrock
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Customizing Your Nerves System

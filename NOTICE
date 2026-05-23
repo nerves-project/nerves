@@ -1,11 +1,18 @@
 Nerves is open-source software licensed under the Apache License, Version 2.0.
 
-Copyright holders include Frank Hunleth, Justin Schneck, Connor Rigby, Dorian
-Karter, Greg Mefford, Zander Mackie, Joel Byler, Jonathan Merriweather, Matt
-Ludwigs, Michael Schmidt, Wojtek Mach, Jon Carstens, Matt Willy, peter madsen,
-Hideki TAKASE, Tomasz Kazimierz Motyl, Jaremy J. Creechley, Jon Thacker, Rick
-Carlino, Martin Wagner, Masatoshi Nishiguchi, Udo Schneider, James Harton, Eric
-Rauer, Jon Ringle and Lars Wikman.
+Copyright holders include Frank Hunleth, Greg Mefford, Justin Schneck, Connor
+Rigby, Dorian Karter, Jeff Smith, Michael Schmidt, Tim Mecklem, Xavier Damman,
+Anders, Brien Wankel, Joel Byler, Jonathan Merriweather, Matt Ludwigs, Nick
+Veys, Wojtek Mach, Alexander Buch, Dean Chouinard, Jason Axelson, Jon Carstens,
+Matt Willy, Peter Kropf, peter madsen, Hideki TAKASE, J Allen, Kian-Meng, Ang,
+Petrus Janse van Rensburg, Tomasz Kazimierz Motyl, aguirrem, parkerduckworth,
+Bruce Wong, Jaremy J. Creechley, Jon Thacker, Masatoshi Nishiguchi, Rick
+Carlino, Jason Johnson, Martin Wagner, Rui Lopes, Travis Graham, Udo Schneider,
+Andrew Henkel, Dave Purrington, James Harton, Joel Shprentz, Josh Kalderimis,
+Matteo Briani, Christoph Lupprich, Cocoa Xu, Damir Batinović, Emmanuel Ferdman,
+Eric Rauer, Jon Ringle, Lars Wikman, Lucas Sifoni, Peter, Rockwell Schrock,
+Marc Lainez, Ricardo Trindade, Ben Youngblood, Gus Workman, Henrik Rasmussen
+and Ky Bishop.
 
 Authoritative REUSE-compliant copyright and license metadata available at
 https://hex.pm/packages/nerves.

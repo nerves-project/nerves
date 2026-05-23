@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2022 Frank Hunleth
 # SPDX-FileCopyrightText: 2023 James Harton
 # SPDX-FileCopyrightText: 2023 Jon Carstens
+# SPDX-FileCopyrightText: 2026 Ky Bishop
 #
 # SPDX-License-Identifier: Apache-2.0
 #
