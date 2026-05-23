@@ -5,6 +5,12 @@
 
 # Changelog
 
+## v1.14.2 - 2026-05-23
+
+* Changes
+  * Raise loudly when NERVES_SYSTEM or NERVES_TOOLCHAIN is set to a non-directory path (@kybishop)
+  * Fix Elixir 1.20 warnings
+
 ## v1.14.1 - 2026-04-22
 
 This release makes `mix nerves.system.shell` work again. We still recommend
