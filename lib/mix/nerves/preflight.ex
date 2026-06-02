@@ -68,7 +68,7 @@ defmodule Mix.Nerves.Preflight do
           #{fwup_bin} #{vsn_requirement} is required for Nerves.
 
           You are running #{vsn}.
-          Please see https://hexdocs.pm/nerves/installation.html#fwup
+          Please see https://nerves.hexdocs.pm/installation.html#fwup
           for installation instructions
           """)
         end
@@ -101,7 +101,7 @@ defmodule Mix.Nerves.Preflight do
     """
     #{package} is required by the Nerves tooling.
 
-    Please see https://hexdocs.pm/nerves/installation.html for installation
+    Please see https://nerves.hexdocs.pm/installation.html for installation
     instructions.
     """
   end

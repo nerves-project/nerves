@@ -47,7 +47,7 @@ embedded systems in mind and works well with Nerves on screens like the
 or HDMI connected screens.
 
 Helpful links:
-* [Scenic: Getting Start with Nerves doc](https://hexdocs.pm/scenic/getting_started_nerves.html)
+* [Scenic: Getting Start with Nerves doc](https://scenic.hexdocs.pm/getting_started_nerves.html)
 * [Scenic Forum](https://elixirforum.com/c/elixir-framework-forums/scenic-forum/107)
 * [ElixirConf 2018 - Introducing Scenic A Functional UI Framework - Boyd Multerer](https://www.youtube.com/watch?v=1QNxLNMq3Uw)
 * [Scenic Now and Looking Ahead - Boyd Multerer | ElixirConfEU Virtual 20](https://www.youtube.com/watch?v=tej-SyhZrqk)
@@ -69,6 +69,6 @@ Some initial work has been done to support eInk displays like the Pimoroni Inky
 ## OLED
 
 Basic work has been done to support small OLED screens with the SSD1306 chip which
-are usually smaller screens a few inches wide. More info in the [`:oled` docs](https://hexdocs.pm/oled)
+are usually smaller screens a few inches wide. More info in the [`:oled` docs](https://oled.hexdocs.pm)
 
 [Nerves Web Kiosks]: https://github.com/nerves-web-kiosk

@@ -5,6 +5,6 @@
 -->
 # Nerves Documentation
 
-These docs are intended to be viewed through [HexDocs](https://hexdocs.pm/nerves).
+These docs are intended to be viewed through [HexDocs](https://nerves.hexdocs.pm).
 
 You can still view these docs directly, however, the links and formatting may render incorrectly.

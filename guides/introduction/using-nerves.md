@@ -96,4 +96,4 @@ For more info, refer to [Connecting to your Nerves Target](connecting-to-a-nerve
 >
 > Refer to the documentation of `nerves_system_<target>` projects for their
 > supported features. As an example, when your target is `rpi0_2`,
-> visit https://hexdocs.pm/nerves_system_rpi0_2.
+> visit https://nerves-system-rpi0-2.hexdocs.pm.

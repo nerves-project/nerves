@@ -12,7 +12,7 @@ ways of integrating this code and the one you choose depends on many things.
 Here are rules of thumb:
 
 1. Build large and complicated C and C++ projects using Buildroot by creating a
-   [Custom system](https://hexdocs.pm/nerves/customizing-systems.html)
+   [Custom system](https://nerves.hexdocs.pm/customizing-systems.html)
 2. Build small C and C++ projects using
    [`elixir_make`](https://hex.pm/packages/elixir_make)
 3. Look for libraries like [`zigler`](https://hex.pm/packages/zigler) for
@@ -30,7 +30,7 @@ Be aware of the following caveats with Nerves:
 
 1. Nerves does not use the embedded Linux init systems like `systemd` or
    `BusyBox init`. Initialization is done in either an
-   [Application.start callback](https://hexdocs.pm/elixir/Application.html#module-the-application-callback-module)
+   [Application.start callback](https://elixir.hexdocs.pm/Application.html#module-the-application-callback-module)
    or in a `GenServer` so that it can be supervised.
 2. D-Bus is not normally enabled on Nerves. It may be enabled in a custom
    system.
@@ -44,7 +44,7 @@ Be aware of the following caveats with Nerves:
 >
 > If you require a long running process from a provided exectuable and need
 > similar startup and supervision management of `systemd`, you can also use
-> [`:muontrap`](https://hexdocs.pm/muontrap/readme.html) to start it in your
+> [`:muontrap`](https://muontrap.hexdocs.pm/readme.html) to start it in your
 > application supervision. See [this talk](https://youtu.be/BtUmxoccZGE?t=1559)
 > for more information
 

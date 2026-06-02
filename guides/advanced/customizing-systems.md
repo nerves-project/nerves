@@ -13,12 +13,12 @@
 # Customizing Your Nerves System
 
 Before following this guide, you should probably read about
-[The Anatomy of a Nerves System](https://hexdocs.pm/nerves/systems.html)
+[The Anatomy of a Nerves System](https://nerves.hexdocs.pm/systems.html)
 
 For some applications, the pre-built Nerves Systems won't meet your needs. For
 example, you may want to include additional Linux packages or run on hardware
 that isn't in the list of [Nerves-supported
-targets](https://hexdocs.pm/nerves/supported-targets.html) yet. In order to make the build
+targets](https://nerves.hexdocs.pm/supported-targets.html) yet. In order to make the build
 process consistent across host platforms, Nerves uses a Docker container behind
 the scenes to perform the build on non-Linux hosts. This makes it possible for
 the steps below to apply to whatever host platform you're using for development,
@@ -60,7 +60,7 @@ Next, tweak the metadata of your Mix project by updating your `mix.exs` with the
 * the value of `@app` to `custom_rpi3`
 * the value of `@github_organization` to your GitHub user name or organization
 
-See the [Official Mix.Project](https://hexdocs.pm/mix/Mix.Project.html) document
+See the [Official Mix.Project](https://mix.hexdocs.pm/Mix.Project.html) document
 for the structure of this file.
 
 ```elixir

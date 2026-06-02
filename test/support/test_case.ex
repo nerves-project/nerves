@@ -113,7 +113,7 @@ defmodule NervesTest.Case do
   end
   ```
 
-  See https://hexdocs.pm/ex_unit/ExUnit.Case.html#module-tmp-dir
+  See https://ex-unit.hexdocs.pm/ExUnit.Case.html#module-tmp-dir
   """
   @type env_var :: {String.t(), String.t()}
   @spec compile_fixture(String.t(), Path.t(), [String.t()], [env_var()]) ::

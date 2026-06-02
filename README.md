@@ -202,7 +202,7 @@ https://github.com/nerves-project-attic.
 * Windows 10 with [Windows Subsystem for Linux 2](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
 * Elixir ~> 1.11
 
-See [Installation Docs](https://hexdocs.pm/nerves/installation.html) for
+See [Installation Docs](https://nerves.hexdocs.pm/installation.html) for
 software dependencies.
 
 ## Quick-Reference
@@ -229,23 +229,23 @@ requesting the password. E.g., `export SUDO_ASKPASS=ssh-askpass`.
 
 ## Docs
 
-[Installation Docs](https://hexdocs.pm/nerves/installation.html)
+[Installation Docs](https://nerves.hexdocs.pm/installation.html)
 
-[Getting Started](https://hexdocs.pm/nerves/getting-started.html)
+[Getting Started](https://nerves.hexdocs.pm/getting-started.html)
 
-[Frequently-Asked Questions](https://hexdocs.pm/nerves/faq.html)
+[Frequently-Asked Questions](https://nerves.hexdocs.pm/faq.html)
 
-[Systems](https://hexdocs.pm/nerves/systems.html)
+[Systems](https://nerves.hexdocs.pm/systems.html)
 
-[Targets](https://hexdocs.pm/nerves/supported-targets.html)
+[Targets](https://nerves.hexdocs.pm/supported-targets.html)
 
-[User Interfaces](https://hexdocs.pm/nerves/user-interfaces.html)
+[User Interfaces](https://nerves.hexdocs.pm/user-interfaces.html)
 
-[Advanced Configuration](https://hexdocs.pm/nerves/advanced-configuration.html)
+[Advanced Configuration](https://nerves.hexdocs.pm/advanced-configuration.html)
 
-[Compiling non-BEAM code](https://hexdocs.pm/nerves/compiling-non-beam-code.html)
+[Compiling non-BEAM code](https://nerves.hexdocs.pm/compiling-non-beam-code.html)
 
-[Customizing Systems](https://hexdocs.pm/nerves/customizing-systems.html)
+[Customizing Systems](https://nerves.hexdocs.pm/customizing-systems.html)
 
 ## Contributors
 

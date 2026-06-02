@@ -244,7 +244,7 @@ defmodule Mix.Nerves.Utils do
       system project's `mix.exs`?
 
     For build examples in the Nerves documentation, please see
-    https://hexdocs.pm/nerves/getting-started.html#create-the-firmware-bundle
+    https://nerves.hexdocs.pm/getting-started.html#create-the-firmware-bundle
     """)
   end
 end

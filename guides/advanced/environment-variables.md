@@ -76,7 +76,7 @@ these are frequently used in the `Makefiles` invoked by
 | `TARGET_OS`              | See below                      | The target OS. Always `linux` for Nerves. |
 
 Also see the [`elixir_make`
-documentation](https://hexdocs.pm/elixir_make/Mix.Tasks.Compile.ElixirMake.html#module-default-environment-variables)
+documentation](https://elixir-make.hexdocs.pm/Mix.Tasks.Compile.ElixirMake.html#module-default-environment-variables)
 for additional environment variables that may be useful.
 
 ## Target CPU, ARCH, OS, and ABI

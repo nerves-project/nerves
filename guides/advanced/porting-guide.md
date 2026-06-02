@@ -7,9 +7,9 @@
 
 ## Who is this guide for?
 
-This guide is for those of you that have a piece of hardware that isn't in the [list of supported targets](https://hexdocs.pm/nerves/supported-targets.html) and on which you want to get Nerves running on it. Maybe it's a old unsupported board, some random SBC you found on AliExpress, or an industrial board your company designs. Whatever it is, if it can run Linux, it can probably run Nerves.
+This guide is for those of you that have a piece of hardware that isn't in the [list of supported targets](https://nerves.hexdocs.pm/supported-targets.html) and on which you want to get Nerves running on it. Maybe it's a old unsupported board, some random SBC you found on AliExpress, or an industrial board your company designs. Whatever it is, if it can run Linux, it can probably run Nerves.
 
-Before you dive in, make sure you're comfortable with the basics of Nerves. If you haven't already, go through the [Getting Started](https://hexdocs.pm/nerves/getting-started.html) guide first. You should also read [The Anatomy of a Nerves System](https://hexdocs.pm/nerves/systems.html) to understand how official systems are structured. This guide picks up where those leave off.
+Before you dive in, make sure you're comfortable with the basics of Nerves. If you haven't already, go through the [Getting Started](https://nerves.hexdocs.pm/getting-started.html) guide first. You should also read [The Anatomy of a Nerves System](https://nerves.hexdocs.pm/systems.html) to understand how official systems are structured. This guide picks up where those leave off.
 
 We are going to focus on standard Linux boards, the kind with an SD card slot, U-Boot, and a mainline (or close to mainline) kernel. If your device is different, you might learn a thing or two in this guide, but be advised that it will require more efforts.
 
@@ -121,13 +121,13 @@ make linux-update-defconfig  # saves kernel config
 
 Before you move on, pay attention to what your Buildroot system is doing at startup to make the hardware work. Many boards have init scripts that load firmware or bring up specific peripherals. In a standard Linux system, these run as shell scripts in `/etc/init.d/` or as systemd services.
 
-Nerves doesn't have init scripts. There's no shell running at boot, no init system handling services lifecycle. If your board needs something to happen at startup for the hardware to work, you'll need to handle it from your Elixir application, typically as an OTP application that runs the necessary setup when it starts. Things like loading a firmware blob or toggling a GPIO to enable a peripheral are straightforward to do from Elixir using libraries like [Circuits.GPIO](https://hexdocs.pm/circuits_gpio/) or by calling into a small C port program.
+Nerves doesn't have init scripts. There's no shell running at boot, no init system handling services lifecycle. If your board needs something to happen at startup for the hardware to work, you'll need to handle it from your Elixir application, typically as an OTP application that runs the necessary setup when it starts. Things like loading a firmware blob or toggling a GPIO to enable a peripheral are straightforward to do from Elixir using libraries like [Circuits.GPIO](https://circuits-gpio.hexdocs.pm/) or by calling into a small C port program.
 
 Make a list of what those scripts do now. You'll need them later.
 
 ## Creating a new Nerves system
 
-A Nerves system is an Elixir project that wraps a Buildroot external tree. If you've read [The Anatomy of a Nerves System](https://hexdocs.pm/nerves/systems.html), you know that the official systems like `nerves_system_rpi5` are just Mix projects with some specific files. Here's what a complete Nerves system looks like:
+A Nerves system is an Elixir project that wraps a Buildroot external tree. If you've read [The Anatomy of a Nerves System](https://nerves.hexdocs.pm/systems.html), you know that the official systems like `nerves_system_rpi5` are just Mix projects with some specific files. Here's what a complete Nerves system looks like:
 
 ```
 nerves_system_my_board/
@@ -239,7 +239,7 @@ Instead of creating these files manually, you can start from and existing suppor
 
 #### About `nerves_package` configuration
 
-The `nerves_package` configuration tells Nerves how to build and distribute your system. The `:checksum` list is important, it defines which files are used to determine if the system needs to be rebuilt. If you add a new file to your system, make sure to include it here. For more details, see the [Nerves Package Configuration](https://hexdocs.pm/nerves/systems.html#nerves-package-configuration) documentation.
+The `nerves_package` configuration tells Nerves how to build and distribute your system. The `:checksum` list is important, it defines which files are used to determine if the system needs to be rebuilt. If you add a new file to your system, make sure to include it here. For more details, see the [Nerves Package Configuration](https://nerves.hexdocs.pm/systems.html#nerves-package-configuration) documentation.
 
 ### Choosing a toolchain
 
@@ -635,7 +635,7 @@ This is simplified. Real fwup configs also handle U-Boot environment writes, pro
 
 #### The fwup-ops.conf file
 
-In addition to `fwup.conf`, you'll want a `fwup-ops.conf` that defines runtime operations: reverting to the previous firmware, factory reset, validation, and status queries. These are used by [nerves_runtime](https://hexdocs.pm/nerves_runtime) when your Elixir application calls functions like `Nerves.Runtime.revert/0`. Again, start from an existing system and adapt.
+In addition to `fwup.conf`, you'll want a `fwup-ops.conf` that defines runtime operations: reverting to the previous firmware, factory reset, validation, and status queries. These are used by [nerves_runtime](https://nerves-runtime.hexdocs.pm) when your Elixir application calls functions like `Nerves.Runtime.revert/0`. Again, start from an existing system and adapt.
 
 ## What nerves_system_br provides
 
@@ -834,7 +834,7 @@ These files exist to allow your system to define custom Buildroot packages. If y
 # include $(sort $(wildcard $(NERVES_DEFCONFIG_DIR)/packages/*/*.mk))
 ```
 
-If you later need to add a custom Buildroot package (say, a proprietary binary or a driver not in Buildroot), this is where you'd wire it in. See the [Adding a custom Buildroot Package](https://hexdocs.pm/nerves/customizing-systems.html#adding-a-custom-buildroot-package) section of the official docs for the details.
+If you later need to add a custom Buildroot package (say, a proprietary binary or a driver not in Buildroot), this is where you'd wire it in. See the [Adding a custom Buildroot Package](https://nerves.hexdocs.pm/customizing-systems.html#adding-a-custom-buildroot-package) section of the official docs for the details.
 
 ## Building your system
 
@@ -868,19 +868,19 @@ mix deps.get
 mix firmware
 ```
 
-For more details on building custom systems and creating distributable artifacts, see the [Customizing Your Nerves System](https://hexdocs.pm/nerves/customizing-systems.html) guide.
+For more details on building custom systems and creating distributable artifacts, see the [Customizing Your Nerves System](https://nerves.hexdocs.pm/customizing-systems.html) guide.
 
 #### Iterating on the system config
 
-When you're tweaking your system, you'll want to use `mix nerves.system.shell` to get into the Buildroot configuration environment. From there you can run `make menuconfig`, `make linux-menuconfig`, and `make savedefconfig` to iterate on the configuration without rebuilding from scratch every time. See the [Buildroot Package Configuration](https://hexdocs.pm/nerves/customizing-systems.html#buildroot-package-configuration) section for the full workflow.
+When you're tweaking your system, you'll want to use `mix nerves.system.shell` to get into the Buildroot configuration environment. From there you can run `make menuconfig`, `make linux-menuconfig`, and `make savedefconfig` to iterate on the configuration without rebuilding from scratch every time. See the [Buildroot Package Configuration](https://nerves.hexdocs.pm/customizing-systems.html#buildroot-package-configuration) section for the full workflow.
 
 ## Where to go from here
 
 Once your system builds and you can flash a firmware image, you're in familiar Nerves territory. The next steps are usually:
 
-- **Get network access** - set up [VintageNet](https://hexdocs.pm/vintage_net/) for Ethernet or WiFi
-- **Enable SSH** - add [NervesSSH](https://hexdocs.pm/nerves_ssh/) to your application
+- **Get network access** - set up [VintageNet](https://vintage-net.hexdocs.pm/) for Ethernet or WiFi
+- **Enable SSH** - add [NervesSSH](https://nerves-ssh.hexdocs.pm/) to your application
 - **Test OTA updates** - make sure `mix upload` works over the network
-- **Publish your system** - create [artifacts](https://hexdocs.pm/nerves/customizing-systems.html#creating-an-artifact) so others can use your system without compiling it from source
+- **Publish your system** - create [artifacts](https://nerves.hexdocs.pm/customizing-systems.html#creating-an-artifact) so others can use your system without compiling it from source
 
 And if you get stuck, the [Nerves Discord](https://discord.gg/7TqSpepHw7) and [Nerves Forum](https://elixirforum.com/c/elixir-framework-forums/nerves-forum/74) are full of people who have been through this process and are happy to help.

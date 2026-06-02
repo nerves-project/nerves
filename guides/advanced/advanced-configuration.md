@@ -259,7 +259,7 @@ defined in `etc/erlinit.config`.
 
 More information about how the App Data partition is initialized and mounted can
 be found in the documentation for `nerves_runtime` [Filesystem
-Initialization](https://hexdocs.pm/nerves_runtime/readme.html#filesystem-initialization)
+Initialization](https://nerves-runtime.hexdocs.pm/readme.html#filesystem-initialization)
 
 ### Adding a Partition
 

@@ -65,11 +65,11 @@ sudo dnf install -y git @development-tools @c-development kernel-devel cvs wget 
 
 ### Install Erlang and Elixir
 
-If you've already followed the [Nerves Installation guide](https://hexdocs.pm/nerves/installation.html), Erlang and Elixir should be installed on your system. If not, refer to the installation instructions provided in the guide for your operating system.
+If you've already followed the [Nerves Installation guide](https://nerves.hexdocs.pm/installation.html), Erlang and Elixir should be installed on your system. If not, refer to the installation instructions provided in the guide for your operating system.
 
 ### Install Nerves Archives
 
-If you've completed the [Nerves Installation guide](https://hexdocs.pm/nerves/installation.html), the Nerves bootstrap archive and local rebar should already be set up. If not, you can install them with:
+If you've completed the [Nerves Installation guide](https://nerves.hexdocs.pm/installation.html), the Nerves bootstrap archive and local rebar should already be set up. If not, you can install them with:
 
 ```bash
 mix archive.install hex nerves_bootstrap
@@ -289,7 +289,7 @@ After successfully building the Nerves system, you need to set up your environme
 
 ## Step 4: Customizing the Build (Optional)
 
-Customizing your Nerves system is an advanced but powerful way to tailor the system to your needs. For comprehensive details on customizing systems, refer to the official [Customizing Your Nerves System](https://hexdocs.pm/nerves/customizing-systems.html) document. This guide provides deeper insights into topics such as Buildroot configurations, kernel adjustments, and integrating additional features.
+Customizing your Nerves system is an advanced but powerful way to tailor the system to your needs. For comprehensive details on customizing systems, refer to the official [Customizing Your Nerves System](https://nerves.hexdocs.pm/customizing-systems.html) document. This guide provides deeper insights into topics such as Buildroot configurations, kernel adjustments, and integrating additional features.
 
 Customizing the build allows you to tailor the Nerves system to meet specific requirements for your hardware or application. This involves modifying Buildroot configurations and applying changes to the Nerves system.
 
@@ -418,7 +418,7 @@ Next, tweak the metadata of your Mix project by updating your `mix.exs` with the
 * the value of `@app` to `custom_rpi3`
 * the value of `@github_organization` to your GitHub user name or organization
 
-See the [Official Mix.Project](https://hexdocs.pm/mix/Mix.Project.html) document
+See the [Official Mix.Project](https://mix.hexdocs.pm/Mix.Project.html) document
 for the structure of this file.
 
 ```elixir
