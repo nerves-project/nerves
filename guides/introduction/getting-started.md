@@ -234,7 +234,7 @@ If you are using an HDMI capable Pi and USB is really not working for you, try t
 ## Using `IEx`
 
 Once you are connected to your target device, an `IEx` prompt will appear with
-[`NervesMOTD`](https://hexdocs.pm/nerves_motd/readme.html).
+[`NervesMOTD`](https://nerves-motd.hexdocs.pm/readme.html).
 `IEx` is your main entry point to interacting with Elixir, your program, and hardware.
 
 ```bash
@@ -257,7 +257,7 @@ hello_nerves 0.2.0 (40705268-3e85-52b6-7c7a-05ffd33a31b8) arm rpi0_2
   wlan0        : 10.0.0.25/24, 2601:14d:8602:2a0:ba27:ebff:fecb:222a/64, fe80::ba27:ebff:fecb:222a/64
   usb0         : 172.31.36.97/30, fe80::3c43:59ff:fec9:6716/64
 
-Nerves CLI help: https://hexdocs.pm/nerves/iex-with-nerves.html
+Nerves CLI help: https://nerves.hexdocs.pm/iex-with-nerves.html
 
 Toolshed imported. Run h(Toolshed) for more info.
 iex(nerves@nerves.local)1>
@@ -270,9 +270,9 @@ iex> HelloNerves.hello()
 :world
 ```
 
-The [Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package contains
+The [Toolshed](https://toolshed.hexdocs.pm/Toolshed.html) package contains
 many useful commands. Enter the following command to display the help for the
-[Toolshed](https://hexdocs.pm/toolshed/Toolshed.html) package.
+[Toolshed](https://toolshed.hexdocs.pm/Toolshed.html) package.
 
 ```elixir
 iex> h Toolshed
@@ -281,7 +281,7 @@ iex> h Toolshed
 Go ahead and try them out to explore your target's runtime environment.
 
 For more info on Nerves-specific use of the IEx prompt, refer to
-[IEx with Nerves Page](https://hexdocs.pm/nerves/iex-with-nerves.html).
+[IEx with Nerves Page](https://nerves.hexdocs.pm/iex-with-nerves.html).
 
 ## Anatomy of a Nerves project
 
@@ -399,7 +399,7 @@ The `application` function is where you describe your whole application. The `:m
 
 The module named `HelloNerves.Application` is located in the project's `lib/hello_nerves` directory.
 
-If you have any experience with Elixir, this should feel like home. A Nerves Application is just a good old [Elixir OTP application](https://hexdocs.pm/elixir/Application.html) where we implement the `Application` behaviour. The `start/2` callback starts a supervison tree, just like any other [Elixir OTP application](https://hexdocs.pm/elixir/Application.html).
+If you have any experience with Elixir, this should feel like home. A Nerves Application is just a good old [Elixir OTP application](https://elixir.hexdocs.pm/Application.html) where we implement the `Application` behaviour. The `start/2` callback starts a supervison tree, just like any other [Elixir OTP application](https://elixir.hexdocs.pm/Application.html).
 
 ## Updating your firmware
 

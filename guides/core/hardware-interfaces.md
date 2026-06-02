@@ -32,7 +32,7 @@ You’ll also need the usual Raspberry Pi parts (a good power supply and a micro
 
 There is a [quickstart guide](https://github.com/elixir-circuits/circuits_quickstart) you can follow to get started in no time.
 
-[Circuits GPIO](https://hexdocs.pm/circuits_gpio) has great documentation if you want to use your own firmware and not use Livebook.
+[Circuits GPIO](https://circuits-gpio.hexdocs.pm) has great documentation if you want to use your own firmware and not use Livebook.
 
 As mentioned in the [Example projects](./getting-started.html#example-projects) section, you can find several examples on how to get started with hardware projects such as:
 - [Blinky](https://github.com/nerves-project/nerves_examples/tree/main/blinky), showing you how to blink the onboard LED.

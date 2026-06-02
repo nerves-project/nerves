@@ -18,7 +18,7 @@ HDMI and USB keyboard instead.
 >
 > Refer to the documentation of `nerves_system_<target>` projects for their
 > supported features. As an example, when your target is `rpi0_2`,
-> visit https://hexdocs.pm/nerves_system_rpi0_2.
+> visit https://nerves-system-rpi0-2.hexdocs.pm.
 
 ## USB to TTL serial cable (UART)
 
@@ -60,7 +60,7 @@ On Linux on the Raspberry Pi Zero, `UART0` is exposed as the device file
 
 [raspberry pi zero]: https://www.raspberrypi.com/products/raspberry-pi-zero-w
 [raspberry pi zero w]: https://www.raspberrypi.com/products/raspberry-pi-zero-w
-[nerves_system_rpi0]: https://hexdocs.pm/nerves_system_rpi0
+[nerves_system_rpi0]: https://nerves-system-rpi0.hexdocs.pm
 
 ### Get a USB-to-TTL serial cable
 
@@ -156,7 +156,7 @@ target using a UART serial cable.
 
 Here is how to override the default, for `rpi3` as an example:
 
-1. Look in the README of your target's system's documentation for a UART port name. For example, [`nerves_system_rpi3`](https://hexdocs.pm/nerves_system_rpi3/readme.html)
+1. Look in the README of your target's system's documentation for a UART port name. For example, [`nerves_system_rpi3`](https://nerves-system-rpi3.hexdocs.pm/readme.html)
 1. Locate your project's `erlinit` configuration which is normally in your project's `config/target.exs` file
 1. Add a `ctty` option with the UART port name as a value
 
@@ -247,11 +247,11 @@ If you want to use some other network configuration, such as wired or wireless
 Ethernet, refer to the [`nerves_pack`] documentation and the underlying
 [`vintage_net`] documentation as needed.
 
-[`nerves_pack`]: https://hexdocs.pm/nerves_pack
-[`vintage_net_wifi`]: https://hexdocs.pm/vintage_net_wifi
-[`vintage_net_direct`]: https://hexdocs.pm/vintage_net_direct
-[`nerves_pack`]: https://hexdocs.pm/nerves_pack
-[`vintage_net`]: https://hexdocs.pm/vintage_net
+[`nerves_pack`]: https://nerves-pack.hexdocs.pm
+[`vintage_net_wifi`]: https://vintage-net-wifi.hexdocs.pm
+[`vintage_net_direct`]: https://vintage-net-direct.hexdocs.pm
+[`nerves_pack`]: https://nerves-pack.hexdocs.pm
+[`vintage_net`]: https://vintage-net.hexdocs.pm
 
 
 ### Discovering Nerves Devices on your network
@@ -360,4 +360,4 @@ If `mix nerves.discover` reports "No devices found", try the following:
 
 The discovery functionality is provided by the [`nerves_discovery`](https://hex.pm/packages/nerves_discovery) library, which can be used directly in your Elixir programs for programmatic device discovery. This is useful for building custom tooling or integrating discovery into your applications.
 
-See the [`nerves_discovery` documentation](https://hexdocs.pm/nerves_discovery) for more information on using the library in your own code.
+See the [`nerves_discovery` documentation](https://nerves-discovery.hexdocs.pm) for more information on using the library in your own code.

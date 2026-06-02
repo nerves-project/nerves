@@ -294,7 +294,7 @@ defmodule Mix.Tasks.Firmware do
       Remove the following overlay directories and build the firmware again:
 
       #{for dir <- shadow_mounts, do: "  * #{dir}\n"}
-      #{IO.ANSI.reset()}https://hexdocs.pm/nerves/advanced-configuration.html#root-filesystem-overlays
+      #{IO.ANSI.reset()}https://nerves.hexdocs.pm/advanced-configuration.html#root-filesystem-overlays
       """)
     end
   end

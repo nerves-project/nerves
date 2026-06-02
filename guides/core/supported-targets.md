@@ -18,7 +18,7 @@ identified by short tag names. Examples of tag names are `rpi0`, `bbb`, etc.
 When building a Nerves project, set the `MIX_TARGET` environment variable to the
 tag name. This controls which dependencies and configuration settings are used
 when building your project. See the [Mix
-Targets](https://hexdocs.pm/mix/Mix.html#module-targets) documentation for
+Targets](https://mix.hexdocs.pm/Mix.html#module-targets) documentation for
 further information on this concept.
 
 In Nerves, the term _system_ refers to the library (usually posted to hex.pm)

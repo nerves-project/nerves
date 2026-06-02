@@ -87,7 +87,7 @@ defmodule Nerves.Artifact.Archive do
     if System.find_executable(cmd) do
       System.cmd(cmd, args, stderr_to_stdout: true)
     else
-      raise "Could not find '#{cmd}'. See https://hexdocs.pm/nerves/installation.html for required packages."
+      raise "Could not find '#{cmd}'. See https://nerves.hexdocs.pm/installation.html for required packages."
     end
   end
 

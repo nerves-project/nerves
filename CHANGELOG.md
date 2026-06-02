@@ -513,7 +513,7 @@ For example, set your nerves dependency in your mix.exs to:
 ## v1.5.0
 
 **Updating to Nerves v1.5.0 requires modifications to your project**
-See the [project update guide](https://hexdocs.pm/nerves/updating-projects.html#updating-from-v1-4-to-v1-5) to learn how to migrate your project.
+See the [project update guide](https://nerves.hexdocs.pm/updating-projects.html#updating-from-v1-4-to-v1-5) to learn how to migrate your project.
 
 * Enhancements
   * Added support for Elixir 1.9+ releases.
@@ -573,7 +573,7 @@ dependencies for a device. This lets you switch between building for different
 boards and your host. Elixir 1.8 pulls this support into `mix` and lets you
 annotate dependencies for which targets they should be used.
 
-See the [project update guide](https://hexdocs.pm/nerves/updating-projects.html#updating-from-v1-3-x-to-v1-4-x) to learn how to migrate your project.
+See the [project update guide](https://nerves.hexdocs.pm/updating-projects.html#updating-from-v1-3-x-to-v1-4-x) to learn how to migrate your project.
 
 ## v1.3.4
 
@@ -901,7 +901,7 @@ Also, update your nerves dependency to:
   * Nerves packages can override the Provider in the `nerves_package` config
     in `mix.exs` using the keys `provider` and `provider_opts`. This is
     useful to force a package to build using a specific provider like
-    `Nerves.Artifact.Providers.Docker`. See the [package configuration docs](https://hexdocs.pm/nerves/systems.html#package-configuration)
+    `Nerves.Artifact.Providers.Docker`. See the [package configuration docs](https://nerves.hexdocs.pm/systems.html#package-configuration)
     for more information.
   * Added `artifact_sites` to the `nerves_package` config. Artifact sites
     are helpers that are useful for cleanly specifying locations where artifacts

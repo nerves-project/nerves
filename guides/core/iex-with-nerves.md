@@ -15,7 +15,7 @@ hardware. This chapter focuses on Nerves-specific use of the IEx prompt.
 ### Attaching to the logger
 
 The [`Elixir console
-logger`](https://hexdocs.pm/logger/Logger.Backends.Console.html) is
+logger`](https://logger.hexdocs.pm/Logger.Backends.Console.html) is
 almost always not included with Nerves so log messages don't print to the
 terminal. Instead, run `log_attach` to see log messages:
 
@@ -42,7 +42,7 @@ You'll frequently want to see log messages that occurred in the past. The Nerves
 new project generator creates projects with
 [`RingLogger`](https://hex.pm/packages/ring_logger) to support this.
 `RingLogger` is an [Elixir logger
-backend](https://hexdocs.pm/logger/Logger.html#module-backends-and-backwards-compatibility) that
+backend](https://logger.hexdocs.pm/Logger.html#module-backends-and-backwards-compatibility) that
 stores logs completely in memory. This is nice for embedded systems where you
 don't want to wear out Flash storage by writing to it. The drawbacks are
 RingLogger discards old messages and doesn't save them across reboots.
@@ -51,7 +51,7 @@ To view log messages, run `RingLogger.next` at the IEx prompt. Repeated calls
 print newly received log messages. `RingLogger.reset` lets you start at the
 oldest message again.
 
-See the [`RingLogger`](https://hexdocs.pm/ring_logger) docs for more information
+See the [`RingLogger`](https://ring-logger.hexdocs.pm) docs for more information
 on tuning log levels, filtering by module, and grep'ing for keywords.
 
 ### Dmesg
@@ -87,7 +87,7 @@ sometimes capture messages that would have been lost to disk caching.
 
 This driver is enabled in most official Nerves systems. However,
 `:ramoops_logger` is not added to Nerves projects by default. See the
-[documentation](https://hexdocs.pm/ramoops_logger) for registering it with the
+[documentation](https://ramoops-logger.hexdocs.pm) for registering it with the
 Elixir Logger.
 
 ## Other loggers
@@ -190,13 +190,13 @@ default via 100.101.32.77 dev wwan0  metric 30
 192.168.99.0/24 dev wlan0 scope link  src 192.168.99.81  metric 20
 ```
 
-See the [`VintageNet` documentation](https://hexdocs.pm/vintage_net/readme.html)
+See the [`VintageNet` documentation](https://vintage-net.hexdocs.pm/readme.html)
 for more tips on debugging and adjusting network configurations.
 
 ## Toolshed
 
 [`Toolshed`](https://hex.pm/packages/toolshed) is a library of [IEx
-helpers](https://hexdocs.pm/iex/IEx.Helpers.html) that augments the ones that
+helpers](https://iex.hexdocs.pm/IEx.Helpers.html) that augments the ones that
 Elixir provides. It's included by the Nerves new project generator (see
 [Customizing the IEx session](#customizing-the-iex-session) section for more
 details).
@@ -300,8 +300,8 @@ The Nerves new project generator creates a default `iex.exs` for setting up the
 prompt. You can find it in `rootfs_overlay/etc/iex.exs`.
 
 The default `iex.exs` prints a message of the day (from
-[`NervesMOTD`](https://hexdocs.pm/nerves_motd)) and loads the [`Toolshed`](#toolshed)
-helpers. See the [IEx .iex.exs docs](https://hexdocs.pm/iex/IEx.html#module-the-iex-exs-file) for
+[`NervesMOTD`](https://nerves-motd.hexdocs.pm)) and loads the [`Toolshed`](#toolshed)
+helpers. See the [IEx .iex.exs docs](https://iex.hexdocs.pm/IEx.html#module-the-iex-exs-file) for
 more information on what can be done.
 
 Keep the following in mind:
@@ -357,7 +357,7 @@ a file in `/tmp`. This is useful if code calls `IO.puts` rather than `Logger`.
 
 ## Remote console access
 
-The Nerves new generator sets up [`NervesSSH`](http://hexdocs.pm/nerves_ssh) by
+The Nerves new generator sets up [`NervesSSH`](http://nerves-ssh.hexdocs.pm) by
 default allowing you to remotely connect with `ssh nerves.local` (or via the IP
 address or another hostname you may have set)
 

@@ -11,7 +11,7 @@
 
 This is a collection of questions that often come up as people are getting
 started with Nerves. If you tried to go through the
-[Getting Started guide](https://hexdocs.pm/nerves/getting-started.html) or some
+[Getting Started guide](https://nerves.hexdocs.pm/getting-started.html) or some
 of the [example projects](https://github.com/nerves-project/nerves_examples)
 and got stuck, hopefully one of the following answers will help. If not, please
 open a topic in the "Nerves" category on

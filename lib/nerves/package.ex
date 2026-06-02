@@ -11,7 +11,7 @@ defmodule Nerves.Package do
 
   A Nerves package is a Mix application that defines the configuration for a
   Nerves system or Nerves toolchain. For more details, see the Nerves
-  [system documentation](https://hexdocs.pm/nerves/systems.html#package-configuration)
+  [system documentation](https://nerves.hexdocs.pm/systems.html#package-configuration)
   """
 
   alias Nerves.Artifact
