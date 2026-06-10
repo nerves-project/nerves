@@ -497,3 +497,97 @@ or put it wherever you prefer. The configuration file is not running with the
 Nerves environment variables. The script will have access to them however. The
 script will receive the filepath of the filesystem as the first argument and
 this allows you to sign it or otherwise amend it.
+
+## dm-verity
+
+[dm-verity](https://docs.kernel.org/admin-guide/device-mapper/verity.html)
+provides transparent integrity checking of the root filesystem. Nerves can
+create the dm-verity superblock and hash tree for the root filesystem image
+after it has been built and save the root hash to a file next to it. This
+only works with Nerves systems whose initramfs sets up dm-verity, so it's
+disabled by default. Check your Nerves system's documentation before enabling
+it:
+
+```elixir
+config :nerves,
+  firmware: [
+    verity: true
+  ]
+```
+
+The SquashFS image is zero-padded to the next 4K boundary and the dm-verity
+superblock and hash tree are written to a file named after the root
+filesystem image with a `.verity` extension in the same format as produced
+by `veritysetup format`. The root hash is written in hex with a `.roothash`
+extension. Since the post-processing happens right before `fwup` packages up
+the firmware, a custom `fwup.conf` can reference these as `"${ROOTFS}"`,
+`"${ROOTFS}.verity"`, and `"${ROOTFS}.roothash"` and place the verity
+metadata wherever the initramfs expects it - for example, concatenated after
+the root filesystem in the same partition or in a dedicated partition. It's
+the job of the Nerves system's `fwup.conf` and initramfs to store the root
+hash in a trustworthy way and to pass it to `veritysetup` at boot.
+
+Hashing options can be passed instead of `true`. See `Nerves.Verity` for
+details:
+
+```elixir
+config :nerves,
+  firmware: [
+    verity: [algorithm: :sha256, salt: "0011223344"]
+  ]
+```
+
+Unlike `veritysetup format`, the salt and UUID default to deterministic
+values derived from the filesystem contents so that builds are reproducible.
+
+If a `post_processing_script` is also configured, it runs before the
+dm-verity metadata is computed.
+
+### Signing the root hash
+
+dm-verity only detects tampering if the root hash itself is trustworthy. One
+way to accomplish that is to sign the root hash and have the initramfs pass
+the signature to `veritysetup --root-hash-signature` for the kernel to check
+against its trusted keyring (this requires
+`CONFIG_DM_VERITY_VERIFY_ROOTHASH_SIG=y`). Nerves can create the signature
+when given a signing key:
+
+```elixir
+config :nerves,
+  firmware: [
+    verity: [
+      signing_key: "config/fw-signing-key.pem",
+      signing_cert: "config/fw-signing-cert.pem"
+    ]
+  ]
+```
+
+This uses OpenSSL to write a detached PKCS#7 signature of the hex root hash
+to `"${ROOTFS}.roothash.p7s"`, following the systemd naming convention. It's
+equivalent to:
+
+```sh
+openssl smime -sign -nocerts -noattr -binary -in "${ROOTFS}.roothash" \
+    -inkey fw-signing-key.pem -signer fw-signing-cert.pem \
+    -outform der -out "${ROOTFS}.roothash.p7s"
+```
+
+The certificate must be available to the device's kernel keyring for
+verification to succeed. Keep the private key out of version control - for
+example, supply it via a CI secret.
+
+### Inspecting the generated files
+
+The dm-verity files are created in a temporary directory that's normally
+deleted at the end of the build. Set `NERVES_DEBUG=1` to keep it and print
+its location:
+
+```sh
+NERVES_DEBUG=1 mix firmware
+```
+
+The build prints something like `Leaving
+_build/rpi0_dev/_nerves-tmp for inspection.` at the end. The root filesystem
+that the post-processing ran on is `combined.squashfs` in that directory,
+with `combined.squashfs.verity`, `combined.squashfs.roothash`, and (when
+signing) `combined.squashfs.roothash.p7s` next to it.
