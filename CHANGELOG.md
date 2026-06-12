@@ -5,6 +5,12 @@
 
 # Changelog
 
+## v1.14.3 - 2026-06-12
+
+* Changes
+  * Remove warning when using Elixir 1.20
+  * Minor doc updates throughout
+
 ## v1.14.2 - 2026-05-23
 
 * Changes
