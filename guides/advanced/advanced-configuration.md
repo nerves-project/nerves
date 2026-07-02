@@ -112,14 +112,40 @@ the boot partition, you will need to use your own `fwup.conf` file:
 
 #### Copy `fwup.conf` to Your `config/` Directory
 
+<!-- tabs-open -->
+
+### Mix task
+
+With `:nerves` >= 1.14.4, you can use a mix task to locate and copy the
+`fwup.conf` from the system:
+
+```sh
+mix nerves.artifact.details nerves_system_rpi0 --copy-fwup-conf config/
+```
+
+### Copy from Hex dependency
+
+> #### Note {: .warning}
+>
+> Some systems, such as the official Raspberry Pi systems, generate their
+> `fwup.conf` at build time and do not include it as a static file in the Hex
+> package. For these systems, use the Mix task or fetch from GitHub instead.
+
+For systems that include a static `fwup.conf` in their Hex package:
+
 ```bash
 # Locate the fwup.conf files available in your deps directory
 find deps -name fwup.conf
 # Copy the one that matches your target to the config directory.
-cp deps/nerves_system_rpi0/fwup.conf config/
-# Also copy cmdline.txt as you'll need it below.
-cp deps/nerves_system_rpi0/cmdline.txt config/
+cp deps/nerves_system_bbb/fwup.conf config/
 ```
+
+### Fetch from GitHub
+
+Find the `fwup.conf` (and `cmdline.txt` if needed) in the system's GitHub
+repository and download the file(s) directly into your `config/` directory.
+
+<!-- tabs-close -->
 
 #### Configure Your System to Use the Copied `fwup.conf`
 
