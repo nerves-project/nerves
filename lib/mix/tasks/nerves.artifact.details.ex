@@ -29,19 +29,26 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
   def run(argv) do
     debug_info("Nerves.Artifact.Details start")
 
+    {opts, argv} = OptionParser.parse!(argv, strict: [])
+
     # We should have attempted precompile before this, but run it
     # here just in case. Noop if it has already been run.
     Mix.Task.run("nerves.precompile", [])
 
-    package_name =
-      case OptionParser.parse(argv, switches: []) do
-        {_, [p | _], _} -> String.to_atom(p)
-        _ -> Mix.Project.config()[:app]
+    {package_name, package_path} =
+      case argv do
+        [p | _] ->
+          {String.to_atom(p), Path.join(Mix.Project.deps_path(), p)}
+
+        _ ->
+          {Mix.Project.config()[:app], File.cwd!()}
       end
 
-    package = Nerves.Env.package(package_name)
-
-    if is_nil(package), do: Mix.raise("Could not find Nerves package #{package_name} in env")
+    package =
+      case Nerves.Env.ensure_loaded(package_name, package_path) do
+        {:ok, package} -> package
+        {:error, _} -> Mix.raise("Could not find Nerves package #{package_name} in env")
+      end
 
     Mix.shell().info("""
     Version:            #{package.version}
