@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
   def run(argv) do
     debug_info("Nerves.Artifact.Details start")
 
-    {opts, argv} = OptionParser.parse!(argv, strict: [])
+    {opts, argv} = OptionParser.parse!(argv, strict: [copy_fwup_conf: :string])
 
     # We should have attempted precompile before this, but run it
     # here just in case. Noop if it has already been run.
@@ -50,6 +50,26 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
         {:error, _} -> Mix.raise("Could not find Nerves package #{package_name} in env")
       end
 
+    if cp_path = opts[:copy_fwup_conf] do
+      copy_fwup_conf(package, cp_path)
+    else
+      print_details(package)
+    end
+
+    debug_info("Nerves.Artifact.Details end")
+  end
+
+  defp copy_fwup_conf(package, cp_path) do
+    fwup_conf = Path.join([Artifact.dir(package), "images", "fwup.conf"])
+    File.exists?(fwup_conf) || Mix.raise("No fwup.conf exists for #{package.name}")
+
+    cp_path = Path.expand(cp_path)
+    cp_path = if File.dir?(cp_path), do: Path.join(cp_path, "fwup.conf"), else: cp_path
+    File.cp!(fwup_conf, cp_path)
+    Mix.shell().info("Copied #{fwup_conf} -> #{cp_path}")
+  end
+
+  defp print_details(package) do
     Mix.shell().info("""
     Version:            #{package.version}
     Checksum:           #{Artifact.checksum(package)}
@@ -63,7 +83,5 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     Path:               #{Artifact.dir(package)}
     Build Path:         #{Artifact.build_path(package)}
     """)
-
-    debug_info("Nerves.Artifact.Details end")
   end
 end
