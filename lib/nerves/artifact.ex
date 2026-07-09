@@ -334,9 +334,10 @@ defmodule Nerves.Artifact do
   defp build_runner_type(:toolchain), do: BuildRunners.Local
 
   defp build_runner_type(:system) do
-    case :os.type() do
-      {_, :linux} -> BuildRunners.Local
-      _ -> BuildRunners.Docker
+    cond do
+      match?({_, :linux}, :os.type()) -> BuildRunners.Local
+      BuildRunners.Container.available?() -> BuildRunners.Container
+      true -> BuildRunners.Docker
     end
   end
 
