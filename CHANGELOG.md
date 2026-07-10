@@ -5,6 +5,16 @@
 
 # Changelog
 
+## v1.15.0 - 2026-07-10
+
+This release adds support for using [Apple Container](https://opensource.apple.com/projects/container/)
+as an alternative to Docker for building Nerves systems on macOS. It's used
+automatically if available. (@tomfarm)
+
+* Changes
+  * Add `mix nerves.artifact.details --copy-fwup-conf <path>` helper
+  * Support `mix nerves.artifact.details` without a MIX_TARGET
+
 ## v1.14.3 - 2026-06-12
 
 * Changes
