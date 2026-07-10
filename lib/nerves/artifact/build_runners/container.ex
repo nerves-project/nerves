@@ -79,6 +79,10 @@ defmodule Nerves.Artifact.BuildRunners.Container do
 
   @version_requirement ">= 1.0.0"
   @working_dir "/home/nerves/project"
+  # Swapfile on the build volume. Memory-hungry builds (WebKit) otherwise get
+  # their compilers OOM-killed on the VM; swap lets them spill to disk like a
+  # normal Linux build VM does.
+  @swapfile "#{@working_dir}/.nerves-swapfile"
 
   # GNU tar cannot create symlinks through virtiofs (apple/container#1209),
   # so create-build.sh must extract Buildroot into an EXT4 volume: sync the
@@ -250,14 +254,14 @@ defmodule Nerves.Artifact.BuildRunners.Container do
 
   defp make(pkg, stream, opts) do
     make_args = Keyword.get(opts, :make_args, [])
-    run(pkg, ["make" | make_args], stream)
+    run(pkg, ["make" | make_args], stream, swap: true)
   end
 
   defp make_artifact(pkg, stream) do
     name = Artifact.download_name(pkg)
     shell_info("Creating artifact archive")
     cmd = ["make", "system", "NERVES_ARTIFACT_NAME=#{name}"]
-    run(pkg, cmd, stream)
+    run(pkg, cmd, stream, swap: true)
   end
 
   defp copy_artifact(pkg, stream) do
@@ -272,12 +276,13 @@ defmodule Nerves.Artifact.BuildRunners.Container do
 
   # Helpers
 
-  defp run(pkg, cmd, stream) do
+  defp run(pkg, cmd, stream, opts \\ []) do
     {_containerfile, image} = config(pkg)
+    {priv_args, cmd} = maybe_swap_wrap(pkg, cmd, opts)
 
     args =
       ["run", "--rm", "--progress", "none", "-w", @working_dir] ++
-        resource_args(pkg) ++ env() ++ mounts(pkg) ++ ssh_mount() ++ [image | cmd]
+        priv_args ++ resource_args(pkg) ++ env() ++ mounts(pkg) ++ ssh_mount() ++ [image | cmd]
 
     case Mix.Nerves.Utils.shell("container", args, stream: stream) do
       {_result, 0} ->
@@ -296,6 +301,46 @@ defmodule Nerves.Artifact.BuildRunners.Container do
         See #{build_log_path()}.
         #{hint_for(log_tail)}\
         """)
+    end
+  end
+
+  # Compile phases (`make` / `make system`) run as root with CAP_SYS_ADMIN so
+  # the runner can `swapon` the build volume's swapfile, then drop back to the
+  # unprivileged `nerves` build user via setpriv — which keeps the environment
+  # and working directory intact (only HOME needs restoring) and sheds the
+  # capability on the uid change. Swap lets memory-hungry builds (WebKit) spill
+  # to disk instead of getting their compilers OOM-killed.
+  defp maybe_swap_wrap(pkg, cmd, opts) do
+    if opts[:swap] && swap_enabled?(pkg) do
+      script =
+        "/usr/sbin/swapon #{@swapfile} || true; " <>
+          "export HOME=/home/nerves; " <>
+          "exec setpriv --reuid=nerves --regid=nerves --init-groups \"$@\""
+
+      {["--uid", "0", "--gid", "0", "--cap-add", "CAP_SYS_ADMIN"],
+       ["sh", "-c", script, "sh" | cmd]}
+    else
+      {[], cmd}
+    end
+  end
+
+  # Build-volume swapfile size. Disable with NERVES_CONTAINER_SWAP=0 or
+  # build_runner_config: [swap: "0"].
+  defp swap_size(pkg) do
+    config = pkg.config[:build_runner_config] || []
+    System.get_env("NERVES_CONTAINER_SWAP") || to_string(config[:swap] || "16G")
+  end
+
+  defp swap_enabled?(pkg), do: swap_size(pkg) not in ["0", "0G", "none", ""]
+
+  # Created once (idempotent) in the root preflight; enabled per compile run.
+  defp swap_prep_cmd(pkg) do
+    if swap_enabled?(pkg) do
+      " && ( [ -e #{@swapfile} ] || " <>
+        "( /usr/bin/fallocate -l #{swap_size(pkg)} #{@swapfile} && " <>
+        "chmod 600 #{@swapfile} && /usr/sbin/mkswap #{@swapfile} ) )"
+    else
+      ""
     end
   end
 
@@ -364,7 +409,8 @@ defmodule Nerves.Artifact.BuildRunners.Container do
 
     prep_cmd =
       "chown nerves:nerves #{@working_dir} /nerves/env/platform && " <>
-        "rm -rf #{@working_dir}/lost+found /nerves/env/platform/lost+found"
+        "rm -rf #{@working_dir}/lost+found /nerves/env/platform/lost+found" <>
+        swap_prep_cmd(pkg)
 
     args =
       ["run", "--rm", "--progress", "none", "--uid", "0", "--gid", "0"] ++
@@ -458,6 +504,8 @@ defmodule Nerves.Artifact.BuildRunners.Container do
   defp mounts(pkg) do
     system_br = Nerves.Env.package(:nerves_system_br)
     download_dir = Nerves.Env.download_dir() |> Path.expand()
+    ccache_dir = ccache_dir()
+    File.mkdir_p!(ccache_dir)
 
     [
       "--env",
@@ -471,8 +519,21 @@ defmodule Nerves.Artifact.BuildRunners.Container do
       "--mount",
       "type=bind,source=#{pkg.path},target=/nerves/env/#{pkg.app}",
       "--mount",
-      "type=bind,source=#{download_dir},target=/nerves/dl"
+      "type=bind,source=#{download_dir},target=/nerves/dl",
+      # Persist Buildroot's ccache (BR2_CCACHE=y) across builds at its default
+      # location ($HOME/.buildroot-ccache). Without this the cache lives in the
+      # ephemeral rootfs and every build recompiles from scratch — brutal for
+      # WebKit-scale C++ under newer, slower toolchains.
+      "--mount",
+      "type=bind,source=#{ccache_dir},target=/home/nerves/.buildroot-ccache"
     ]
+  end
+
+  # Host-side, persistent ccache directory (sibling of the download cache).
+  # Override with NERVES_CONTAINER_CCACHE_DIR.
+  defp ccache_dir() do
+    System.get_env("NERVES_CONTAINER_CCACHE_DIR") ||
+      (Nerves.Env.download_dir() |> Path.expand() |> Path.dirname() |> Path.join("ccache"))
   end
 
   defp ssh_mount() do
