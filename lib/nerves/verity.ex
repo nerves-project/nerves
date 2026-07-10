@@ -14,38 +14,25 @@ defmodule Nerves.Verity do
 
       config :nerves, :firmware, verity: true
 
-  This only makes sense for Nerves systems whose initramfs knows how to set
-  up dm-verity, so it must be opted into. See your Nerves system's
+  This only creates the hashes. The Nerves system needs to install them and
+  have an initramfs that sets up dm-verity.  See your Nerves system's
   documentation.
 
-  The file is processed as follows:
+  The root filesystem is processed as follows:
 
-  1. The file is zero-padded to a multiple of the data block size (4096
-     bytes by default) so that verity metadata placed directly after it is
-     always 4K-aligned.
+  1. The filesystem is zero-padded in place to a multiple of the verity data
+     block size (4096 bytes by default). This simplifies appending hashes to
+     the end of the filesystem.
   2. The verity superblock and hash tree are written to `<path>.verity`.
-  3. The root hash is written in hex to `<path>.roothash`.
+  3. The root hash is written to `<path>.roothash`.
   4. If a signing key is configured, a detached PKCS#7 signature of the hex
      root hash is written to `<path>.roothash.p7s`.
 
-  The `.verity` file has the same layout as a `veritysetup format` hash
-  device, so the `fwup.conf` can place it wherever the initramfs expects
-  it. If it's stored in its own partition, devices verify the root
-  filesystem with the equivalent of:
+  The `fwup.conf` should place the `.verity` file's contents wherever the
+  initramfs expects it.
 
-      veritysetup open /dev/rootfs_partition verified_rootfs /dev/verity_partition <root hash>
-
-  If it's appended to the root filesystem image in the same partition, pass
-  `--hash-offset=<padded data size>` and use the partition for both
-  arguments.
-
-  The root hash must come from a trusted source such as a signed kernel
-  command line or verified U-Boot environment. Storing it is the job of the
-  `fwup.conf` and initramfs provided by the Nerves system.
-
-  Unlike `veritysetup format`, the salt and UUID default to values derived
-  from the file contents instead of random values so that builds are
-  reproducible. Both can be overridden.
+  The root hash should come from a trusted source such as a signed kernel
+  command line or verified U-Boot environment.
   """
 
   import Bitwise
