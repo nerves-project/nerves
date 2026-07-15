@@ -58,10 +58,10 @@ defmodule Nerves.Release do
   end
 
   @doc false
-  @spec erts() :: String.t() | true | nil
+  @spec erts() :: String.t() | true
   def erts() do
     if Nerves.Env.loaded?() do
-      System.get_env("ERTS_DIR")
+      System.fetch_env!("ERTS_DIR")
     else
       true
     end
