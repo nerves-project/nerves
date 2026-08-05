@@ -165,6 +165,17 @@ defmodule Nerves.Utils.HTTPClient do
         timeout: :infinity,
         autoredirect: false,
         ssl: [
+          # Erlang's SSL client defaults to TLS 1.3 which is great, but it can
+          # fail if you're on a network with a middlebox that only supports TLS
+          # 1.2. Those boxes will reset the connection and if you test with a
+          # web browser or curl, it will appear to work since they either
+          # start with TLS 1.2 or drop back to it. That makes the issue look
+          # like a Nerves issue.
+          #
+          # Since this is being used to download large binary assets and TLS
+          # 1.2 is still secure enough for general Internet use, just use it so
+          # that the downloads work.
+          versions: [:"tlsv1.2"],
           verify: :verify_peer,
           cacerts: :public_key.cacerts_get(),
           depth: 3,
