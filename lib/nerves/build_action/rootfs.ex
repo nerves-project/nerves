@@ -1,0 +1,369 @@
+# SPDX-FileCopyrightText: 2025 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+defmodule Nerves.BuildAction.Rootfs do
+  @moduledoc """
+  Release step that builds the root filesystem image.
+
+  Reads the system's base rootfs (preferring `rootfs.tar`, falling back
+  to extracting `rootfs.squashfs`), merges it with the scrubbed release
+  and user rootfs overlays, then creates a combined rootfs image.
+
+  Supported rootfs types:
+
+    * `:squashfs` — SquashFS via `sqfstar` (default)
+    * `:erofs` — EROFS via `mkfs.erofs`
+    * `:ext4` — EXT4 via `mkfs.ext4` (read-only)
+
+  ## Merge priority (first wins)
+
+    1. Generated build-plan overlays
+    2. User `rootfs_overlay/` directory
+    3. Assembled + scrubbed Mix release (mapped to `srv/erlang/`)
+    4. System base rootfs
+
+  This tar-based pipeline preserves file permissions, ownership, symlinks,
+  and device nodes from the system rootfs — unlike the previous approach
+  of extracting/re-creating squashfs through the local filesystem.
+  """
+
+  use Nerves.BuildAction
+
+  alias Nerves.Artifact.Archive
+  alias Nerves.BuildAction.BootOrder
+  alias Nerves.MixUtils
+  alias Nerves.Tar
+
+  @spec default_config() :: %{
+          rootfs_path: String.t(),
+          rootfs_type: term(),
+          rootfs_flags: term(),
+          target_release_path: String.t(),
+          bootfile: term()
+        }
+  def default_config() do
+    project_config = Mix.Project.config()
+    images_path = Path.join([Mix.Project.build_path(), "nerves", "images"])
+
+    firmware_config = Application.get_env(:nerves, :firmware) || []
+    {rootfs_type, rootfs_flags} = resolve_rootfs_options(firmware_config)
+
+    %{
+      rootfs_path: Path.join(images_path, "#{project_config[:app]}.rootfs"),
+      rootfs_type: rootfs_type,
+      rootfs_flags: rootfs_flags,
+      target_release_path: "srv/erlang",
+      bootfile: firmware_config[:bootfile] || "start.boot"
+    }
+  end
+
+  @spec validate!(Nerves.BuildPlan.t()) :: :ok
+  def validate!(%Nerves.BuildPlan{} = build_plan) do
+    required_config = [
+      :rootfs_inputs,
+      :images_path,
+      :rootfs_path,
+      :rootfs_type,
+      :rootfs_flags,
+      :target_release_path,
+      :bootfile
+    ]
+
+    _optional_config = [:rootfs_overlay]
+
+    missing_keys = Enum.reject(required_config, &Map.has_key?(build_plan.config, &1))
+
+    if missing_keys != [] do
+      raise Nerves.InvalidPlan,
+        message: "BuildPlan is missing required configuration for #{inspect(missing_keys)}"
+    end
+
+    rootfs_inputs = build_plan.config[:rootfs_inputs]
+
+    if rootfs_inputs == nil or rootfs_inputs == [] do
+      raise Nerves.InvalidPlan, message: ":rootfs_inputs must contain at least one tar file."
+    end
+
+    classified_inputs = Enum.map(rootfs_inputs, fn f -> {f, Archive.file_type(f)} end)
+    violations = Enum.filter(classified_inputs, fn {_, type} -> type != :tar end)
+
+    if violations != [] do
+      raise Nerves.InvalidPlan,
+        message: """
+        :rootfs_inputs must contain tar files
+
+        The following violations were found:
+
+        #{Enum.map_join(violations, "\n", fn {path, class} -> "#{path}: #{class}" end)}
+
+        If you're using a custom Nerves system, please add `BR2_TARGET_ROOTFS_TAR=y` to the `nerves_defconfig`.
+        """
+    end
+
+    :ok
+  end
+
+  @doc """
+  Run the rootfs step
+  """
+  @impl Nerves.BuildAction
+  def rootfs_creation_steps(%Nerves.BuildPlan{} = build_plan, %Mix.Release{} = release, opts) do
+    opts = Map.merge(build_plan.config, Map.new(opts))
+    validate!(build_plan)
+
+    # 1. Read all of the rootfs_inputs
+    base_entries = Enum.map(opts[:rootfs_inputs], &Tar.Reader.read_tar/1)
+
+    # 2. Scan the scrubbed release directory
+    release_entries = Tar.FSReader.scan_directory(release.path, opts[:target_release_path])
+
+    # 3. Scan generated and user rootfs overlays
+    overlay_entries = scan_overlays(build_plan.rootfs_overlays, opts[:rootfs_overlay])
+
+    # 4. Merge: overlay > release > system (first entry wins)
+    merged = merge([overlay_entries, release_entries | base_entries])
+
+    # 5. Sort: boot-critical files first, then alphabetical
+    priority_map = BootOrder.build_priority_map(release, opts)
+    sorted = BootOrder.sort(merged, priority_map)
+
+    # 6. Write combined tar
+    File.mkdir_p!(opts[:images_path])
+    combined_tar = Path.join(opts[:images_path], "combined.tar")
+    Tar.Writer.write_tar(combined_tar, sorted)
+
+    # 7. Create rootfs image from tar
+    create_rootfs_image!(
+      opts[:rootfs_type],
+      opts[:rootfs_path],
+      combined_tar,
+      opts[:rootfs_flags]
+    )
+
+    release
+  end
+
+  # ---------------------------------------------------------------------------
+  # User rootfs overlay
+  # ---------------------------------------------------------------------------
+
+  defp scan_overlays(generated_overlays, user_overlays) do
+    Enum.flat_map(generated_overlays ++ List.wrap(user_overlays), &scan_overlay/1)
+  end
+
+  defp scan_overlay(nil), do: []
+
+  defp scan_overlay(overlay) when is_binary(overlay) do
+    if File.dir?(overlay) do
+      Tar.FSReader.scan_directory(overlay, "/")
+    else
+      []
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Merge
+  # ---------------------------------------------------------------------------
+
+  defp merge(entries_list) do
+    entries_list
+    |> List.flatten()
+    |> Enum.uniq_by(& &1.path)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Rootfs type and flags resolution
+  # ---------------------------------------------------------------------------
+
+  defp resolve_rootfs_options(firmware_config) do
+    rootfs_type = resolve_rootfs_type(firmware_config)
+    rootfs_flags = resolve_rootfs_flags(firmware_config, rootfs_type)
+    {rootfs_type, rootfs_flags}
+  end
+
+  defp resolve_rootfs_type(firmware_config) do
+    firmware_config[:rootfs_type] || :squashfs
+  end
+
+  defp resolve_rootfs_flags(firmware_config, rootfs_type) do
+    cond do
+      firmware_config[:rootfs_flags] ->
+        firmware_config[:rootfs_flags]
+
+      firmware_config[:mksquashfs_flags] ->
+        MixUtils.warning("""
+        :mksquashfs_flags is deprecated. Use :rootfs_flags in your firmware config instead.
+
+            config :nerves, :firmware,
+              rootfs_flags: #{inspect(firmware_config[:mksquashfs_flags])}
+        """)
+
+        firmware_config[:mksquashfs_flags]
+
+      true ->
+        default_rootfs_flags(rootfs_type)
+    end
+  end
+
+  # Squashfs-tools 4.6.1: use `-all-time 0 -mkfs-time 0` for reproducible builds
+  # Squashfs-tools 4.7.4: can use `-repro 0` for reproducible builds
+  defp default_rootfs_flags(:squashfs),
+    do: ["-mkfs-time", "0", "-all-time", "0", "-no-xattrs", "-quiet"]
+
+  defp default_rootfs_flags(:erofs), do: []
+  defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode", "-m", "0"]
+  defp default_rootfs_flags(_type), do: []
+
+  # ---------------------------------------------------------------------------
+  # Rootfs image creation
+  # ---------------------------------------------------------------------------
+
+  defp create_rootfs_image!(:squashfs, image_path, tar_path, flags) do
+    mkfs_squashfs!(image_path, tar_path, flags)
+  end
+
+  defp create_rootfs_image!(:erofs, image_path, tar_path, flags) do
+    mkfs_erofs!(image_path, tar_path, flags)
+  end
+
+  defp create_rootfs_image!(:ext4, image_path, tar_path, flags) do
+    mkfs_ext4!(image_path, tar_path, flags)
+  end
+
+  defp create_rootfs_image!(type, _image_path, _tar_path, _flags) do
+    Mix.raise("Unsupported rootfs type: #{inspect(type)}")
+  end
+
+  # ---------------------------------------------------------------------------
+  # Squashfs creation
+  # ---------------------------------------------------------------------------
+
+  defp mkfs_squashfs!(squashfs_path, tar_path, flags) do
+    find_sqfstar!()
+
+    MixUtils.info("  Creating SquashFS filesystem...")
+
+    flags_str = Enum.join(flags, " ")
+
+    case System.shell(
+           "sqfstar -force #{flags_str} #{escape(squashfs_path)} < #{escape(tar_path)}"
+         ) do
+      {_, 0} ->
+        :ok
+
+      {output, code} ->
+        Mix.raise("sqfstar failed (exit #{code}):\n#{output}")
+    end
+  end
+
+  defp find_sqfstar!() do
+    if !System.find_executable("sqfstar") do
+      Mix.raise("""
+      sqfstar not found.
+
+      sqfstar is part of squashfs-tools 4.5+. Install it with:
+        brew install squashfs  (macOS)
+        apt install squashfs-tools  (Debian/Ubuntu)
+      """)
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # EROFS creation
+  # ---------------------------------------------------------------------------
+
+  defp mkfs_erofs!(erofs_path, tar_path, flags) do
+    find_mkfs_erofs!()
+
+    MixUtils.info("  Creating EROFS filesystem...")
+
+    flags_str = Enum.join(flags, " ")
+
+    case System.shell(
+           "mkfs.erofs --tar=f #{flags_str} #{escape(erofs_path)} < #{escape(tar_path)}"
+         ) do
+      {_, 0} ->
+        :ok
+
+      {output, code} ->
+        Mix.raise("mkfs.erofs failed (exit #{code}):\n#{output}")
+    end
+  end
+
+  defp find_mkfs_erofs!() do
+    if !System.find_executable("mkfs.erofs") do
+      Mix.raise("""
+      mkfs.erofs not found.
+
+      mkfs.erofs is part of erofs-utils. Install it with:
+        brew install erofs-utils  (macOS)
+        apt install erofs-utils   (Debian/Ubuntu)
+      """)
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # EXT4 creation
+  # ---------------------------------------------------------------------------
+
+  defp mkfs_ext4!(ext4_path, tar_path, flags) do
+    mkfs_ext4 = find_mkfs_ext4!()
+
+    MixUtils.info("  Creating EXT4 filesystem...")
+
+    # Estimate image size from tar: tar overhead makes this a slight overestimate
+    # of content, which is fine. Add 5% + 256KB for ext4 metadata.
+    tar_bytes = File.stat!(tar_path).size
+    content_kb = div(tar_bytes, 1024)
+    image_kb = content_kb + div(content_kb, 20) + 256
+
+    args = ["-d", tar_path] ++ flags ++ [ext4_path, "#{image_kb}"]
+
+    case System.cmd(mkfs_ext4, args, stderr_to_stdout: true) do
+      {_, 0} ->
+        :ok
+
+      {output, code} ->
+        Mix.raise("mkfs.ext4 failed (exit #{code}):\n#{output}")
+    end
+  end
+
+  defp find_mkfs_ext4!() do
+    # e2fsprogs is keg-only on Homebrew, so check its sbin path too
+    cond do
+      exe = System.find_executable("mkfs.ext4") ->
+        exe
+
+      exe = find_homebrew_mkfs_ext4() ->
+        exe
+
+      true ->
+        Mix.raise("""
+        mkfs.ext4 not found.
+
+        mkfs.ext4 is part of e2fsprogs. Install it with:
+          brew install e2fsprogs  (macOS)
+          apt install e2fsprogs   (Debian/Ubuntu)
+        """)
+    end
+  end
+
+  defp find_homebrew_mkfs_ext4() do
+    case System.cmd("brew", ["--prefix", "e2fsprogs"], stderr_to_stdout: true) do
+      {prefix, 0} ->
+        mkfs_path = Path.join([String.trim(prefix), "sbin", "mkfs.ext4"])
+        if File.exists?(mkfs_path), do: mkfs_path, else: nil
+
+      _ ->
+        nil
+    end
+  rescue
+    _ -> nil
+  end
+
+  defp escape(path) do
+    # Shell-escape paths for use in System.shell/2
+    "'" <> String.replace(path, "'", "'\\''") <> "'"
+  end
+end

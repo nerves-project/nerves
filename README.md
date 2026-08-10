@@ -22,6 +22,10 @@
 
 ## Craft and deploy bulletproof embedded software in Elixir
 
+*This is from the Nerves 2.0 development branch. Please be aware that APIs
+have changed completely and the documentation is lagging. Please continue
+to use Nerves 1.x releases unless you're actively working on this.*
+
 Nerves provides tooling and libraries for building small, self-contained
 software images using the rock-solid [Erlang virtual
 machine](https://www.erlang.org/) hardware support of Linux, and happy

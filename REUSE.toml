@@ -12,12 +12,7 @@ path = [
  "**/darwin_defconfig",
  "**/linux_defconfig",
  "resources/menu-search-tip.gif",
- "test/fixtures/resolver/artifact.tar.gz",
- "test/fixtures/resolver/artifact.tar.xz",
- "test/fixtures/resolver/artifact.tar.zst",
- "test/fixtures/resolver/corrupt.tar.gz",
- "test/fixtures/resolver/corrupt.tar.xz",
- "test/fixtures/resolver/corrupt.tar.zst"
+ "test/fixtures/**/*"
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "None"

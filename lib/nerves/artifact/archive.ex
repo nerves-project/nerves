@@ -1,39 +1,33 @@
 # SPDX-FileCopyrightText: 2018 Justin Schneck
-# SPDX-FileCopyrightText: 2018 Michael Schmidt
-# SPDX-FileCopyrightText: 2022 Frank Hunleth
-# SPDX-FileCopyrightText: 2022 Jon Carstens
+# SPDX-FileCopyrightText: 2025 Frank Hunleth
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Nerves.Artifact.Archive do
   @moduledoc false
 
-  @doc """
-  Returns the list of supported archive extensions
-  """
+  @doc "Returns the supported artifact archive extensions."
   @spec supported_extensions() :: [String.t()]
-  def supported_extensions() do
-    [".tar.gz", ".tar.xz", ".tar.zst"]
-  end
+  def supported_extensions(), do: [".tar.gz", ".tar.xz", ".tar.zst"]
 
-  @doc """
-  Return true if the path looks like it could be an archive
-
-  This is a simplistic test that only looks at the name. Call
-  `validate/1` to check the contents.
-  """
+  @doc "Returns whether a path has a supported artifact archive extension."
   @spec valid_name?(String.t()) :: boolean()
-  def valid_name?(path) do
-    Enum.any?(supported_extensions(), &String.ends_with?(path, &1))
-  end
+  def valid_name?(path), do: Enum.any?(supported_extensions(), &String.ends_with?(path, &1))
 
   @doc """
-  Extract tar file entries to a directory
+  Extract tar file entries to a directory.
+
+  The archive is extracted with `--strip-components=1` to remove
+  the top-level directory wrapper.
   """
-  @spec extract(String.t(), String.t()) :: :ok | {:error, any}
-  def extract(file, destination) when is_binary(file) and is_binary(destination) do
-    cmd("tar", ["xf", file, "--strip-components=1", "-C", destination])
-    |> result()
+  @spec extract(String.t(), String.t()) :: :ok | {:error, String.t()}
+  def extract(archive, destination) do
+    case System.cmd("tar", ["xf", archive, "--strip-components=1", "-C", destination],
+           stderr_to_stdout: true
+         ) do
+      {_, 0} -> :ok
+      {output, _} -> {:error, "tar extraction failed: #{output}"}
+    end
   end
 
   @doc """
@@ -41,9 +35,9 @@ defmodule Nerves.Artifact.Archive do
 
   Returns `:ok`, if a valid artifact.
   """
-  @spec validate(String.t()) :: :ok | {:error, any}
+  @spec validate(String.t()) :: :ok | {:error, String.t()}
   def validate(path) do
-    case detect_compression(path) do
+    case file_type(path) do
       :xz -> cmd("xz", ["-t", path]) |> result()
       :gzip -> cmd("gzip", ["-t", path]) |> result()
       :zstd -> cmd("zstd", ["-tq", path]) |> result()
@@ -51,32 +45,28 @@ defmodule Nerves.Artifact.Archive do
     end
   end
 
-  @doc """
-  Validate all archives in a directory
-
-  Returns a list of `{path, {:error, reason}}` tuples for any corrupt files.
-  An empty list means all files are valid.
-  """
+  @doc "Returns corrupt artifact archives in a directory."
   @spec validate_dir(String.t()) :: [{String.t(), {:error, String.t()}}]
   def validate_dir(dir) do
-    Path.join(dir, "*.tar.*")
+    dir
+    |> Path.join("*.tar.*")
     |> Path.wildcard()
-    |> Enum.reduce([], fn path, acc ->
+    |> Enum.reduce([], fn path, corrupt ->
       case validate(path) do
-        :ok -> acc
-        {:error, _} = err -> [{path, err} | acc]
+        :ok -> corrupt
+        {:error, _} = error -> [{path, error} | corrupt]
       end
     end)
   end
 
-  defp detect_compression(path) do
-    with {:ok, fd} <- File.open(path, [:read, :binary]),
-         bytes when is_binary(bytes) <- IO.binread(fd, 6),
-         :ok <- File.close(fd) do
-      compression_from_magic_bytes(bytes)
-    else
-      {:error, reason} -> {:error, reason}
-      _ -> {:error, :read_failed}
+  @doc """
+  Detect an archive file's type based on their header
+  """
+  @spec file_type(String.t()) :: :gzip | :xz | :zstd | :squashfs | :tar | :zip | :unknown | :error
+  def file_type(path) do
+    case File.open(path, [:read, :binary], &IO.binread(&1, 512)) do
+      {:ok, bytes} when is_binary(bytes) -> type_from_bytes(bytes)
+      _ -> :error
     end
   end
 
@@ -91,8 +81,16 @@ defmodule Nerves.Artifact.Archive do
     end
   end
 
-  defp compression_from_magic_bytes(<<0x1F, 0x8B, _::binary>>), do: :gzip
-  defp compression_from_magic_bytes(<<0xFD, "7zXZ", _::binary>>), do: :xz
-  defp compression_from_magic_bytes(<<0x28, 0xB5, 0x2F, 0xFD, _::binary>>), do: :zstd
-  defp compression_from_magic_bytes(_), do: :unknown
+  defp type_from_bytes(<<0x1F, 0x8B, _::binary>>), do: :gzip
+  defp type_from_bytes(<<0xFD, "7zXZ", _::binary>>), do: :xz
+  defp type_from_bytes(<<0x28, 0xB5, 0x2F, 0xFD, _::binary>>), do: :zstd
+  defp type_from_bytes(<<0x68, 0x73, 0x71, 0x73, _::binary>>), do: :squashfs
+  defp type_from_bytes(<<0x50, 0x4B, 0x03, 0x04, _::binary>>), do: :zip
+
+  # POSIX tar
+  defp type_from_bytes(<<_::binary-size(257), "ustar", 0, "00", _::binary>>), do: :tar
+  # GNU tar
+  defp type_from_bytes(<<_::binary-size(257), "ustar  ", 0, _::binary>>), do: :tar
+
+  defp type_from_bytes(_), do: :unknown
 end

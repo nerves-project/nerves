@@ -4,10 +4,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.ErlinitTest do
-  use NervesTest.Case
+defmodule Nerves.BuildAction.ErlinitTest do
+  use ExUnit.Case
 
-  alias Nerves.Erlinit
+  alias Nerves.BuildAction.Erlinit
+  alias Nerves.BuildPlan
 
   @example """
   # Additional configuration for erlinit
@@ -202,16 +203,99 @@ defmodule Nerves.ErlinitTest do
     end)
   end
 
-  test "file header" do
-    assert """
-           # Generated from rootfs_overlay/etc/erlinit.config
-           """ == Mix.Tasks.Firmware.erlinit_config_header([])
+  test "adds a generated overlay after artifacts are extracted" do
+    root = Path.join(System.tmp_dir!(), "nerves-erlinit-#{System.unique_integer([:positive])}")
+    overlay_path = Path.join(root, "overlay")
+    system_config_path = Path.join(root, "rootfs_overlay/etc/erlinit.config")
+
+    File.mkdir_p!(Path.dirname(system_config_path))
+    File.write!(system_config_path, "--ctty ttyS0\n--hang-on-exit\n")
+
+    previous_config = Application.get_env(:nerves, :erlinit)
+    Application.put_env(:nerves, :erlinit, ctty: "ttyS1", hang_on_exit: nil)
+
+    on_exit(fn ->
+      File.rm_rf!(root)
+
+      if previous_config do
+        Application.put_env(:nerves, :erlinit, previous_config)
+      else
+        Application.delete_env(:nerves, :erlinit)
+      end
+    end)
+
+    plan =
+      %BuildPlan{}
+      |> Erlinit.post_extract(
+        base_erlinit_conf: system_config_path,
+        output_path: overlay_path
+      )
+
+    assert plan.rootfs_overlays == [overlay_path]
+
+    assert File.read!(Path.join(overlay_path, "etc/erlinit.config")) ==
+             Erlinit.erlinit_config_header(system_config_path, ctty: "ttyS1", hang_on_exit: nil) <>
+               "--ctty ttyS1\n"
   end
 
-  test "file header with overrides" do
-    assert """
-           # Generated from rootfs_overlay/etc/erlinit.config
-           # with overrides from the application config
-           """ == Mix.Tasks.Firmware.erlinit_config_header(foo: :bar)
+  test "uses start rather than shoehorn when ShoeHorn is not a dependency" do
+    root = Path.join(System.tmp_dir!(), "nerves-erlinit-#{System.unique_integer([:positive])}")
+    base_erlinit_conf = Path.join(root, "erlinit.config")
+    output_path = Path.join(root, "overlay")
+    File.mkdir_p!(root)
+    File.write!(base_erlinit_conf, "--boot shoehorn\n")
+    previous_config = Application.get_env(:nerves, :erlinit)
+
+    on_exit(fn ->
+      File.rm_rf!(root)
+
+      if previous_config do
+        Application.put_env(:nerves, :erlinit, previous_config)
+      else
+        Application.delete_env(:nerves, :erlinit)
+      end
+    end)
+
+    Application.put_env(:nerves, :erlinit, [])
+
+    %BuildPlan{}
+    |> Erlinit.post_extract(
+      base_erlinit_conf: base_erlinit_conf,
+      output_path: output_path,
+      shoehorn?: false
+    )
+
+    assert File.read!(Path.join(output_path, "etc/erlinit.config")) =~ "--boot start\n"
+
+    Application.put_env(:nerves, :erlinit, boot: "custom")
+
+    %BuildPlan{}
+    |> Erlinit.post_extract(
+      base_erlinit_conf: base_erlinit_conf,
+      output_path: output_path,
+      shoehorn?: false
+    )
+
+    assert File.read!(Path.join(output_path, "etc/erlinit.config")) =~ "--boot custom\n"
+
+    Application.put_env(:nerves, :erlinit, [])
+
+    %BuildPlan{}
+    |> Erlinit.post_extract(
+      base_erlinit_conf: base_erlinit_conf,
+      output_path: output_path,
+      shoehorn?: true
+    )
+
+    assert File.read!(Path.join(output_path, "etc/erlinit.config")) =~ "--boot shoehorn\n"
+  end
+
+  defp in_tmp(which, function) do
+    path = Path.join(System.tmp_dir!(), "nerves-erlinit-test-#{which}")
+
+    File.rm_rf!(path)
+    File.mkdir_p!(path)
+    on_exit(fn -> File.rm_rf!(path) end)
+    File.cd!(path, function)
   end
 end

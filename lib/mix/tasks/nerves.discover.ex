@@ -26,6 +26,7 @@ defmodule Mix.Tasks.Nerves.Discover do
   use Mix.Task
 
   alias Nerves.Fwup.Word34567
+  alias Nerves.MixUtils
 
   @switches [timeout: :integer]
 
@@ -34,14 +35,14 @@ defmodule Mix.Tasks.Nerves.Discover do
     {opts, _, _} = OptionParser.parse(argv, switches: @switches)
     timeout = Keyword.get(opts, :timeout, 5000)
 
-    Mix.shell().info("\nDiscovering Nerves devices (waiting up to #{timeout}ms)...")
+    MixUtils.info("\nDiscovering Nerves devices (waiting up to #{timeout}ms)...")
 
     devices = NervesDiscovery.discover(timeout: timeout)
 
-    Mix.shell().info("")
+    MixUtils.info("")
 
     if Enum.empty?(devices) do
-      Mix.shell().info("No devices found.")
+      MixUtils.info("No devices found.")
     else
       Tablet.puts(devices, tablet_options(devices))
     end

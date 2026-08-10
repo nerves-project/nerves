@@ -42,9 +42,9 @@ defmodule Mix.Tasks.Burn do
   ```
   """
   use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
-  alias Nerves.Utils.WSL
+  alias Nerves.MixUtils
+  alias Nerves.Preflight
+  alias Nerves.WSL
 
   @switches [device: :string, task: :string, firmware: :string]
   @aliases [d: :device, t: :task, i: :firmware]
@@ -52,22 +52,18 @@ defmodule Mix.Tasks.Burn do
   @impl Mix.Task
   def run(argv) do
     Preflight.check!()
-    debug_info("Nerves Burn")
+    MixUtils.debug_info("Nerves Burn")
 
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
     firmware_config = Application.get_env(:nerves, :firmware)
 
-    target = Mix.target()
-
-    _ = check_nerves_system_is_set!()
-
-    _ = check_nerves_toolchain_is_set!()
-
     fw = firmware_file(opts)
 
     if !File.exists?(fw) do
-      Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
+      Mix.raise(
+        "Firmware for target #{Mix.target()} not found at #{fw} run `mix firmware` to build"
+      )
     end
 
     {fw, firmware_location} =
@@ -75,11 +71,11 @@ defmodule Mix.Tasks.Burn do
 
     dev =
       case opts[:device] do
-        nil -> prompt_dev()
+        nil -> MixUtils.prompt_dev()
         dev -> dev
       end
 
-    set_provisioning(firmware_config[:provisioning])
+    MixUtils.set_provisioning(firmware_config[:provisioning])
     burn(fw, dev, opts, argv)
 
     # Remove the temporary .fw file
@@ -193,9 +189,7 @@ defmodule Mix.Tasks.Burn do
 
   @spec firmware_file(keyword()) :: String.t()
   def firmware_file(opts) do
-    fw =
-      (opts[:firmware] || Nerves.Env.firmware_path())
-      |> Path.expand()
+    fw = (opts[:firmware] || Nerves.build_plan().config[:firmware_path]) |> Path.expand()
 
     if File.exists?(fw) do
       fw

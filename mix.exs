@@ -5,7 +5,7 @@
 defmodule Nerves.MixProject do
   use Mix.Project
 
-  @version "1.15.0"
+  @version "2.0.0-dev"
   @source_url "https://github.com/nerves-project/nerves"
 
   # Fail quickly on OTP 25 and earlier rather than letting them fail at runtime
@@ -19,25 +19,21 @@ defmodule Nerves.MixProject do
       app: :nerves,
       version: @version,
       elixir: "~> 1.20.0 or ~> 1.19.0 or ~> 1.18.0 or ~> 1.17.0 or ~> 1.16.0 or ~> 1.15.1",
-      archives: [nerves_bootstrap: "~> 1.15.1 or ~> 1.16"],
+      archives: [nerves_bootstrap: "~> 1.17"],
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       description: description(),
       package: package(),
-      compilers: [:elixir_make | Mix.compilers()],
-      make_targets: ["all"],
-      make_clean: ["clean"],
       docs: docs(),
       dialyzer: dialyzer(),
-      aliases: ["archive.build": &raise_on_archive_build/1],
-      test_ignore_filters: [~r/test.fixtures.*/]
+      aliases: ["archive.build": &raise_on_archive_build/1]
     ]
   end
 
   def application do
-    # Remove :nerves_bootstrap after allowing time for everyone to upgrade to
-    # 1.15.1 or later.
-    [extra_applications: [:ssl, :inets, :public_key, :eex, :nerves_bootstrap]]
+    [
+      extra_applications: [:logger, :inets, :ssl, :crypto, :public_key]
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "compat", "test/support"]
@@ -49,14 +45,18 @@ defmodule Nerves.MixProject do
 
   defp deps do
     [
-      {:elixir_make, "~> 0.6", runtime: false},
-      {:interactive_cmd, "~> 0.1.4"},
-      {:jason, "~> 1.2"},
+      # Nerves tooling can only use pure-Elixir libraries since they're built before
+      # the Nerves cross-compilation environment is set up.
+      {:interactive_cmd, "~> 0.1"},
       {:nerves_discovery, "~> 0.1.2"},
       {:tablet, "~> 0.3.1"},
+
+      # Development dependencies
       {:credo, "~> 1.6", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+
+      # Test dependencies
       {:bandit, "~> 1.0", only: :test},
       {:mimic, "~> 2.3", only: :test},
       {:plug, "~> 1.10", only: :test}
@@ -100,15 +100,14 @@ defmodule Nerves.MixProject do
     [
       files: [
         "CHANGELOG.md",
+        "compat",
         "lib",
         "LICENSES/*",
-        "Makefile",
         "mix.exs",
         "NOTICE",
         "README.md",
         "REUSE.toml",
-        "scripts",
-        "src"
+        "scripts"
       ],
       licenses: ["Apache-2.0"],
       links: %{

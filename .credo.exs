@@ -5,7 +5,7 @@
   configs: [
     %{
       name: "default",
-      files: %{included: ["lib/", "test/"], excluded: ["**/mix.exs"]},
+      files: %{included: ["compat/", "lib/", "test/"], excluded: ["**/mix.exs"]},
       strict: true,
       checks: [
         {Credo.Check.Design.AliasUsage, false},
@@ -16,6 +16,7 @@
         {Credo.Check.Readability.ParenthesesOnZeroArityDefs, parens: true},
         {Credo.Check.Readability.Specs, tags: []},
         {Credo.Check.Readability.StrictModuleLayout, tags: []},
+        {Credo.Check.Refactor.Nesting, max_nesting: 5},
 
         # Report TODO comments, but don't fail the check
         {Credo.Check.Design.TagTODO, exit_status: 0}

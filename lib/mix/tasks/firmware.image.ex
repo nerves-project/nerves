@@ -31,60 +31,39 @@ defmodule Mix.Tasks.Firmware.Image do
   ```
   """
   use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
+  alias Nerves.MixUtils
+  alias Nerves.Preflight
 
   @impl Mix.Task
-  def run([file]) do
+  def run(args) do
     Preflight.check!()
-    debug_info("Nerves Firmware Image")
+    MixUtils.debug_info("Nerves Firmware Image")
 
     # Call "mix firmware" to ensure that the firmware bundle is up-to-date
     Mix.Task.run("firmware", [])
 
-    config = Mix.Project.config()
-    otp_app = config[:app]
-    target = Mix.target()
-
-    images_path =
-      (config[:images_path] || Path.join([Mix.Project.build_path(), "nerves", "images"]))
-      |> Path.expand()
-
-    _ = check_nerves_system_is_set!()
-
-    _ = check_nerves_toolchain_is_set!()
-
-    fw = "#{images_path}/#{otp_app}.fw"
+    build_plan = Nerves.build_plan()
+    fw = build_plan.config[:firmware_path]
 
     if !File.exists?(fw) do
-      Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
+      Mix.raise(
+        "Firmware for target #{Mix.target()} not found at #{fw} run `mix firmware` to build"
+      )
     end
 
-    file = Path.expand(file)
+    output =
+      case args do
+        [path] -> path
+        _ -> Path.expand(Path.basename(fw, ".fw") <> ".img")
+      end
 
-    image(fw, file)
-  end
-
-  def run([]) do
-    otp_app = Mix.Project.config()[:app]
-    file = "#{otp_app}.img"
-    run([file])
-  end
-
-  def run(_args) do
-    Mix.raise("""
-    mix firmware.image [my_image.img]
-
-    See mix help firmware.image for more info
-    """)
-
-    Mix.Task.run("help", ["firmware.image"])
+    image(fw, output)
   end
 
   defp image(fw, file) do
-    Mix.shell().info("Writing to #{file}...")
+    MixUtils.info("Writing to #{file}...")
     args = ["-a", "-i", fw, "-t", "complete", "-d", file]
     cmd = "fwup"
-    shell(cmd, args)
+    MixUtils.shell(cmd, args)
   end
 end

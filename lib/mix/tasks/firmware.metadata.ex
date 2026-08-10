@@ -34,8 +34,8 @@ defmodule Mix.Tasks.Firmware.Metadata do
   ```
   """
   use Mix.Task
-  import Mix.Nerves.Utils
-  alias Mix.Nerves.Preflight
+  alias Nerves.MixUtils
+  alias Nerves.Preflight
 
   @switches [firmware: :string]
   @aliases [i: :firmware]
@@ -43,29 +43,25 @@ defmodule Mix.Tasks.Firmware.Metadata do
   @impl Mix.Task
   def run(argv) do
     Preflight.check!()
-    debug_info("Nerves Metadata")
+    MixUtils.debug_info("Nerves Metadata")
 
     {opts, _argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
-
-    target = Mix.target()
-
-    _ = check_nerves_system_is_set!()
-
-    _ = check_nerves_toolchain_is_set!()
 
     fw = firmware_file(opts)
 
     if !File.exists?(fw) do
-      Mix.raise("Firmware for target #{target} not found at #{fw} run `mix firmware` to build")
+      Mix.raise(
+        "Firmware for target #{Mix.target()} not found at #{fw} run `mix firmware` to build"
+      )
     end
 
-    shell("fwup", ["-m", "-i", fw])
+    MixUtils.shell("fwup", ["-m", "-i", fw])
   end
 
   @spec firmware_file(keyword()) :: String.t()
   def firmware_file(opts) do
     fw =
-      (opts[:firmware] || Nerves.Env.firmware_path())
+      (opts[:firmware] || Nerves.build_plan().config[:firmware_path])
       |> Path.expand()
 
     if File.exists?(fw) do

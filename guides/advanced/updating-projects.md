@@ -778,3 +778,35 @@ Nerves system release notes when you upgrade.
 The only backwards incompatible change in Nerves 1.7 is to remove Distillery
 support. See [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5) for how
 to move to mix releases.
+
+## Updating from v1.7 and later to v2.0
+
+Many aspects of Nerves has changed with v2.0. Nearly all updates are internal
+changes to add flexibility to how embedded systems firmware gets built. If
+you're a casual Nerves user, this mostly doesn't affect you. This update
+guide will cover the casual use and then go into detail for Nerves systems
+updates.
+
+### Casual user updates
+
+Nerves no longer uses the [Shoehorn](https://github.com/nerves-project/shoehorn)
+project for creating OTP release scripts. Shoehorn has several features, but only the deterministic release startup ordering and application start type
+features were used. This functionality is now part of Nerves v2.0. If you're
+not aware of Shoehorn, you almost certainly don't use its other features.
+
+Remove `:shoehorn` from your `mix.exs` dependencies. Then update the `release`
+function to change the `&Nerves.Release.init/1` reference to `&Nerves.init_release/1`. Your `release` function probably will look like this:
+
+```elixir
+  def release do
+    [
+      overwrite: true,
+      # Erlang distribution is not started automatically.
+      # See https://nerves-pack.hexdocs.pm/readme.html#erlang-distribution
+      cookie: "#{@app}_cookie",
+      include_erts: &Nerves.erts/0,
+      steps: [&Nerves.init_release/1, :assemble],
+      strip_beams: Mix.env() == :prod or [keep: ["Docs"]]
+    ]
+  end
+```
