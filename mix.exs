@@ -10,15 +10,15 @@ defmodule Nerves.MixProject do
 
   # Fail quickly on OTP 25 and earlier rather than letting them fail at runtime
   @otp_release :erlang.system_info(:otp_release) |> List.to_integer()
-  if @otp_release < 26 do
-    raise "nerves requires OTP 26 or later. Current OTP version: #{@otp_release}"
+  if @otp_release < 27 do
+    raise "nerves requires OTP 27 or later. Current OTP version: #{@otp_release}"
   end
 
   def project do
     [
       app: :nerves,
       version: @version,
-      elixir: "~> 1.20.0 or ~> 1.19.0 or ~> 1.18.0 or ~> 1.17.0 or ~> 1.16.0 or ~> 1.15.1",
+      elixir: "~> 1.20.0 or ~> 1.19.0 or ~> 1.18.0 or ~> 1.17.0",
       archives: [nerves_bootstrap: "~> 1.17"],
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
