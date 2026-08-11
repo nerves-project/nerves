@@ -103,6 +103,7 @@ defmodule Nerves.MixProject do
         "compat",
         "lib",
         "LICENSES/*",
+        "Makefile",
         "mix.exs",
         "NOTICE",
         "README.md",
