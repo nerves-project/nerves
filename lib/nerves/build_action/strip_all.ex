@@ -12,8 +12,8 @@ defmodule Nerves.BuildAction.StripAll do
 
   import Bitwise
 
-  alias Nerves.BuildPlan
   alias Nerves.BinInfo
+  alias Nerves.BuildPlan
   alias Nerves.MixUtils
   alias Nerves.Paths
 
@@ -22,19 +22,19 @@ defmodule Nerves.BuildAction.StripAll do
   """
   @impl Nerves.BuildAction
   def post_assemble_steps(%BuildPlan{} = build_plan, %Mix.Release{} = release, _opts) do
-    strip = BuildPlan.get_interpolated_env(build_plan)["STRIP"]
+    case BuildPlan.fetch_interpolated_env(build_plan, "STRIP") do
+      {:ok, strip} ->
+        Paths.executable_paths(release.path)
+        |> Enum.filter(&(BinInfo.file_type(&1) == :elf))
+        |> Enum.each(&run_strip(&1, strip))
 
-    if strip == nil do
-      Mix.raise(
-        "Expecting a Nerves package to provide $STRIP in the environment. Usually this is a toolchain"
-      )
+        release
+
+      :error ->
+        Mix.raise("""
+        Expecting a Nerves package to provide $STRIP in the environment. Usually this is a toolchain.
+        """)
     end
-
-    Paths.executable_paths(release.path)
-    |> Enum.filter(&(BinInfo.file_type(&1) == :elf))
-    |> Enum.each(&run_strip(&1, strip))
-
-    release
   end
 
   defp make_writable!(path) do

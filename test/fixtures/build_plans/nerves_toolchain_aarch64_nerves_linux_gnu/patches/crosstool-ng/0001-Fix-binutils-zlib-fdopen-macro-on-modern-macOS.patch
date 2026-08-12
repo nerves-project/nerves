@@ -1,0 +1,55 @@
+From cf57b22d2d45427916601aefdbd1669ecf8c3e3b Mon Sep 17 00:00:00 2001
+From: Frank Hunleth <fhunleth@troodon-software.com>
+Date: Tue, 10 Feb 2026 12:00:00 -0500
+Subject: [PATCH 1/4] Fix binutils zlib fdopen macro on modern macOS
+
+Binutils 2.45 includes zlib 1.1.4 which defines fdopen as NULL for old
+Mac systems that lack fdopen(). Modern macOS has fdopen(), so this
+macro conflicts with the system header, causing compilation errors.
+
+This patch prevents the fdopen macro from being defined on modern macOS
+(darwin) systems.
+---
+ ...dopen-macro-conflict-on-modern-macOS.patch | 30 +++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+ create mode 100644 packages/binutils/2.45/0006-Fix-zlib-fdopen-macro-conflict-on-modern-macOS.patch
+
+diff --git a/packages/binutils/2.45/0006-Fix-zlib-fdopen-macro-conflict-on-modern-macOS.patch b/packages/binutils/2.45/0006-Fix-zlib-fdopen-macro-conflict-on-modern-macOS.patch
+new file mode 100644
+index 000000000..c0974317a
+--- /dev/null
++++ b/packages/binutils/2.45/0006-Fix-zlib-fdopen-macro-conflict-on-modern-macOS.patch
+@@ -0,0 +1,30 @@
++From 09de7306ffc8ab1cbbe24713877ff679987e99fb Mon Sep 17 00:00:00 2001
++From: Frank Hunleth <fhunleth@troodon-software.com>
++Date: Tue, 10 Feb 2026 12:19:44 -0500
++Subject: [PATCH] Fix zlib fdopen macro conflict on modern macOS
++
++The embedded zlib 1.1.4 defines fdopen as NULL for old Mac systems
++that lacked fdopen(). Modern macOS (darwin) has fdopen() in stdio.h,
++so when the preprocessor expands the system's fdopen() declaration,
++it replaces fdopen with NULL, creating invalid syntax:
++  FILE *fdopen(int, const char *)  ->  FILE *NULL(int, const char *)
++---
++ zlib/zutil.h | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/zlib/zutil.h b/zlib/zutil.h
++index d9a20ae1..f5dfbe85 100644
++--- a/zlib/zutil.h
+++++ b/zlib/zutil.h
++@@ -143,7 +143,7 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
++ #    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
++ #      include <unix.h> /* for fdopen */
++ #    else
++-#      ifndef fdopen
+++#      if !defined(fdopen) && !(defined(__APPLE__) && defined(__MACH__))
++ #        define fdopen(fd,mode) NULL /* No fdopen() */
++ #      endif
++ #    endif
++-- 
++2.52.0
++
+-- 
+2.50.1 (Apple Git-155)
+

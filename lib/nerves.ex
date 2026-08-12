@@ -39,7 +39,7 @@ defmodule Nerves do
   @spec build_plan() :: BuildPlan.t()
   def build_plan() do
     with nil <- :persistent_term.get(@build_plan_key, nil) do
-      create_build_plan() |> cache_build_plan()
+      MixPackage.nerves_packages_in_compile_order() |> create_build_plan() |> cache_build_plan()
     end
   end
 
@@ -177,17 +177,32 @@ defmodule Nerves do
     BuildPlan.run_release_actions(build_plan, release, step)
   end
 
-  defp create_build_plan() do
-    all_packages = MixPackage.nerves_packages_in_compile_order()
-
+  @doc false
+  @spec create_build_plan([MixPackage.t()]) :: BuildPlan.t()
+  def create_build_plan(all_packages) do
     %BuildPlan{}
     |> add_base_configuration(all_packages)
     |> add_per_package_plans(all_packages)
+    |> BuildPlan.run_planning_actions(:pre_download)
+  end
+
+  defp default_os_env() do
+    %{
+      "PATH" => System.get_env("PATH", ""),
+      "AR_FOR_BUILD" => "ar",
+      "AS_FOR_BUILD" => "as",
+      "CC_FOR_BUILD" => "cc",
+      "GCC_FOR_BUILD" => "gcc",
+      "CXX_FOR_BUILD" => "g++",
+      "LD_FOR_BUILD" => "ld",
+      "CPPFLAGS_FOR_BUILD" => "",
+      "CFLAGS_FOR_BUILD" => "",
+      "CXXFLAGS_FOR_BUILD" => "",
+      "LDFLAGS_FOR_BUILD" => ""
+    }
   end
 
   defp add_base_configuration(build_plan, packages) do
-    env = Map.take(System.get_env(), ["PATH"])
-
     package_infos =
       for dep <- packages do
         config = dep.config
@@ -234,16 +249,8 @@ defmodule Nerves do
       build_plan
       | packages: package_infos,
         config: config,
-        env: env,
-        actions: [
-          {Nerves.BuildAction.SortApps, []},
-          {Nerves.BuildAction.AppModes, []},
-          Nerves.BuildAction.Trimmer,
-          Nerves.BuildAction.CheckExecutables,
-          Nerves.BuildAction.StripAll,
-          {Nerves.BuildAction.Rootfs, []},
-          {Nerves.BuildAction.Firmware, []}
-        ]
+        env: default_os_env(),
+        actions: []
     }
   end
 
@@ -259,20 +266,41 @@ defmodule Nerves do
     Enum.reduce(packages, build_plan, &add_to_plan/2)
   end
 
-  defp add_to_plan(dep, build_plan) do
+  defp add_to_plan(package, build_plan) do
     nerves_config =
-      dep.config[:nerves] ||
-        Nerves.LegacyPackage.convert(dep, BuildPlan.find_package(build_plan, dep.app))
+      package.config[:nerves] ||
+        convert_nerves_v1_package(package.app, package.config[:nerves_package])
 
-    add_configuration(dep, nerves_config, build_plan)
+    add_configuration(build_plan, nerves_config)
   end
 
+  defp convert_nerves_v1_package(app, legacy_config) do
+    case nerves_v1_action(legacy_config[:type]) do
+      nil ->
+        []
+
+      action ->
+        [
+          actions: [
+            {action,
+             app: app,
+             artifact_sites: legacy_config[:artifact_sites] || [],
+             package_env: legacy_config[:env] || []}
+          ]
+        ]
+    end
+  end
+
+  defp nerves_v1_action(:system), do: Nerves.BuildAction.NervesV1System
+  defp nerves_v1_action(:toolchain), do: Nerves.BuildAction.NervesV1Toolchain
+  defp nerves_v1_action(_), do: nil
+
   # TODO: Move this to BuildPlan somehow since it's tightly coupled to that code.
-  defp add_configuration(%MixPackage{} = package, nerves_config, %BuildPlan{} = build_plan) do
+  defp add_configuration(%BuildPlan{} = build_plan, nerves_config) do
     build_plan = merge_declared_fields(build_plan, nerves_config)
 
     case nerves_config[:plan_callback] do
-      callback when is_function(callback, 2) -> callback.(package.dest, build_plan)
+      callback when is_function(callback, 1) -> callback.(build_plan)
       nil -> build_plan
     end
   end
@@ -323,7 +351,7 @@ defmodule Nerves do
   end
 
   defp sync_env(%BuildPlan{} = build_plan) do
-    BuildPlan.get_interpolated_env(build_plan) |> System.put_env()
+    BuildPlan.fetch_interpolated_env!(build_plan) |> System.put_env()
 
     build_plan
   end

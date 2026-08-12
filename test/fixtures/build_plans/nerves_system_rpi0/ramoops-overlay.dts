@@ -1,0 +1,31 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&rmem>;
+		__overlay__ {
+			ramoops: ramoops@b000000 {
+				compatible = "ramoops";
+				reg = <0x0b000000 0x10000>; /* 64kB */
+				record-size = <0>; /* disabled by default */
+				console-size = <0x8000>; /* 32kB */
+				ftrace-size = <0>; /* disabled by default */
+				pmsg-size = <0x8000>; /* 32kB */
+				ecc-size = <0x10>; /* 16 bytes */
+			};
+		};
+	};
+
+	__overrides__ {
+		base-addr = <&ramoops>,"reg:0";
+		total-size = <&ramoops>,"reg:4";
+		record-size = <&ramoops>,"record-size:0";
+		console-size = <&ramoops>,"console-size:0";
+		pmsg-size = <&ramoops>,"pmsg-size:0";
+		ftrace-size = <&ramoops>,"ftrace-size:0";
+		ecc-size = <&ramoops>,"ecc-size:0";
+	};
+};

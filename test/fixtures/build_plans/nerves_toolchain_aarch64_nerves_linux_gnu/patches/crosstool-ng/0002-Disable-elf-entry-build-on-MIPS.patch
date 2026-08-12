@@ -1,0 +1,24 @@
+From d9c89bb4417fa133ba84cea43c21b1335d9ed0ba Mon Sep 17 00:00:00 2001
+From: Frank Hunleth <fhunleth@troodon-software.com>
+Date: Tue, 10 Feb 2026 14:54:22 -0500
+Subject: [PATCH 2/4] Disable elf-entry build on MIPS
+
+---
+ scripts/build/kernel/linux.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/scripts/build/kernel/linux.sh b/scripts/build/kernel/linux.sh
+index ad3c2ca3f..c8b28ad4d 100644
+--- a/scripts/build/kernel/linux.sh
++++ b/scripts/build/kernel/linux.sh
+@@ -32,6 +32,7 @@ do_kernel_get()
+ linux_disable_build_relocs()
+ {
+     sed -i -r 's/(\$\(MAKE\) .* relocs)$/:/' arch/*/Makefile
++    sed -i -r 's/(\$\(MAKE\) .* elf-entry)$/:/' arch/*/Makefile
+ }
+ 
+ # Extract kernel
+-- 
+2.50.1 (Apple Git-155)
+

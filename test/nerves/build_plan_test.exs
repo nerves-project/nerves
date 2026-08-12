@@ -3,48 +3,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Nerves.BuildPlanTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   alias Nerves.BuildPlan
-  alias Nerves.MixPackage
+  alias Nerves.BuildPlanHelpers
 
-  test "converts legacy metadata to global environment and artifact hooks" do
-    base_package = %{
-      artifact_path: "/artifacts/system",
-      deps: [],
-      download_path: "/downloads/system",
-      download_validators: [],
-      downloads: [],
-      extractors: [],
-      source_fingerprint: "ABC123",
-      source_fingerprint_files: ["mix.exs"],
-      validated_files: []
-    }
+  test "Nerves V1 actions derive toolchain and system variables from resolved artifacts" do
+    BuildPlanHelpers.unset_env("TEST_NERVES_SYSTEM")
+    BuildPlanHelpers.unset_env("TEST_NERVES_TOOLCHAIN")
 
-    package = %MixPackage{
-      app: :system,
-      config: %{
-        version: "1.0.0",
-        nerves_package: [type: :system, artifact_sites: ["https://example.com"]]
-      }
-    }
-
-    config =
-      Nerves.LegacyPackage.convert(package, base_package)
-
-    assert config[:env] == %{"NERVES_SYSTEM" => "/artifacts/system"}
-
-    assert hd(config[:packages]).downloads == [
-             %{
-               archive_path: "/downloads/system/system-portable-1.0.0-ABC123.tar.gz",
-               filename: "system-portable-1.0.0-ABC123.tar.gz",
-               sites: ["https://example.com"],
-               version: "1.0.0"
-             }
-           ]
-  end
-
-  test "legacy callbacks derive toolchain and system variables from resolved artifacts" do
     root = Path.join(System.tmp_dir!(), "nerves-build-plan-#{System.unique_integer([:positive])}")
     toolchain = Path.join(root, "toolchain")
     system = Path.join(root, "system")
@@ -54,28 +21,42 @@ defmodule Nerves.BuildPlanTest do
     File.mkdir_p!(Path.join(system, "staging/usr/lib/erlang/erts-1/include"))
     File.mkdir_p!(Path.join(system, "staging/usr/lib/erlang/lib/erl_interface-1/include"))
     File.mkdir_p!(Path.join(system, "images"))
+    File.mkdir_p!(Path.join(system, "rootfs_overlay/etc"))
+    File.write!(Path.join(system, "rootfs_overlay/etc/erlinit.config"), "--boot start\n")
 
     :erl_tar.create(Path.join(system, "images/rootfs.tar"), [{~c"placeholder", <<1, 2, 3, 4>>}])
 
     on_exit(fn -> File.rm_rf!(root) end)
 
     plan =
-      %BuildPlan{}
-      |> BuildPlan.merge_env(%{"NERVES_TOOLCHAIN" => toolchain, "NERVES_SYSTEM" => system})
-      |> Nerves.LegacyPackage.apply_legacy_package(
-        type: :toolchain,
-        artifact_path: toolchain,
-        package_env: [{"CC", "${CROSSCOMPILE}-gcc"}],
-        dest: toolchain
-      )
-      |> Nerves.LegacyPackage.apply_legacy_package(
-        type: :system,
-        artifact_path: system,
-        package_env: [{"ERL_CFLAGS", "-I${ERTS_DIR}/include -I${ERL_INTERFACE_DIR}/include"}],
-        dest: system
-      )
+      %BuildPlan{
+        packages: [
+          BuildPlanHelpers.package_info(:toolchain, toolchain, toolchain),
+          BuildPlanHelpers.package_info(:system, system, system)
+        ],
+        env: %{"TARGET_GCC_FLAGS" => ""},
+        actions: [
+          {Nerves.BuildAction.NervesV1Toolchain,
+           app: :toolchain, artifact_sites: [], package_env: [{"CC", "${CROSSCOMPILE}-gcc"}]},
+          {Nerves.BuildAction.NervesV1System,
+           app: :system,
+           artifact_sites: [],
+           package_env: [{"ERL_CFLAGS", "-I${ERTS_DIR}/include -I${ERL_INTERFACE_DIR}/include"}],
+           dest: system}
+        ]
+      }
+      |> BuildPlan.run_planning_actions(:pre_download)
 
-    env = BuildPlan.get_interpolated_env(plan)
+    assert plan.config[:fwup_conf] == Path.join(system, "images/fwup.conf")
+
+    assert plan.config[:fwup_provisioning_conf] ==
+             Path.join(system, "images/fwup_include/provisioning.conf")
+
+    assert plan.config[:rootfs_inputs] == [Path.join(system, "images/rootfs.tar")]
+
+    plan = BuildPlan.run_planning_actions(plan, :post_extract)
+
+    env = BuildPlan.fetch_interpolated_env!(plan)
 
     assert env["NERVES_TOOLCHAIN"] == toolchain
     assert env["CROSSCOMPILE"] == Path.join(toolchain, "bin/arm-buildroot-linux-gnueabihf")
@@ -88,7 +69,48 @@ defmodule Nerves.BuildPlanTest do
                "-I#{system}/staging/usr/lib/erlang/lib/erl_interface-1/include"
   end
 
-  describe "get_interpolated_env/1" do
+  test "NERVES_SYSTEM and NERVES_TOOLCHAIN skip artifact downloads and extraction" do
+    root = Path.join(System.tmp_dir!(), "nerves-build-plan-#{System.unique_integer([:positive])}")
+    system = Path.join(root, "system")
+    toolchain = Path.join(root, "toolchain")
+
+    File.mkdir_p!(system)
+    File.mkdir_p!(toolchain)
+    restore_env = Map.take(System.get_env(), ["NERVES_SYSTEM", "NERVES_TOOLCHAIN"])
+
+    System.put_env(%{"NERVES_SYSTEM" => system, "NERVES_TOOLCHAIN" => toolchain})
+
+    on_exit(fn ->
+      System.delete_env("NERVES_SYSTEM")
+      System.delete_env("NERVES_TOOLCHAIN")
+      System.put_env(restore_env)
+      File.rm_rf!(root)
+    end)
+
+    build_plan =
+      %BuildPlan{
+        packages: [
+          BuildPlanHelpers.package_info(:toolchain, "/deps/toolchain", "/artifacts/toolchain"),
+          BuildPlanHelpers.package_info(:system, "/deps/system", "/artifacts/system")
+        ],
+        actions: [
+          {Nerves.BuildAction.NervesV1Toolchain,
+           app: :toolchain, artifact_sites: [], version: "1.0.0"},
+          {Nerves.BuildAction.NervesV1System,
+           app: :system, artifact_sites: [], dest: system, version: "1.0.0"}
+        ]
+      }
+      |> BuildPlan.run_planning_actions(:pre_download)
+
+    assert Enum.all?(build_plan.packages, fn package ->
+             package.artifact_path in [system, toolchain] and
+               package.download_validators == [] and
+               package.downloads == [] and
+               package.extractors == []
+           end)
+  end
+
+  describe "fetch_interpolated_env!/1" do
     test "interpolates variables" do
       vars = %{"BASE" => "base", "DERIVED" => "derived->${BASE}"}
       build_plan = BuildPlan.merge_env(%BuildPlan{}, vars)
@@ -96,7 +118,7 @@ defmodule Nerves.BuildPlanTest do
       # Variables are NOT interpolated on insertion
       assert build_plan.env == vars
 
-      interpolated = BuildPlan.get_interpolated_env(build_plan)
+      interpolated = BuildPlan.fetch_interpolated_env!(build_plan)
       assert interpolated == %{"BASE" => "base", "DERIVED" => "derived->base"}
     end
 
@@ -104,7 +126,7 @@ defmodule Nerves.BuildPlanTest do
       vars = %{"DERIVED" => "derived->${BASE}"}
       build_plan = BuildPlan.merge_env(%BuildPlan{}, vars)
 
-      assert_raise KeyError, fn -> BuildPlan.get_interpolated_env(build_plan) end
+      assert_raise KeyError, fn -> BuildPlan.fetch_interpolated_env!(build_plan) end
     end
 
     test "recursive interpolation of variables" do
@@ -119,7 +141,7 @@ defmodule Nerves.BuildPlanTest do
 
       build_plan = BuildPlan.merge_env(%BuildPlan{}, vars)
 
-      interpolated = BuildPlan.get_interpolated_env(build_plan)
+      interpolated = BuildPlan.fetch_interpolated_env!(build_plan)
 
       assert interpolated == %{
                "A_VAR" => "var3->var2->var1",
@@ -134,7 +156,24 @@ defmodule Nerves.BuildPlanTest do
       vars = %{"VAR1" => "${VAR2}", "VAR2" => "${VAR1}"}
       build_plan = BuildPlan.merge_env(%BuildPlan{}, vars)
 
-      assert_raise KeyError, fn -> BuildPlan.get_interpolated_env(build_plan) end
+      assert_raise KeyError, fn -> BuildPlan.fetch_interpolated_env!(build_plan) end
+    end
+  end
+
+  describe "fetch_interpolated_env!/2" do
+    test "interpolates variables" do
+      vars = %{"BASE" => "base", "DERIVED" => "derived->${BASE}"}
+      build_plan = BuildPlan.merge_env(%BuildPlan{}, vars)
+
+      assert "derived->base" == BuildPlan.fetch_interpolated_env!(build_plan, "DERIVED")
+    end
+
+    test "raises on missing variables" do
+      vars = %{"DERIVED" => "derived->${BASE}"}
+      build_plan = BuildPlan.merge_env(%BuildPlan{}, vars)
+
+      assert_raise KeyError, fn -> BuildPlan.fetch_interpolated_env!(build_plan, "BASE") end
+      assert_raise KeyError, fn -> BuildPlan.fetch_interpolated_env!(build_plan, "DERIVED") end
     end
   end
 

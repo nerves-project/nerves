@@ -220,6 +220,19 @@ defmodule Nerves.BuildPlan do
     Enum.find(build_plan.packages, &(&1.app == app))
   end
 
+  @doc """
+  Replace the specified package info
+  """
+  @spec replace_package(t(), package_info()) :: t()
+  def replace_package(%__MODULE__{} = build_plan, %{app: app} = package) do
+    new_packages =
+      Enum.map(build_plan.packages, fn pkg ->
+        if pkg.app == app, do: package, else: pkg
+      end)
+
+    %{build_plan | packages: new_packages}
+  end
+
   # defp validate_config!(build_plan) do
   #   [
   #     :pre_assemble_steps,
@@ -229,6 +242,7 @@ defmodule Nerves.BuildPlan do
   #     :post_image_creation,
   #     :pre_image_creation,
   #     :post_extract
+  #     :pre_download
   #   ]
   #   |> Enum.each(&call_config_validators!(build_plan, &1))
   # end
@@ -288,11 +302,33 @@ defmodule Nerves.BuildPlan do
 
   Raises `KeyError` on undefined variables or self-referential variables
   """
-  @spec get_interpolated_env(t()) :: map()
-  def get_interpolated_env(%__MODULE__{} = build_plan) do
+  @spec fetch_interpolated_env!(t()) :: %{String.t() => String.t()}
+  def fetch_interpolated_env!(%__MODULE__{} = build_plan) do
     Enum.reduce(build_plan.env, %{}, fn {key, value}, acc ->
       Map.put(acc, key, interpolate(value, build_plan.env))
     end)
+  end
+
+  @doc """
+  Return the interpolated value for the specified key
+
+  Raises `KeyError` on undefined variables or self-referential variables
+  """
+  @spec fetch_interpolated_env!(t(), String.t()) :: String.t()
+  def fetch_interpolated_env!(%__MODULE__{} = build_plan, key) do
+    Map.fetch!(build_plan.env, key) |> interpolate(build_plan.env)
+  end
+
+  @doc """
+  Return the interpolated value for the specified key
+
+  This is a non-raising version of `fetch_interpolated_env/2`.
+  """
+  @spec fetch_interpolated_env(t(), String.t()) :: {:ok, String.t()} | :error
+  def fetch_interpolated_env(%__MODULE__{} = build_plan, key) do
+    {:ok, fetch_interpolated_env!(build_plan, key)}
+  rescue
+    KeyError -> :error
   end
 
   defp interpolate(value, env) do
@@ -307,7 +343,8 @@ defmodule Nerves.BuildPlan do
   end
 
   @spec run_planning_actions(t(), atom()) :: t()
-  def run_planning_actions(%__MODULE__{} = build_plan, fun) when fun in [:post_extract] do
+  def run_planning_actions(%__MODULE__{} = build_plan, fun)
+      when fun in [:post_extract, :pre_download] do
     # Since planning actions can add actions, keep iterating until they
     # all have been processed.
     repeat_running_planning_actions([], build_plan, &call_planning_action(&1, fun, &2))

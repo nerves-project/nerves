@@ -1,0 +1,62 @@
+# Default Nerves RPi0 config.txt
+#
+# It's possible to override this file by using a custom fwup.conf
+# configuration to pull in a replacement.
+#
+# Useful links:
+# https://www.raspberrypi.org/documentation/configuration/config-txt/README.md
+# https://www.raspberrypi.org/documentation/configuration/device-tree.md
+# https://github.com/raspberrypi/documentation/blob/master/configuration/device-tree.md
+# https://github.com/raspberrypi/firmware/blob/master/boot/overlays/README
+
+kernel=zImage
+
+# Disable the boot rainbow
+disable_splash=1
+
+# This, along with the Raspberry Pi "x" firmware is needed for the camera
+# to work. The Raspberry Pi "x" firmware is selected via the Buildroot
+# configuration. See Target packages->Hardware handling->Firmware.
+gpu_mem=192
+
+# Enable I2C, SPI, and audio
+dtparam=i2c_arm=on
+dtparam=spi=on
+dtparam=audio=on
+
+# Automatically load overlays for detected cameras
+camera_auto_detect=1
+
+# Comment this in or modify to enable OneWire
+# NOTE: check that the overlay that you specify is in the boot partition or
+#       this won't work.
+#dtoverlay=w1-gpio-pullup,gpiopin=4
+dtoverlay=dwc2
+
+# The ramoops overlay works with the pstore driver to preserve crash
+# information across reboots in DRAM
+dtoverlay=ramoops
+
+# Enable the UART (/dev/ttyAMA0) on the RPi0.
+enable_uart=1
+dtoverlay=miniuart-bt
+# Set the GPU frequency so that the MiniUART (/dev/ttyS0) can be used for
+# Bluetooth. This has a small performance impact. See
+# https://www.raspberrypi.org/documentation/computers/config_txt.html#overclocking.
+core_freq=250
+
+# The active LED is active low instead of active high like other Raspberry Pis
+dtparam=act_led_activelow=on
+
+# The default is to blink the LED on MicroSD card accesses, but this isn't
+# that useful since Nerves has very few accesses. Switch it to a heartbeat
+# so that it's easy to see if the processor hangs.
+dtparam=act_led_trigger=heartbeat
+
+# To turn the LED completely off comment out the previous line and uncomment
+# the next.
+#dtparam=act_led_trigger=none
+
+# To enable low-power functionality with Soleil power management board,
+# uncomment the following line
+# dtoverlay=gpio-poweroff

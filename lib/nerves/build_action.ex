@@ -13,6 +13,17 @@ defmodule Nerves.BuildAction do
   alias Nerves.BuildPlan
 
   @doc """
+  Callback for updating the build plan before any downloads occur
+
+  It's possible to add files to be downloaded to the plan in this callback.
+
+  This is the only callback that may not be called. If an action is registered in another
+  action's `post_extract/2` callback, then that's after the download phase and therefore
+  after `pre_download/2` functions are called.
+  """
+  @callback pre_download(build_plan :: BuildPlan.t(), opts :: keyword()) :: BuildPlan.t()
+
+  @doc """
   Callback for updating the build plan once artifacts are extracted
 
   This can be used to look through artifact contents to adjust to plan. Since actions can be
@@ -70,6 +81,9 @@ defmodule Nerves.BuildAction do
       @behaviour Nerves.BuildAction
 
       @doc false
+      def pre_download(build_plan, _opts), do: build_plan
+
+      @doc false
       def post_extract(build_plan, _opts), do: build_plan
 
       @doc false
@@ -90,7 +104,8 @@ defmodule Nerves.BuildAction do
       @doc false
       def post_image_creation(_build_plan, _opts), do: :ok
 
-      defoverridable post_extract: 2,
+      defoverridable pre_download: 2,
+                     post_extract: 2,
                      pre_assemble_steps: 3,
                      post_assemble_steps: 3,
                      rootfs_creation_steps: 3,

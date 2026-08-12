@@ -21,6 +21,7 @@ defmodule Nerves.MixProject do
       elixir: "~> 1.20.0 or ~> 1.19.0 or ~> 1.18.0 or ~> 1.17.0",
       archives: [nerves_bootstrap: "~> 1.17"],
       elixirc_paths: elixirc_paths(Mix.env()),
+      test_ignore_filters: [&String.starts_with?(&1, "test/fixtures/")],
       deps: deps(),
       description: description(),
       package: package(),
