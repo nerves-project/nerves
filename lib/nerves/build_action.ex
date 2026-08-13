@@ -15,7 +15,10 @@ defmodule Nerves.BuildAction do
   @doc """
   Callback for updating the build plan once artifacts are extracted
 
-  This can be used to look through artifact contents to adjust to plan
+  This can be used to look through artifact contents to adjust to plan. Since actions can be
+  added dynamically up to this callback, It's the only callback that can modify the build plan
+  that's guaranteed to be called. However, as it is past the extraction phase, no new files
+  can be downloaded.
   """
   @callback post_extract(build_plan :: BuildPlan.t(), opts :: keyword()) :: BuildPlan.t()
 

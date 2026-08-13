@@ -137,7 +137,7 @@ defmodule Nerves.LegacyPackage do
     build_plan
     |> maybe_discover_toolchain(type, artifact_path)
     |> maybe_discover_system(type, artifact_path, dest)
-    |> merge_package_env(package_env)
+    |> BuildPlan.merge_env(package_env)
   end
 
   defp env_var_env(env_var_override, artifact_path), do: %{env_var_override => artifact_path}
@@ -155,20 +155,12 @@ defmodule Nerves.LegacyPackage do
       Mix.raise("Could not find a cross-compiler in #{bin_path}")
     end
 
-    current_path = Map.get(build_plan.env, "PATH", "")
-
-    path =
-      if bin_path in String.split(current_path, ":") do
-        current_path
-      else
-        "#{bin_path}:#{current_path}"
-      end
-
-    BuildPlan.merge_env(build_plan, %{
-      "PATH" => path,
+    build_plan
+    |> BuildPlan.merge_env(%{
       "CROSSCOMPILE" => crosscompile,
       "REBAR_TARGET_ARCH" => Path.basename(crosscompile)
     })
+    |> BuildPlan.prepend_path(bin_path)
   end
 
   defp maybe_discover_toolchain(build_plan, _type, _path), do: build_plan
@@ -297,18 +289,6 @@ defmodule Nerves.LegacyPackage do
       {"CXXFLAGS_FOR_BUILD", ""},
       {"LDFLAGS_FOR_BUILD", ""}
     ]
-  end
-
-  defp merge_package_env(build_plan, env) do
-    Enum.reduce(env, build_plan, fn {key, value}, plan ->
-      BuildPlan.merge_env(plan, %{key => interpolate(value, plan.env)})
-    end)
-  end
-
-  defp interpolate(value, env) do
-    Regex.replace(~r/\$\{([^}]+)\}/, value, fn _match, variable ->
-      Map.get(env, variable, "")
-    end)
   end
 
   defp choose_crosscompile([]), do: nil

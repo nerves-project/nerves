@@ -243,14 +243,62 @@ defmodule Nerves.BuildPlan do
   #     module.validate!(build_plan)
   # end
 
-  @spec put_env(t(), map()) :: t()
-  def put_env(%__MODULE__{} = build_plan, env) when is_map(env) do
-    %{build_plan | env: env}
-  end
+  @doc """
+  Merge a new set of OS environment variables into the plan
 
+  Variables should be passed either as a map or a list of key/value tuples. Variables
+  overwrite ones with the same keys.
+
+  Values support interpolation using `${VAR_NAME}` syntax. Interpolation is postponed
+  until later so it's fine to set values that can't be interpolated until a future
+  variable gets added. Unlike a Unix shell, though, values referencing unknown values
+  raise rather than substitute an empty string.
+
+  Except for `$PATH` handling, the user's OS environment is ignored.
+  """
   @spec merge_env(t(), Enumerable.t()) :: t()
   def merge_env(%__MODULE__{} = build_plan, env) do
     %{build_plan | env: Map.merge(build_plan.env, Map.new(env))}
+  end
+
+  @doc """
+  Prepend a path to the PATH environment variable
+
+  If the path already exists in $PATH, then this is a no-op.
+  """
+  @spec prepend_path(t(), Path.t()) :: t()
+  def prepend_path(%__MODULE__{} = build_plan, path) do
+    expanded_path = Path.expand(path)
+    current_path = Map.get(build_plan.env, "PATH", "")
+
+    cond do
+      expanded_path in String.split(current_path, ":") ->
+        build_plan
+
+      current_path == "" ->
+        %{build_plan | env: Map.put(build_plan.env, "PATH", expanded_path)}
+
+      true ->
+        %{build_plan | env: Map.put(build_plan.env, "PATH", "#{expanded_path}:#{current_path}")}
+    end
+  end
+
+  @doc """
+  Return a map of environment variables with all values interpolated
+
+  Raises `KeyError` on undefined variables or self-referential variables
+  """
+  @spec get_interpolated_env(t()) :: map()
+  def get_interpolated_env(%__MODULE__{} = build_plan) do
+    Enum.reduce(build_plan.env, %{}, fn {key, value}, acc ->
+      Map.put(acc, key, interpolate(value, build_plan.env))
+    end)
+  end
+
+  defp interpolate(value, env) do
+    Regex.replace(~r/\$\{([^}]+)\}/, value, fn _match, variable ->
+      interpolate(Map.fetch!(env, variable), Map.delete(env, variable))
+    end)
   end
 
   @spec merge_config(t(), Enumerable.t()) :: t()

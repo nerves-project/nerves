@@ -323,7 +323,8 @@ defmodule Nerves do
   end
 
   defp sync_env(%BuildPlan{} = build_plan) do
-    System.put_env(build_plan.env)
+    BuildPlan.get_interpolated_env(build_plan) |> System.put_env()
+
     build_plan
   end
 
