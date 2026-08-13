@@ -1,27 +1,36 @@
-# SPDX-FileCopyrightText: 2025 Frank Hunleth
+# SPDX-FileCopyrightText: 2026 Frank Hunleth
 #
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Mix.Tasks.Nerves.Artifact.Sync do
   @shortdoc "Sync changed files from the container work directory"
   @moduledoc """
-  Copy files from a Nerves system's container work directory back to the host
+  Copy files from a Nerves packages's container work directory back to the host
 
-  After making configuration changes in a `mix nerves.artifact.shell` session
-  (e.g., `make menuconfig` followed by `make savedefconfig`), use this task
-  to copy the updated files back to your working directory.
+  Run this after making configuration changes with `mix nerves.artifact.shell`.
+  For example, if you run `make savedefconfig` in a Buildroot-based Nerves
+  package, it will update the `nerves_defconfig` in the container. This
+  copies that file back out.
 
-  This overwrites host files with the versions from the work directory's
-  `pkg/` subdirectory. Use `git diff` afterwards to review what changed.
-
-  `MIX_TARGET` must be set so that target-specific dependencies are
-  available. When no package name is given, the task auto-selects if
-  there is exactly one Nerves artifact dependency.
+  If you're modifying a Nerves package that's included via a dependency,
+  you'll probably need to set `MIX_TARGET` for that dependency to be
+  available.
 
   ## Examples
 
-      $ MIX_TARGET=rpi0 mix nerves.artifact.sync
-      $ MIX_TARGET=rpi0 mix nerves.artifact.sync test_system_rpi0
+  When working inside the Nerves package:
+
+  ```shell
+  $ cd nerves_system_rpi0
+  $ mix nerves.artifact.sync
+  ```
+
+  When running in a Nerves project:
+
+  ```shell
+  $ cd my_nerves_project
+  $ MIX_TARGET=rpi0 mix nerves.artifact.sync test_system_rpi0
+  ```
   """
   use Mix.Task
 
@@ -44,15 +53,23 @@ defmodule Mix.Tasks.Nerves.Artifact.Sync do
     if package == nil do
       Mix.raise("""
       Couldn't find package
+
+      Here's everything that's available:
+
+      #{packages_to_string(build_plan.packages)}
       """)
     end
 
     tool = Container.tool()
 
-    MixUtils.info("Syncing files from work dir to #{package.dest}")
+    MixUtils.info("Syncing files from work dir to #{package.path}")
 
     Container.sync_work_dir(tool, package)
 
-    MixUtils.info("Done. Use `diff` to review changes.")
+    MixUtils.info("Done. Use `git diff` to review changes.")
+  end
+
+  defp packages_to_string(packages) do
+    Enum.map_join(packages, ", ", fn pkg -> to_string(pkg.app) end)
   end
 end

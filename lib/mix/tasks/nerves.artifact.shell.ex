@@ -3,33 +3,49 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Mix.Tasks.Nerves.Artifact.Shell do
-  @shortdoc "Open a container shell for Nerves system builds"
+  @shortdoc "Open a container shell for Nerves package builds"
   @moduledoc """
-  Open an interactive container shell for a Nerves system build.
+  Open an interactive container shell for building Nerves packages
 
-  Starts a container (using Apple container, Docker, or Podman) and drops you into a shell
-  in the build directory. The shell image includes Elixir so that Mix tasks
-  can be run from inside the container. This is useful for debugging build
-  issues or running `make menuconfig`.
+  This is useful when modifying or debugging the prebuilt contents of
+  Nerves packages. Builds are run using the container provider found
+  on your computer or by setting the `NERVES_CONTAINER_TOOL` environment
+  variable to `docker`, `podman`, or `container`.
 
-  Source files and build dependencies are copied into a work directory
-  that is mounted into the container. On Linux the work directory is a
-  bind mount under `_build/`; on macOS it is a Docker volume. Changes
-  made to files in `/workspace/<pkg_name>/` (e.g., `make savedefconfig`) are
-  preserved. Use `mix nerves.artifact.sync` to copy them back to the host.
+  Nerves does not specify how package artifacts get built. Buildroot, for
+  example, uses `make` and has commands like `make menuconfig` and
+  `make savedefconfig`. Files are stored in the container. To copy
+  them out, run `mix nerves.artifact.sync`.
 
-  The build state in `/workspace/build/` persists across sessions.
-  Before opening the shell, Nerves refreshes the build directory setup so
-  commands like `make menuconfig` and `make` work immediately.
+  IMPORTANT: You can run `mix nerves.artifact.shell` in a Nerves project. Just
+  be aware that you're modifying a dependency and any changes may be under
+  the `deps` directory.
 
-  `MIX_TARGET` must be set so that target-specific dependencies are
-  available. When no package name is given, the task auto-selects if
-  there is exactly one Nerves artifact dependency.
+  Run `mix nerves.artifact.ls` to see the containers created by the Nerves tooling
+  and `mix nerves.artifact.clean` to delete them.
 
   ## Examples
 
-      $ MIX_TARGET=rpi0 mix nerves.artifact.shell
-      $ MIX_TARGET=rpi0 mix nerves.artifact.shell test_system_rpi0
+  Building from within a Nerves package:
+
+  ```shell
+  $ cd nerves_system_rpi0
+  $ mix nerves.artifact.shell
+
+  # In the container now
+  nerves@6a5c16134cca:/workspace/build$ make
+  ...
+
+  # The way to make the final tarball is package-specific, but
+  # this works for nerves_system_br-based projects.
+  nerves@6a5c16134cca:/workspace/build$ make system NERVES_ARTIFACT_NAME=$NERVES_ARTIFACT_NAME
+  ```
+
+  Building a Nerves-aware dependency:
+
+  ```shell
+  $ MIX_TARGET=rpi0 mix nerves.artifact.shell nerves_system_rpi0
+  ```
   """
   use Mix.Task
 
@@ -49,6 +65,11 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
         [app | _] -> Enum.find(build_plan.packages, fn info -> to_string(info.app) == app end)
         [] -> List.last(build_plan.packages)
       end
+
+    # Set $NERVES_ARTIFACT_NAME to the first of these without the extension.
+    # Not recommended for new Nerves packages.
+    archive_paths = Enum.map(package.downloads, fn download -> download.archive_path end)
+    nerves_artifact_name = Regex.replace(~r/\.tar.*/, Path.basename(hd(archive_paths)), "")
 
     dl_dir = Paths.download_dir()
     File.mkdir_p!(dl_dir)
@@ -76,7 +97,9 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
           "--env",
           "NERVES_BR_DL_DIR=/workspace/dl",
           "--env",
-          "TERM=#{term}"
+          "TERM=#{term}",
+          "--env",
+          "NERVES_ARTIFACT_NAME=#{nerves_artifact_name}"
         ] ++
         work_mounts ++
         [
@@ -92,19 +115,20 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
           shell_script
         ]
 
-    MixUtils.info("Opening shell for #{package.app} with #{tool}")
-    MixUtils.info("  Work dir:  #{Container.work_dir(package)}")
-    MixUtils.info("  Downloads: #{dl_dir}")
-    MixUtils.info("")
+    MixUtils.info("""
+    Opening shell for #{package.app} with #{tool}
 
-    MixUtils.info(
-      "Use `mix nerves.artifact.sync #{package.app}` to copy changes back to the host."
-    )
+      Work dir:  #{Container.work_dir(package)}
+      Downloads: #{dl_dir}
+      Artifact name: #{nerves_artifact_name}
 
-    case InteractiveCmd.cmd(tool, docker_args) do
-      {_, 0} -> :ok
-      {_, _status} -> :ok
-    end
+    Exit shell and use `mix nerves.artifact.sync #{package.app}` to copy configuration
+    changes back to the host. See `nerves.artifact.clean` and `nerves.artifact.build`
+    for deleting the container and non-interactive builds.
+    """)
+
+    _ = InteractiveCmd.cmd(tool, docker_args)
+    :ok
   end
 
   defp build_shell_script(pkg) do

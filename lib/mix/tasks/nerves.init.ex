@@ -10,8 +10,6 @@ defmodule Mix.Tasks.Nerves.Init do
   @moduledoc false
   use Mix.Task
 
-  alias Nerves.MixUtils
-
   @impl Mix.Task
   def run(_args) do
     [task_name | task_args] = System.argv()
@@ -20,7 +18,11 @@ defmodule Mix.Tasks.Nerves.Init do
       task_name == "nerves.init" ->
         Mix.raise("nerves.init is not intended to be invoked directly.")
 
-      String.starts_with?(task_name, "nerves.") ->
+      task_name == "do" ->
+        # Guess that at least one command is going to require Nerves integration
+        Nerves.export_env()
+
+      skip_nerves_integration?(task_name) ->
         # Short circuit Mix compilation to run Nerves tasks without compiling
         # any non-Nerves project dependencies so that the tools can affect
         # cross-compilation. This avoids chicken-and-egg scenarios where you
@@ -33,8 +35,12 @@ defmodule Mix.Tasks.Nerves.Init do
 
       true ->
         Nerves.export_env()
-        log_key_vars()
     end
+  end
+
+  defp skip_nerves_integration?(task_name) do
+    task_name in ["format", "help", "local"] or
+      Enum.any?(["nerves.", "hex.", "local."], &String.starts_with?(task_name, &1))
   end
 
   defp task_name_to_existing_module(name) do
@@ -45,17 +51,5 @@ defmodule Mix.Tasks.Nerves.Init do
       {:module, _} -> mod
       {:error, _} -> Mix.raise("The task \"#{name}\" could not be found")
     end
-  end
-
-  defp log_key_vars() do
-    _ =
-      for var <- ~w(NERVES_SYSTEM NERVES_TOOLCHAIN CROSSCOMPILE CC) do
-        case System.get_env(var) do
-          nil -> :ok
-          val -> MixUtils.info("  #{var}=#{val}")
-        end
-      end
-
-    :ok
   end
 end

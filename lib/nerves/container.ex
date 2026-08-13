@@ -715,7 +715,7 @@ defmodule Nerves.Container do
     container_id = extract_container_id(id_raw)
 
     try do
-      case System.cmd(tool, ["cp", "#{container_id}:/workspace/#{package.app}/.", package.dest],
+      case System.cmd(tool, ["cp", "#{container_id}:/workspace/#{package.app}/.", package.path],
              stderr_to_stdout: true
            ) do
         {_, 0} -> :ok

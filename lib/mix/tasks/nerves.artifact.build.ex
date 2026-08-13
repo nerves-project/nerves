@@ -5,24 +5,38 @@
 defmodule Mix.Tasks.Nerves.Artifact.Build do
   @shortdoc "Build a Nerves artifact"
   @moduledoc """
-  Build a Nerves artifact using a container tool (Apple container, Docker, or Podman).
+  Build a Nerves artifact in a container
 
-  Compiles the system and creates a `.tar.gz` archive suitable for
-  distribution. The result is placed in the downloads directory and
-  extracted into the local cache.
+  This is used to build Nerves packages in between tagged releases.
+  Builds are run using the container provider found
+  on your computer or by setting the `NERVES_CONTAINER_TOOL` environment
+  variable to `docker`, `podman`, or `container`.
 
-  Source files and build dependencies are copied into a work directory
-  that is mounted into the container. On Linux the work directory is a
-  bind mount under `_build/`; on macOS it is a Docker volume.
+  If this step fails, you can run `mix nerves.artifact.shell` to investigate
+  what went wrong. Use `mix nerves.artifact.sync` to copy configuration changes
+  out of the container.
 
-  `MIX_TARGET` must be set so that target-specific dependencies are
-  available. When no package name is given, the task auto-selects if
-  there is exactly one Nerves artifact dependency.
+  Run `mix nerves.artifact.ls` to see the containers created by the Nerves tooling
+  and `mix nerves.artifact.clean` to delete them.
 
   ## Examples
 
-      $ MIX_TARGET=rpi0 mix nerves.artifact.build
-      $ MIX_TARGET=rpi0 mix nerves.artifact.build test_system_rpi0
+  Building from within a Nerves package:
+
+  ```shell
+  $ cd nerves_system_rpi0
+  $ mix nerves.artifact.build
+  # On success, the resulting tarball will be in your ~/.nerves/dl directory.
+  ```
+
+  Building a Nerves-aware dependency:
+
+  ```shell
+  $ MIX_TARGET=rpi0 mix nerves.artifact.build nerves_system_rpi0
+  # On success, the resulting tarball will be in your ~/.nerves/dl directory
+  # and will be found when you run `MIX_TARGET=rpi0 mix firmware` the next
+  # time.
+  ```
   """
   use Mix.Task
 
