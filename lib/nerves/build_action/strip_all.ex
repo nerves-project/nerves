@@ -12,6 +12,7 @@ defmodule Nerves.BuildAction.StripAll do
 
   import Bitwise
 
+  alias Nerves.BuildPlan
   alias Nerves.BinInfo
   alias Nerves.MixUtils
   alias Nerves.Paths
@@ -20,8 +21,8 @@ defmodule Nerves.BuildAction.StripAll do
   Run the strip all step
   """
   @impl Nerves.BuildAction
-  def post_assemble_steps(%Nerves.BuildPlan{} = build_plan, %Mix.Release{} = release, _opts) do
-    strip = build_plan.env["STRIP"]
+  def post_assemble_steps(%BuildPlan{} = build_plan, %Mix.Release{} = release, _opts) do
+    strip = BuildPlan.get_interpolated_env(build_plan)["STRIP"]
 
     if strip == nil do
       Mix.raise(
