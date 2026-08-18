@@ -44,14 +44,26 @@ defmodule Nerves.BuildPlanHelpers do
     }
   end
 
-  @spec unset_env(String.t()) :: :ok
-  def unset_env(name) do
-    value = System.get_env(name)
-    System.delete_env(name)
+  @spec delete_env(String.t()) :: :ok
+  def delete_env(name) do
+    case System.get_env(name) do
+      nil ->
+        :ok
 
-    on_exit(fn ->
-      if value, do: System.put_env(name, value), else: System.delete_env(name)
-    end)
+      value ->
+        System.delete_env(name)
+        on_exit(fn -> System.put_env(name, value) end)
+    end
+  end
+
+  @spec put_env(String.t(), String.t()) :: :ok
+  def put_env(name, value) do
+    case System.get_env(name) do
+      nil -> on_exit(fn -> System.delete_env(name) end)
+      old_value -> on_exit(fn -> System.put_env(name, old_value) end)
+    end
+
+    System.put_env(name, value)
   end
 
   @spec host_tuple() :: String.t()

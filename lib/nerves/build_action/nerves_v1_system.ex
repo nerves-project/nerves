@@ -102,7 +102,7 @@ defmodule Nerves.BuildAction.NervesV1System do
         if File.dir?(path) do
           path
         else
-          Mix.raise("#{env_var_override} must point to an extracted artifact directory")
+          Mix.raise("$#{env_var_override} must point to an extracted artifact directory")
         end
     end
   end

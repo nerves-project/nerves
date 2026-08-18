@@ -9,8 +9,8 @@ defmodule Nerves.BuildPlanTest do
   alias Nerves.BuildPlanHelpers
 
   test "Nerves V1 actions derive toolchain and system variables from resolved artifacts" do
-    BuildPlanHelpers.unset_env("TEST_NERVES_SYSTEM")
-    BuildPlanHelpers.unset_env("TEST_NERVES_TOOLCHAIN")
+    BuildPlanHelpers.delete_env("TEST_NERVES_SYSTEM")
+    BuildPlanHelpers.delete_env("TEST_NERVES_TOOLCHAIN")
 
     root = Path.join(System.tmp_dir!(), "nerves-build-plan-#{System.unique_integer([:positive])}")
     toolchain = Path.join(root, "toolchain")
