@@ -54,11 +54,11 @@ defmodule NervesToolchainAarch64NervesLinuxGnu.MixProject do
       files: package_files(),
       licenses: [
         "GPL-3.0-or-later",
-      "GPL-2.0-only",
-      "LGPL-2.1-or-later",
-      "MIT",
-      "LGPL-3.0-or-later",
-      "Zlib"
+        "GPL-2.0-only",
+        "LGPL-2.1-or-later",
+        "MIT",
+        "LGPL-3.0-or-later",
+        "Zlib"
       ],
       links: %{
         "Github" => "https://github.com/nerves-project/toolchains/tree/main/#{@app}"
