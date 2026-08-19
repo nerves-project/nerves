@@ -35,22 +35,25 @@ defmodule Nerves.Fingerprint do
   end
 
   # Expand file paths relative to the package root, handling directories and globs.
-  # Matches the original Nerves checksum algorithm.
+  # This matches the original Nerves checksum algorithm with the exception that missing
+  # files don't get pruned.
   defp expand_paths(paths, base_path) do
     paths
     |> Enum.map(&Path.join(base_path, &1))
-    |> Enum.flat_map(&Path.wildcard/1)
-    |> Enum.flat_map(&dir_files/1)
+    |> Enum.flat_map(&expand/1)
     |> Enum.map(&Path.expand/1)
-    |> Enum.filter(&File.regular?/1)
     |> Enum.uniq()
   end
 
-  defp dir_files(path) do
-    if File.dir?(path) do
-      Path.wildcard(Path.join(path, "**"))
-    else
-      [path]
+  defp expand(path) do
+    cond do
+      String.contains?(path, "*") -> regular_wildcard(path)
+      File.dir?(path) -> regular_wildcard(Path.join(path, "**"))
+      true -> [path]
     end
+  end
+
+  defp regular_wildcard(path) do
+    Path.wildcard(path) |> Enum.filter(&File.regular?/1)
   end
 end
