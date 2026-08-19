@@ -9,7 +9,7 @@ latest: &latest
 
 tags: &tags
   [
-    1.20.2-erlang-29.0.3-alpine-3.24.1,
+    1.20.3-erlang-29.0.5-alpine-3.24.1,
     1.19.5-erlang-28.5.0.3-alpine-3.24.1,
     1.18.4-erlang-28.5.0.2-alpine-3.23.4,
     1.18.4-erlang-27.3.4.14-alpine-3.24.1,
@@ -36,7 +36,7 @@ jobs:
     steps:
       - run:
           name: Install system dependencies
-          command: apk add --no-cache build-base procps util-linux xz zstd
+          command: apk add --no-cache build-base git procps util-linux xz zstd
       - checkout
       - run:
           name: Install hex, rebar, and nerves_bootstrap
@@ -54,11 +54,11 @@ jobs:
           steps:
             - run: mix format --check-formatted
             - run: mix deps.unlock --check-unused
+            - run: mix coveralls.circle
             - run: mix docs
-            - run: mix hex.build
-            - run: mix test
             - run: mix credo -a --strict
             - run: mix dialyzer
+            - run: mix hex.build
       - when:
           condition:
             not:

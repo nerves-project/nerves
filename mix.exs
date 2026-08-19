@@ -27,7 +27,8 @@ defmodule Nerves.MixProject do
       package: package(),
       docs: docs(),
       dialyzer: dialyzer(),
-      aliases: ["archive.build": &raise_on_archive_build/1]
+      aliases: ["archive.build": &raise_on_archive_build/1],
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -41,7 +42,19 @@ defmodule Nerves.MixProject do
   defp elixirc_paths(_), do: ["lib", "compat"]
 
   def cli do
-    [preferred_envs: %{docs: :docs, credo: :dev, "hex.publish": :docs, "hex.build": :docs}]
+    [
+      preferred_envs: %{
+        coveralls: :test,
+        "coveralls.circle": :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test,
+        "coveralls.post": :test,
+        credo: :dev,
+        docs: :docs,
+        "hex.build": :docs,
+        "hex.publish": :docs
+      }
+    ]
   end
 
   defp deps do
@@ -54,8 +67,9 @@ defmodule Nerves.MixProject do
 
       # Development dependencies
       {:credo, "~> 1.6", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.17", only: :test, runtime: false},
+      {:ex_doc, "~> 0.22", only: :docs, runtime: false},
 
       # Test dependencies
       {:bandit, "~> 1.0", only: :test},
