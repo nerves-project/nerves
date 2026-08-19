@@ -23,8 +23,9 @@ defmodule Nerves do
       build_plan()
       |> Nerves.ArtifactResolver.resolve()
       |> BuildPlan.run_planning_actions(:post_extract)
+      |> BuildPlan.validate!()
       |> sync_env()
-      |> cache_build_plan()
+      |> cache_build_plan(true)
 
     :ok
   end
@@ -38,8 +39,14 @@ defmodule Nerves do
   """
   @spec build_plan() :: BuildPlan.t()
   def build_plan() do
-    with nil <- :persistent_term.get(@build_plan_key, nil) do
-      MixPackage.nerves_packages_in_compile_order() |> create_build_plan() |> cache_build_plan()
+    case :persistent_term.get(@build_plan_key, nil) do
+      nil ->
+        MixPackage.nerves_packages_in_compile_order()
+        |> create_build_plan()
+        |> cache_build_plan(false)
+
+      {build_plan, _} ->
+        build_plan
     end
   end
 
@@ -344,9 +351,14 @@ defmodule Nerves do
     %{build_plan | packages: merged}
   end
 
-  defp cache_build_plan(%BuildPlan{} = build_plan) do
-    BuildPlan.validate!(build_plan)
-    :persistent_term.put(@build_plan_key, build_plan)
+  defp cache_build_plan(%BuildPlan{} = build_plan, finalized?) do
+    case :persistent_term.get(@build_plan_key, nil) do
+      {_, true} -> raise RuntimeError, message: "No more updates allowed to build plan!"
+      _ -> :ok
+    end
+
+    :persistent_term.put(@build_plan_key, {build_plan, finalized?})
+
     build_plan
   end
 

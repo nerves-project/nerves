@@ -206,11 +206,13 @@ defmodule Nerves.BuildPlan do
           erts: Path.t() | boolean()
         }
 
-  @spec validate!(t()) :: :ok
-  def validate!(%__MODULE__{} = _build_plan) do
-    # TODO!!!
-    :ok
-  end
+  @doc """
+  Validate the build plan to detect issues that may cause problems later
+
+  Returns the build plan for use in pipelines
+  """
+  @spec validate!(t()) :: t()
+  defdelegate validate!(build_plan), to: Nerves.BuildPlan.Checks
 
   @doc """
   Find build plan information about a package
@@ -232,30 +234,6 @@ defmodule Nerves.BuildPlan do
 
     %{build_plan | packages: new_packages}
   end
-
-  # defp validate_config!(build_plan) do
-  #   [
-  #     :pre_assemble_steps,
-  #     :post_assemble_steps,
-  #     :rootfs_creation_steps,
-  #     :image_creation,
-  #     :post_image_creation,
-  #     :pre_image_creation,
-  #     :post_extract
-  #     :pre_download
-  #   ]
-  #   |> Enum.each(&call_config_validators!(build_plan, &1))
-  # end
-
-  # defp call_config_validators!(build_plan, step) do
-  #   Map.fetch!(build_plan, step)
-  #   |> Enum.each(&call_config_validator!(build_plan, &1))
-  # end
-
-  # defp call_config_validator!(build_plan, module) when is_atom(module) do
-  #   Kernel.function_exported?(module, :validate, 1) and
-  #     module.validate!(build_plan)
-  # end
 
   @doc """
   Merge a new set of OS environment variables into the plan
