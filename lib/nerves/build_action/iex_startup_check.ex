@@ -4,17 +4,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.BuildAction.Validation do
+defmodule Nerves.BuildAction.IExStartupCheck do
   @moduledoc """
-  Release validation checks.
-
-  TODO: Make this an action!!!!!
+  Validate IEx startup flags in `rel/vm.args.eex`.
 
   Currently validates that `rel/vm.args.eex` contains the correct IEx
   startup flags for the version of Elixir being used. The procedure for
   starting IEx changed across Elixir versions, and using the wrong flags
   results in a device that won't boot to an IEx prompt.
   """
+
+  use Nerves.BuildAction
 
   alias Nerves.MixUtils
 
@@ -61,6 +61,12 @@ defmodule Nerves.BuildAction.Validation do
       #{errs}
       """)
     end
+  end
+
+  @impl Nerves.BuildAction
+  def pre_assemble_steps(_build_plan, release, _opts) do
+    check_vm_args!(release)
+    release
   end
 
   defp version_constraints() do

@@ -60,6 +60,7 @@ defmodule Nerves.BuildAction.NervesV1System do
 
     actions =
       [
+        Nerves.BuildAction.IExStartupCheck,
         {Nerves.BuildAction.Erlinit,
          base_erlinit_conf: Path.join(package.path, "rootfs_overlay/etc/erlinit.config"),
          shoehorn?: Map.has_key?(Mix.Project.deps_tree(), :shoehorn)},

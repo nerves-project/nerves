@@ -46,6 +46,7 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
     # Firmware metadata is pulled from this project, so skip check.
 
     assert build_plan.actions == [
+             Nerves.BuildAction.IExStartupCheck,
              {Nerves.BuildAction.Erlinit,
               [
                 base_erlinit_conf: Path.join(package.path, "rootfs_overlay/etc/erlinit.config"),
@@ -119,6 +120,7 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
     # Firmware metadata is pulled from this project, so skip check.
 
     assert build_plan.actions == [
+             Nerves.BuildAction.IExStartupCheck,
              {Nerves.BuildAction.Erlinit,
               [
                 base_erlinit_conf: Path.join(package.path, "rootfs_overlay/etc/erlinit.config"),

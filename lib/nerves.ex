@@ -81,7 +81,6 @@ defmodule Nerves do
         include_executables_for: []
       )
 
-    Nerves.BuildAction.Validation.check_vm_args!(release)
     _ = File.rm_rf!(release.path)
 
     %{release | steps: new_steps, options: new_options}
