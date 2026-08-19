@@ -7,6 +7,7 @@ version: 2.1
 latest: &latest
   pattern: "^1.20.*-erlang-29.*$"
 
+# Test across Elixir versions
 tags: &tags
   [
     1.20.3-erlang-29.0.5-alpine-3.24.1,
@@ -14,6 +15,21 @@ tags: &tags
     1.18.4-erlang-28.5.0.2-alpine-3.23.4,
     1.18.4-erlang-27.3.4.14-alpine-3.24.1,
     1.17.3-erlang-27.3.4.16-alpine-3.24.1
+  ]
+
+# Test across Ubuntu versions
+ubuntu_tags: &ubuntu_tags
+  [
+    1.20.2-erlang-29.0.3-ubuntu-resolute-20260707,
+    1.20.2-erlang-29.0.3-ubuntu-noble-20260610,
+    1.20.2-erlang-29.0.3-ubuntu-jammy-20260627,
+  ]
+
+# Test across macOS versions
+macos_xcode_versions: &macos_xcode_versions
+  [
+    "26.6",
+    "16.4.0"
   ]
 
 jobs:
@@ -71,6 +87,49 @@ jobs:
             - _build
             - deps
 
+  ubuntu-build-test:
+    parameters:
+      tag:
+        type: string
+    docker:
+      - image: hexpm/elixir:<< parameters.tag >>
+    working_directory: ~/repo
+    environment:
+      LC_ALL: C.UTF-8
+    steps:
+      - run:
+          name: Install system dependencies
+          command: |
+            apt-get update -qq
+            apt-get install -y build-essential procps libsctp1 ca-certificates zstd
+      - checkout
+      - run: mix local.hex --force
+      - run: mix archive.install hex nerves_bootstrap --force
+      - run: mix deps.get
+      - run: mix test
+
+  macos-test:
+    parameters:
+      xcode:
+        type: string
+    macos:
+      xcode: << parameters.xcode >>
+    resource_class: macos.m1.medium.gen1
+    working_directory: ~/repo
+    environment:
+      LC_ALL: C.UTF-8
+    steps:
+      - checkout
+      - run:
+          name: Install Elixir
+          command: |
+            brew update
+            brew install elixir fwup
+            mix local.hex --force
+            mix archive.install hex nerves_bootstrap --force
+      - run: mix deps.get
+      - run: mix test
+
   automerge:
     docker:
       - image: alpine:3.23.4
@@ -101,6 +160,16 @@ workflows:
           matrix:
             parameters:
               tag: *tags
+      - ubuntu-build-test:
+          name: << matrix.tag >>
+          matrix:
+            parameters:
+              tag: *ubuntu_tags
+      - macos-test:
+          name: macos-xcode-<< matrix.xcode >>
+          matrix:
+            parameters:
+              xcode: *macos_xcode_versions
 
       - automerge:
           requires: *tags
