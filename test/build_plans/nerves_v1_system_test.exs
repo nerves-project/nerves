@@ -23,16 +23,16 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
 
     assert package.app == app
     assert package.version == version
-    assert package.source_fingerprint == "C6DC73E"
+    assert package.source_fingerprint == "7BE9066"
     assert package.download_path == download_path
     assert package.download_validators == [:archive]
 
     assert package.downloads == [
              %{
                version: version,
-               filename: "nerves_system_rpi0-portable-2.1.1-C6DC73E.tar.gz",
+               filename: "nerves_system_rpi0-portable-2.1.1-7BE9066.tar.gz",
                archive_path:
-                 Path.join(download_path, "nerves_system_rpi0-portable-2.1.1-C6DC73E.tar.gz"),
+                 Path.join(download_path, "nerves_system_rpi0-portable-2.1.1-7BE9066.tar.gz"),
                sites: [github_releases: "nerves-project/nerves_system_rpi0"]
              }
            ]
@@ -99,7 +99,7 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
 
     assert package.app == app
     assert package.version == version
-    assert package.source_fingerprint == "C6DC73E"
+    assert package.source_fingerprint == "7BE9066"
     assert package.download_path == download_path
 
     # These are some of the more important checks to make sure
