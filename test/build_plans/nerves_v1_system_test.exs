@@ -69,7 +69,8 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
                 {"TARGET_ABI", "gnueabihf"},
                 {"TARGET_GCC_FLAGS",
                  "-mabi=aapcs-linux -mfpu=vfp -marm -fstack-protector-strong -mfloat-abi=hard -mcpu=arm1176jzf-s -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
-              ]}
+              ],
+              build_runner_opts: [make_args: ["source", "all", "legal-info"]]}
            ]
 
     # NOTE: rootfs_overlay paths added after untar
@@ -143,7 +144,8 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
                 {"TARGET_ABI", "gnueabihf"},
                 {"TARGET_GCC_FLAGS",
                  "-mabi=aapcs-linux -mfpu=vfp -marm -fstack-protector-strong -mfloat-abi=hard -mcpu=arm1176jzf-s -fPIE -pie -Wl,-z,now -Wl,-z,relro"}
-              ]}
+              ],
+              build_runner_opts: [make_args: ["source", "all", "legal-info"]]}
            ]
 
     # NOTE: rootfs_overlay paths added after untar

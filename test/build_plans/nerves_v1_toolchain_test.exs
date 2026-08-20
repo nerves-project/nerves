@@ -43,7 +43,8 @@ defmodule Nerves.BuildPlans.NervesV1ToolchainTest do
              {Nerves.BuildAction.NervesV1Toolchain,
               app: app,
               artifact_sites: [github_releases: "nerves-project/toolchains"],
-              package_env: []}
+              package_env: [],
+              build_runner_opts: []}
            ]
   end
 end

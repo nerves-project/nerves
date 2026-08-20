@@ -291,7 +291,8 @@ defmodule Nerves do
             {action,
              app: app,
              artifact_sites: legacy_config[:artifact_sites] || [],
-             package_env: legacy_config[:env] || []}
+             package_env: legacy_config[:env] || [],
+             build_runner_opts: legacy_config[:build_runner_opts] || []}
           ]
         ]
     end

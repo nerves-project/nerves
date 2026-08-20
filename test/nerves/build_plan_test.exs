@@ -42,7 +42,8 @@ defmodule Nerves.BuildPlanTest do
            app: :system,
            artifact_sites: [],
            package_env: [{"ERL_CFLAGS", "-I${ERTS_DIR}/include -I${ERL_INTERFACE_DIR}/include"}],
-           dest: system}
+           dest: system,
+           build_runner_opts: []}
         ]
       }
       |> BuildPlan.run_planning_actions(:pre_download)
@@ -95,9 +96,9 @@ defmodule Nerves.BuildPlanTest do
         ],
         actions: [
           {Nerves.BuildAction.NervesV1Toolchain,
-           app: :toolchain, artifact_sites: [], version: "1.0.0"},
+           app: :toolchain, artifact_sites: [], version: "1.0.0", build_runner_opts: []},
           {Nerves.BuildAction.NervesV1System,
-           app: :system, artifact_sites: [], dest: system, version: "1.0.0"}
+           app: :system, artifact_sites: [], dest: system, version: "1.0.0", build_runner_opts: []}
         ]
       }
       |> BuildPlan.run_planning_actions(:pre_download)

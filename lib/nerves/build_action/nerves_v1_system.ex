@@ -12,6 +12,8 @@ defmodule Nerves.BuildAction.NervesV1System do
   def pre_download(build_plan, opts) do
     app = Keyword.fetch!(opts, :app)
     artifact_sites = Keyword.fetch!(opts, :artifact_sites)
+    _build_runner_opts = Keyword.fetch!(opts, :build_runner_opts)
+    # TODO - Actually support build_runner_opts!!!
     package = BuildPlan.find_package(build_plan, app)
     rootfs_inputs = build_plan.config[:rootfs_inputs] || []
 
