@@ -5,8 +5,8 @@
 defmodule Nerves.PathsTest do
   use ExUnit.Case, async: false
 
-  alias Nerves.Paths
   alias Nerves.BuildPlanHelpers
+  alias Nerves.Paths
 
   test "uses default data and download directory paths" do
     BuildPlanHelpers.delete_env("NERVES_DATA_DIR")
