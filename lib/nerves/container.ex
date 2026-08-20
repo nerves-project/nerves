@@ -192,7 +192,7 @@ defmodule Nerves.Container do
 
     case :os.type() do
       {:unix, :linux} ->
-        host_path = work_dir(package.app)
+        host_path = work_dir(package)
         File.mkdir_p!(Path.join(host_path, to_string(package.app)))
         File.mkdir_p!(Path.join(host_path, "build"))
 
@@ -365,7 +365,7 @@ defmodule Nerves.Container do
   def populate_work_dir(build_plan, tool, pkg) do
     case :os.type() do
       {:unix, :linux} ->
-        populate_work_dir_linux(pkg)
+        populate_work_dir_linux(build_plan, pkg)
 
       _ ->
         populate_work_dir_volume(build_plan, tool, pkg)
@@ -386,7 +386,7 @@ defmodule Nerves.Container do
 
     case :os.type() do
       {:unix, :linux} ->
-        src = Path.join(work_dir(app), to_string(app))
+        src = Path.join(work_dir(package), to_string(app))
         sync_local_dir(src, package.dest)
 
       _ ->
@@ -396,7 +396,7 @@ defmodule Nerves.Container do
 
   # --- Linux (bind mount) helpers ---
 
-  defp populate_work_dir_linux(pkg) do
+  defp populate_work_dir_linux(build_plan, pkg) do
     host_path = work_dir(pkg)
     pkg_dest = Path.join(host_path, to_string(pkg.app))
     build_dest = Path.join(host_path, "build")
@@ -407,11 +407,13 @@ defmodule Nerves.Container do
     copy_tree!(pkg.path, pkg_dest)
 
     # Refresh build deps
-    for {app, dep_path} <- pkg.build_deps do
-      dest = Path.join(host_path, to_string(app))
+    for dep <- pkg.deps do
+      dest = Path.join(host_path, to_string(dep))
       _ = File.rm_rf(dest)
       File.mkdir_p!(dest)
-      copy_tree!(dep_path, dest)
+
+      dep_package = BuildPlan.find_package(build_plan, dep)
+      copy_tree!(dep_package.path, dest)
     end
 
     # Ensure build exists
@@ -662,7 +664,6 @@ defmodule Nerves.Container do
 
   defp sync_work_dir_apple_container(package) do
     volume = volume_name(package)
-    destination = Path.expand(package.dest)
 
     args =
       [
@@ -676,11 +677,11 @@ defmodule Nerves.Container do
         volume_mount_args("container", volume, "/workspace") ++
         [
           "--mount",
-          "type=bind,source=#{destination},target=/destination",
+          "type=bind,source=#{package.path},target=/destination",
           default_docker_image(),
           "/bin/sh",
           "-c",
-          "cp -a /workspace/#{package.app}/. /destination/"
+          "find /workspace/#{package.app} -mindepth 1 -maxdepth 1 -exec cp -a -t /destination -- {} +"
         ]
 
     case System.cmd("container", args, stderr_to_stdout: true) do
