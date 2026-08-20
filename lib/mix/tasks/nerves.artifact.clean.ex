@@ -42,9 +42,9 @@ defmodule Mix.Tasks.Nerves.Artifact.Clean do
     {opts, args, _invalid} = OptionParser.parse(args, switches: @switches)
 
     build_plan = Nerves.build_plan()
-    packages = Enum.filter(build_plan.packages, fn info -> to_string(info.app) in args end)
+    passed_packages = Enum.filter(build_plan.packages, fn info -> to_string(info.app) in args end)
 
-    if length(args) != length(packages) do
+    if length(args) != length(passed_packages) do
       Mix.raise("""
       Couldn't find packages passed on the commandline.
 
@@ -55,7 +55,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Clean do
     end
 
     # Select all Nerves packages to clean by default
-    packages = if packages == [], do: build_plan.packages
+    packages = if passed_packages != [], do: passed_packages, else: build_plan.packages
 
     items =
       if opts[:all] do
@@ -64,19 +64,24 @@ defmodule Mix.Tasks.Nerves.Artifact.Clean do
         Enum.flat_map(packages, &find_current_items/1)
       end
 
-    if items == [] do
-      MixUtils.info("Nothing to clean for #{packages_to_string(packages)}.")
-    else
-      MixUtils.info("\nWill delete:\n")
-      print_items(items)
-      MixUtils.info("")
+    cond do
+      packages == [] ->
+        MixUtils.warning("No Nerves packages found in the current project.")
 
-      if opts[:yes] || confirm?() do
-        delete_items(items)
-        MixUtils.info("\nDone.")
-      else
-        MixUtils.info("Cancelled.")
-      end
+      items == [] ->
+        MixUtils.warning("Nothing to clean for #{packages_to_string(packages)}.")
+
+      true ->
+        MixUtils.info("\nWill delete:\n")
+        print_items(items)
+        MixUtils.info("")
+
+        if opts[:yes] || confirm?() do
+          delete_items(items)
+          MixUtils.info("\nDone.")
+        else
+          MixUtils.info("Cancelled.")
+        end
     end
 
     :ok
