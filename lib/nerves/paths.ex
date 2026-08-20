@@ -8,9 +8,9 @@ defmodule Nerves.Paths do
 
   @spec data_dir() :: String.t()
   def data_dir() do
-    case System.get_env("NERVES_DATA_DIR") do
+    case System.get_env("XDG_DATA_HOME") do
       nil -> Path.join(System.user_home!(), ".nerves")
-      path -> path
+      path -> Path.join(path, "nerves")
     end
   end
 
@@ -26,7 +26,7 @@ defmodule Nerves.Paths do
 
   @spec artifact_dir() :: String.t()
   def artifact_dir() do
-    Path.join(data_dir(), "artifacts") |> Path.expand()
+    Path.expand(System.get_env("NERVES_ARTIFACTS_DIR") || Path.join(data_dir(), "artifacts"))
   end
 
   @spec artifact_dir(atom(), Version.t()) :: String.t()

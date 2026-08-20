@@ -9,21 +9,27 @@ defmodule Nerves.PathsTest do
   alias Nerves.Paths
 
   test "uses default data and download directory paths" do
-    BuildPlanHelpers.delete_env("NERVES_DATA_DIR")
-    BuildPlanHelpers.delete_env("NERVES_DL_DIR")
+    BuildPlanHelpers.put_env(%{
+      "XDG_DATA_HOME" => nil,
+      "NERVES_ARTIFACT_DIR" => nil,
+      "NERVES_DL_DIR" => nil
+    })
 
     assert Paths.data_dir() == Path.join(System.user_home!(), ".nerves")
     assert Paths.download_dir() == Path.expand(Path.join(Paths.data_dir(), "dl"))
     assert Paths.artifact_dir() == Path.join(Paths.data_dir(), "artifacts") |> Path.expand()
   end
 
-  test "respects environment overrides for directories" do
-    BuildPlanHelpers.put_env("NERVES_DATA_DIR", "/tmp/nerves-data")
-    BuildPlanHelpers.put_env("NERVES_DL_DIR", "/tmp/nerves-dl")
+  test "respects XDG_DATA_HOME" do
+    BuildPlanHelpers.put_env(%{
+      "XDG_DATA_HOME" => "/xdg_data_home",
+      "NERVES_ARTIFACT_DIR" => nil,
+      "NERVES_DL_DIR" => nil
+    })
 
-    assert Paths.data_dir() == "/tmp/nerves-data"
-    assert Paths.download_dir() == "/tmp/nerves-dl"
-    assert Paths.artifact_dir() == Path.join("/tmp/nerves-data", "artifacts") |> Path.expand()
+    assert Paths.data_dir() == "/xdg_data_home/nerves"
+    assert Paths.download_dir() == "/xdg_data_home/nerves/dl"
+    assert Paths.artifact_dir() == "/xdg_data_home/nerves/artifacts"
   end
 
   test "builds app-specific download and artifact paths" do
