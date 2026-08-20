@@ -70,7 +70,7 @@ jobs:
           steps:
             - run: mix format --check-formatted
             - run: mix deps.unlock --check-unused
-            - run: mix coveralls.circle
+            - run: mix test
             - run: mix docs
             - run: mix credo -a --strict
             - run: mix dialyzer
@@ -80,7 +80,7 @@ jobs:
             not:
               matches: { <<: *latest, value: << parameters.tag >> }
           steps:
-            - run: mix test --exclude release
+            - run: mix test
       - save_cache:
           key: v1-mix-cache-<< parameters.tag >>-{{ checksum "mix.lock" }}
           paths:
@@ -128,7 +128,26 @@ jobs:
             mix local.hex --force
             mix archive.install hex nerves_bootstrap --force
       - run: mix deps.get
-      - run: mix test
+      - run: mix test --exclude integration
+
+  ubuntu-integration-test:
+    machine:
+      image: ubuntu-2604:current
+    working_directory: ~/repo
+    environment:
+      LC_ALL: C.UTF-8
+    steps:
+      - checkout
+      - run:
+          name: Install tooling
+          command: |
+            sudo apt-get update -qq
+            sudo apt-get install -y elixir build-essential
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+      - run: mix archive.install hex nerves_bootstrap --force
+      - run: mix deps.get
+      - run: mix coveralls.circle --include integration
 
   automerge:
     docker:
@@ -170,6 +189,7 @@ workflows:
           matrix:
             parameters:
               xcode: *macos_xcode_versions
+      - ubuntu-integration-test
 
       - automerge:
           requires: *tags

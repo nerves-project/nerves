@@ -1,0 +1,44 @@
+version = 1
+
+[[annotations]]
+path = [
+ ".formatter.exs",
+ "CHANGELOG.md",
+ "nerves_defconfig",
+ "NOTICE",
+ "REUSE.toml",
+ "mix.exs",
+ "mix.lock",
+ "VERSION",
+ "Config.in",
+ "package/**",
+ "external.mk",
+ "post-build.sh",
+ "post-createfs.sh"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Fwup config files
+[[annotations]]
+path = [
+ "fwup-ops.conf",
+ "fwup.conf",
+ "fwup_include/*"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "CC0-1.0"
+
+# Various config files
+[[annotations]]
+path = [
+ "rootfs_overlay/etc/boardid.config",
+ "rootfs_overlay/etc/erlinit.config",
+ "rootfs_overlay/etc/fw_env.config"
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "CC0-1.0"
+
