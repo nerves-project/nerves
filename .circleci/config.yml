@@ -128,7 +128,7 @@ jobs:
             mix local.hex --force
             mix archive.install hex nerves_bootstrap --force
       - run: mix deps.get
-      - run: mix test --exclude integration
+      - run: mix test
 
   ubuntu-integration-test:
     machine:
@@ -147,7 +147,7 @@ jobs:
       - run: mix local.rebar --force
       - run: mix archive.install hex nerves_bootstrap --force
       - run: mix deps.get
-      - run: mix coveralls.circle --include integration
+      - run: mix coveralls.circle --include integration --import-cover cover
 
   automerge:
     docker:

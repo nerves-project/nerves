@@ -5,7 +5,7 @@
   configs: [
     %{
       name: "default",
-      files: %{included: ["compat/", "lib/", "test/"], excluded: ["**/mix.exs"]},
+      files: %{included: ["compat/", "lib/", "test/"], excluded: ["test/fixtures/"]},
       strict: true,
       checks: [
         {Credo.Check.Design.AliasUsage, false},
