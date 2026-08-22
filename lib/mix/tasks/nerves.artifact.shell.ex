@@ -66,6 +66,28 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
         [] -> List.last(build_plan.packages)
       end
 
+    cond do
+      package == nil and build_plan.packages == [] ->
+        Mix.raise("""
+        No Nerves packages found.
+
+        This could be due to the mix target not being set to include the Nerves
+        packages. It's currently set to `#{Mix.target()}`.
+        """)
+
+      package == nil ->
+        Mix.raise("""
+        Nerves package #{hd(args)} not found.
+
+        The following are available for mix target `#{Mix.target()}`:
+
+        #{Enum.map_join(build_plan.packages, "\n", fn info -> to_string(info.app) end)}
+        """)
+
+      true ->
+        :ok
+    end
+
     # Set $NERVES_ARTIFACT_NAME to the first of these without the extension.
     # Not recommended for new Nerves packages.
     archive_paths = Enum.map(package.downloads, fn download -> download.archive_path end)

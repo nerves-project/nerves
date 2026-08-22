@@ -8,6 +8,15 @@ defmodule Nerves.BuildPlanHelpers do
 
   alias Nerves.MixPackage
 
+  @spec reset_plan() :: :ok
+  def reset_plan() do
+    :persistent_term.erase({Nerves, :build_plan})
+
+    on_exit(fn ->
+      :persistent_term.erase({Nerves, :build_plan})
+    end)
+  end
+
   @spec load_package(atom()) :: MixPackage.t()
   def load_package(app) do
     path = Path.expand("test/fixtures/build_plans/#{app}")
