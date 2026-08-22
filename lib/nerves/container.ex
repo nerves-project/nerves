@@ -770,7 +770,10 @@ defmodule Nerves.Container do
   """
   @spec volume_exists?(String.t()) :: boolean()
   def volume_exists?(name) do
-    volume_exists_with_tool?(tool(), name)
+    case System.find_executable(tool()) do
+      nil -> false
+      _ -> volume_exists_with_tool?(tool(), name)
+    end
   end
 
   @doc """
@@ -778,20 +781,28 @@ defmodule Nerves.Container do
   """
   @spec list_docker_volumes() :: [String.t()]
   def list_docker_volumes() do
-    args =
-      if tool() == "container",
-        do: ["volume", "list", "-q"],
-        else: ["volume", "ls", "--filter", "name=nerves-work", "-q"]
+    tool = tool()
 
-    case System.cmd(tool(), args, stderr_to_stdout: true) do
-      {output, 0} ->
-        output
-        |> String.trim()
-        |> String.split("\n", trim: true)
-        |> Enum.filter(&String.starts_with?(&1, "nerves-work"))
+    case System.find_executable(tool) do
+      nil ->
+        []
 
       _ ->
-        []
+        args =
+          if tool == "container",
+            do: ["volume", "list", "-q"],
+            else: ["volume", "ls", "--filter", "name=nerves-work", "-q"]
+
+        case System.cmd(tool, args, stderr_to_stdout: true) do
+          {output, 0} ->
+            output
+            |> String.trim()
+            |> String.split("\n", trim: true)
+            |> Enum.filter(&String.starts_with?(&1, "nerves-work"))
+
+          _ ->
+            []
+        end
     end
   end
 
