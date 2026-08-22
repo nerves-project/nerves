@@ -1,0 +1,64 @@
+## Customize flags given to the VM: https://www.erlang.org/doc/apps/erts/erl_cmd.html
+
+## Do not set -name or -sname here. Prefer configuring them at runtime
+## Configure -setcookie in the mix.exs release section or at runtime
+
+## Number of dirty schedulers doing IO work (file, sockets, and others)
+##+SDio 5
+
+## Increase number of concurrent ports/sockets
+##+Q 65536
+
+## Tweak GC to run more often
+##-env ERL_FULLSWEEP_AFTER 10
+
+## Use Ctrl-C to interrupt the current shell rather than invoking the emulator's
+## break handler and possibly exiting the VM.
++Bc
+
+## Require an initialization handshake within 10 minutes from the startup guard
+## See https://nerves-runtime.hexdocs.pm/readme.html#assisted-firmware-validation-and-automatic-revert
+-env HEART_INIT_TIMEOUT 600
+
+# Allow time warps so that the Erlang system time can more closely match the
+# OS system time.
++C multi_time_warp
+
+## Choose whether to load all code at system startup
+## See https://www.erlang.org/doc/system/system_principles.html#code-loading-strategy
+## Slow devices sometimes benefit from choosing embedded mode
+##-mode interactive
+
+# Load code as per the boot script since not using archives
+# See https://www.erlang.org/doc/man/init.html#command-line-flags
+-code_path_choice strict
+
+## Disable scheduler busy wait to reduce idle CPU usage and avoid delaying
+## other OS processes. See https://www.erlang.org/doc/apps/erts/erl_cmd.html#+sbwt
++sbwt none
++sbwtdcpu none
++sbwtdio none
+
+## Save the shell history between reboots
+## See https://www.erlang.org/doc/apps/kernel/kernel_app for additional options
+-kernel shell_history enabled
+
+## Enable heartbeat monitoring of the Erlang runtime system
+-heart -env HEART_BEAT_TIMEOUT 30
+
+## Start the Elixir shell
+
+-noshell
+-user elixir
+-run elixir start_cli
+
+## Enable colors in the shell
+-elixir ansi_enabled true
+
+## Options added after -extra are interpreted as plain arguments and can be
+## retrieved using :init.get_plain_arguments(). Options before the "--" are
+## interpreted by Elixir and anything afterwards is left around for other IEx
+## and user applications.
+-extra --no-halt
+--
+--dot-iex /etc/iex.exs

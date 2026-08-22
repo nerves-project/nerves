@@ -67,6 +67,7 @@ defmodule Nerves.MixProject do
 
       # Development dependencies
       {:credo, "~> 1.6", only: :dev, runtime: false},
+      {:cover_helper, path: "test/fixtures/cover_helper", only: :test, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:excoveralls, "~> 0.17", only: :test, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
