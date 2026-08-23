@@ -142,10 +142,25 @@ jobs:
           name: Install tooling
           command: |
             sudo apt-get update -qq
-            sudo apt-get install -y elixir build-essential
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
-      - run: mix archive.install hex nerves_bootstrap --force
+            sudo apt-get install -y build-essential
+            sudo curl -fsSL https://builds.hex.pm/builds/otp/amd64/ubuntu-24.04/OTP-29.0.5.tar.gz -o /tmp/OTP-29.0.5.tar.gz
+            sudo mkdir -p /usr/local/otp
+            sudo tar --strip-components 1 -C /usr/local/otp -xzf /tmp/OTP-29.0.5.tar.gz
+            sudo bash -c 'cd /usr/local/otp && ./Install -sasl "$PWD"'
+            sudo curl -fsSL https://github.com/elixir-lang/elixir/releases/download/v1.20.3/elixir-otp-29.zip -o /tmp/elixir-otp-29.zip
+            sudo unzip -q /tmp/elixir-otp-29.zip -d /usr/local
+            sudo curl -fsSL https://github.com/fwup-home/fwup/releases/download/v1.16.0/fwup_1.16.0_amd64.deb -o /tmp/fwup_1.16.0_amd64.deb
+            sudo apt-get install -y /tmp/fwup_1.16.0_amd64.deb
+            sudo rm -f /tmp/OTP-29.0.5.tar.gz
+            sudo rm -f /tmp/elixir-otp-29.zip
+            sudo rm -f /tmp/fwup_1.16.0_amd64.deb
+            echo 'export PATH="/usr/local/elixir/bin:/usr/local/otp/bin:$PATH"' >> "$BASH_ENV"
+      - run:
+          name: Install mix archives
+          command: |
+            mix local.hex --force
+            mix local.rebar --force
+            mix archive.install hex nerves_bootstrap --force
       - run: mix deps.get
       - run: mix coveralls.circle --include integration --import-cover cover
 
