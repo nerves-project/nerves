@@ -254,7 +254,8 @@ defmodule Nerves do
 
     %{
       build_plan
-      | packages: package_infos,
+      | host_build?: Mix.target() == :host,
+        packages: package_infos,
         config: config,
         env: default_os_env(),
         actions: []

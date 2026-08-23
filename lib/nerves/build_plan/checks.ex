@@ -10,8 +10,10 @@ defmodule Nerves.BuildPlan.Checks do
 
   # All environment variables documented as "Nerves-provided" in
   # guides/advanced/environment-variables.md
-  @required_env_vars ~w[
+  @required_env_vars MapSet.new(~w[
+    AR
     AR_FOR_BUILD
+    AS
     AS_FOR_BUILD
     CC
     CC_FOR_BUILD
@@ -31,6 +33,7 @@ defmodule Nerves.BuildPlan.Checks do
     ERL_LDFLAGS
     ERTS_INCLUDE_DIR
     GCC_FOR_BUILD
+    LD
     LD_FOR_BUILD
     LDFLAGS
     LDFLAGS_FOR_BUILD
@@ -49,7 +52,19 @@ defmodule Nerves.BuildPlan.Checks do
     TARGET_CPU
     TARGET_GCC_FLAGS
     TARGET_OS
-  ]
+  ])
+
+  @forbidden_host_env_vars MapSet.new(~w[
+    AR
+    AS
+    CC
+    CFLAGS
+    CROSSCOMPILE
+    CXX
+    CXXFLAGS
+    LD
+    LDFLAGS
+  ])
 
   @doc """
   Validate the build plan to detect issues that may cause problems later
@@ -60,16 +75,31 @@ defmodule Nerves.BuildPlan.Checks do
   def validate!(%BuildPlan{} = build_plan) do
     # Check that all official Nerves environment variables are set.
     env = BuildPlan.fetch_interpolated_env!(build_plan)
+    keyset = MapSet.new(Map.keys(env))
 
-    missing = @required_env_vars -- Map.keys(env)
+    if build_plan.host_build? do
+      forbidden = MapSet.intersection(@forbidden_host_env_vars, keyset)
 
-    if missing != [] do
-      raise InvalidPlan,
-        message:
-          "The following required Nerves environment variables are missing from the build plan: #{Enum.join(missing, ", ")}"
+      if MapSet.size(forbidden) > 0 do
+        raise InvalidPlan,
+          message:
+            "The following environment variables shouldn't be set for host builds in the build plan: #{pretty_map_set(forbidden)}"
+      end
+    else
+      missing = MapSet.difference(@required_env_vars, keyset)
+
+      if MapSet.size(missing) > 0 do
+        raise InvalidPlan,
+          message:
+            "The following required Nerves environment variables are missing from the build plan: #{pretty_map_set(missing)}"
+      end
     end
 
     build_plan
+  end
+
+  defp pretty_map_set(ms) do
+    Enum.join(MapSet.to_list(ms), ", ")
   end
 
   # defp validate_config!(build_plan) do

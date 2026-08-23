@@ -35,7 +35,9 @@ these are frequently used in the `Makefiles` invoked by
 
 | Name                     | Min `nerves_system_br` version | Description |
 | ------------------------ | ------------------------------ | ----------- |
+| `AR`                     | All                            | The `ar` to use for cross-compiled builds |
 | `AR_FOR_BUILD`           | `v1.13.1`                      | The host's `ar` |
+| `AS`                     | All                            | The `as` to use for cross-compiled builds |
 | `AS_FOR_BUILD`           | `v1.13.1`                      | The host's `as` |
 | `CC`                     | All                            | The path to `gcc` for crosscompiling to the target |
 | `CC_FOR_BUILD`           | `v1.13.1`                      | The host's `cc` |
@@ -55,6 +57,7 @@ these are frequently used in the `Makefiles` invoked by
 | `ERL_LDFLAGS`            | All                            | Additional linker flags for Erlang NIFs and ports |
 | `ERTS_INCLUDE_DIR`       | All                            | erlang.mk variable for finding erts include files |
 | `GCC_FOR_BUILD`          | `v1.13.1`                      | The host's `gcc` |
+| `LD`                     | All                            | The linker to use for cross-compiled builds |
 | `LD_FOR_BUILD`           | `v1.13.1`                      | The host's `ld` |
 | `LDFLAGS`                | All                            | Recommended linker flags |
 | `LDFLAGS_FOR_BUILD`      | `v1.13.1`                      | Recommended linker flags for the host |

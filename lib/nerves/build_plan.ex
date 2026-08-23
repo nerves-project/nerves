@@ -185,12 +185,14 @@ defmodule Nerves.BuildPlan do
   * `:config` - a map of key-value pairs containing the overall configuration
   * `:env` - a map of key-value pairs that are exported in the OS environment to guide
     cross-compilation
+  * `:host_build?` - true if building for the host
   * `:packages` - package-specific plans and config. List is ordered by compilation order.
   * `:actions` - a list of build actions for creating the firmware
   * `:rootfs_overlays` - a list of paths or `.tar` files that get overlaid to create the root filesystem
   * `:erts` - Path to the version of erts to include in releases
   """
-  defstruct packages: [],
+  defstruct host_build?: false,
+            packages: [],
             config: %{},
             env: %{},
             actions: [],
@@ -198,6 +200,7 @@ defmodule Nerves.BuildPlan do
             erts: true
 
   @type t :: %__MODULE__{
+          host_build?: boolean,
           packages: [package_info()],
           config: map(),
           env: map(),
