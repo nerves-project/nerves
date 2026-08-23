@@ -52,7 +52,7 @@ jobs:
     steps:
       - run:
           name: Install system dependencies
-          command: apk add --no-cache build-base git procps util-linux xz zstd
+          command: apk add --no-cache build-base fwup git procps squashfs-tools util-linux xz zstd
       - checkout
       - run:
           name: Install hex, rebar, and nerves_bootstrap
@@ -101,7 +101,10 @@ jobs:
           name: Install system dependencies
           command: |
             apt-get update -qq
-            apt-get install -y build-essential procps libsctp1 ca-certificates zstd
+            apt-get install -y build-essential curl procps libsctp1 ca-certificates squashfs-tools zstd
+            curl -fsSL https://github.com/fwup-home/fwup/releases/download/v1.16.0/fwup_1.16.0_amd64.deb -o /tmp/fwup_1.16.0_amd64.deb
+            apt-get install -y /tmp/fwup_1.16.0_amd64.deb
+            rm -f /tmp/fwup_1.16.0_amd64.deb
       - checkout
       - run: mix local.hex --force
       - run: mix archive.install hex nerves_bootstrap --force
@@ -124,7 +127,7 @@ jobs:
           name: Install Elixir
           command: |
             brew update
-            brew install elixir fwup
+            brew install elixir fwup squashfs coreutils xz pkg-config
             mix local.hex --force
             mix archive.install hex nerves_bootstrap --force
       - run: mix deps.get
