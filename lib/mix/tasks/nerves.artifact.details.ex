@@ -23,7 +23,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     build_plan = Nerves.build_plan()
 
     packages_with_artifacts =
-      Enum.filter(build_plan.packages, fn {_package, info} -> info.downloads != [] end)
+      Enum.filter(build_plan.packages, fn package -> package.downloads != [] end)
 
     if packages_with_artifacts == [] do
       MixUtils.info(
@@ -37,17 +37,17 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     :ok
   end
 
-  defp print_package_info({package, info}) do
-    MixUtils.info("#{package}:")
-    MixUtils.info("  Version:            #{info.version}")
-    MixUtils.info("  Source fingerprint: #{info.source_fingerprint}")
-    MixUtils.info("  Fingerprint files:  #{length(info.source_fingerprint_files)} files")
-    MixUtils.info("  Dependencies:       #{inspect(info.deps)}")
+  defp print_package_info(package) do
+    MixUtils.info("#{package.app}:")
+    MixUtils.info("  Version:            #{package.version}")
+    MixUtils.info("  Source fingerprint: #{package.source_fingerprint}")
+    MixUtils.info("  Fingerprint files:  #{length(package.source_fingerprint_files)} files")
+    MixUtils.info("  Dependencies:       #{inspect(package.deps)}")
 
     MixUtils.info("  Downloads:")
 
     # TODO: add where the downloads are from. e.g., github releases
-    Enum.each(info.downloads, fn download ->
+    Enum.each(package.downloads, fn download ->
       downloaded =
         if File.exists?(download.archive_path),
           do: "downloaded",
