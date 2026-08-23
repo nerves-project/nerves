@@ -193,7 +193,8 @@ defmodule Nerves.BuildAction.NervesV1System do
       {"PKG_CONFIG_SYSROOT_DIR", "${NERVES_SDK_SYSROOT}"},
       {"PKG_CONFIG_LIBDIR", "${NERVES_SDK_SYSROOT}/usr/lib/pkgconfig"},
       {"PKG_CONFIG_PATH", ""},
-      {"CMAKE_TOOLCHAIN_FILE", "${NERVES_SYSTEM}/nerves-env.cmake"}
+      {"CMAKE_TOOLCHAIN_FILE", "${NERVES_SYSTEM}/nerves-env.cmake"},
+      {"QMAKESPEC", "${NERVES_SDK_SYSROOT}/mkspecs/devices/linux-buildroot-g++"}
     ]
   end
 

@@ -195,6 +195,7 @@ defmodule Nerves do
   defp default_os_env() do
     %{
       "PATH" => System.get_env("PATH", ""),
+      "NERVES_APP" => File.cwd!(),
       "AR_FOR_BUILD" => "ar",
       "AS_FOR_BUILD" => "as",
       "CC_FOR_BUILD" => "cc",
