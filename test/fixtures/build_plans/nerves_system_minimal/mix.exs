@@ -45,6 +45,7 @@ defmodule NervesSystemMinimal.MixProject do
 
   defp deps do
     [
+      {:cover_helper, path: "../../cover_helper", runtime: false},
       {:nerves, path: "../../../..", override: true, runtime: false},
       {:nerves_system_br, "1.34.1", runtime: false},
       {:nerves_toolchain_aarch64_nerves_linux_gnu, "~> 15.3.0", runtime: false}
