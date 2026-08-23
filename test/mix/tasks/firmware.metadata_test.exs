@@ -23,6 +23,6 @@ defmodule Mix.Tasks.Firmware.MetadataTest do
         Mix.Task.run("firmware.metadata", ["--firmware", firmware])
       end
 
-    assert error.message == "The firmware file #{firmware} does not exist"
+    assert error.message =~ "Firmware not found at #{firmware}"
   end
 end

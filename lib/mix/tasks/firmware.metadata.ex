@@ -47,27 +47,24 @@ defmodule Mix.Tasks.Firmware.Metadata do
 
     {opts, _argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
-    fw = firmware_file(opts)
+    fw =
+      cond do
+        opts[:firmware] ->
+          Path.expand(opts[:firmware])
 
-    if !File.exists?(fw) do
-      Mix.raise(
-        "Firmware for target #{Mix.target()} not found at #{fw} run `mix firmware` to build"
-      )
+        Mix.target() != :host ->
+          Nerves.build_plan().config[:firmware_path]
+
+        true ->
+          Mix.raise(
+            "Either specify a firmware path via --firmware or set MIX_TARGET to a supported target"
+          )
+      end
+
+    if not File.exists?(fw) do
+      Mix.raise("Firmware not found at #{fw} run `mix firmware` to build")
     end
 
     MixUtils.shell("fwup", ["-m", "-i", fw])
-  end
-
-  @spec firmware_file(keyword()) :: String.t()
-  def firmware_file(opts) do
-    fw =
-      (opts[:firmware] || Nerves.build_plan().config[:firmware_path])
-      |> Path.expand()
-
-    if File.exists?(fw) do
-      fw
-    else
-      Mix.raise("The firmware file #{fw} does not exist")
-    end
   end
 end
