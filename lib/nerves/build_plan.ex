@@ -184,12 +184,22 @@ defmodule Nerves.BuildPlan do
 
   * `:config` - a map of key-value pairs containing the overall configuration
   * `:env` - a map of key-value pairs that are exported in the OS environment to guide
-    cross-compilation
+    cross-compilation. See the Nerves advanced configuration for official environment variables.
   * `:host_build?` - true if building for the host
   * `:packages` - package-specific plans and config. List is ordered by compilation order.
   * `:actions` - a list of build actions for creating the firmware
   * `:rootfs_overlays` - a list of paths or `.tar` files that get overlaid to create the root filesystem
   * `:erts` - Path to the version of erts to include in releases
+
+  The `:config` map should be used to record all configuration. The build plan is intended to be
+  the sole source of truth. Keys from non-Nerves packages should prepend their package name
+  to avoid conflicts. The following keys are used:
+
+  * `:source_date_epoch` - the Unix date (integer) timestamp to use for all date/time references
+  * `:fwup_conf` - an optional user-app overridden `fwup.conf` path
+  * `:fwup_provisioning_conf` - an optional user-app overridden provisioning config for fwup
+  * `:rootfs_overlay` - an optional user-app overridden rootfs overlay (TODO? Add to main rootfs_overlays field?)
+  * `:host_tuple` - the compiler target tuple for making binaries on the computer running the build. See `Nerves.TargetTuple`
   """
   defstruct host_build?: false,
             packages: [],

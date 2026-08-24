@@ -7,6 +7,7 @@ defmodule Nerves.BuildAction.NervesV1Toolchain do
 
   use Nerves.BuildAction
   alias Nerves.BuildPlan
+  alias Nerves.TargetTuple
 
   @impl Nerves.BuildAction
   def pre_download(build_plan, opts) do
@@ -19,10 +20,19 @@ defmodule Nerves.BuildAction.NervesV1Toolchain do
           artifact_path = maybe_override_artifact_path("NERVES_TOOLCHAIN", package.artifact_path)
 
           if artifact_path == package.artifact_path do
-            host = "#{host_os()}_#{host_arch()}" |> normalize_host_tuple()
+            tuple = TargetTuple.to_nerves_v1_host_tuple(build_plan.config[:host_tuple])
+
+            if tuple == :error do
+              Mix.raise("""
+              The detected host tuple, #{inspect(build_plan.config[:host_tuple])}, is unknown by Nerves.
+
+              This is an oversight, but may mean that a precompiled toolchain is not
+              available. Please file an issue at https://github.com/nerves-project/nerves/issues/new.
+              """)
+            end
 
             archive_name =
-              "#{app}-#{host}-#{package.version}-#{package.source_fingerprint}.tar.xz"
+              "#{app}-#{tuple}-#{package.version}-#{package.source_fingerprint}.tar.xz"
 
             archive_path = Path.join(package.download_path, archive_name)
 
@@ -68,21 +78,6 @@ defmodule Nerves.BuildAction.NervesV1Toolchain do
     |> BuildPlan.merge_env(toolchain_env())
     |> BuildPlan.merge_env(package_env)
   end
-
-  defp host_os() do
-    {_, type} = :os.type()
-    to_string(type)
-  end
-
-  defp host_arch() do
-    :erlang.system_info(:system_architecture)
-    |> to_string()
-    |> String.split("-")
-    |> List.first()
-  end
-
-  defp normalize_host_tuple("darwin_aarch64"), do: "darwin_arm"
-  defp normalize_host_tuple(host), do: host
 
   defp maybe_override_artifact_path(env_var_override, default_path) do
     case System.get_env(env_var_override) do

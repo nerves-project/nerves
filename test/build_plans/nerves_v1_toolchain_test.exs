@@ -13,9 +13,13 @@ defmodule Nerves.BuildPlans.NervesV1ToolchainTest do
     app = :nerves_toolchain_aarch64_nerves_linux_gnu
     package = BuildPlanHelpers.load_package(app)
     download_path = Paths.download_dir(app, "15.3.0")
-    archive_name = "#{app}-#{BuildPlanHelpers.host_tuple()}-15.3.0-8DAF9F3.tar.xz"
+    archive_name = "#{app}-linux_x86_64-15.3.0-8DAF9F3.tar.xz"
 
-    build_plan = Nerves.create_build_plan([package])
+    build_plan =
+      Nerves.create_build_plan([package],
+        host_tuple: Nerves.TargetTuple.new("x86_64-pc-linux-gnu")
+      )
+
     package = BuildPlan.find_package(build_plan, app)
     assert package
 

@@ -81,20 +81,4 @@ defmodule Nerves.BuildPlanHelpers do
   def put_env(map) do
     Enum.each(map, fn {k, v} -> put_env(k, v) end)
   end
-
-  @spec host_tuple() :: String.t()
-  def host_tuple() do
-    {_, os} = :os.type()
-
-    arch =
-      :erlang.system_info(:system_architecture)
-      |> to_string()
-      |> String.split("-")
-      |> List.first()
-
-    case "#{os}_#{arch}" do
-      "darwin_aarch64" -> "darwin_arm"
-      host -> host
-    end
-  end
 end

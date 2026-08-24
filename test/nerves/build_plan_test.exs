@@ -34,6 +34,7 @@ defmodule Nerves.BuildPlanTest do
           BuildPlanHelpers.package_info(:toolchain, toolchain, toolchain),
           BuildPlanHelpers.package_info(:system, system, system)
         ],
+        config: %{host_tuple: Nerves.TargetTuple.new("x86_64-pc-linux-gnu")},
         env: %{"TARGET_GCC_FLAGS" => ""},
         actions: [
           {Nerves.BuildAction.NervesV1Toolchain,

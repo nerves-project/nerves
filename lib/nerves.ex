@@ -184,9 +184,9 @@ defmodule Nerves do
   end
 
   @doc false
-  @spec create_build_plan([MixPackage.t()]) :: BuildPlan.t()
-  def create_build_plan(all_packages) do
-    %BuildPlan{}
+  @spec create_build_plan([MixPackage.t()], keyword()) :: BuildPlan.t()
+  def create_build_plan(all_packages, config \\ []) do
+    %BuildPlan{config: Map.new(config)}
     |> add_base_configuration(all_packages)
     |> add_per_package_plans(all_packages)
     |> BuildPlan.run_planning_actions(:pre_download)
@@ -244,11 +244,16 @@ defmodule Nerves do
       |> Enum.reject(fn {_, v} -> is_nil(v) end)
       |> Map.new()
 
+    base_config = %{host_tuple: Nerves.TargetTuple.new()}
+
     config =
       [
+        base_config,
+        # TODO: Move the additions of the default config to the actions.
         Nerves.BuildAction.Rootfs.default_config(),
         Nerves.BuildAction.Firmware.default_config(),
-        user_app_config
+        user_app_config,
+        build_plan.config
       ]
       |> Enum.reduce(%{}, &Map.merge(&2, &1))
 
