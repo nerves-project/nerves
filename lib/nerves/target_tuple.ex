@@ -44,6 +44,16 @@ defmodule Nerves.TargetTuple do
   end
 
   @doc """
+  Convert a target tuple back to it's :erlang.system_info(:system_architecture) form
+  """
+  @spec host_string(t()) :: String.t()
+  def host_string(%__MODULE__{} = tuple) do
+    [tuple.arch, tuple.vendor, tuple.os, tuple.abi]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join("-")
+  end
+
+  @doc """
   Convert a host tuple into the tuple format used by Nerves v1 toolchain artifacts
   """
   @spec to_nerves_v1_host_tuple(t()) :: String.t() | :error

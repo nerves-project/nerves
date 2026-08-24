@@ -149,8 +149,8 @@ defmodule Nerves.BuildPlan do
 
   * `:app` - the name of the package
   * `:artifact_path` - Path to where artifacts can be extracted and custom files added
-  * `:build_script` - A script to run in the container for `mix nerves.artifact.build`
-  * `:shell_setup_script` - A script to run in the container for `mix nerves.artifact.shell`
+  * `:dockerfile` - Dockerfile used by `mix nerves.artifact.build` and
+    `mix nerves.artifact.shell`
   * `:deps` - List of Nerves-aware packages that this one depends on
   * `:download_path` - Path to where to download any files for this package
   * `:download_validators` - A list of validators for checking the package's download. Post-download steps may only access validated files.
@@ -175,8 +175,7 @@ defmodule Nerves.BuildPlan do
           source_fingerprint: String.t(),
           source_fingerprint_files: [Path.t()],
           validated_files: [Path.t()],
-          shell_setup_script: String.t(),
-          build_script: String.t()
+          dockerfile: Path.t() | nil
         }
 
   @typedoc """

@@ -10,31 +10,40 @@ defmodule Nerves.Container do
 
   alias Nerves.BuildPlan
 
-  @default_docker_image "ghcr.io/nerves-project/nerves_system_br:latest"
   @apple_container_default_volume_size "128G"
 
   @doc """
-  The default container image used for building Nerves system artifacts.
+  Return the locally cached image built from a package Dockerfile.
   """
-  @spec default_docker_image() :: String.t()
-  def default_docker_image(), do: @default_docker_image
-
-  @doc """
-  Return the container image to use for `mix nerves.artifact.shell`.
-
-  This image extends the default system-build image with Elixir so that
-  users can run Mix tasks from inside the build container.
-  """
-  @spec shell_container_image(String.t()) :: String.t()
-  def shell_container_image(tool) do
+  @spec package_image!(String.t(), BuildPlan.package_info()) :: String.t()
+  def package_image!(tool, %{dockerfile: dockerfile} = package) when is_binary(dockerfile) do
     ensure_tool_running!(tool)
-    image = shell_image_name()
 
-    if not shell_image_exists?(tool, image) do
-      build_shell_image!(tool, image)
+    if not File.regular?(dockerfile) do
+      Mix.raise("Dockerfile for #{package.app} does not exist: #{dockerfile}")
+    end
+
+    image = dockerfile_image_name(dockerfile, package)
+
+    if not image_exists?(tool, image) do
+      build_image!(tool, image, dockerfile)
     end
 
     image
+  end
+
+  def package_image!(_tool, package) do
+    Mix.raise("""
+    #{package.app} does not specify a Dockerfile.
+
+    Add `dockerfile: "Dockerfile"` to its `:nerves` configuration.
+    """)
+  end
+
+  @doc false
+  @spec legacy_system_dockerfile() :: Path.t()
+  def legacy_system_dockerfile() do
+    Path.join(:code.priv_dir(:nerves), "artifact/Dockerfile")
   end
 
   @doc """
@@ -296,61 +305,52 @@ defmodule Nerves.Container do
     end
   end
 
-  defp shell_image_exists?(tool, image) do
+  defp image_exists?(tool, image) do
     match?({_, 0}, System.cmd(tool, ["image", "inspect", image], stderr_to_stdout: true))
   end
 
-  defp build_shell_image!(tool, image) do
-    build_dir = Path.join([Mix.Project.build_path(), "nerves", "shell-image"])
-    dockerfile = Path.join(build_dir, "Dockerfile")
-
-    File.mkdir_p!(build_dir)
-    File.write!(dockerfile, shell_dockerfile())
-
-    Mix.shell().info("Building shell image #{image} with Elixir #{System.version()}...")
+  defp build_image!(tool, image, dockerfile) do
+    Mix.shell().info("Building artifact image #{image}...")
 
     args =
       if tool == "container",
-        do: ["build", "--tag", image, build_dir],
-        else: ["build", "-t", image, build_dir]
+        do: [
+          "build",
+          "--tag",
+          image,
+          "--build-arg",
+          "ELIXIR_VERSION=#{System.version()}",
+          "--build-arg",
+          "OTP_RELEASE=#{System.otp_release()}",
+          Path.dirname(dockerfile)
+        ],
+        else: [
+          "build",
+          "-t",
+          image,
+          "--build-arg",
+          "ELIXIR_VERSION=#{System.version()}",
+          "--build-arg",
+          "OTP_RELEASE=#{System.otp_release()}",
+          Path.dirname(dockerfile)
+        ]
 
     {output, exit_code} = System.cmd(tool, args, stderr_to_stdout: true)
 
     if exit_code != 0 do
-      Mix.raise("Failed to build shell image #{image}:\n#{output}")
+      Mix.raise("Failed to build artifact image #{image}:\n#{output}")
     end
   end
 
-  defp shell_image_name() do
+  defp dockerfile_image_name(dockerfile, package) do
     hash =
-      shell_dockerfile()
+      [File.read!(dockerfile), System.version(), System.otp_release(), package.source_fingerprint]
+      |> Enum.join(":")
       |> :erlang.md5()
       |> Base.encode16(case: :lower)
       |> binary_part(0, 12)
 
-    "nerves-system-br-shell:#{hash}"
-  end
-
-  defp shell_dockerfile() do
-    """
-    FROM #{@default_docker_image}
-
-    USER root
-
-    ARG ELIXIR_VERSION=#{System.version()}
-
-    RUN apt-get update \\
-     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates git make \\
-     && rm -rf /var/lib/apt/lists/* \\
-     && rm -rf /tmp/elixir \\
-     && git clone --depth 1 --branch v${ELIXIR_VERSION} https://github.com/elixir-lang/elixir.git /tmp/elixir \\
-     && cd /tmp/elixir \\
-     && make clean compile \\
-     && make install PREFIX=/usr/local \\
-     && rm -rf /tmp/elixir
-
-    USER nerves
-    """
+    "nerves-artifact:#{hash}"
   end
 
   @doc """
@@ -361,14 +361,14 @@ defmodule Nerves.Container do
   is a direct file copy into the bind-mount path; on macOS it uses either a
   helper container or a temporary bind mount.
   """
-  @spec populate_work_dir(BuildPlan.t(), String.t(), BuildPlan.package_info()) :: :ok
-  def populate_work_dir(build_plan, tool, pkg) do
+  @spec populate_work_dir(BuildPlan.t(), String.t(), BuildPlan.package_info(), String.t()) :: :ok
+  def populate_work_dir(build_plan, tool, pkg, image) do
     case :os.type() do
       {:unix, :linux} ->
         populate_work_dir_linux(build_plan, pkg)
 
       _ ->
-        populate_work_dir_volume(build_plan, tool, pkg)
+        populate_work_dir_volume(build_plan, tool, pkg, image)
     end
   end
 
@@ -380,8 +380,8 @@ defmodule Nerves.Container do
   On Linux this is a direct file copy; on macOS it uses a helper container or
   a temporary bind mount.
   """
-  @spec sync_work_dir(String.t(), BuildPlan.package_info()) :: :ok
-  def sync_work_dir(tool, package) do
+  @spec sync_work_dir(String.t(), BuildPlan.package_info(), String.t()) :: :ok
+  def sync_work_dir(tool, package, image) do
     app = package.app
 
     case :os.type() do
@@ -390,7 +390,7 @@ defmodule Nerves.Container do
         sync_local_dir(src, package.dest)
 
       _ ->
-        sync_work_dir_volume(tool, package)
+        sync_work_dir_volume(tool, package, image)
     end
   end
 
@@ -482,31 +482,31 @@ defmodule Nerves.Container do
 
   # --- macOS (volume) helpers ---
 
-  defp populate_work_dir_volume(build_plan, tool, pkg) do
+  defp populate_work_dir_volume(build_plan, tool, pkg, image) do
     if tool == "container" do
-      populate_work_dir_apple_container(build_plan, pkg)
+      populate_work_dir_apple_container(build_plan, pkg, image)
     else
-      populate_work_dir_docker_volume(build_plan, tool, pkg)
+      populate_work_dir_docker_volume(build_plan, tool, pkg, image)
     end
   end
 
-  defp populate_work_dir_apple_container(build_plan, pkg) do
+  defp populate_work_dir_apple_container(build_plan, pkg, image) do
     volume = volume_name(pkg)
     destination = "/workspace/#{pkg.app}"
 
-    copy_staged_tree_to_apple_volume(pkg.path, volume, destination)
+    copy_staged_tree_to_apple_volume(pkg.path, volume, destination, image)
 
     Enum.each(pkg.deps, fn dep ->
       dep_package = BuildPlan.find_package(build_plan, dep)
-      copy_staged_tree_to_apple_volume(dep_package.path, volume, "/workspace/#{dep}")
+      copy_staged_tree_to_apple_volume(dep_package.path, volume, "/workspace/#{dep}", image)
     end)
 
-    prepare_apple_build_dir(volume)
+    prepare_apple_build_dir(volume, image)
   end
 
   # Apple's container CLI does not provide Docker's `cp` command. Copy staged
   # sources through a temporary bind mount into the case-sensitive EXT4 volume.
-  defp copy_staged_tree_to_apple_volume(source, volume, destination) do
+  defp copy_staged_tree_to_apple_volume(source, volume, destination, image) do
     with_staged_tree(source, fn staged_path ->
       args =
         [
@@ -521,7 +521,7 @@ defmodule Nerves.Container do
           [
             "--mount",
             "type=bind,source=#{staged_path},target=/source,readonly",
-            default_docker_image(),
+            image,
             "/bin/sh",
             "-c",
             "rm -rf #{destination} && mkdir -p #{destination} && cp -a /source/. #{destination} && chown -R nerves:nerves #{destination}"
@@ -537,7 +537,7 @@ defmodule Nerves.Container do
     end)
   end
 
-  defp prepare_apple_build_dir(volume) do
+  defp prepare_apple_build_dir(volume, image) do
     args =
       [
         "run",
@@ -549,7 +549,7 @@ defmodule Nerves.Container do
       ] ++
         volume_mount_args("container", volume, "/workspace") ++
         [
-          default_docker_image(),
+          image,
           "/bin/sh",
           "-c",
           "mkdir -p /workspace/build && chown -R nerves:nerves /workspace/build"
@@ -564,7 +564,7 @@ defmodule Nerves.Container do
     end
   end
 
-  defp populate_work_dir_docker_volume(build_plan, tool, pkg) do
+  defp populate_work_dir_docker_volume(build_plan, tool, pkg, image) do
     vol = volume_name(pkg)
     pkg_dir = "/workspace/#{pkg.app}"
 
@@ -588,7 +588,7 @@ defmodule Nerves.Container do
           "root",
           "--mount",
           "type=volume,src=#{vol},target=/workspace",
-          default_docker_image(),
+          image,
           "/bin/sh",
           "-c",
           "rm -rf #{rm_dirs} && mkdir -p #{all_dirs} && chown -R nerves:nerves #{all_dirs}"
@@ -610,7 +610,7 @@ defmodule Nerves.Container do
           "create",
           "--mount",
           "type=volume,src=#{vol},target=/workspace",
-          default_docker_image(),
+          image,
           "true"
         ],
         stderr_to_stdout: true
@@ -654,15 +654,15 @@ defmodule Nerves.Container do
     :ok
   end
 
-  defp sync_work_dir_volume(tool, package) do
+  defp sync_work_dir_volume(tool, package, image) do
     if tool == "container" do
-      sync_work_dir_apple_container(package)
+      sync_work_dir_apple_container(package, image)
     else
-      sync_work_dir_docker_volume(tool, package)
+      sync_work_dir_docker_volume(tool, package, image)
     end
   end
 
-  defp sync_work_dir_apple_container(package) do
+  defp sync_work_dir_apple_container(package, image) do
     volume = volume_name(package)
 
     args =
@@ -678,7 +678,7 @@ defmodule Nerves.Container do
         [
           "--mount",
           "type=bind,source=#{package.path},target=/destination",
-          default_docker_image(),
+          image,
           "/bin/sh",
           "-c",
           "find /workspace/#{package.app} -mindepth 1 -maxdepth 1 -exec cp -a -t /destination -- {} +"
@@ -693,7 +693,7 @@ defmodule Nerves.Container do
     end
   end
 
-  defp sync_work_dir_docker_volume(tool, package) do
+  defp sync_work_dir_docker_volume(tool, package, image) do
     vol = volume_name(package)
 
     {id_raw, exit_code} =
@@ -703,7 +703,7 @@ defmodule Nerves.Container do
           "create",
           "--mount",
           "type=volume,src=#{vol},target=/workspace",
-          default_docker_image(),
+          image,
           "true"
         ],
         stderr_to_stdout: true

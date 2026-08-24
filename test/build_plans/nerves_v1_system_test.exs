@@ -26,6 +26,7 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
     assert package.source_fingerprint == "7BE9066"
     assert package.download_path == download_path
     assert package.download_validators == [:archive]
+    assert package.dockerfile == Nerves.Container.legacy_system_dockerfile()
 
     assert package.downloads == [
              %{

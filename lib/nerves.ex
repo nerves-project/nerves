@@ -255,6 +255,7 @@ defmodule Nerves do
           download_validators: [],
           downloads: [],
           extractors: [],
+          dockerfile: dockerfile_path(config, dep.dest),
           source_fingerprint: Nerves.Fingerprint.fingerprint(fingerprint_files, dep.dest),
           source_fingerprint_files: fingerprint_files,
           validated_files: []
@@ -296,6 +297,14 @@ defmodule Nerves do
         env: default_os_env(),
         actions: []
     }
+  end
+
+  defp dockerfile_path(config, package_path) do
+    dockerfile =
+      get_in(config, [:nerves, :dockerfile]) ||
+        get_in(config, [:nerves_package, :dockerfile])
+
+    if dockerfile, do: Path.expand(dockerfile, package_path)
   end
 
   defp fingerprint_files(config) do

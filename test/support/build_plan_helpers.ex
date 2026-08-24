@@ -48,8 +48,7 @@ defmodule Nerves.BuildPlanHelpers do
       source_fingerprint: "ABC123",
       source_fingerprint_files: ["mix.exs"],
       validated_files: [],
-      build_script: "",
-      shell_setup_script: ""
+      dockerfile: nil
     }
   end
 

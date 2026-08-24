@@ -46,18 +46,14 @@ defmodule Nerves.BuildAction.NervesV1Toolchain do
                   version: package.version
                 }
               ],
-              extractors: [{:untar, source: archive_path, destination: artifact_path}],
-              build_script: "",
-              shell_setup_script: ""
+              extractors: [{:untar, source: archive_path, destination: artifact_path}]
             })
           else
             Map.merge(package, %{
               artifact_path: artifact_path,
               download_validators: [],
               downloads: [],
-              extractors: [],
-              build_script: "",
-              shell_setup_script: ""
+              extractors: []
             })
           end
 

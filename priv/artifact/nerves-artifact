@@ -1,0 +1,33 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: None
+#
+# SPDX-License-Identifier: CC0-1.0
+
+set -e
+
+# This script builds nerves_system_br-based Nerves packages.
+# nerves_system_br is expected to be included as a required dependency.
+setup() {
+  mkdir -p "$NERVES_ARTIFACT_DIR"
+  /workspace/nerves_system_br/create-build.sh "/workspace/$NERVES_ARTIFACT_APP/nerves_defconfig" /workspace/build
+}
+
+case "${1:-build}" in
+  build)
+    setup
+    cd /workspace/build
+    make
+    make system NERVES_ARTIFACT_NAME="${NERVES_ARTIFACT_APP}-portable-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}"
+    cp ./*.tar.* "$NERVES_ARTIFACT_DIR/"
+    ;;
+
+  shell)
+    setup
+    cd /workspace/build
+    exec /bin/bash
+    ;;
+
+  *)
+    exec "$@"
+    ;;
+esac

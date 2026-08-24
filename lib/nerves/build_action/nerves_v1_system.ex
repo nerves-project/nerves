@@ -37,8 +37,7 @@ defmodule Nerves.BuildAction.NervesV1System do
             }
           ],
           extractors: [{:untar, source: archive_path, destination: artifact_path}],
-          build_script: generate_build_script(package),
-          shell_setup_script: generate_shell_setup_script(package)
+          dockerfile: Nerves.Container.legacy_system_dockerfile()
         })
       else
         Map.merge(package, %{
@@ -46,8 +45,7 @@ defmodule Nerves.BuildAction.NervesV1System do
           download_validators: [],
           downloads: [],
           extractors: [],
-          build_script: generate_build_script(package),
-          shell_setup_script: generate_shell_setup_script(package)
+          dockerfile: Nerves.Container.legacy_system_dockerfile()
         })
       end
 
@@ -140,33 +138,6 @@ defmodule Nerves.BuildAction.NervesV1System do
     end
 
     build_plan
-  end
-
-  defp generate_build_script(package) do
-    if :nerves_system_br in package.deps do
-      """
-      set -e
-      /workspace/nerves_system_br/create-build.sh /workspace/#{package.app}/nerves_defconfig /workspace/build
-      make
-      make system NERVES_ARTIFACT_NAME=$NERVES_ARTIFACT_NAME
-      """
-    else
-      ""
-    end
-  end
-
-  defp generate_shell_setup_script(package) do
-    if :nerves_system_br in package.deps do
-      """
-      set -e
-
-      echo "Creating the build directory..."
-
-      /workspace/nerves_system_br/create-build.sh /workspace/#{package.app}/nerves_defconfig /workspace/build
-      """
-    else
-      ""
-    end
   end
 
   defp system_env() do

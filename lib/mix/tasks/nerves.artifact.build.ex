@@ -91,30 +91,19 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
     dl_dir = Paths.download_dir()
     artifact_dl_dir = package.download_path
     archive_paths = Enum.map(package.downloads, fn download -> download.archive_path end)
-    rel_download_paths = Enum.map(archive_paths, &Path.relative_to(&1, artifact_dl_dir))
     rel_artifact_dl_dir = Path.relative_to(artifact_dl_dir, dl_dir)
-
-    # Set $NERVES_ARTIFACT_NAME to the first of these without the extension.
-    # Not recommended for new Nerves packages.
-    nerves_artifact_name = Regex.replace(~r/\.tar.*/, Path.basename(hd(archive_paths)), "")
 
     # Ensure the download directory exists if this is the first build with Nerves
     File.mkdir_p!(artifact_dl_dir)
 
-    build_script =
-      [
-        Container.memory_check_script(),
-        package.build_script,
-        "cp #{Enum.join(rel_download_paths, " ")} /workspace/dl/#{rel_artifact_dl_dir}"
-      ]
-      |> Enum.join("\n")
-
     term = System.get_env("TERM") || "xterm-256color"
     tool = Container.tool()
+    image = Container.package_image!(tool, package)
 
     # Set up the single work directory (volume on macOS, bind mount on Linux)
+    MixUtils.info("Preparing container workspace...")
     Container.ensure_work_dir(tool, package)
-    Container.populate_work_dir(build_plan, tool, package)
+    Container.populate_work_dir(build_plan, tool, package, image)
 
     work_mounts = Container.work_mount_args(tool, package)
 
@@ -132,7 +121,15 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
           "--env",
           "TERM=#{term}",
           "--env",
-          "NERVES_ARTIFACT_NAME=#{nerves_artifact_name}"
+          "NERVES_ARTIFACT_APP=#{package.app}",
+          "--env",
+          "NERVES_ARTIFACT_VERSION=#{package.version}",
+          "--env",
+          "NERVES_ARTIFACT_SOURCE_FINGERPRINT=#{package.source_fingerprint}",
+          "--env",
+          "NERVES_ARTIFACT_DIR=/workspace/dl/#{rel_artifact_dl_dir}",
+          "--env",
+          "NERVES_HOST_TUPLE=#{Nerves.TargetTuple.host_string(build_plan.config[:host_tuple])}"
         ] ++
         work_mounts ++
         [
@@ -142,10 +139,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
         [
           "-w",
           "/workspace/build",
-          Container.default_docker_image(),
-          "/bin/sh",
-          "-lc",
-          build_script
+          image
         ]
 
     MixUtils.info("Building artifact for #{package.app} with #{tool}")

@@ -38,7 +38,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
 
   # The way to make the final tarball is package-specific, but
   # this works for nerves_system_br-based projects.
-  nerves@6a5c16134cca:/workspace/build$ make system NERVES_ARTIFACT_NAME=$NERVES_ARTIFACT_NAME
+  nerves@6a5c16134cca:/workspace/build$ make system
   ```
 
   Building a Nerves-aware dependency:
@@ -88,24 +88,19 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
         :ok
     end
 
-    # Set $NERVES_ARTIFACT_NAME to the first of these without the extension.
-    # Not recommended for new Nerves packages.
-    archive_paths = Enum.map(package.downloads, fn download -> download.archive_path end)
-    nerves_artifact_name = Regex.replace(~r/\.tar.*/, Path.basename(hd(archive_paths)), "")
-
     dl_dir = Paths.download_dir()
     File.mkdir_p!(dl_dir)
 
     term = System.get_env("TERM") || "xterm-256color"
     tool = Container.tool()
-    image = Container.shell_container_image(tool)
+    image = Container.package_image!(tool, package)
 
     # Set up and populate the single work directory
+    MixUtils.info("Preparing container workspace...")
     Container.ensure_work_dir(tool, package)
-    Container.populate_work_dir(build_plan, tool, package)
+    Container.populate_work_dir(build_plan, tool, package, image)
 
     work_mounts = Container.work_mount_args(tool, package)
-    shell_script = build_shell_script(package)
 
     docker_args =
       [
@@ -121,7 +116,15 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
           "--env",
           "TERM=#{term}",
           "--env",
-          "NERVES_ARTIFACT_NAME=#{nerves_artifact_name}"
+          "NERVES_ARTIFACT_APP=#{package.app}",
+          "--env",
+          "NERVES_ARTIFACT_VERSION=#{package.version}",
+          "--env",
+          "NERVES_ARTIFACT_SOURCE_FINGERPRINT=#{package.source_fingerprint}",
+          "--env",
+          "NERVES_ARTIFACT_DIR=/workspace/dl/#{Path.relative_to(package.download_path, dl_dir)}",
+          "--env",
+          "NERVES_HOST_TUPLE=#{Nerves.TargetTuple.host_string(build_plan.config[:host_tuple])}"
         ] ++
         work_mounts ++
         [
@@ -132,9 +135,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
           "-w",
           "/workspace/build",
           image,
-          "/bin/sh",
-          "-lc",
-          shell_script
+          "shell"
         ]
 
     MixUtils.info("""
@@ -142,7 +143,6 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
 
       Work dir:  #{Container.work_dir(package)}
       Downloads: #{dl_dir}
-      Artifact name: #{nerves_artifact_name}
 
     Exit shell and use `mix nerves.artifact.sync #{package.app}` to copy configuration
     changes back to the host. See `nerves.artifact.clean` and `nerves.artifact.build`
@@ -151,17 +151,5 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
 
     _ = InteractiveCmd.cmd(tool, docker_args)
     :ok
-  end
-
-  defp build_shell_script(pkg) do
-    """
-    #{Container.memory_check_script()}
-    #{pkg.shell_setup_script}
-    echo ""
-    echo "Build directory: /workspace/build"
-    echo "Package source:  /workspace/#{pkg.app}"
-    echo ""
-    exec /bin/bash
-    """
   end
 end

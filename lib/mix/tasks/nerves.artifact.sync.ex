@@ -61,10 +61,11 @@ defmodule Mix.Tasks.Nerves.Artifact.Sync do
     end
 
     tool = Container.tool()
+    image = Container.package_image!(tool, package)
 
     MixUtils.info("Syncing files from work dir to #{package.path}")
 
-    Container.sync_work_dir(tool, package)
+    Container.sync_work_dir(tool, package, image)
 
     MixUtils.info("Done. Use `git diff` to review changes.")
   end

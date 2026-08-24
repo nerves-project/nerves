@@ -31,4 +31,12 @@ defmodule Nerves.TargetTupleTest do
       assert to_nerves_v1_host_tuple("riscv64-unknown-linux-gnu") == :error
     end
   end
+
+  describe "host_string/1" do
+    test "formats a target tuple" do
+      tuple = TargetTuple.new("aarch64-unknown-linux-gnu")
+
+      assert TargetTuple.host_string(tuple) == "aarch64-unknown-linux-gnu"
+    end
+  end
 end
