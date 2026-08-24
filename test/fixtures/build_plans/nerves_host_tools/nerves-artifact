@@ -1,0 +1,45 @@
+#!/bin/sh
+
+set -e
+
+host_tuples="darwin_x86_64 darwin_arm linux_x86_64 linux_aarch64"
+
+case "${1:-build}" in
+  build)
+    # Check that the build is one of the supported ones so the error is in the file to fix
+    case "$NERVES_HOST_TUPLE" in
+      x86_64-apple-darwin*) host_tuple=darwin_x86_64 ;;
+      aarch64-apple-darwin*) host_tuple=darwin_arm ;;
+      x86_64-*-linux-gnu) host_tuple=linux_x86_64 ;;
+      aarch64-*-linux-gnu) host_tuple=linux_aarch64 ;;
+      *)
+        echo "Unsupported host tuple: $NERVES_HOST_TUPLE" >&2
+        exit 1
+        ;;
+    esac
+
+    mkdir -p "$NERVES_ARTIFACT_DIR"
+
+    # Generate artifacts for all platforms
+    for archive_host_tuple in $host_tuples; do
+      artifact_name="${NERVES_ARTIFACT_APP}-${archive_host_tuple}-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}"
+      artifact_dir="/tmp/$artifact_name"
+
+      rm -rf "$artifact_dir"
+      mkdir -p "$artifact_dir/host/bin"
+      sed "s/@HOST_TUPLE@/$archive_host_tuple/" /workspace/nerves_host_tools/bin/custom-host-tool > "$artifact_dir/host/bin/custom-host-tool"
+      chmod +x "$artifact_dir/host/bin/custom-host-tool"
+      tar czf "$NERVES_ARTIFACT_DIR/$artifact_name.tar.gz" -C /tmp "$artifact_name"
+    done
+
+    test -f "$NERVES_ARTIFACT_DIR/${NERVES_ARTIFACT_APP}-${host_tuple}-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}.tar.gz"
+    ;;
+
+  shell)
+    exec /bin/sh
+    ;;
+
+  *)
+    exec "$@"
+    ;;
+esac

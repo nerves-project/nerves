@@ -1,0 +1,8 @@
+# The directory Mix will write compiled artifacts to.
+/_build/
+
+# The directory Mix downloads your dependencies sources to.
+/deps/
+
+# Integration tests write this file to verify PATH propagation.
+/fixture_path_output.txt

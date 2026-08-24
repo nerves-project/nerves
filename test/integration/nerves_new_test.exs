@@ -35,7 +35,7 @@ defmodule Integration.NervesNewTest do
 
     run_mix_task!(path, "host", "deps.get")
 
-    {output, exit_code} = run_mix_task(path, "rpi0", "firmware")
+    {_, exit_code} = run_mix_task(path, "rpi0", "firmware")
     assert exit_code != 0
   end
 
