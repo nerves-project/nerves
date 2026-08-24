@@ -17,17 +17,15 @@ defmodule Integration.NervesSystemMinimalTest do
 
     # Clean everything up from previous runs first
     {_, 0} =
-      CoverHelper.mix(
-        ["nerves.artifact.clean", "nerves_system_minimal", "--yes"],
-        cd: @fixture_dir,
-        cover_export: "artifact.clean"
+      CoverHelper.mix(["nerves.artifact.clean", "nerves_system_minimal", "--yes"],
+        cd: @fixture_dir
       )
 
     assert !File.exists?(dl_dir) or File.ls!(dl_dir) == [],
            "Expecting download directory to be clean: #{dl_dir}"
 
     {_, exit_code} =
-      CoverHelper.mix(["nerves.artifact.build"], cd: @fixture_dir, cover_export: "artifact.build")
+      CoverHelper.mix(["nerves.artifact.build"], cd: @fixture_dir)
 
     assert exit_code == 0, "mix nerves.artifact.build failed (exit #{exit_code})"
 

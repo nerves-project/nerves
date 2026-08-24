@@ -15,7 +15,7 @@ defmodule Integration.NervesNewTest do
     clean_build!(path)
 
     # Both host and rpi0 builds should work
-    run_mix_deps_get!(path)
+    run_mix_task!(path, "host", "deps.get")
     run_mix_task!(path, "rpi0", "firmware")
     run_mix_task!(path, "host", "compile")
     run_mix_task!(path, "rpi0", "firmware.metadata")
@@ -33,22 +33,7 @@ defmodule Integration.NervesNewTest do
 
   defp run_mix_task!(path, target, task) do
     env = [{"MIX_ENV", "dev"}, {"MIX_TARGET", target}]
-    cover_export = "nerves_new_#{String.replace(task, ".", "_")}"
-    {_, 0} = CoverHelper.mix([task], cd: path, env: env, cover_export: cover_export)
-  end
-
-  defp run_mix_deps_get!(path) do
-    # CoverHelper has a chicken/egg issue when covering deps.get, but there's
-    # no interesting code to cover there.
-    env = [{"MIX_ENV", "dev"}, {"MIX_TARGET", "host"}]
-
-    {_, 0} =
-      System.cmd("mix", ["deps.get"],
-        cd: path,
-        env: env,
-        stderr_to_stdout: true,
-        into: IO.stream()
-      )
+    {_, 0} = CoverHelper.mix([task], cd: path, env: env)
   end
 
   defp fixture_for_nerves_version() do
