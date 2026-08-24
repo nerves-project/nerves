@@ -25,11 +25,13 @@ defmodule Mix.Tasks.Nerves.Info do
 
   defp bootstrap_version() do
     archives_path = Mix.path_for(:archives)
-    prefix = Path.join(archives_path, "nerves_bootstrap-")
+    prefix = Path.join(archives_path, "nerves_bootstrap")
 
     case Path.wildcard("#{prefix}*") do
       [] -> "not installed"
-      [entry | _] -> String.trim_leading(entry, prefix)
+      [_, _ | _] -> "multiple installs?"
+      [^prefix] -> "unspecified"
+      [entry] -> String.trim_leading(entry, prefix <> "-")
     end
   end
 end
