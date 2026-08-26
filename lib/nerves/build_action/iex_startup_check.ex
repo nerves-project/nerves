@@ -16,8 +16,6 @@ defmodule Nerves.BuildAction.IExStartupCheck do
 
   use Nerves.BuildAction
 
-  alias Nerves.MixUtils
-
   @elixir_1_15_opts ["-user elixir", "-run elixir start_iex"]
   @elixir_1_17_opts ["-user elixir", "-run elixir start_cli"]
   @legacy_elixir_opts ["-user Elixir.IEx.CLI"]
@@ -29,7 +27,6 @@ defmodule Nerves.BuildAction.IExStartupCheck do
   """
   @spec check_vm_args!(Mix.Release.t()) :: :ok
   def check_vm_args!(release) do
-    MixUtils.info([:yellow, "* [Nerves] ", :reset, "validating vm.args"])
     vm_args_path = Mix.Release.rel_templates_path(release, "vm.args.eex")
 
     if not File.exists?(vm_args_path) do
@@ -70,11 +67,13 @@ defmodule Nerves.BuildAction.IExStartupCheck do
   end
 
   defp version_constraints() do
+    elixir_version = System.version()
+
     cond do
-      Version.match?(System.version(), ">= 1.17.0") ->
+      Version.match?(elixir_version, ">= 1.17.0") ->
         {["-run elixir start_iex" | @legacy_elixir_opts], @elixir_1_17_opts}
 
-      Version.match?(System.version(), ">= 1.15.0") ->
+      Version.match?(elixir_version, ">= 1.15.0") ->
         {["-run elixir start_cli" | @legacy_elixir_opts], @elixir_1_15_opts}
 
       true ->
