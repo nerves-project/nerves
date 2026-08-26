@@ -51,6 +51,8 @@ defmodule Mix.Tasks.Firmware do
       """)
     end
 
+    Nerves.HostElixirCheck.check!()
+
     Mix.Task.run("release", args)
   end
 end
