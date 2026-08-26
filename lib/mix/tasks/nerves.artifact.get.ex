@@ -4,36 +4,23 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Mix.Tasks.Nerves.Artifact.Get do
-  @shortdoc "Downloads prebuilt Nerves system and toolchain artifacts"
+  @shortdoc "Downloads prebuilt Nerves package artifacts"
   @moduledoc """
-  Downloads prebuilt Nerves system and toolchain artifacts.
+  Downloads prebuilt Nerves package artifacts
 
-  This task scans the project's dependencies for Nerves packages
-  that have `:artifact_sites` configured, then downloads and extracts
-  their precompiled artifacts.
-
-  Artifacts are cached in `~/.nerves/dl/` (downloads) and
-  `~/.nerves/artifacts/` (extracted).
-
-  Resolution is type-agnostic: the host-specific artifact variant is
-  tried first, falling back to portable. File extensions are not
-  assumed — any `.tar.*` archive is accepted.
-
-  It is not intended to be run manually. It is called as part of
-  the `deps.get` alias set up by `nerves_bootstrap`.
+  Set the `MIX_TARGET` to select which dependencies should be evaluated.
   """
   use Mix.Task
-
-  alias Nerves.ArtifactResolver
   alias Nerves.MixUtils
 
   @impl Mix.Task
   def run(_opts) do
     MixUtils.info("Checking for prebuilt Nerves artifacts...")
 
-    _build_plan =
-      Nerves.build_plan()
-      |> ArtifactResolver.resolve()
+    # Route everything through Nerves.export_env/1 since that's the central
+    # place for the download logic that includes appropriate callbacks
+    # invocations.
+    Nerves.export_env()
 
     :ok
   end
