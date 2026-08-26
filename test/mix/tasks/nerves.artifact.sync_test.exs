@@ -16,7 +16,7 @@ defmodule Mix.Tasks.Nerves.ArtifactSyncTest do
   test "nerves.artifact.sync raises when no Nerves packages are available" do
     Mix.Task.reenable("nerves.artifact.sync")
 
-    assert_raise Mix.Error, ~r/Couldn't find package/, fn ->
+    assert_raise Mix.Error, ~r/No Nerves packages found/, fn ->
       Mix.Task.run("nerves.artifact.sync")
     end
   end

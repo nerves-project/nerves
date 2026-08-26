@@ -9,6 +9,7 @@ defmodule Nerves.Container do
   """
 
   alias Nerves.BuildPlan
+  alias Nerves.Paths
 
   @apple_container_default_volume_size "128G"
 
@@ -44,6 +45,68 @@ defmodule Nerves.Container do
   @spec legacy_system_dockerfile() :: Path.t()
   def legacy_system_dockerfile() do
     Path.join(:code.priv_dir(:nerves), "artifact/Dockerfile")
+  end
+
+  @doc false
+  @spec prepare_artifact_workspace!(BuildPlan.t(), BuildPlan.package_info()) ::
+          {String.t(), String.t(), Path.t()}
+  def prepare_artifact_workspace!(build_plan, package) do
+    dl_dir = Paths.download_dir()
+    File.mkdir_p!(package.download_path)
+
+    tool = tool()
+    image = package_image!(tool, package)
+
+    Mix.shell().info("Preparing container workspace...")
+    ensure_work_dir(tool, package)
+    populate_work_dir(build_plan, tool, package, image)
+
+    {tool, image, dl_dir}
+  end
+
+  @doc false
+  @spec artifact_run_args(
+          BuildPlan.t(),
+          BuildPlan.package_info(),
+          String.t(),
+          String.t(),
+          Path.t(),
+          [String.t()]
+        ) :: [String.t()]
+  def artifact_run_args(build_plan, package, tool, image, dl_dir, command \\ []) do
+    artifact_dir = Path.relative_to(package.download_path, dl_dir)
+    term = System.get_env("TERM") || "xterm-256color"
+
+    [
+      "run",
+      "--rm",
+      "-it"
+    ] ++
+      container_user_args(tool) ++
+      resource_args(tool) ++
+      [
+        "--env",
+        "NERVES_BR_DL_DIR=/workspace/dl",
+        "--env",
+        "TERM=#{term}",
+        "--env",
+        "NERVES_ARTIFACT_APP=#{package.app}",
+        "--env",
+        "NERVES_ARTIFACT_VERSION=#{package.version}",
+        "--env",
+        "NERVES_ARTIFACT_SOURCE_FINGERPRINT=#{package.source_fingerprint}",
+        "--env",
+        "NERVES_ARTIFACT_DIR=/workspace/dl/#{artifact_dir}",
+        "--env",
+        "NERVES_HOST_TUPLE=#{Nerves.TargetTuple.host_string(build_plan.config[:host_tuple])}"
+      ] ++
+      work_mount_args(tool, package) ++
+      download_mount_args(tool, dl_dir) ++
+      [
+        "-w",
+        "/workspace/build",
+        image
+      ] ++ command
   end
 
   @doc """

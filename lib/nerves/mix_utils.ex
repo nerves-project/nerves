@@ -8,6 +8,7 @@
 #
 defmodule Nerves.MixUtils do
   @moduledoc false
+  alias Nerves.BuildPlan
   alias Nerves.WSL
 
   @doc "Print a success message in green"
@@ -191,6 +192,47 @@ defmodule Nerves.MixUtils do
   def sanitize_path() do
     System.get_env("PATH")
     |> String.replace("::", ":")
+  end
+
+  @doc """
+  Select a Nerves package based on the passed arguments
+
+  This is used by mix tasks that get passed Nerves package names. If nothing is
+  passed, then it defaults to the package that came in last in the build plan's
+  topologically sorted list of packages. This is commonly what the user
+  intended.
+
+  Errors call Mix.raise/1.
+  """
+  @spec select_package!(BuildPlan.t(), [String.t()]) :: BuildPlan.package_info()
+  def select_package!(build_plan, args) do
+    package =
+      case args do
+        [app | _] -> Enum.find(build_plan.packages, fn info -> to_string(info.app) == app end)
+        [] -> List.last(build_plan.packages)
+      end
+
+    cond do
+      package == nil and build_plan.packages == [] ->
+        Mix.raise("""
+        No Nerves packages found.
+
+        This could be due to the mix target not being set to include the Nerves
+        packages. It's currently set to `#{Mix.target()}`.
+        """)
+
+      package == nil ->
+        Mix.raise("""
+        Nerves package #{hd(args)} not found.
+
+        The following are available for mix target `#{Mix.target()}`:
+
+        #{Enum.map_join(build_plan.packages, "\n", fn info -> to_string(info.app) end)}
+        """)
+
+      true ->
+        package
+    end
   end
 
   # TODO: should this go somewhere else?

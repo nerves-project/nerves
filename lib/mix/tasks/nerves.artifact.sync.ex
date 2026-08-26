@@ -44,21 +44,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Sync do
 
     build_plan = Nerves.build_plan()
 
-    package =
-      case args do
-        [name | _] -> Enum.find(build_plan.packages, fn info -> to_string(info.app) == name end)
-        _ -> List.last(build_plan.packages)
-      end
-
-    if package == nil do
-      Mix.raise("""
-      Couldn't find package
-
-      Here's everything that's available:
-
-      #{packages_to_string(build_plan.packages)}
-      """)
-    end
+    package = MixUtils.select_package!(build_plan, args)
 
     tool = Container.tool()
     image = Container.package_image!(tool, package)
@@ -68,9 +54,5 @@ defmodule Mix.Tasks.Nerves.Artifact.Sync do
     Container.sync_work_dir(tool, package, image)
 
     MixUtils.info("Done. Use `git diff` to review changes.")
-  end
-
-  defp packages_to_string(packages) do
-    Enum.map_join(packages, ", ", fn pkg -> to_string(pkg.app) end)
   end
 end

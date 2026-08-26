@@ -42,8 +42,6 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
 
   alias Nerves.Container
   alias Nerves.MixUtils
-  alias Nerves.Paths
-
   @switches [path: :string]
 
   @impl Mix.Task
@@ -53,33 +51,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
 
     build_plan = Nerves.build_plan()
 
-    package =
-      case args do
-        [app | _] -> Enum.find(build_plan.packages, fn info -> to_string(info.app) == app end)
-        [] -> List.last(build_plan.packages)
-      end
-
-    cond do
-      package == nil and build_plan.packages == [] ->
-        Mix.raise("""
-        No Nerves packages found.
-
-        This could be due to the mix target not being set to include the Nerves
-        packages. It's currently set to `#{Mix.target()}`.
-        """)
-
-      package == nil ->
-        Mix.raise("""
-        Nerves package #{hd(args)} not found.
-
-        The following are available for mix target `#{Mix.target()}`:
-
-        #{Enum.map_join(build_plan.packages, "\n", fn info -> to_string(info.app) end)}
-        """)
-
-      true ->
-        :ok
-    end
+    package = MixUtils.select_package!(build_plan, args)
 
     build_artifact(build_plan, package)
   end
@@ -88,59 +60,10 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
     # The build process is expected to create all of the downloads. Not 100% sure
     # this makes sense, but this is currently the case.
 
-    dl_dir = Paths.download_dir()
     artifact_dl_dir = package.download_path
     archive_paths = Enum.map(package.downloads, fn download -> download.archive_path end)
-    rel_artifact_dl_dir = Path.relative_to(artifact_dl_dir, dl_dir)
-
-    # Ensure the download directory exists if this is the first build with Nerves
-    File.mkdir_p!(artifact_dl_dir)
-
-    term = System.get_env("TERM") || "xterm-256color"
-    tool = Container.tool()
-    image = Container.package_image!(tool, package)
-
-    # Set up the single work directory (volume on macOS, bind mount on Linux)
-    MixUtils.info("Preparing container workspace...")
-    Container.ensure_work_dir(tool, package)
-    Container.populate_work_dir(build_plan, tool, package, image)
-
-    work_mounts = Container.work_mount_args(tool, package)
-
-    docker_args =
-      [
-        "run",
-        "--rm",
-        "-it"
-      ] ++
-        Container.container_user_args(tool) ++
-        Container.resource_args(tool) ++
-        [
-          "--env",
-          "NERVES_BR_DL_DIR=/workspace/dl",
-          "--env",
-          "TERM=#{term}",
-          "--env",
-          "NERVES_ARTIFACT_APP=#{package.app}",
-          "--env",
-          "NERVES_ARTIFACT_VERSION=#{package.version}",
-          "--env",
-          "NERVES_ARTIFACT_SOURCE_FINGERPRINT=#{package.source_fingerprint}",
-          "--env",
-          "NERVES_ARTIFACT_DIR=/workspace/dl/#{rel_artifact_dl_dir}",
-          "--env",
-          "NERVES_HOST_TUPLE=#{Nerves.TargetTuple.host_string(build_plan.config[:host_tuple])}"
-        ] ++
-        work_mounts ++
-        [
-          # Shared download cache, intentionally read-write
-        ] ++
-        Container.download_mount_args(tool, dl_dir) ++
-        [
-          "-w",
-          "/workspace/build",
-          image
-        ]
+    {tool, image, dl_dir} = Container.prepare_artifact_workspace!(build_plan, package)
+    docker_args = Container.artifact_run_args(build_plan, package, tool, image, dl_dir)
 
     MixUtils.info("Building artifact for #{package.app} with #{tool}")
     MixUtils.info("  Work dir:       #{Container.work_dir(package)}")
