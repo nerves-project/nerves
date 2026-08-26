@@ -28,8 +28,8 @@ the steps below, please search or open a topic in the [Nerves category on the
 Elixir Forum](https://elixirforum.com/c/nerves-forum/74).
 
 Nerves requires specific Erlang and Elixir versions. We highly recommend using
-[asdf](https://asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/) rather
-than your OS's package manager.
+[asdf](https://asdf-vm.com) or similar tool version manager rather than your
+OS's package manager.
 
 ## MacOS
 
@@ -42,8 +42,7 @@ brew install fwup squashfs coreutils xz pkg-config
 ```
 
 If you've already installed Erlang & Elixir using Homebrew, you'll need to
-uninstall them to avoid clashes with the recommended `asdf` or `mise`
-installation.
+uninstall them to avoid clashes with the recommended `asdf`.
 
 ```bash
 brew uninstall elixir
@@ -95,9 +94,9 @@ First, install a few packages.
 sudo apt install build-essential automake autoconf git squashfs-tools pkg-config curl libmnl-dev libnl-genl-3-dev libssl-dev libncurses5-dev help2man libconfuse-dev libarchive-dev file unzip libgnutls28-dev libcrypt-dev
 ```
 
-Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
-manually from source. Nerves uses `fwup` in the build process to create firmware
-images. Here are the `asdf` instructions:
+Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or manually
+from source. Nerves uses `fwup` in the build process to create firmware images.
+Here are the `asdf` instructions:
 
 ```bash
 asdf plugin add fwup https://github.com/fwup-home/asdf-fwup.git
@@ -111,9 +110,9 @@ asdf set -u fwup latest
 sudo dnf install @development-tools automake autoconf git squashfs-tools pkgconf-pkg-config curl libmnl-devel openssl-devel ncurses-devel help2man libconfuse-devel libarchive-devel
 ```
 
-Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
-manually from source. Nerves uses `fwup` in the build process to create firmware
-images. Here are the `asdf` instructions:
+Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or manually
+from source. Nerves uses `fwup` in the build process to create firmware images.
+Here are the `asdf` instructions:
 
 ```bash
 asdf plugin add fwup https://github.com/fwup-home/asdf-fwup.git
@@ -127,9 +126,9 @@ asdf set -u fwup latest
 yay -S base-devel ncurses5-compat-libs git squashfs-tools curl wget bc cpio
 ```
 
-Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or `mise` or
-manually from source. Nerves uses `fwup` in the build process to create firmware
-images. Here are the `asdf` instructions:
+Then install [fwup](https://github.com/fwup-home/fwup) using `asdf` or manually
+from source. Nerves uses `fwup` in the build process to create firmware images.
+Here are the `asdf` instructions:
 
 ```bash
 asdf plugin add fwup https://github.com/fwup-home/asdf-fwup.git
@@ -177,11 +176,11 @@ page](https://github.com/nerves-project/nerves/blob/main/guides/introduction/ins
 ## All platforms
 
 Then install the required versions of Erlang/OTP and Elixir. We highly recommend
-using [asdf](asdf-vm.com) or [mise-en-place](https://mise.jdx.dev/). Please
-refer to those sites for installation directions.
+using a tool manager like [asdf](asdf-vm.com). Please refer to your tool
+manager's installation directions for setting it up.
 
-After you've installed a `asdf` or `mise`, run the following to install
-Erlang/OTP and Elixir:
+After you've installed a tool manager, run the following to install Erlang/OTP
+and Elixir:
 
 > #### Debian/Ubuntu {: .tip}
 >
