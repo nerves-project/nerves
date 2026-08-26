@@ -152,7 +152,7 @@ defmodule Nerves.Release do
 
   # Backwards compatibility
   @doc false
-  @spec erts() :: Path.t() | boolean()
+  @spec erts() :: Path.t() | true
   def erts() do
     Nerves.erts()
   end

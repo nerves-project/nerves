@@ -11,6 +11,7 @@ defmodule Nerves do
   """
 
   alias Nerves.BuildPlan
+  alias Nerves.HostOTPCheck
   alias Nerves.MixPackage
   alias Nerves.MixUtils
 
@@ -116,16 +117,14 @@ defmodule Nerves do
   end
   ```
   """
-  @spec erts() :: boolean() | Path.t()
+  @spec erts() :: Path.t() | true
   def erts() do
     build_plan = build_plan()
 
     cond do
       Mix.target() == :host ->
-        :ok
-
-      build_plan.erts != true ->
-        :ok
+        # No target erts needed
+        true
 
       build_plan.packages == [] ->
         message = """
@@ -137,7 +136,7 @@ defmodule Nerves do
 
         raise Nerves.InvalidPlan, message: message
 
-      true ->
+      build_plan.erts == true ->
         message = """
         No Nerves package is supplying an Erlang runtime
 
@@ -147,9 +146,40 @@ defmodule Nerves do
         """
 
         raise Nerves.InvalidPlan, message: message
-    end
 
-    build_plan.erts
+      not HostOTPCheck.compatible_target_otp_version?(build_plan.erts) ->
+        message = """
+        Major version mismatch between host and target Erlang/OTP versions
+
+          Host version: #{System.otp_release()}
+          Target version: #{HostOTPCheck.target_otp_release(build_plan.erts)}
+
+        This will likely cause Erlang code compiled for the target to fail in
+        unexpected ways.
+
+        The easiest way to fix this is to install Erlang/OTP #{HostOTPCheck.target_otp_version(build_plan.erts)} on
+        your host. See the Nerves installation guide for doing this using a
+        tool version manager like `asdf`.
+
+        The Erlang/OTP version used on the target is usually provided by a
+        Nerves system (nerves_system_*) dependency. If you recently updated
+        your dependencies, that may have caused the change. Official Nerves
+        Systems report Erlang/OTP updates in the CHANGELOG.md file that comes
+        with the release.
+
+        If you need to run a particular version of Erlang/OTP on your target,
+        you can lock the nerves_system_* dependency in your mix.exs to an older
+        version. This route prevents you from receiving security updates from
+        the official systems. Another option is to build a custom Nerves system
+        that compiles in your desired Erlang/OTP version. See the Nerves
+        documentation for custom systems.
+        """
+
+        raise Nerves.InvalidPlan, message: message
+
+      true ->
+        build_plan.erts
+    end
   end
 
   # Mix release step
