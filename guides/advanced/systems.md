@@ -239,6 +239,13 @@ The following keys are supported:
     For official Nerves systems and toolchains, we upload the artifacts to
     GitHub Releases.
 
+    With Nerves 2, system packages can also set `artifact_public_keys` to a list
+    of trusted PEM-encoded public key strings in `nerves_package`. This requires
+    an OpenSSL SHA-256 signature for the archive, Base64-encoded and published
+    as `<archive filename>.sig` at an artifact site. The system adapter adds
+    both files to the download plan. Verification must succeed with at least
+    one configured key before the archive is extracted.
+
     For an artifact site that uses GitHub Releases in a private repo, [create a
     personal access token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
     and use `:github_api` with `token` and `tag` options:
