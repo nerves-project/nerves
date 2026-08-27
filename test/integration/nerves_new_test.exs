@@ -27,13 +27,29 @@ defmodule Integration.NervesNewTest do
     run_mix_task!(path, "rpi0", "nerves.artifact.details")
   end
 
+  @tag :integration
+  @tag timeout: @test_timeout
+  test "nerves.new project fails for incorrect OTP version" do
+    path = fixture_for_incorrect_otp_version()
+    clean_build!(path)
+
+    run_mix_task!(path, "host", "deps.get")
+
+    {output, exit_code} = run_mix_task(path, "rpi0", "firmware")
+    assert exit_code != 0
+  end
+
   defp clean_build!(path) do
     File.rm_rf!(Path.join(path, "_build"))
   end
 
   defp run_mix_task!(path, target, task) do
+    {_, 0} = run_mix_task(path, target, task)
+  end
+
+  defp run_mix_task(path, target, task) do
     env = [{"MIX_ENV", "dev"}, {"MIX_TARGET", target}]
-    {_, 0} = CoverHelper.mix([task], cd: path, env: env)
+    CoverHelper.mix([task], cd: path, env: env)
   end
 
   defp fixture_for_nerves_version() do
@@ -46,6 +62,18 @@ defmodule Integration.NervesNewTest do
     path = Path.expand("../fixtures/build_plans/#{name}", __DIR__)
 
     assert File.dir?(path), "No fixture for OTP #{otp}. Tried #{path}"
+    path
+  end
+
+  defp fixture_for_incorrect_otp_version() do
+    otp = otp_release()
+    name = "nerves_new_otp#{otp}"
+
+    path =
+      Path.wildcard(Path.expand("../fixtures/build_plans/nerves_new_otp*", __DIR__))
+      |> Enum.find(&(Path.basename(&1) != name))
+
+    assert path, "No fixture for an OTP other than #{otp}"
     path
   end
 
