@@ -95,6 +95,12 @@ defmodule Nerves.BuildPlan do
 
   - `:filename` - the filename to skip validation on
 
+  ## Archive
+
+  This validator checks that the specified file is a compressed tar archive. It
+  helps provide better error messages when the server providing the file
+  decides to give a non-tarball.
+
   ## OpenSSL Signature
 
   This is the simplest type of validation that can be done using the `openssl` command
@@ -123,8 +129,9 @@ defmodule Nerves.BuildPlan do
 
   Options:
     - `:filename` - the file to verify (required)
-    - `:signature` - the signature file (defaults to `<filename>.sig`)
-    - `:public_keys` - a list of public keys in PEM form and as strings
+    - `:signature` - the Base64-encoded signature file. Relative paths are resolved
+      from the package download directory. Defaults to `<filename>.sig`.
+    - `:public_keys` - a list of public keys in PEM form and as strings (required)
   """
   @type download_validator() :: :archive | {:openssl_signature, keyword()} | {:skip, keyword()}
 

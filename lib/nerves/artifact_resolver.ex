@@ -39,7 +39,7 @@ defmodule Nerves.ArtifactResolver do
       build_plan
     else
       archive_path = download_archive!(package, download)
-      validate_archive!(:archive, archive_path)
+      validate_download!(package.download_validators, package, download, archive_path)
       extract_archive!(List.first(package.extractors), archive_path, fingerprint)
       build_plan
     end
@@ -99,11 +99,71 @@ defmodule Nerves.ArtifactResolver do
     Enum.find_value(@site_modules, fn module -> module.plan(site, version, filename) end)
   end
 
-  defp validate_archive!(:archive, archive_path) do
+  defp validate_download!([], _package, _download, archive_path),
+    do: validate_archive!(archive_path)
+
+  defp validate_download!(validators, package, download, archive_path) do
+    Enum.each(validators, fn
+      :archive ->
+        validate_archive!(archive_path)
+
+      {:skip, options} ->
+        _ = Keyword.fetch!(options, :filename)
+
+      {:openssl_signature, options} ->
+        filename = Keyword.fetch!(options, :filename)
+
+        if filename == download.filename do
+          validate_openssl_signature!(archive_path, package.download_path, filename, options)
+        end
+    end)
+  end
+
+  defp validate_archive!(archive_path) do
     case Archive.validate(archive_path) do
       :ok -> :ok
       {:error, reason} -> Mix.raise("Invalid artifact #{archive_path}: #{reason}")
     end
+  end
+
+  defp validate_openssl_signature!(path, download_path, filename, options) do
+    signature_path =
+      options
+      |> Keyword.get(:signature, "#{filename}.sig")
+      |> resolve_download_path(download_path)
+
+    public_keys = Keyword.fetch!(options, :public_keys)
+    signature = decode_signature!(signature_path)
+    digest = sha256_file!(path)
+
+    if not Enum.any?(public_keys, &verify_signature?(&1, digest, signature)) do
+      Mix.raise("Invalid OpenSSL signature for #{path}")
+    end
+  end
+
+  defp resolve_download_path(path, download_path) do
+    if Path.type(path) == :absolute, do: path, else: Path.join(download_path, path)
+  end
+
+  defp decode_signature!(signature_path) do
+    case Base.decode64(File.read!(signature_path), ignore: :whitespace) do
+      {:ok, signature} -> signature
+      :error -> Mix.raise("Could not decode OpenSSL signature #{signature_path}: invalid Base64")
+    end
+  end
+
+  defp sha256_file!(path) do
+    path
+    |> File.stream!(64 * 1024, [])
+    |> Enum.reduce(:crypto.hash_init(:sha256), &:crypto.hash_update(&2, &1))
+    |> :crypto.hash_final()
+  end
+
+  defp verify_signature?(public_key, digest, signature) do
+    [pem_entry] = :public_key.pem_decode(public_key)
+    decoded_public_key = :public_key.pem_entry_decode(pem_entry)
+
+    :public_key.verify({:digest, digest}, :sha256, signature, decoded_public_key)
   end
 
   defp extract_archive!({:untar, options}, archive_path, fingerprint) do
