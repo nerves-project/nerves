@@ -132,8 +132,11 @@ defmodule Nerves.BuildPlan do
 
   Options:
     - `:filename` - the file to verify (required)
-    - `:signature` - the signature file (defaults to `<filename>.sig`)
-    - `:public_keys` - a list of public keys in PEM form and as strings
+    - `:signature` - the Base64-encoded signature file. Relative paths are resolved
+      from the package download directory. Defaults to `<filename>.sig`.
+      The file must already exist when validation runs. Add it to `:downloads`
+      if it needs to be downloaded; this validator does not download files.
+    - `:public_keys` - a list of public keys in PEM form and as strings (required)
   """
   @type download_validator() ::
           {:archive, keyword()} | {:openssl_signature, keyword()} | {:skip, keyword()}
@@ -164,7 +167,7 @@ defmodule Nerves.BuildPlan do
   * `:deps` - List of Nerves-aware packages that this one depends on
   * `:download_path` - Path to where to download any files for this package
   * `:download_validators` - A list of validators for checking the package's download. Post-download steps may only access validated files.
-  * `:downloads` - a list of download plans
+  * `:downloads` - a list of download plans. All files for a package are downloaded before validation and extraction.
   * `:extractors` - a list of extractors for expanding archives into the artifact_path
   * `:path` - path to package source under the deps directory
   * `:source_fingerprint` - calculated source fingerprints. The fingerprint catches configs that diverge from artifact inputs.

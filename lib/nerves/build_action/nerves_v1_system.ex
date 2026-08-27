@@ -27,16 +27,16 @@ defmodule Nerves.BuildAction.NervesV1System do
 
         archive_path = Path.join(package.download_path, archive_name)
 
+        download = %{
+          archive_path: archive_path,
+          filename: archive_name,
+          sites: artifact_sites,
+          version: package.version
+        }
+
         Map.merge(package, %{
-          download_validators: [{:archive, filename: archive_name}],
-          downloads: [
-            %{
-              archive_path: archive_path,
-              filename: archive_name,
-              sites: artifact_sites,
-              version: package.version
-            }
-          ],
+          download_validators: download_validators(archive_name, opts),
+          downloads: downloads(download, opts),
           extractors: [{:untar, source: archive_path, destination: artifact_path}],
           dockerfile: Nerves.Container.legacy_system_dockerfile()
         })
@@ -90,6 +90,34 @@ defmodule Nerves.BuildAction.NervesV1System do
     build_plan
     |> ensure_rootfs_tar(package.artifact_path)
     |> discover_system(package.artifact_path)
+  end
+
+  defp download_validators(filename, opts) do
+    case Keyword.fetch(opts, :artifact_public_keys) do
+      :error ->
+        [{:archive, filename: filename}]
+
+      {:ok, public_keys} ->
+        [
+          {:openssl_signature, filename: filename, public_keys: public_keys},
+          {:archive, filename: filename},
+          {:skip, filename: "#{filename}.sig"}
+        ]
+    end
+  end
+
+  defp downloads(download, opts) do
+    if Keyword.has_key?(opts, :artifact_public_keys) do
+      signature_download = %{
+        download
+        | filename: "#{download.filename}.sig",
+          archive_path: "#{download.archive_path}.sig"
+      }
+
+      [download, signature_download]
+    else
+      [download]
+    end
   end
 
   defp maybe_override_artifact_path(env_var_override, default_path) do
