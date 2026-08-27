@@ -91,7 +91,6 @@ defmodule NervesToolchainAarch64NervesLinuxGnu.MixProject do
   defp checksum_files do
     [
       "defconfig",
-      "build.sh",
       "patches",
       "defaults"
     ]
