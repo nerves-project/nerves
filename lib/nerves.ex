@@ -377,15 +377,15 @@ defmodule Nerves do
         []
 
       action ->
-        [
-          actions: [
-            {action,
-             app: app,
-             artifact_sites: legacy_config[:artifact_sites] || [],
-             package_env: legacy_config[:env] || [],
-             build_runner_opts: legacy_config[:build_runner_opts] || []}
-          ]
-        ]
+        opts =
+          [
+            app: app,
+            artifact_sites: legacy_config[:artifact_sites] || [],
+            package_env: legacy_config[:env] || [],
+            build_runner_opts: legacy_config[:build_runner_opts] || []
+          ] ++ Keyword.take(legacy_config, [:artifact_public_keys])
+
+        [actions: [{action, opts}]]
     end
   end
 
