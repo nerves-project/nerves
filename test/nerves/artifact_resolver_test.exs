@@ -12,7 +12,7 @@ defmodule Nerves.ArtifactResolverTest do
   test "uses a locally built artifact with its source fingerprint", %{tmp_dir: tmp_dir} do
     artifact_path = Path.join(tmp_dir, "test_system-1.0.0")
     File.mkdir_p!(artifact_path)
-    File.write!(Path.join(artifact_path, "CHECKSUM"), "ABC1234")
+    File.write!(Path.join(artifact_path, ".fingerprint"), "ABC1234")
 
     build_plan = %BuildPlan{
       packages: [

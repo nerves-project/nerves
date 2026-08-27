@@ -14,6 +14,8 @@ defmodule Nerves.ArtifactResolver do
     Nerves.Artifact.Downloader.Prefix
   ]
 
+  @fingerprint_filename ".fingerprint"
+
   @spec resolve(BuildPlan.t()) :: BuildPlan.t()
   def resolve(%BuildPlan{} = build_plan) do
     resolve_artifacts(build_plan)
@@ -44,7 +46,7 @@ defmodule Nerves.ArtifactResolver do
   end
 
   defp valid_artifact?(artifact_path, fingerprint) do
-    File.read(Path.join(artifact_path, "CHECKSUM")) == {:ok, fingerprint}
+    File.read(Path.join(artifact_path, @fingerprint_filename)) == {:ok, fingerprint}
   end
 
   defp download_archive!(package, download) do
@@ -114,7 +116,7 @@ defmodule Nerves.ArtifactResolver do
     File.mkdir_p!(destination)
 
     case Archive.extract(archive_path, destination) do
-      :ok -> File.write!(Path.join(destination, "CHECKSUM"), fingerprint)
+      :ok -> File.write!(Path.join(destination, @fingerprint_filename), fingerprint)
       {:error, reason} -> Mix.raise("Could not extract #{archive_path}: #{reason}")
     end
   end
