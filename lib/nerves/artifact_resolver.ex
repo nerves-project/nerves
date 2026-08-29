@@ -88,7 +88,7 @@ defmodule Nerves.ArtifactResolver do
 
         It may also be possible to build this package manually by running:
 
-        mix nerves.artifact.build #{package.app}
+        MIX_TARGET=#{Mix.target()} mix nerves.artifact.build #{package.app}
         """
 
         Mix.raise(message)
