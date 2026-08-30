@@ -27,7 +27,7 @@ defmodule Nerves.Preflight do
   # OSX
   defp check_platform!(:darwin) do
     ensure_fwup_version!()
-    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_rootfs_tool!()
     ensure_available!("gstat", package: "gstat (coreutils)")
   end
 
@@ -40,13 +40,22 @@ defmodule Nerves.Preflight do
   defp check_platform!(:wsl) do
     ensure_fwup_version!()
     ensure_fwup_version!("fwup.exe")
-    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_rootfs_tool!()
   end
 
   # Non-WSL Linux
   defp check_platform!(_) do
     ensure_fwup_version!()
-    ensure_available!("mksquashfs", package: "squashfs")
+    ensure_rootfs_tool!()
+  end
+
+  defp ensure_rootfs_tool!() do
+    case Nerves.build_plan().config[:rootfs_type] do
+      :squashfs -> ensure_available!("sqfstar", package: "squashfs-tools 4.5+")
+      :erofs -> ensure_available!("mkfs.erofs", package: "erofs-utils")
+      :ext4 -> :ok
+      _ -> :ok
+    end
   end
 
   @doc """

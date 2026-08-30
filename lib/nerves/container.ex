@@ -422,7 +422,7 @@ defmodule Nerves.Container do
     :ok
   end
 
-  @copy_tree_excludes ["./_build", "./deps"]
+  @copy_tree_excludes ["./_build", "./deps", "/.git"]
 
   # Copy the contents of src_dir into dest_dir while skipping generated Mix
   # directories that can contain broken symlinks or large caches.

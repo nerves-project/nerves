@@ -7,6 +7,25 @@ defmodule Nerves.BuildPlanTest do
 
   alias Nerves.BuildPlan
   alias Nerves.BuildPlanHelpers
+  alias Nerves.MixPackage
+
+  test "Nerves v2 packages merge their configuration into the build plan" do
+    package = %MixPackage{
+      app: :system,
+      config: [
+        app: :system,
+        version: "1.0.0",
+        nerves: [config: [rootfs_type: :erofs, rootfs_flags: ["-T", "0"]]]
+      ],
+      dest: "system",
+      deps: []
+    }
+
+    plan = Nerves.create_build_plan([package])
+
+    assert plan.config[:rootfs_type] == :erofs
+    assert plan.config[:rootfs_flags] == ["-T", "0"]
+  end
 
   test "Nerves V1 actions derive toolchain and system variables from resolved artifacts" do
     BuildPlanHelpers.delete_env("TEST_NERVES_SYSTEM")

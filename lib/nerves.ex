@@ -351,6 +351,7 @@ defmodule Nerves do
 
   defp merge_declared_fields(build_plan, nerves_config) do
     build_plan
+    |> BuildPlan.merge_config(nerves_config[:config] || [])
     |> merge_lists(nerves_config)
     |> maybe_merge_env(nerves_config[:env])
     |> merge_packages(nerves_config[:packages])

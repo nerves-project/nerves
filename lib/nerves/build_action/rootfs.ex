@@ -211,7 +211,7 @@ defmodule Nerves.BuildAction.Rootfs do
   defp default_rootfs_flags(:squashfs),
     do: ["-mkfs-time", "0", "-all-time", "0", "-no-xattrs", "-quiet"]
 
-  defp default_rootfs_flags(:erofs), do: []
+  defp default_rootfs_flags(:erofs), do: ["-b", "4096", "-zlz4hc", "-T", "0", "-U", "clear"]
   defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode", "-m", "0"]
   defp default_rootfs_flags(_type), do: []
 
@@ -274,15 +274,13 @@ defmodule Nerves.BuildAction.Rootfs do
   # ---------------------------------------------------------------------------
 
   defp mkfs_erofs!(erofs_path, tar_path, flags) do
-    find_mkfs_erofs!()
+    mkfs_erofs = find_mkfs_erofs!()
 
     MixUtils.info("  Creating EROFS filesystem...")
 
-    flags_str = Enum.join(flags, " ")
+    args = ["--tar=f"] ++ flags ++ [erofs_path, tar_path]
 
-    case System.shell(
-           "mkfs.erofs --tar=f #{flags_str} #{escape(erofs_path)} < #{escape(tar_path)}"
-         ) do
+    case System.cmd(mkfs_erofs, args, stderr_to_stdout: true) do
       {_, 0} ->
         :ok
 
@@ -292,14 +290,18 @@ defmodule Nerves.BuildAction.Rootfs do
   end
 
   defp find_mkfs_erofs!() do
-    if !System.find_executable("mkfs.erofs") do
-      Mix.raise("""
-      mkfs.erofs not found.
+    case System.find_executable("mkfs.erofs") do
+      nil ->
+        Mix.raise("""
+        mkfs.erofs not found.
 
-      mkfs.erofs is part of erofs-utils. Install it with:
-        brew install erofs-utils  (macOS)
-        apt install erofs-utils   (Debian/Ubuntu)
-      """)
+        mkfs.erofs is part of erofs-utils. Install it with:
+          brew install erofs-utils  (macOS)
+          apt install erofs-utils   (Debian/Ubuntu)
+        """)
+
+      path ->
+        path
     end
   end
 
