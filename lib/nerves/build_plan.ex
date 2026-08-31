@@ -198,6 +198,7 @@ defmodule Nerves.BuildPlan do
   * `:source_date_epoch` - the Unix date (integer) timestamp to use for all date/time references
   * `:fwup_conf` - an optional user-app overridden `fwup.conf` path
   * `:fwup_provisioning_conf` - an optional user-app overridden provisioning config for fwup
+  * `:fwup_compression` - use `:best` (default) or `:fast` compression. Numbers from 1 to 9 are also supported.
   * `:rootfs_overlay` - an optional user-app overridden rootfs overlay (TODO? Add to main rootfs_overlays field?)
   * `:host_tuple` - the compiler target tuple for making binaries on the computer running the build. See `Nerves.TargetTuple`
   """

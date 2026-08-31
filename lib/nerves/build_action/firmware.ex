@@ -21,6 +21,7 @@ defmodule Nerves.BuildAction.Firmware do
   * `:images_path` - Where images are stored
   * `:firmware_path` - Path to the output `.fw` file
   * `:rootfs_path` - Path to the input rootfs file
+  * `:fwup_compression` - `:fast` (`fwup -1`) or `:best` (`fwup -9`, the default) or a number 1-9
 
   """
 
@@ -37,7 +38,8 @@ defmodule Nerves.BuildAction.Firmware do
           fw_description: term(),
           fw_author: term(),
           fw_vcs_identifier: String.t(),
-          fw_misc: String.t()
+          fw_misc: String.t(),
+          fwup_compression: :fast | :best | 1..9
         }
   def default_config() do
     project_config = Mix.Project.config()
@@ -62,7 +64,8 @@ defmodule Nerves.BuildAction.Firmware do
       fw_description: project_config[:description] || "",
       fw_author: project_config[:author] || "",
       fw_vcs_identifier: vcs_id,
-      fw_misc: ""
+      fw_misc: "",
+      fwup_compression: :best
     }
   end
 
@@ -80,7 +83,8 @@ defmodule Nerves.BuildAction.Firmware do
       :fw_description,
       :fw_author,
       :fw_vcs_identifier,
-      :fw_misc
+      :fw_misc,
+      :fwup_compression
     ]
 
     missing_keys = Enum.reject(required_config, &Map.has_key?(build_plan.config, &1))
@@ -88,6 +92,16 @@ defmodule Nerves.BuildAction.Firmware do
     if missing_keys != [] do
       raise Nerves.InvalidPlan,
         message: "BuildPlan is missing required configuration for #{inspect(missing_keys)}"
+    end
+
+    fwup_compression = build_plan.config[:fwup_compression]
+
+    if fwup_compression not in [:fast, :best] and
+         not (fwup_compression >= 1 and fwup_compression <= 9) do
+      raise Nerves.InvalidPlan,
+        message:
+          "Invalid :fwup_compression option: #{inspect(build_plan.config.fwup_compression)}. " <>
+            "Expected :fast or :best or an integer 1 to 9."
     end
 
     :ok
@@ -133,7 +147,9 @@ defmodule Nerves.BuildAction.Firmware do
 
     MixUtils.info("  Creating #{Path.basename(fw_out)}...")
 
-    case System.cmd(fwup, ["-c", "-f", fwup_conf, "-o", fw_out],
+    compression_arg = "-#{fwup_compression_option(opts[:fwup_compression])}"
+
+    case System.cmd(fwup, [compression_arg, "-c", "-f", fwup_conf, "-o", fw_out],
            env: fwup_env,
            stderr_to_stdout: true
          ) do
@@ -141,6 +157,10 @@ defmodule Nerves.BuildAction.Firmware do
       {output, code} -> Mix.raise("fwup failed (exit #{code}):\n#{output}")
     end
   end
+
+  defp fwup_compression_option(:fast), do: 1
+  defp fwup_compression_option(:best), do: 9
+  defp fwup_compression_option(number) when number >= 1 and number <= 9, do: number
 
   defp fwup_variables(opts) do
     [

@@ -269,6 +269,7 @@ defmodule Nerves do
         source_date_epoch: Application.get_env(:nerves, :source_date_epoch),
         fwup_conf: firmware_config[:fwup_conf],
         fwup_provisioning_conf: firmware_config[:provisioning],
+        fwup_compression: firmware_config[:fwup_compression],
         rootfs_overlay: firmware_config[:rootfs_overlay]
       ]
       |> Enum.reject(fn {_, v} -> is_nil(v) end)
