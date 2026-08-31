@@ -9,6 +9,47 @@ defmodule Nerves.BuildPlanTest do
   alias Nerves.BuildPlanHelpers
   alias Nerves.MixPackage
 
+  test "application firmware configuration overrides package configuration" do
+    previous_firmware_config = Application.get_env(:nerves, :firmware)
+
+    on_exit(fn ->
+      if previous_firmware_config do
+        Application.put_env(:nerves, :firmware, previous_firmware_config)
+      else
+        Application.delete_env(:nerves, :firmware)
+      end
+    end)
+
+    Application.put_env(:nerves, :firmware,
+      rootfs_type: :erofs,
+      rootfs_flags: ["-zlz4hc,level=1"],
+      bootfile: "dev.boot"
+    )
+
+    package = %MixPackage{
+      app: :system,
+      config: [
+        app: :system,
+        version: "1.0.0",
+        nerves: [
+          config: [
+            rootfs_type: :squashfs,
+            rootfs_flags: ["-quiet"],
+            bootfile: "start.boot"
+          ]
+        ]
+      ],
+      dest: "system",
+      deps: []
+    }
+
+    plan = Nerves.create_build_plan([package])
+
+    assert plan.config[:rootfs_type] == :erofs
+    assert plan.config[:rootfs_flags] == ["-zlz4hc,level=1"]
+    assert plan.config[:bootfile] == "dev.boot"
+  end
+
   test "Nerves v2 packages merge their configuration into the build plan" do
     package = %MixPackage{
       app: :system,

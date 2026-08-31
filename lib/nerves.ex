@@ -220,6 +220,7 @@ defmodule Nerves do
     |> add_base_configuration(all_packages)
     |> add_per_package_plans(all_packages)
     |> BuildPlan.run_planning_actions(:pre_download)
+    |> BuildPlan.merge_config(user_rootfs_config())
   end
 
   defp default_os_env() do
@@ -262,20 +263,6 @@ defmodule Nerves do
         }
       end
 
-    # Merge in user configurations from the app environment
-    firmware_config = Application.get_env(:nerves, :firmware) || []
-
-    user_app_config =
-      [
-        source_date_epoch: Application.get_env(:nerves, :source_date_epoch),
-        fwup_conf: firmware_config[:fwup_conf],
-        fwup_provisioning_conf: firmware_config[:provisioning],
-        fwup_compression: firmware_config[:fwup_compression],
-        rootfs_overlay: firmware_config[:rootfs_overlay]
-      ]
-      |> Enum.reject(fn {_, v} -> is_nil(v) end)
-      |> Map.new()
-
     base_config = %{host_tuple: Nerves.TargetTuple.new()}
 
     config =
@@ -284,7 +271,7 @@ defmodule Nerves do
         # TODO: Move the additions of the default config to the actions.
         Nerves.BuildAction.Rootfs.default_config(),
         Nerves.BuildAction.Firmware.default_config(),
-        user_app_config,
+        user_app_config(),
         build_plan.config
       ]
       |> Enum.reduce(%{}, &Map.merge(&2, &1))
@@ -297,6 +284,32 @@ defmodule Nerves do
         env: default_os_env(),
         actions: []
     }
+  end
+
+  defp user_app_config() do
+    firmware_config = Application.get_env(:nerves, :firmware) || []
+
+    [
+      source_date_epoch: Application.get_env(:nerves, :source_date_epoch),
+      fwup_conf: firmware_config[:fwup_conf],
+      fwup_provisioning_conf: firmware_config[:provisioning],
+      fwup_compression: firmware_config[:fwup_compression],
+      rootfs_overlay: firmware_config[:rootfs_overlay]
+    ]
+    |> Enum.reject(fn {_, v} -> is_nil(v) end)
+    |> Map.new()
+  end
+
+  defp user_rootfs_config() do
+    firmware_config = Application.get_env(:nerves, :firmware) || []
+
+    [
+      rootfs_type: firmware_config[:rootfs_type],
+      rootfs_flags: firmware_config[:rootfs_flags],
+      bootfile: firmware_config[:bootfile]
+    ]
+    |> Enum.reject(fn {_, v} -> is_nil(v) end)
+    |> Map.new()
   end
 
   defp dockerfile_path(config, package_path) do
