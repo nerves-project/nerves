@@ -211,8 +211,9 @@ defmodule Nerves.BuildAction.Rootfs do
   defp default_rootfs_flags(:squashfs),
     do: ["-mkfs-time", "0", "-all-time", "0", "-no-xattrs", "-quiet"]
 
+  # Default to 4K blocks since U-Boot's EROFS support doesn't support 16K
   defp default_rootfs_flags(:erofs), do: ["-b", "4096", "-zlz4hc", "-T", "0", "-U", "clear"]
-  defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode", "-m", "0"]
+  defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode,^has_journal", "-m", "0"]
   defp default_rootfs_flags(_type), do: []
 
   # ---------------------------------------------------------------------------
@@ -314,11 +315,11 @@ defmodule Nerves.BuildAction.Rootfs do
 
     MixUtils.info("  Creating EXT4 filesystem...")
 
-    # Estimate image size from tar: tar overhead makes this a slight overestimate
-    # of content, which is fine. Add 5% + 256KB for ext4 metadata.
+    # TODO - Allow user to specify size since estimating it is error prone.
+    # This is also what Buildroot does.
     tar_bytes = File.stat!(tar_path).size
     content_kb = div(tar_bytes, 1024)
-    image_kb = content_kb + div(content_kb, 20) + 256
+    image_kb = content_kb + div(content_kb * 3, 20) + 1024
 
     args = ["-d", tar_path] ++ flags ++ [ext4_path, "#{image_kb}"]
 
@@ -345,8 +346,10 @@ defmodule Nerves.BuildAction.Rootfs do
         mkfs.ext4 not found.
 
         mkfs.ext4 is part of e2fsprogs. Install it with:
-          brew install e2fsprogs  (macOS)
           apt install e2fsprogs   (Debian/Ubuntu)
+
+        On macOS, you'll need to manually install e2fsprogs since Homebrew's
+        version isn't currently linked against libarchive.
         """)
     end
   end
