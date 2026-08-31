@@ -12,6 +12,22 @@ defmodule Nerves.Tar.FSReader do
   alias Nerves.Tar.Entry
 
   @doc """
+  Synthesize a directory tree
+
+  This is useful when calling scan_directory/2 with a non-root path.
+  The path should be a directory and not end with a `/`.
+  """
+  @spec synthesize_dirs(String.t()) :: [Entry.t()]
+  def synthesize_dirs(path) do
+    path |> do_synthesize_dirs([])
+  end
+
+  defp do_synthesize_dirs(path, acc) when path in ["/", ".", ""], do: acc
+
+  defp do_synthesize_dirs(path, acc),
+    do: do_synthesize_dirs(Path.dirname(path), [Entry.directory(path, mode: 0o755) | acc])
+
+  @doc """
   Recursively scan `path` and return entries rooted at `root`
 
   Each file under `path` gets an entry whose path replaces the `path`
@@ -20,6 +36,9 @@ defmodule Nerves.Tar.FSReader do
       scan_directory("/build/rel/my_app", "srv/erlang")
 
   produces entries like `./srv/erlang/bin/my_app`.
+
+  When calling this with `root` set to something besides `"/"`, be sure
+  that the parent directories exist. See `synthesize_dirs/1`.
   """
   @spec scan_directory(Path.t(), String.t()) :: [Entry.t()]
   def scan_directory(path, root \\ "/") do

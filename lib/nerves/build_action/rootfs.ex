@@ -20,12 +20,8 @@ defmodule Nerves.BuildAction.Rootfs do
 
     1. Generated build-plan overlays
     2. User `rootfs_overlay/` directory
-    3. Assembled + scrubbed Mix release (mapped to `srv/erlang/`)
+    3. Assembled + scrubbed Mix release (defaults to `srv/erlang/`)
     4. System base rootfs
-
-  This tar-based pipeline preserves file permissions, ownership, symlinks,
-  and device nodes from the system rootfs — unlike the previous approach
-  of extracting/re-creating squashfs through the local filesystem.
   """
 
   use Nerves.BuildAction
@@ -121,8 +117,12 @@ defmodule Nerves.BuildAction.Rootfs do
     # 3. Scan generated and user rootfs overlays
     overlay_entries = scan_overlays(build_plan.rootfs_overlays, opts[:rootfs_overlay])
 
+    # 3.5. Create default entries for the target_release_path directories in case they're
+    # .   not provided by anyone else.
+    default_entries = Tar.FSReader.synthesize_dirs(opts[:target_release_path])
+
     # 4. Merge: overlay > release > system (first entry wins)
-    merged = merge([overlay_entries, release_entries | base_entries])
+    merged = merge([overlay_entries, release_entries, base_entries, default_entries])
 
     # 5. Sort: boot-critical files first, then alphabetical
     priority_map = BootOrder.build_priority_map(release, opts)

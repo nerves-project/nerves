@@ -25,6 +25,22 @@ defmodule Nerves.Tar.FSReaderTest do
     :ok
   end
 
+  test "synthesize_dir/1" do
+    entries = FSReader.synthesize_dirs("srv/erlang")
+
+    assert length(entries) == 2
+
+    [entry1, entry2] = entries
+
+    assert entry1.type == :directory
+    assert entry1.path == "./srv/"
+    assert entry1.mode == 0o755
+
+    assert entry2.type == :directory
+    assert entry2.path == "./srv/erlang/"
+    assert entry2.mode == 0o755
+  end
+
   test "scans directory with default root" do
     entries = FSReader.scan_directory(@tmp_dir)
 
