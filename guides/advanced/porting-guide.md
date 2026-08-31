@@ -872,7 +872,7 @@ For more details on building custom systems and creating distributable artifacts
 
 #### Iterating on the system config
 
-When you're tweaking your system, you'll want to use `mix nerves.system.shell` to get into the Buildroot configuration environment. From there you can run `make menuconfig`, `make linux-menuconfig`, and `make savedefconfig` to iterate on the configuration without rebuilding from scratch every time. See the [Buildroot Package Configuration](https://nerves.hexdocs.pm/customizing-systems.html#buildroot-package-configuration) section for the full workflow.
+When you're tweaking your system, you'll want to use `mix nerves.artifact.shell` to get into the Buildroot configuration environment. From there you can run `make menuconfig`, `make linux-menuconfig`, and `make savedefconfig` to iterate on the configuration without rebuilding from scratch every time. See the [Buildroot Package Configuration](https://nerves.hexdocs.pm/customizing-systems.html#buildroot-package-configuration) section for the full workflow.
 
 ## Where to go from here
 

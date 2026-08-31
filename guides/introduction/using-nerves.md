@@ -45,13 +45,13 @@ This will result in a `hello_nerves.fw` firmware bundle file.
 To create a bootable SD card, use the following command:
 
 ```bash
-mix firmware.burn
+mix burn
 ```
 
 or
 
 ```bash
-MIX_TARGET=rpi0_2 mix firmware.burn
+MIX_TARGET=rpi0_2 mix burn
 ```
 
 This command will attempt to automatically discover the SD card inserted in your
@@ -59,18 +59,18 @@ host.
 
 > #### More than one SD cards or disk images? {: .tip}
 >
-> `mix firmware.burn` may fail to correctly detect your SD card if you have
+> `mix burn` may fail to correctly detect your SD card if you have
 > more than one SD card inserted or you have disk images mounted.
 >
 > If this happens, you can specify the intended device by passing the
 > `-d <device>` argument to the command. For example
-> `mix firmware.burn -d /dev/rdisk3`
+> `mix burn -d /dev/rdisk3`
 >
 > You can also use `-d <filename>` to specify an output file that is a raw
 > image of the SD card. This binary image can be burned to an SD card using
 > [Raspberry Pi Imager](https://www.raspberrypi.com/software/), [Etcher](https://www.balena.io/etcher/), `dd`, `Win32DiskImager`, or other image copying utilities.
 
-For more options, refer to the `mix firmware.burn` documentation.
+For more options, refer to the `mix help burn`.
 
 Now that you have your SD card burned, you can insert it into your device and
 boot it up.

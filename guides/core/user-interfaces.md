@@ -52,23 +52,27 @@ Helpful links:
 * [ElixirConf 2018 - Introducing Scenic A Functional UI Framework - Boyd Multerer](https://www.youtube.com/watch?v=1QNxLNMq3Uw)
 * [Scenic Now and Looking Ahead - Boyd Multerer | ElixirConfEU Virtual 20](https://www.youtube.com/watch?v=tej-SyhZrqk)
 
-## Kiosk
+## Web Kiosk
 
 As mentioned in the Phoenix section. You can also run a basic web browser and
 produce a UI using common web technologies. There are currently maintained
 [Nerves Web Kiosks] for RPi4 and RPi5 using Cog which is a small embeddable
-browser and Weston which is a Wayland compositor to show it on.
+browser.
 
-## eInk displays
+## Flutter
 
-Some initial work has been done to support eInk displays like the Pimoroni Inky
-[pHAT](https://shop.pimoroni.com/products/inky-phat) and
-[wHAT](https://shop.pimoroni.com/products/inky-what) models. Look at the
-[`:inky` repo](https://github.com/pappersverk/inky) for more info.
+Many companies have had success with implementing their UI in Flutter. See
+the [Nerves Flutter Support project](https://github.com/nerves-flutter/nerves_flutter_support) for one implementation.
 
-## OLED
+## Emerge UI
 
-Basic work has been done to support small OLED screens with the SSD1306 chip which
-are usually smaller screens a few inches wide. More info in the [`:oled` docs](https://oled.hexdocs.pm)
+Emerge is a new Elixir UI framework that provides a declarative UI. It works
+well with Nerves. See the [Emerge project](https://github.com/emerge-elixir/emerge) for details.
+
+## Erlang Graphics Drawer
+
+If your drawing needs are very simple, the venerable EGD may suffice. The
+original library on the OTP team's GitHub organization is unmaintained, so
+see a more recently maintained [fork on Hex.pm](https://hex.pm/packages?search=egd&sort=recent_downloads).
 
 [Nerves Web Kiosks]: https://github.com/nerves-web-kiosk

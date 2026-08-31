@@ -23,6 +23,7 @@ Contents:
 * [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5)
 * [Updating from v1.5 to v1.6](#updating-from-v1-5-to-v1-6)
 * [Updating from v1.6 to v1.7](#updating-from-v1-6-to-v1-7)
+* [Updating from v1.x to v2.0](#updating-from-v1-x-to-v2-0)
 
 ## Updating from v0.8 to v0.9
 
@@ -779,7 +780,7 @@ The only backwards incompatible change in Nerves 1.7 is to remove Distillery
 support. See [Updating from v1.4 to v1.5](#updating-from-v1-4-to-v1-5) for how
 to move to mix releases.
 
-## Updating from v1.7 and later to v2.0
+## Updating from v1.x to v2.0
 
 Many aspects of Nerves has changed with v2.0. Nearly all updates are internal
 changes to add flexibility to how embedded systems firmware gets built. If
@@ -789,10 +790,20 @@ updates.
 
 ### Casual user updates
 
+Nerves 2.0 no longer downloads prebuilt artifacts on `mix deps.get`. They're now downloaded as needed with `mix firmware`. This removes the need to set `MIX_TARGET` before running `deps.get`.
+
+Enable Elixir's parallel compilation feature. It works now with Nerves 2. Add
+the following to your `.bashrc`, `.zshrc` or wherever you put your env variables:
+
+```sh
+export MIX_OS_DEPS_COMPILE_PARTITION_COUNT=$(( $(nproc) / 2 ))
+```
+
 Nerves no longer uses the [Shoehorn](https://github.com/nerves-project/shoehorn)
 project for creating OTP release scripts. Shoehorn has several features, but only the deterministic release startup ordering and application start type
 features were used. This functionality is now part of Nerves v2.0. If you're
-not aware of Shoehorn, you almost certainly don't use its other features.
+not aware of Shoehorn, you almost certainly don't use its automatic OTP app
+restart feature.
 
 Remove `:shoehorn` from your `mix.exs` dependencies. Then update the `release`
 function to change the `&Nerves.Release.init/1` reference to `&Nerves.init_release/1`. Your `release` function probably will look like this:
@@ -810,3 +821,22 @@ function to change the `&Nerves.Release.init/1` reference to `&Nerves.init_relea
     ]
   end
 ```
+
+If you're using a custom Nerves system and don't post pre-built artifacts, Nerves 2 won't automatically build them like Nerves 1 sometimes could. To
+build them, run `MIX_TARGET=<your target> mix nerves.artifact.build`.
+
+Internally, Nerves 2.0 uses tar files to pass around target filesystem files
+and metadata. If you're using an older Nerves system (you'll be overriding the
+`:nerves` dependency, but that's ok), you may get an error about `sqfs2tar` not being available. This is used to convert old Nerves systems that used SquashFS internally to use tar. It can be annoying to install, so it's recommended to upgrade your system or see the instructions below if you maintain it.
+
+### Nerves system maintainers
+
+Nerves systems are mostly compatible with Nerves 2. The following steps
+are minimal updates:
+
+1. Update the `:nerves` dependency in the `mix.exs` to allow `"~> 2.0"`
+2. Remove `# BR2_TARGET_ROOTFS_TAR is not set` from the `nerves_defconfig` so that a `rootfs.tar` is built.
+
+If you ONLY makes these updates, your Nerves systems will be compatible with both Nerves 1 and Nerves 2.
+
+TBD - add Nerves 2 updates for signing artifacts and configuration updates to avoid using the Nerves 1 compatibility layer.

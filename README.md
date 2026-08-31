@@ -223,13 +223,11 @@ mix nerves.new my_app
 export MIX_TARGET=rpi3
 mix deps.get      # Fetch the dependencies
 mix firmware      # Cross-compile dependencies and create a .fw file
-mix firmware.burn # Burn firmware to an inserted SD card
+mix burn          # Burn firmware to an inserted SD card
 ```
 
-**Note:** The `mix firmware.burn` target uses `sudo` to be able to write to a
-MicroSD card on Linux. You will be asked for a password. You can also set the
-`SUDO_ASKPASS` environment variable if you'd prefer an alternative way of
-requesting the password. E.g., `export SUDO_ASKPASS=ssh-askpass`.
+**Note:** The `mix burn` target uses `sudo` to be able to write to a
+MicroSD card on Linux. You will be asked for a password.
 
 ## Docs
 

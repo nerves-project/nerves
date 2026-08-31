@@ -28,14 +28,15 @@ the first OS processes and lets Erlang and Elixir take over from there. Not to
 fear, if you need something from Linux, Nerves provides a way to use most of the
 packages available through [Buildroot](https://buildroot.org).
 
-## Nerves Burner
+## Nerves Desktop and Nerves Burner
 
-Looking for the fastest way to get started with discovering Nerves? Then we strongly recommend to check out [Nerves Burner](https://github.com/nerves-project/nerves_burner).
+Looking for the fastest ways to get started with discovering Nerves? Then we highly recommend looking at the [Nerves Desktop](https://github.com/nerves-project/nerves_desktop) GUI or the [Nerves Burner](https://github.com/nerves-project/nerves_burner) commandline. Nerves Desktop uses Nerves Burner behind the scenes and also adds discovery, over-the-air firmware updates, and shell access.
 
-This tool removes the friction of burning your first MicroSD card. Nerves Burner supports:
+These tools automate many of the steps involved in burning your first MicroSD card. The following pre-built images are available:
+
 - [Nerves Livebook](#nerves-livebook) to run Livebook on your device and play with Elixir in no time
 - [Circuits Quickstart](hardware-interfaces.html#elixir-circuits) to learn about controlling leds, and other hardware components with Elixir
-- Setting up Wifi so you can easily connect to your device
+- [Nerves Web Kiosk](https://github.com/nerves-web-kiosk/kiosk_demo)
 
 This is what [Nerves Burner](https://github.com/nerves-project/nerves_burner) looks like:
 
@@ -130,7 +131,7 @@ Let's get all the dependencies that our system needs.
 
 ```bash
 cd hello_nerves
-MIX_TARGET=rpi0_2 mix deps.get
+mix deps.get
 ```
 
 You should now have installed all the dependencies required! If you encounter any issues at this point, make sure you've followed the [Installation Guide](installation.html) properly. It's time to build our first firmware with:
@@ -139,7 +140,9 @@ You should now have installed all the dependencies required! If you encounter an
 MIX_TARGET=rpi0_2 mix firmware
 ```
 
-After a couple minutes at most, you should see the following message:
+Nerves automatically downloads the compilers and other tools needed to create the firmware. Downloads are cached in `~/.nerves` or under `$XDG_DATA_HOME/nerves` if you have that set.
+
+After a couple minutes, you should see the following message:
 
 ```plain
 Firmware built successfully! 🎉
@@ -153,7 +156,7 @@ It's time to burn our firmware and try it out on our Raspberry Pi! 🔥
 Insert your MicroSD card in your computer and run the following command:
 
 ```bash
-MIX_TARGET=rpi0_2 mix firmware.burn
+MIX_TARGET=rpi0_2 mix burn
 ```
 
 > #### Warning - This will wipe any existing data on your card {: .warning}
@@ -382,8 +385,8 @@ defmodule HelloNerves.MixProject do
       overwrite: true,
       #...
       cookie: "#{@app}_cookie",
-      include_erts: &Nerves.Release.erts/0,
-      steps: [&Nerves.Release.init/1, :assemble],
+      include_erts: &Nerves.erts/0,
+      steps: [&Nerves.init_release/1, :assemble],
       strip_beams: Mix.env() == :prod or [keep: ["Docs"]]
     ]
   end
@@ -430,7 +433,7 @@ Save the file and rebuild the firmware with:
 MIX_TARGET=rpi0_2 mix firmware
 ```
 
-Since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network. We don't need to run `firmware.burn` anymore.
+Since we already have Nerves running on the target which is connected with a USB cable, we can upload our new firmware over the network. We don't need to run `mix burn` anymore.
 
 ```bash
 MIX_TARGET=rpi0_2 mix upload
@@ -444,8 +447,6 @@ iex> HelloNerves.hello()
 ```
 
 Congratulations! 🎊 You've just reached your very own Nerves `Hello world` moment and have assimilated all the basic concepts you need to go further. Whether you want to [Run a phoenix app](./user-interfaces.html#phoenix-web-interface), play around with your Pi's [GPIO](./hardware-interfaces.html#elixir-circuits), the world is now your oyster. If at any point in your journey you feel stuck, reach out to the Nerves community through [our communication channels](#community-links). Welcome to Nerves!
-
-
 
 ## Example projects
 
@@ -466,7 +467,9 @@ on your target to confirm that it works in the simplest case.
 git clone https://github.com/nerves-project/nerves_examples
 export MIX_TARGET=rpi0_2
 cd nerves_examples/blinky
-mix do deps.get, firmware, firmware.burn
+mix deps.get
+mix firmware
+mix burn
 ```
 
 ## Common terms

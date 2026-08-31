@@ -155,16 +155,7 @@ Because Buildroot can only be used from Linux, Nerves provides an abstraction
 layer called the Nerves system configuration shell that allows the same
 procedure to be used on Linux and non-Linux development hosts by using a
 Linux-based Docker container on non-Linux platforms. To access this environment,
-run the `mix nerves.system.shell` task from the custom system source directory.
-
-> #### Warning {: .warning}
->
-> Starting with OTP 26, the underlying shell system was completely reworked with
-> big improvements but unfortunately is incompatible with how `mix nerves.system.shell`
-> was handling a shell session. The task can still be run, but it will simple output
-> a command you will need to manually run in your shell to get the same effect
->
-> Follow [nerves#893](https://github.com/nerves-project/nerves/issues/893) for status updates
+run the `mix nerves.artifact.shell` task from the custom system source directory.
 
 ```bash
 $ mix deps.get
@@ -179,7 +170,7 @@ Dependency resolution completed:
  Checking package (https://repo.hex.pm/tarballs/nerves-1.3.0.tar)
 # <-SNIP->
 
-$ mix nerves.system.shell
+$ mix nerves.artifact.shell
 Mix environment
  MIX_TARGET:   custom_rpi3
  MIX_ENV:      dev

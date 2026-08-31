@@ -51,9 +51,9 @@ brew uninstall erlang
 ```
 
 Optionally, if you want to build custom Nerves systems, you'll also need to
-install [Docker for Mac](https://www.docker.com/docker-mac). After installing
-Docker for Mac, you will likely want to adjust the resource limits imposed on
-Docker, to allow it to successfully compile more complicated custom systems.
+install [Apple Container](https://github.com/apple/container) or [Docker for Mac](https://www.docker.com/docker-mac).
+
+If installing Docker for Mac, you will want to adjust the resource limits imposed on Docker, to allow it to successfully compile more complicated custom systems.
 Click the Docker icon in the top menu bar, then click Preferences > Advanced and
 allow Docker to use all of your CPUs and as much RAM as you think is reasonable
 for your machine (at least 6 GB). The more resources it has access to, the
@@ -207,17 +207,17 @@ Erlang/OTP and Elixir:
 asdf plugin add erlang
 asdf plugin add elixir
 
-asdf install erlang 28.5.0.1
-asdf install elixir 1.19.5-otp-28
-asdf set -u erlang 28.5.0.1
-asdf set -u elixir 1.19.5-otp-28
+asdf install erlang 29.0.5
+asdf install elixir 1.20.4-otp-29
+asdf set -u erlang 29.0.5
+asdf set -u elixir 1.20.4-otp-29
 ```
 
 ### mise
 
 ```sh
-mise use -g erlang@28.5.0.1
-mise use -g elixir@1.19.5-otp-28
+mise use -g erlang@29.0.5
+mise use -g elixir@1.20.4-otp-29
 ```
 
 > #### Auto plugin install {: .tip}

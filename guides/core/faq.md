@@ -25,13 +25,13 @@ For most use cases, the `/data` partition is the right place to store data.  It
 is initialized on first boot and is not overwritten when new firmware is pushed
 to the device.
 
-The `mix firmware.burn` task clears it out so that partition is guaranteed to be
+The `mix burn` task clears it out so that partition is guaranteed to be
 empty when the device boots. This is useful to ensure that the device is known
 state. There's a pattern for implementing a "Reset to factory defaults" feature
 by erasing the partition and rebooting.
 
 If you're updating firmware regularly by writing to a MicroSD card, try running
-`mix firmware.burn --task upgrade`. This won't reset the application data
+`mix burn --task upgrade`. This won't reset the application data
 partition.
 
 Some Elixir libraries write to their `priv` directory by default. This won't
@@ -91,7 +91,7 @@ documentation.  You may also find what you need by searching
 [hex.pm](https://hex.pm) for libraries that use that feature.
 
 If you still don't see what you're looking for, please open a topic in the
-"Nerves" category on 
+"Nerves" category on
 [https://elixirforum.com](https://elixirforum.com/c/nerves-forum/74), or
 create an Issue or Pull Request to the [relevant `nerves_system-<target>`
 repository](https://github.com/nerves-project?query=nerves_system_).
