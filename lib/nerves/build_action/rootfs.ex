@@ -211,8 +211,27 @@ defmodule Nerves.BuildAction.Rootfs do
   defp default_rootfs_flags(:squashfs),
     do: ["-mkfs-time", "0", "-all-time", "0", "-no-xattrs", "-quiet"]
 
-  # Default to 4K blocks since U-Boot's EROFS support doesn't support 16K
-  defp default_rootfs_flags(:erofs), do: ["-b", "4096", "-zlz4hc", "-T", "0", "-U", "clear"]
+  # EROFS defaults:
+  # -b 4096  -> U-Boot's EROFS support doesn't support 16KB so this is a safer default
+  # -C 16386 -> Slightly faster boot time on eMMC/MicroSD than default
+  # -zlz4hc,level=12 -> Use compression by default; 12 works better without a noticeable creation slowdown
+  # -Eragments,ztailpacking -> Linux 5.17+ improvement
+  # -T 0 -> reproducible builds
+  # -U clear -> reproducible builds
+  defp default_rootfs_flags(:erofs),
+    do: [
+      "-b",
+      "4096",
+      "-C",
+      "16384",
+      "-zlz4hc,level=12",
+      "-Efragments,ztailpacking",
+      "-T",
+      "0",
+      "-U",
+      "clear"
+    ]
+
   defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode,^has_journal", "-m", "0"]
   defp default_rootfs_flags(_type), do: []
 
