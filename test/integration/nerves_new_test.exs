@@ -13,14 +13,29 @@ defmodule Integration.NervesNewTest do
   test "nerves.new project for rpi0", _context do
     path = fixture_for_nerves_version()
     clean_build!(path)
+    project_name = Path.basename(path)
 
     # Both host and rpi0 builds should work
     run_mix_task!(path, "host", "deps.get")
+    assert File.exists?(Path.join([path, "deps"]))
+
     run_mix_task!(path, "rpi0", "firmware")
+
+    assert File.exists?(
+             Path.join([path, "_build", "rpi0_dev", "nerves", "images", "#{project_name}.fw"])
+           )
+
     run_mix_task!(path, "host", "compile")
+    assert File.exists?(Path.join([path, "_build", "dev"]))
+
     run_mix_task!(path, "rpi0", "firmware.metadata")
+    # Trust that failures result in error returns
+
     run_mix_task!(path, "rpi0", "firmware.image")
+    assert File.exists?(Path.join(path, "#{project_name}.img"))
+
     run_mix_task!(path, "rpi0", "firmware.unpack")
+    assert File.exists?(Path.join([path, "#{project_name}.unpacked", "rootfs", "srv", "erlang"]))
 
     # Test out artifact management commands since artifacts will have been downloaded
     run_mix_task!(path, "host", "nerves.artifact.ls")
