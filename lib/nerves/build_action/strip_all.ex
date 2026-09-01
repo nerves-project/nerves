@@ -26,14 +26,41 @@ defmodule Nerves.BuildAction.StripAll do
       {:ok, strip} ->
         Paths.executable_paths(release.path)
         |> Enum.filter(&(BinInfo.file_type(&1) == :elf))
-        |> Enum.each(&run_strip(&1, strip))
+        |> parallel_strip(strip)
 
         release
 
       :error ->
         Mix.raise("""
-        Expecting a Nerves package to provide $STRIP in the environment. Usually this is a toolchain.
+        Expecting a Nerves package to provide $STRIP in the environment. Usually this is a Nerves toolchain.
         """)
+    end
+  end
+
+  defp parallel_strip(paths, strip) do
+    # Use Task.async_stream to be able to set the max concurrency
+    results =
+      paths
+      |> Task.async_stream(&{&1, run_strip(&1, strip)},
+        max_concurrency: System.schedulers_online() * 4,
+        ordered: false,
+        timeout: :infinity
+      )
+      |> Enum.to_list()
+
+    failures =
+      Enum.flat_map(results, fn
+        {:ok, {_path, :ok}} -> []
+        {:ok, {path, :error}} -> [path]
+        {:exit, reason} -> exit(reason)
+      end)
+
+    if failures != [] do
+      MixUtils.warning("""
+      WARNING: Can't remove debug symbols from #{inspect(failures)}.
+
+      This is expected for precompiled Rust.
+      """)
     end
   end
 
@@ -51,15 +78,7 @@ defmodule Nerves.BuildAction.StripAll do
 
     case System.cmd(strip, [path], stderr_to_stdout: true) do
       {_, 0} -> :ok
-      _ -> failed_strip(path)
+      _ -> :error
     end
-  end
-
-  defp failed_strip(path) do
-    MixUtils.warning("""
-    WARNING: Can't remove debug symbols from #{path}.
-
-    This is expected for precompiled Rust.
-    """)
   end
 end
