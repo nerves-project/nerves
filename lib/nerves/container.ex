@@ -438,22 +438,23 @@ defmodule Nerves.Container do
   @doc """
   Copy files from the work directory's package subdirectory back to the host.
 
-  Used by `mix nerves.artifact.sync` to retrieve changed files
-  (e.g., updated defconfig) from the container workspace.
+  Used by `mix nerves.artifact.shell` to retrieve changed files
+  (e.g., updated defconfig) when the shell exits.
   On Linux this is a direct file copy; on macOS it uses a helper container or
   a temporary bind mount.
   """
   @spec sync_work_dir(String.t(), BuildPlan.package_info(), String.t()) :: :ok
   def sync_work_dir(tool, package, image) do
-    app = package.app
+    case {:os.type(), tool} do
+      {{:unix, :linux}, _} ->
+        src = Path.join(work_dir(package), to_string(package.app))
+        sync_local_dir(src, package.path)
 
-    case :os.type() do
-      {:unix, :linux} ->
-        src = Path.join(work_dir(package), to_string(app))
-        sync_local_dir(src, package.dest)
+      {_, "container"} ->
+        sync_work_dir_apple_container(package, image)
 
       _ ->
-        sync_work_dir_volume(tool, package, image)
+        sync_work_dir_docker_volume(tool, package, image)
     end
   end
 
@@ -715,14 +716,6 @@ defmodule Nerves.Container do
     end
 
     :ok
-  end
-
-  defp sync_work_dir_volume(tool, package, image) do
-    if tool == "container" do
-      sync_work_dir_apple_container(package, image)
-    else
-      sync_work_dir_docker_volume(tool, package, image)
-    end
   end
 
   defp sync_work_dir_apple_container(package, image) do

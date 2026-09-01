@@ -14,8 +14,8 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
 
   Nerves does not specify how package artifacts get built. Buildroot, for
   example, uses `make` and has commands like `make menuconfig` and
-  `make savedefconfig`. Files are stored in the container. To copy
-  them out, run `mix nerves.artifact.sync`.
+  `make savedefconfig`. Source changes made in the container are copied
+  back to the host when the shell exits.
 
   IMPORTANT: You can run `mix nerves.artifact.shell` in a Nerves project. Just
   be aware that you're modifying a dependency and any changes may be under
@@ -68,12 +68,17 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
       Work dir:  #{Container.work_dir(package)}
       Downloads: #{dl_dir}
 
-    Exit shell and use `mix nerves.artifact.sync #{package.app}` to copy configuration
-    changes back to the host. See `nerves.artifact.clean` and `nerves.artifact.build`
-    for deleting the container and non-interactive builds.
+    Source changes will be copied back to #{package.path} when the shell exits.
+    See `nerves.artifact.clean` and `nerves.artifact.build` for deleting the
+    container and non-interactive builds.
     """)
 
     _ = InteractiveCmd.cmd(tool, docker_args)
+
+    MixUtils.info("Syncing source changes to #{package.path}")
+    Container.sync_work_dir(tool, package, image)
+    MixUtils.info("Done. Use `git diff` to review changes.")
+
     :ok
   end
 end

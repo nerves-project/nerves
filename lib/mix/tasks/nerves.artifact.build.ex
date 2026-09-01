@@ -13,8 +13,8 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
   variable to `docker`, `podman`, or `container`.
 
   If this step fails, you can run `mix nerves.artifact.shell` to investigate
-  what went wrong. Use `mix nerves.artifact.sync` to copy configuration changes
-  out of the container.
+  what went wrong. Configuration changes made in the shell are copied out of
+  the container when the shell exits.
 
   Run `mix nerves.artifact.ls` to see the containers created by the Nerves tooling
   and `mix nerves.artifact.clean` to delete them.
