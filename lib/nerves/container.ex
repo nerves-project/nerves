@@ -9,6 +9,7 @@ defmodule Nerves.Container do
   """
 
   alias Nerves.BuildPlan
+  alias Nerves.MixUtils
   alias Nerves.Paths
 
   @apple_container_default_volume_size "128G"
@@ -134,7 +135,7 @@ defmodule Nerves.Container do
   # Returns true if the tool is installed and its daemon/VM is reachable.
   defp tool_running?(tool) do
     System.find_executable(tool) != nil and
-      match?({_, 0}, System.cmd(tool, ["info"], stderr_to_stdout: true))
+      match?({_, 0}, MixUtils.cmd(tool, ["info"], stderr_to_stdout: true))
   end
 
   defp apple_container_available?() do
@@ -169,8 +170,8 @@ defmodule Nerves.Container do
 
     user_args =
       if linux? do
-        {uid, 0} = System.cmd("id", ["-u"])
-        {gid, 0} = System.cmd("id", ["-g"])
+        {uid, 0} = MixUtils.cmd("id", ["-u"])
+        {gid, 0} = MixUtils.cmd("id", ["-g"])
         ["--user", "#{String.trim(uid)}:#{String.trim(gid)}"]
       else
         []
@@ -280,14 +281,14 @@ defmodule Nerves.Container do
   end
 
   defp ensure_tool_running!("container") do
-    case System.cmd("container", ["system", "status"], stderr_to_stdout: true) do
+    case MixUtils.cmd("container", ["system", "status"], stderr_to_stdout: true) do
       {_, 0} ->
         :ok
 
       _ ->
         Mix.shell().info("Starting Apple container system service")
 
-        case System.cmd(
+        case MixUtils.cmd(
                "container",
                ["system", "start", "--enable-kernel-install"],
                stderr_to_stdout: true
@@ -326,7 +327,7 @@ defmodule Nerves.Container do
           ["volume", "create", volume_name]
         end
 
-      {output, exit_code} = System.cmd(tool, args, stderr_to_stdout: true)
+      {output, exit_code} = MixUtils.cmd(tool, args, stderr_to_stdout: true)
 
       if exit_code != 0 do
         Mix.raise("Failed to create container volume #{volume_name}: #{String.trim(output)}")
@@ -337,14 +338,17 @@ defmodule Nerves.Container do
   end
 
   defp volume_exists_with_tool?("container", volume_name) do
-    case System.cmd("container", ["volume", "list", "-q"], stderr_to_stdout: true) do
+    case MixUtils.cmd("container", ["volume", "list", "-q"], stderr_to_stdout: true) do
       {output, 0} -> volume_name in String.split(output, "\n", trim: true)
       _ -> false
     end
   end
 
   defp volume_exists_with_tool?(tool, volume_name) do
-    match?({_, 0}, System.cmd(tool, ["volume", "inspect", volume_name], stderr_to_stdout: true))
+    match?(
+      {_, 0},
+      MixUtils.cmd(tool, ["volume", "inspect", volume_name], stderr_to_stdout: true)
+    )
   end
 
   defp volume_mount_args("container", volume_name, target) do
@@ -356,7 +360,7 @@ defmodule Nerves.Container do
   end
 
   defp host_memory_gb() do
-    case System.cmd("sysctl", ["-n", "hw.memsize"]) do
+    case MixUtils.cmd("sysctl", ["-n", "hw.memsize"]) do
       {result, 0} ->
         result
         |> String.trim()
@@ -369,7 +373,7 @@ defmodule Nerves.Container do
   end
 
   defp image_exists?(tool, image) do
-    match?({_, 0}, System.cmd(tool, ["image", "inspect", image], stderr_to_stdout: true))
+    match?({_, 0}, MixUtils.cmd(tool, ["image", "inspect", image], stderr_to_stdout: true))
   end
 
   defp build_image!(tool, image, dockerfile) do
@@ -398,7 +402,7 @@ defmodule Nerves.Container do
           Path.dirname(dockerfile)
         ]
 
-    {output, exit_code} = System.cmd(tool, args, stderr_to_stdout: true)
+    {output, exit_code} = MixUtils.cmd(tool, args, stderr_to_stdout: true)
 
     if exit_code != 0 do
       Mix.raise("Failed to build artifact image #{image}:\n#{output}")
@@ -498,9 +502,9 @@ defmodule Nerves.Container do
       ["cf", archive] ++ Enum.map(@copy_tree_excludes, &"--exclude=#{&1}") ++ ["-C", src_dir, "."]
 
     try do
-      case System.cmd("tar", tar_create_args, stderr_to_stdout: true) do
+      case MixUtils.cmd("tar", tar_create_args, stderr_to_stdout: true) do
         {_, 0} ->
-          case System.cmd("tar", ["xf", archive, "-C", dest_dir], stderr_to_stdout: true) do
+          case MixUtils.cmd("tar", ["xf", archive, "-C", dest_dir], stderr_to_stdout: true) do
             {_, 0} ->
               :ok
 
@@ -536,7 +540,7 @@ defmodule Nerves.Container do
   end
 
   defp sync_local_dir(src, dest) do
-    case System.cmd("cp", ["-a", "#{src}/.", dest], stderr_to_stdout: true) do
+    case MixUtils.cmd("cp", ["-a", "#{src}/.", dest], stderr_to_stdout: true) do
       {_, 0} -> :ok
       {output, _} -> Mix.raise("Failed to sync #{src} to #{dest}: #{String.trim(output)}")
     end
@@ -591,7 +595,7 @@ defmodule Nerves.Container do
             "rm -rf #{destination} && mkdir -p #{destination} && cp -a /source/. #{destination} && chown -R nerves:nerves #{destination}"
           ]
 
-      case System.cmd("container", args, stderr_to_stdout: true) do
+      case MixUtils.cmd("container", args, stderr_to_stdout: true) do
         {_, 0} ->
           :ok
 
@@ -619,7 +623,7 @@ defmodule Nerves.Container do
           "mkdir -p /workspace/build && chown -R nerves:nerves /workspace/build"
         ]
 
-    case System.cmd("container", args, stderr_to_stdout: true) do
+    case MixUtils.cmd("container", args, stderr_to_stdout: true) do
       {_, 0} ->
         :ok
 
@@ -643,7 +647,7 @@ defmodule Nerves.Container do
     all_dirs = "#{pkg_dir} #{dep_dirs} /workspace/build" |> String.trim()
 
     {output, exit_code} =
-      System.cmd(
+      MixUtils.cmd(
         tool,
         [
           "run",
@@ -668,7 +672,7 @@ defmodule Nerves.Container do
     # `docker cp` works on stopped containers; the directories were created
     # above so trailing-slash destinations work.
     {id_raw, exit_code} =
-      System.cmd(
+      MixUtils.cmd(
         tool,
         [
           "create",
@@ -688,7 +692,7 @@ defmodule Nerves.Container do
 
     try do
       with_staged_tree(pkg.path, fn staged_path ->
-        case System.cmd(tool, ["cp", "#{staged_path}/.", "#{container_id}:#{pkg_dir}/"],
+        case MixUtils.cmd(tool, ["cp", "#{staged_path}/.", "#{container_id}:#{pkg_dir}/"],
                stderr_to_stdout: true
              ) do
           {_, 0} -> :ok
@@ -700,7 +704,7 @@ defmodule Nerves.Container do
         dep_package = BuildPlan.find_package(build_plan, dep)
 
         with_staged_tree(dep_package.path, fn staged_path ->
-          case System.cmd(
+          case MixUtils.cmd(
                  tool,
                  ["cp", "#{staged_path}/.", "#{container_id}:/workspace/#{dep}/"],
                  stderr_to_stdout: true
@@ -711,7 +715,7 @@ defmodule Nerves.Container do
         end)
       end)
     after
-      _ = System.cmd(tool, ["rm", "-f", container_id], stderr_to_stdout: true)
+      _ = MixUtils.cmd(tool, ["rm", "-f", container_id], stderr_to_stdout: true)
       :ok
     end
 
@@ -740,7 +744,7 @@ defmodule Nerves.Container do
           "find /workspace/#{package.app} -mindepth 1 -maxdepth 1 -exec cp -a -t /destination -- {} +"
         ]
 
-    case System.cmd("container", args, stderr_to_stdout: true) do
+    case MixUtils.cmd("container", args, stderr_to_stdout: true) do
       {_, 0} ->
         :ok
 
@@ -753,7 +757,7 @@ defmodule Nerves.Container do
     vol = volume_name(package)
 
     {id_raw, exit_code} =
-      System.cmd(
+      MixUtils.cmd(
         tool,
         [
           "create",
@@ -772,14 +776,14 @@ defmodule Nerves.Container do
     container_id = extract_container_id(id_raw)
 
     try do
-      case System.cmd(tool, ["cp", "#{container_id}:/workspace/#{package.app}/.", package.path],
+      case MixUtils.cmd(tool, ["cp", "#{container_id}:/workspace/#{package.app}/.", package.path],
              stderr_to_stdout: true
            ) do
         {_, 0} -> :ok
         {output, _} -> Mix.raise("Failed to copy files from volume: #{String.trim(output)}")
       end
     after
-      System.cmd(tool, ["rm", "-f", container_id], stderr_to_stdout: true)
+      MixUtils.cmd(tool, ["rm", "-f", container_id], stderr_to_stdout: true)
     end
 
     :ok
@@ -849,7 +853,7 @@ defmodule Nerves.Container do
             do: ["volume", "list", "-q"],
             else: ["volume", "ls", "--filter", "name=nerves-work", "-q"]
 
-        case System.cmd(tool, args, stderr_to_stdout: true) do
+        case MixUtils.cmd(tool, args, stderr_to_stdout: true) do
           {output, 0} ->
             output
             |> String.trim()

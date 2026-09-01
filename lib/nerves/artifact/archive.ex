@@ -5,6 +5,7 @@
 #
 defmodule Nerves.Artifact.Archive do
   @moduledoc false
+  alias Nerves.MixUtils
 
   @doc "Returns the supported artifact archive extensions."
   @spec supported_extensions() :: [String.t()]
@@ -22,7 +23,7 @@ defmodule Nerves.Artifact.Archive do
   """
   @spec extract(String.t(), String.t()) :: :ok | {:error, String.t()}
   def extract(archive, destination) do
-    case System.cmd("tar", ["xf", archive, "--strip-components=1", "-C", destination],
+    case MixUtils.cmd("tar", ["xf", archive, "--strip-components=1", "-C", destination],
            stderr_to_stdout: true
          ) do
       {_, 0} -> :ok
@@ -75,7 +76,7 @@ defmodule Nerves.Artifact.Archive do
 
   defp cmd(cmd, args) do
     if System.find_executable(cmd) do
-      System.cmd(cmd, args, stderr_to_stdout: true)
+      MixUtils.cmd(cmd, args, stderr_to_stdout: true)
     else
       raise "Could not find '#{cmd}'. See https://nerves.hexdocs.pm/installation.html for required packages."
     end

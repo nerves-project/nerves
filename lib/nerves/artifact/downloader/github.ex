@@ -189,7 +189,7 @@ defmodule Nerves.Artifact.Downloader.GitHub do
 
   defp gh_token() do
     with gh when not is_nil(gh) <- System.find_executable("gh"),
-         {result, 0} <- System.cmd(gh, ["auth", "token"]) do
+         {result, 0} <- MixUtils.cmd(gh, ["auth", "token"]) do
       String.trim(result)
     else
       _err -> nil

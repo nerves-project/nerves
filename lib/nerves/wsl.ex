@@ -13,6 +13,7 @@ defmodule Nerves.WSL do
   Subsystem for Linux environment as well as functions to convert paths between
   the Windows host and Linux.
   """
+  alias Nerves.MixUtils
 
   @doc """
   Returns a two item tuple where the first item is a command and the second is
@@ -60,7 +61,7 @@ defmodule Nerves.WSL do
     powershell_args = "fwup.exe -D | set-content -encoding UTF8 #{win_path}"
 
     with {command, args} <- admin_powershell_command("powershell.exe", powershell_args),
-         {"", 0} <- System.cmd(command, args),
+         {"", 0} <- MixUtils.cmd(command, args),
          {:ok, devs} <- File.read(wsl_path) do
       devs =
         Regex.replace(~r/[\x{200B}\x{200C}\x{200D}\x{FEFF}]/u, devs, "")
@@ -92,7 +93,7 @@ defmodule Nerves.WSL do
   """
   @spec path_accessible_in_windows?(String.t(), boolean()) :: boolean()
   def path_accessible_in_windows?(file, true = _use_wslpath) do
-    {_path, exitcode} = System.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true)
+    {_path, exitcode} = MixUtils.cmd("wslpath", ["-w", "-a", file], stderr_to_stdout: true)
     exitcode == 0
   end
 
@@ -105,7 +106,7 @@ defmodule Nerves.WSL do
   """
   @spec get_temp_file_location(String.t()) :: String.t()
   def get_temp_file_location(file) do
-    {win_path, 0} = System.cmd("cmd.exe", ["/c", "echo %TEMP%"])
+    {win_path, 0} = MixUtils.cmd("cmd.exe", ["/c", "echo %TEMP%"])
     "#{String.trim(win_path)}\\#{Path.basename(file)}"
   end
 
@@ -225,7 +226,7 @@ defmodule Nerves.WSL do
   """
   @spec execute_wslpath(String.t(), [String.t()]) :: String.t() | nil
   def execute_wslpath(file, arguments) do
-    case System.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
+    case MixUtils.cmd("wslpath", arguments ++ [file], stderr_to_stdout: true) do
       {path, 0} ->
         String.trim(path)
 

@@ -70,7 +70,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
     MixUtils.info("  Download dir:   #{dl_dir}")
     MixUtils.info("  Package output: #{artifact_dl_dir}")
 
-    case InteractiveCmd.cmd(tool, docker_args) do
+    case MixUtils.interactive_cmd(tool, docker_args) do
       {_, 0} ->
         if not Enum.all?(archive_paths, &File.regular?/1) do
           Mix.raise("""

@@ -7,6 +7,7 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
 
   alias Nerves.BuildPlan
   alias Nerves.BuildPlanHelpers
+  alias Nerves.EnvHelpers
   alias Nerves.Paths
 
   test "Nerves V1 system creates expected build plan" do
@@ -88,7 +89,7 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
     File.mkdir_p!(Path.join(system_path, "staging/usr/lib/erlang/erts-1"))
     File.mkdir_p!(Path.join(system_path, "staging/usr/lib/erlang/lib/erl_interface-1"))
     File.touch!(Path.join(system_path, "images/rootfs.tar"))
-    BuildPlanHelpers.put_env("NERVES_SYSTEM", system_path)
+    EnvHelpers.put_env("NERVES_SYSTEM", system_path)
 
     app = :nerves_system_rpi0
     version = "2.1.1"

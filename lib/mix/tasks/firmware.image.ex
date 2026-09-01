@@ -37,7 +37,6 @@ defmodule Mix.Tasks.Firmware.Image do
   @impl Mix.Task
   def run(args) do
     Preflight.check!()
-    MixUtils.debug_info("Nerves Firmware Image")
 
     # Call "mix firmware" to ensure that the firmware bundle is up-to-date
     Mix.Task.run("firmware", [])

@@ -5,11 +5,11 @@
 defmodule Nerves.PathsTest do
   use ExUnit.Case, async: false
 
-  alias Nerves.BuildPlanHelpers
+  alias Nerves.EnvHelpers
   alias Nerves.Paths
 
   test "uses default data and download directory paths" do
-    BuildPlanHelpers.put_env(%{
+    EnvHelpers.put_env(%{
       "XDG_DATA_HOME" => nil,
       "NERVES_ARTIFACT_DIR" => nil,
       "NERVES_DL_DIR" => nil
@@ -21,7 +21,7 @@ defmodule Nerves.PathsTest do
   end
 
   test "respects XDG_DATA_HOME" do
-    BuildPlanHelpers.put_env(%{
+    EnvHelpers.put_env(%{
       "XDG_DATA_HOME" => "/xdg_data_home",
       "NERVES_ARTIFACT_DIR" => nil,
       "NERVES_DL_DIR" => nil

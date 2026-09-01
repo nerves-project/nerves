@@ -43,7 +43,6 @@ defmodule Mix.Tasks.Firmware.Metadata do
   @impl Mix.Task
   def run(argv) do
     Preflight.check!()
-    MixUtils.debug_info("Nerves Metadata")
 
     {opts, _argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 

@@ -52,7 +52,6 @@ defmodule Mix.Tasks.Burn do
   @impl Mix.Task
   def run(argv) do
     Preflight.check!()
-    MixUtils.debug_info("Nerves Burn")
 
     {opts, argv, _} = OptionParser.parse(argv, switches: @switches, aliases: @aliases)
 
@@ -105,7 +104,7 @@ defmodule Mix.Tasks.Burn do
           Mix.raise("Unable to burn firmware on your host #{inspect(type)}")
       end
 
-    case InteractiveCmd.cmd(cmd, args) do
+    case MixUtils.interactive_cmd(cmd, args) do
       {_, 0} -> :ok
       {_, status} -> Mix.raise("fwup exited with an error status: #{status}")
     end

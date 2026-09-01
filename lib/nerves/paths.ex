@@ -5,6 +5,7 @@
 defmodule Nerves.Paths do
   @moduledoc false
   import Bitwise
+  alias Nerves.MixUtils
 
   @spec data_dir() :: String.t()
   def data_dir() do
@@ -65,7 +66,7 @@ defmodule Nerves.Paths do
   """
   @spec dir_size(String.t()) :: non_neg_integer()
   def dir_size(path) do
-    case System.cmd("du", ["-ks", path], stderr_to_stdout: true) do
+    case MixUtils.cmd("du", ["-ks", path], stderr_to_stdout: true) do
       {output, 0} ->
         output
         |> String.split("\t")

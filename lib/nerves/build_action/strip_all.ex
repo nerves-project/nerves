@@ -76,7 +76,7 @@ defmodule Nerves.BuildAction.StripAll do
     # so that strip will work.
     make_writable!(path)
 
-    case System.cmd(strip, [path], stderr_to_stdout: true) do
+    case MixUtils.cmd(strip, [path], stderr_to_stdout: true) do
       {_, 0} -> :ok
       _ -> :error
     end

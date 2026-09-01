@@ -73,7 +73,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
     container and non-interactive builds.
     """)
 
-    _ = InteractiveCmd.cmd(tool, docker_args)
+    _ = MixUtils.interactive_cmd(tool, docker_args)
 
     MixUtils.info("Syncing source changes to #{package.path}")
     Container.sync_work_dir(tool, package, image)

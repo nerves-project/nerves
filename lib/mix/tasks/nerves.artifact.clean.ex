@@ -161,7 +161,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Clean do
         tool = Container.tool()
         MixUtils.info("  Removing #{tool} volume #{name}")
 
-        case System.cmd(tool, ["volume", "rm", name], stderr_to_stdout: true) do
+        case MixUtils.cmd(tool, ["volume", "rm", name], stderr_to_stdout: true) do
           {_, 0} -> :ok
           {output, _} -> MixUtils.error("    Warning: #{String.trim(output)}")
         end

@@ -149,7 +149,7 @@ defmodule Nerves.BuildAction.Firmware do
 
     compression_arg = "-#{fwup_compression_option(opts[:fwup_compression])}"
 
-    case System.cmd(fwup, [compression_arg, "-c", "-f", fwup_conf, "-o", fw_out],
+    case MixUtils.cmd(fwup, [compression_arg, "-c", "-f", fwup_conf, "-o", fw_out],
            env: fwup_env,
            stderr_to_stdout: true
          ) do

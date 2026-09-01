@@ -7,6 +7,7 @@ defmodule Nerves.BuildAction.NervesV1System do
 
   use Nerves.BuildAction
   alias Nerves.BuildPlan
+  alias Nerves.MixUtils
 
   @impl Nerves.BuildAction
   def pre_download(build_plan, opts) do
@@ -193,7 +194,7 @@ defmodule Nerves.BuildAction.NervesV1System do
       """)
     end
 
-    case System.shell("sqfs2tar #{escape(squashfs_path)} > #{escape(tar_path)}") do
+    case MixUtils.shell_command("sqfs2tar #{escape(squashfs_path)} > #{escape(tar_path)}") do
       {_, 0} ->
         :ok
 

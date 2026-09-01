@@ -47,13 +47,52 @@ defmodule Nerves.MixUtils do
       |> Keyword.drop([:into, :stderr_to_stdout, :stream])
       |> Keyword.put(:env, env)
 
-    System.cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
+    cmd(cmd, args, [into: stream, stderr_to_stdout: std_err] ++ opts)
   end
 
-  @spec debug_info(String.t()) :: :ok
-  def debug_info(msg) do
-    if System.get_env("NERVES_DEBUG") == "1" do
-      Mix.shell().info(msg)
+  @doc false
+  @spec cmd(binary(), [binary()], keyword()) :: {Collectable.t(), non_neg_integer()}
+  def cmd(command, args, opts \\ []) do
+    debug_command(command, args)
+    System.cmd(command, args, opts)
+  end
+
+  @doc false
+  @spec shell_command(binary(), keyword()) :: {binary(), non_neg_integer()}
+  def shell_command(command, opts \\ []) do
+    if nerves_debug?(), do: info("$ #{command}")
+
+    System.shell(command, opts)
+  end
+
+  @doc false
+  @spec interactive_cmd(binary(), [binary()]) :: {Collectable.t(), non_neg_integer()}
+  def interactive_cmd(command, args) do
+    debug_command(command, args)
+    InteractiveCmd.cmd(command, args)
+  end
+
+  @doc false
+  @spec debug_command(binary(), [binary()]) :: :ok
+  def debug_command(command, args) do
+    if nerves_debug?() do
+      commandline = Enum.map_join([command | args], " ", &shell_escape/1)
+
+      info("$ #{commandline}")
+    end
+  end
+
+  defp nerves_debug?() do
+    System.get_env("NERVES_DEBUG") == "1"
+  end
+
+  defp shell_escape(""), do: "''"
+
+  defp shell_escape(argument) do
+    if String.match?(argument, ~r|^[A-Za-z0-9_@%+=:,./-]+$|) do
+      argument
+    else
+      "'" <> String.replace(argument, "'", "'\\''") <> "'"
     end
   end
 
@@ -62,7 +101,7 @@ defmodule Nerves.MixUtils do
       if WSL.running_on_wsl?() do
         WSL.get_fwup_devices()
       else
-        System.cmd("fwup", ["--detect"])
+        cmd("fwup", ["--detect"])
       end
 
     if result == "" do

@@ -7,6 +7,7 @@ defmodule Nerves.BuildPlanTest do
 
   alias Nerves.BuildPlan
   alias Nerves.BuildPlanHelpers
+  alias Nerves.EnvHelpers
   alias Nerves.MixPackage
 
   test "application firmware configuration overrides package configuration" do
@@ -72,8 +73,8 @@ defmodule Nerves.BuildPlanTest do
   test "Nerves V1 actions derive toolchain and system variables from resolved artifacts", %{
     tmp_dir: root
   } do
-    BuildPlanHelpers.delete_env("TEST_NERVES_SYSTEM")
-    BuildPlanHelpers.delete_env("TEST_NERVES_TOOLCHAIN")
+    EnvHelpers.delete_env("TEST_NERVES_SYSTEM")
+    EnvHelpers.delete_env("TEST_NERVES_TOOLCHAIN")
 
     toolchain = Path.join(root, "toolchain")
     system = Path.join(root, "system")

@@ -266,7 +266,7 @@ defmodule Nerves.BuildAction.Rootfs do
 
     flags_str = Enum.join(flags, " ")
 
-    case System.shell(
+    case MixUtils.shell_command(
            "sqfstar -force #{flags_str} #{escape(squashfs_path)} < #{escape(tar_path)}"
          ) do
       {_, 0} ->
@@ -300,7 +300,7 @@ defmodule Nerves.BuildAction.Rootfs do
 
     args = ["--tar=f"] ++ flags ++ [erofs_path, tar_path]
 
-    case System.cmd(mkfs_erofs, args, stderr_to_stdout: true) do
+    case MixUtils.cmd(mkfs_erofs, args, stderr_to_stdout: true) do
       {_, 0} ->
         :ok
 
@@ -342,7 +342,7 @@ defmodule Nerves.BuildAction.Rootfs do
 
     args = ["-d", tar_path] ++ flags ++ [ext4_path, "#{image_kb}"]
 
-    case System.cmd(mkfs_ext4, args, stderr_to_stdout: true) do
+    case MixUtils.cmd(mkfs_ext4, args, stderr_to_stdout: true) do
       {_, 0} ->
         :ok
 
@@ -374,7 +374,7 @@ defmodule Nerves.BuildAction.Rootfs do
   end
 
   defp find_homebrew_mkfs_ext4() do
-    case System.cmd("brew", ["--prefix", "e2fsprogs"], stderr_to_stdout: true) do
+    case MixUtils.cmd("brew", ["--prefix", "e2fsprogs"], stderr_to_stdout: true) do
       {prefix, 0} ->
         mkfs_path = Path.join([String.trim(prefix), "sbin", "mkfs.ext4"])
         if File.exists?(mkfs_path), do: mkfs_path, else: nil

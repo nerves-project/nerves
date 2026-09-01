@@ -48,7 +48,6 @@ defmodule Mix.Tasks.Firmware.Unpack do
   @impl Mix.Task
   def run(args) do
     Preflight.check!()
-    MixUtils.debug_info("Nerves Firmware Unpack")
 
     {opts, _, _} = OptionParser.parse(args, strict: @switches, aliases: @aliases)
 
