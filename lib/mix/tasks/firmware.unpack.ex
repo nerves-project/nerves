@@ -100,6 +100,12 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
         :ok
 
+      :erofs ->
+        {_, 0} =
+          MixUtils.shell("fsck.erofs", ["--extract=#{rootfs_output_path}", rootfs_image])
+
+        :ok
+
       other ->
         MixUtils.warning("Skipping RootFS unpack step since it has format #{other}")
     end
