@@ -22,8 +22,7 @@ defmodule Nerves.BuildPlanTest do
     end)
 
     Application.put_env(:nerves, :firmware,
-      rootfs_type: :erofs,
-      rootfs_flags: ["-zlz4hc,level=1"],
+      rootfs_type: {:erofs, ["-zlz4hc,level=1"]},
       bootfile: "dev.boot"
     )
 
@@ -34,8 +33,7 @@ defmodule Nerves.BuildPlanTest do
         version: "1.0.0",
         nerves: [
           config: [
-            rootfs_type: :squashfs,
-            rootfs_flags: ["-quiet"],
+            rootfs_type: {:squashfs, ["-quiet"]},
             bootfile: "start.boot"
           ]
         ]
@@ -46,8 +44,7 @@ defmodule Nerves.BuildPlanTest do
 
     plan = Nerves.create_build_plan([package])
 
-    assert plan.config[:rootfs_type] == :erofs
-    assert plan.config[:rootfs_flags] == ["-zlz4hc,level=1"]
+    assert plan.config[:rootfs_type] == {:erofs, ["-zlz4hc,level=1"]}
     assert plan.config[:bootfile] == "dev.boot"
   end
 
@@ -57,7 +54,7 @@ defmodule Nerves.BuildPlanTest do
       config: [
         app: :system,
         version: "1.0.0",
-        nerves: [config: [rootfs_type: :erofs, rootfs_flags: ["-T", "0"]]]
+        nerves: [config: [rootfs_type: {:erofs, ["-T", "0"]}]]
       ],
       dest: "system",
       deps: []
@@ -65,8 +62,7 @@ defmodule Nerves.BuildPlanTest do
 
     plan = Nerves.create_build_plan([package])
 
-    assert plan.config[:rootfs_type] == :erofs
-    assert plan.config[:rootfs_flags] == ["-T", "0"]
+    assert plan.config[:rootfs_type] == {:erofs, ["-T", "0"]}
   end
 
   @tag :tmp_dir

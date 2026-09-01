@@ -199,6 +199,7 @@ defmodule Nerves.BuildPlan do
   * `:fwup_provisioning_conf` - an optional user-app overridden provisioning config for fwup
   * `:fwup_compression` - use `:best` (default) or `:fast` compression. Numbers from 1 to 9 are also supported.
   * `:rootfs_overlay` - an optional user-app overridden rootfs overlay (TODO? Add to main rootfs_overlays field?)
+  * `:rootfs_type` - either `type` or `{type, mkfs_options}` tuple. The `type` can be `:squashfs`, `:erofs`, or `:ext4`. `options` is a string list and if `nil` or omitted uses Nerves' defaults
   * `:host_tuple` - the compiler target tuple for making binaries on the computer running the build. See `Nerves.TargetTuple`
   """
   defstruct host_build?: false,

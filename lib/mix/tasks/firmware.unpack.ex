@@ -39,6 +39,7 @@ defmodule Mix.Tasks.Firmware.Unpack do
   """
   use Mix.Task
 
+  alias Nerves.BuildAction.Rootfs
   alias Nerves.MixUtils
   alias Nerves.Preflight
 
@@ -51,8 +52,8 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
     {opts, _, _} = OptionParser.parse(args, strict: @switches, aliases: @aliases)
 
-    config = Nerves.build_plan().config
-    fw = opts[:fw] || config[:firmware_path]
+    build_plan = Nerves.build_plan()
+    fw = opts[:fw] || build_plan.config[:firmware_path]
 
     cond do
       fw != nil and File.exists?(fw) ->
@@ -77,7 +78,7 @@ defmodule Mix.Tasks.Firmware.Unpack do
     end
 
     output = opts[:output] || "#{Path.rootname(Path.basename(fw))}.unpacked"
-    unpack(fw, output, config[:rootfs_type])
+    unpack(fw, output, build_plan.config[:rootfs_type])
   end
 
   defp unpack(fw, output_path, rootfs_type) do
@@ -92,21 +93,21 @@ defmodule Mix.Tasks.Firmware.Unpack do
 
     {_, 0} = MixUtils.shell("unzip", [fw, "-d", abs_output_path])
 
-    case rootfs_type do
-      :squashfs ->
+    case Rootfs.normalize_rootfs_type(rootfs_type) do
+      {:squashfs, _} ->
         {_, 0} =
           MixUtils.shell("unsquashfs", ["-d", rootfs_output_path, "-no-xattrs", rootfs_image])
 
         :ok
 
-      :erofs ->
+      {:erofs, _} ->
         {_, 0} =
           MixUtils.shell("fsck.erofs", ["--extract=#{rootfs_output_path}", rootfs_image])
 
         :ok
 
       other ->
-        MixUtils.warning("Skipping RootFS unpack step since it has format #{other}")
+        MixUtils.warning("Skipping RootFS unpack step since it has format #{inspect(other)}")
     end
   end
 end

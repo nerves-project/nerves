@@ -79,6 +79,8 @@ defmodule Nerves.MixUtils do
       commandline = Enum.map_join([command | args], " ", &shell_escape/1)
 
       info("$ #{commandline}")
+    else
+      :ok
     end
   end
 

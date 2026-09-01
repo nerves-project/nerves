@@ -39,7 +39,9 @@ defmodule Nerves.BuildPlans.NervesV1ToolchainTest do
            ]
 
     assert build_plan.config[:bootfile] == "start.boot"
+
     assert build_plan.config[:rootfs_type] == :squashfs
+
     assert build_plan.config[:target_release_path] == "srv/erlang"
     # Firmware metadata is pulled from this project, so skip check.
 

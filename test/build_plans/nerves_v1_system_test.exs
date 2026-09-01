@@ -40,7 +40,9 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
            ]
 
     assert build_plan.config[:bootfile] == "start.boot"
+
     assert build_plan.config[:rootfs_type] == :squashfs
+
     assert build_plan.config[:rootfs_inputs] == [Path.join(artifact_path, "images/rootfs.tar")]
     assert build_plan.config[:target_release_path] == "srv/erlang"
     assert build_plan.config[:fwup_conf] == Path.join(artifact_path, "images/fwup.conf")
@@ -115,7 +117,9 @@ defmodule Nerves.BuildPlans.NervesV1SystemTest do
     assert package.extractors == []
 
     assert build_plan.config[:bootfile] == "start.boot"
+
     assert build_plan.config[:rootfs_type] == :squashfs
+
     assert build_plan.config[:rootfs_inputs] == [Path.join(system_path, "images/rootfs.tar")]
     assert build_plan.config[:target_release_path] == "srv/erlang"
     assert build_plan.config[:fwup_conf] == Path.join(system_path, "images/fwup.conf")

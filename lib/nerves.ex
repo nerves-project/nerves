@@ -305,7 +305,6 @@ defmodule Nerves do
 
     [
       rootfs_type: firmware_config[:rootfs_type],
-      rootfs_flags: firmware_config[:rootfs_flags],
       bootfile: firmware_config[:bootfile]
     ]
     |> Enum.reject(fn {_, v} -> is_nil(v) end)

@@ -31,24 +31,41 @@ defmodule Nerves.BuildAction.Rootfs do
   alias Nerves.MixUtils
   alias Nerves.Tar
 
+  @supported_types [:squashfs, :erofs, :ext4]
+
+  @type fs_format() :: :squashfs | :erofs | :ext4
+  @type normalized_rootfs_type() :: {fs_format(), [String.t()]}
+  @type rootfs_type() :: normalized_rootfs_type() | fs_format() | nil
+
   @spec default_config() :: %{
           rootfs_path: String.t(),
-          rootfs_type: term(),
-          rootfs_flags: term(),
+          rootfs_type: {:squashfs | :erofs | :ext4, [String.t()]},
           target_release_path: String.t(),
-          bootfile: term()
+          bootfile: String.t()
         }
   def default_config() do
     project_config = Mix.Project.config()
     images_path = Path.join([Mix.Project.build_path(), "nerves", "images"])
 
     firmware_config = Application.get_env(:nerves, :firmware) || []
-    {rootfs_type, rootfs_flags} = resolve_rootfs_options(firmware_config)
+
+    rootfs_type =
+      if firmware_config[:mksquashfs_flags] do
+        MixUtils.warning("""
+        :mksquashfs_flags is deprecated. Use :rootfs_type in your firmware config instead.
+
+            config :nerves, :firmware,
+              rootfs_type: {:squashfs, #{inspect(firmware_config[:mksquashfs_flags])}}
+        """)
+
+        {:squashfs, firmware_config[:mksquashfs_flags]}
+      else
+        firmware_config[:rootfs_type] || :squashfs
+      end
 
     %{
       rootfs_path: Path.join(images_path, "#{project_config[:app]}.rootfs"),
       rootfs_type: rootfs_type,
-      rootfs_flags: rootfs_flags,
       target_release_path: "srv/erlang",
       bootfile: firmware_config[:bootfile] || "start.boot"
     }
@@ -61,7 +78,6 @@ defmodule Nerves.BuildAction.Rootfs do
       :images_path,
       :rootfs_path,
       :rootfs_type,
-      :rootfs_flags,
       :target_release_path,
       :bootfile
     ]
@@ -135,10 +151,9 @@ defmodule Nerves.BuildAction.Rootfs do
 
     # 7. Create rootfs image from tar
     create_rootfs_image!(
-      opts[:rootfs_type],
+      normalize_rootfs_type(opts[:rootfs_type]),
       opts[:rootfs_path],
-      combined_tar,
-      opts[:rootfs_flags]
+      combined_tar
     )
 
     release
@@ -176,33 +191,17 @@ defmodule Nerves.BuildAction.Rootfs do
   # Rootfs type and flags resolution
   # ---------------------------------------------------------------------------
 
-  defp resolve_rootfs_options(firmware_config) do
-    rootfs_type = resolve_rootfs_type(firmware_config)
-    rootfs_flags = resolve_rootfs_flags(firmware_config, rootfs_type)
-    {rootfs_type, rootfs_flags}
-  end
-
-  defp resolve_rootfs_type(firmware_config) do
-    firmware_config[:rootfs_type] || :squashfs
-  end
-
-  defp resolve_rootfs_flags(firmware_config, rootfs_type) do
-    cond do
-      firmware_config[:rootfs_flags] ->
-        firmware_config[:rootfs_flags]
-
-      firmware_config[:mksquashfs_flags] ->
-        MixUtils.warning("""
-        :mksquashfs_flags is deprecated. Use :rootfs_flags in your firmware config instead.
-
-            config :nerves, :firmware,
-              rootfs_flags: #{inspect(firmware_config[:mksquashfs_flags])}
-        """)
-
-        firmware_config[:mksquashfs_flags]
-
-      true ->
-        default_rootfs_flags(rootfs_type)
+  @doc """
+  Normalize a rootfs_type to the tuple form
+  """
+  @spec normalize_rootfs_type(rootfs_type) :: normalized_rootfs_type()
+  def normalize_rootfs_type(rootfs_type) do
+    case rootfs_type do
+      nil -> {:squashfs, default_rootfs_flags(:squashfs)}
+      type when type in @supported_types -> {type, default_rootfs_flags(type)}
+      {type, nil} when type in @supported_types -> {type, default_rootfs_flags(type)}
+      {type, flags} when type in @supported_types and is_list(flags) -> {type, flags}
+      type -> Mix.raise("Unsupported :rootfs_type: #{inspect(type)}")
     end
   end
 
@@ -233,26 +232,21 @@ defmodule Nerves.BuildAction.Rootfs do
     ]
 
   defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode,^has_journal", "-m", "0"]
-  defp default_rootfs_flags(_type), do: []
 
   # ---------------------------------------------------------------------------
   # Rootfs image creation
   # ---------------------------------------------------------------------------
 
-  defp create_rootfs_image!(:squashfs, image_path, tar_path, flags) do
+  defp create_rootfs_image!({:squashfs, flags}, image_path, tar_path) do
     mkfs_squashfs!(image_path, tar_path, flags)
   end
 
-  defp create_rootfs_image!(:erofs, image_path, tar_path, flags) do
+  defp create_rootfs_image!({:erofs, flags}, image_path, tar_path) do
     mkfs_erofs!(image_path, tar_path, flags)
   end
 
-  defp create_rootfs_image!(:ext4, image_path, tar_path, flags) do
+  defp create_rootfs_image!({:ext4, flags}, image_path, tar_path) do
     mkfs_ext4!(image_path, tar_path, flags)
-  end
-
-  defp create_rootfs_image!(type, _image_path, _tar_path, _flags) do
-    Mix.raise("Unsupported rootfs type: #{inspect(type)}")
   end
 
   # ---------------------------------------------------------------------------
