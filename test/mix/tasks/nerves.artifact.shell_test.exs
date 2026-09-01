@@ -25,6 +25,7 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
   end
 
   test "nerves.artifact.shell syncs source changes after the shell exits" do
+    # TODO - capture output to clean up `mix test` output
     package = %{app: :test_system, path: "/tmp/test_system"}
     build_plan = %BuildPlan{packages: [package]}
     :persistent_term.put({Nerves, :build_plan}, {build_plan, false})
