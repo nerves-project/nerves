@@ -121,9 +121,9 @@ defmodule Nerves.Tar.ReaderTest do
     end
   end
 
-  test "resolves a PAX long link" do
-    tar_path = Path.join(System.tmp_dir!(), "nerves_tar_pax_long_link_test.tar")
-    on_exit(fn -> File.rm(tar_path) end)
+  @tag :tmp_dir
+  test "resolves a PAX long link", %{tmp_dir: tmp_dir} do
+    tar_path = Path.join(tmp_dir, "pax_long_link.tar")
 
     pax_data = pax_record("linkpath", @pax_long_target)
 

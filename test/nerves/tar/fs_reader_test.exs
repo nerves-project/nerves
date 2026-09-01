@@ -7,21 +7,17 @@ defmodule Nerves.Tar.FSReaderTest do
 
   alias Nerves.Tar.FSReader
 
-  @tmp_dir Path.join(System.tmp_dir!(), "nerves_tar_fsreader_test")
+  @moduletag :tmp_dir
 
-  setup do
-    File.rm_rf!(@tmp_dir)
-    File.mkdir_p!(@tmp_dir)
-
+  setup %{tmp_dir: tmp_dir} do
     # Create a small directory tree
-    File.mkdir_p!(Path.join(@tmp_dir, "subdir"))
-    File.write!(Path.join(@tmp_dir, "file.txt"), "hello")
-    File.write!(Path.join([@tmp_dir, "subdir", "nested.txt"]), "nested")
+    File.mkdir_p!(Path.join(tmp_dir, "subdir"))
+    File.write!(Path.join(tmp_dir, "file.txt"), "hello")
+    File.write!(Path.join([tmp_dir, "subdir", "nested.txt"]), "nested")
 
     # Create a symlink
-    File.ln_s!("file.txt", Path.join(@tmp_dir, "link.txt"))
+    File.ln_s!("file.txt", Path.join(tmp_dir, "link.txt"))
 
-    on_exit(fn -> File.rm_rf!(@tmp_dir) end)
     :ok
   end
 
@@ -41,8 +37,8 @@ defmodule Nerves.Tar.FSReaderTest do
     assert entry2.mode == 0o755
   end
 
-  test "scans directory with default root" do
-    entries = FSReader.scan_directory(@tmp_dir)
+  test "scans directory with default root", %{tmp_dir: tmp_dir} do
+    entries = FSReader.scan_directory(tmp_dir)
 
     paths = Enum.map(entries, & &1.path) |> Enum.sort()
 
@@ -55,8 +51,8 @@ defmodule Nerves.Tar.FSReaderTest do
     assert subdir.type == :directory
   end
 
-  test "scans directory with custom root" do
-    entries = FSReader.scan_directory(@tmp_dir, "srv/erlang")
+  test "scans directory with custom root", %{tmp_dir: tmp_dir} do
+    entries = FSReader.scan_directory(tmp_dir, "srv/erlang")
 
     paths = Enum.map(entries, & &1.path) |> Enum.sort()
 
@@ -66,8 +62,8 @@ defmodule Nerves.Tar.FSReaderTest do
     assert "./srv/erlang/subdir/nested.txt" in paths
   end
 
-  test "regular files have correct size and contents reference" do
-    entries = FSReader.scan_directory(@tmp_dir)
+  test "regular files have correct size and contents reference", %{tmp_dir: tmp_dir} do
+    entries = FSReader.scan_directory(tmp_dir)
 
     file = Enum.find(entries, &(&1.path == "./file.txt"))
     assert file.type == :regular
@@ -75,8 +71,8 @@ defmodule Nerves.Tar.FSReaderTest do
     assert match?({path, 0} when is_binary(path), file.contents)
   end
 
-  test "symlinks preserve link target" do
-    entries = FSReader.scan_directory(@tmp_dir)
+  test "symlinks preserve link target", %{tmp_dir: tmp_dir} do
+    entries = FSReader.scan_directory(tmp_dir)
 
     link = Enum.find(entries, &(&1.path == "./link.txt"))
     assert link.type == :symlink

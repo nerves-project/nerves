@@ -40,25 +40,29 @@ defmodule Nerves.BinInfoTest do
     end)
   end
 
-  test "reads 32-bit little-endian headers" do
-    path = write_fixture(elf_header(1, 1, 40, 0x0500_0200))
+  @tag :tmp_dir
+  test "reads 32-bit little-endian headers", %{tmp_dir: tmp_dir} do
+    path = write_fixture(tmp_dir, elf_header(1, 1, 40, 0x0500_0200))
 
     assert {:ok, %{machine: :arm, flags: 0x0500_0200}} = BinInfo.read(path)
   end
 
-  test "reads 64-bit big-endian headers" do
-    path = write_fixture(elf_header(2, 2, 183, 0x0102_0304))
+  @tag :tmp_dir
+  test "reads 64-bit big-endian headers", %{tmp_dir: tmp_dir} do
+    path = write_fixture(tmp_dir, elf_header(2, 2, 183, 0x0102_0304))
 
     assert {:ok, %{machine: :aarch64, flags: 0x0102_0304}} = BinInfo.read(path)
   end
 
-  test "rejects non-ELF and truncated files" do
-    assert :error = BinInfo.read(write_fixture("not an ELF file"))
-    assert :error = BinInfo.read(write_fixture(<<0x7F, "ELF", 1, 1>>))
+  @tag :tmp_dir
+  test "rejects non-ELF and truncated files", %{tmp_dir: tmp_dir} do
+    assert :error = BinInfo.read(write_fixture(tmp_dir, "not an ELF file"))
+    assert :error = BinInfo.read(write_fixture(tmp_dir, <<0x7F, "ELF", 1, 1>>))
   end
 
-  test "preserves unknown machine values" do
-    path = write_fixture(elf_header(1, 1, 0xFFFF, 0))
+  @tag :tmp_dir
+  test "preserves unknown machine values", %{tmp_dir: tmp_dir} do
+    path = write_fixture(tmp_dir, elf_header(1, 1, 0xFFFF, 0))
 
     assert {:ok, %{machine: 0xFFFF}} = BinInfo.read(path)
   end
@@ -85,10 +89,9 @@ defmodule Nerves.BinInfoTest do
     <<prefix::binary, replacement::binary, suffix::binary>>
   end
 
-  defp write_fixture(contents) do
-    path = Path.join(System.tmp_dir!(), "nerves-bin_info-#{System.unique_integer([:positive])}")
+  defp write_fixture(tmp_dir, contents) do
+    path = Path.join(tmp_dir, "fixture")
     File.write!(path, contents)
-    on_exit(fn -> File.rm(path) end)
     path
   end
 

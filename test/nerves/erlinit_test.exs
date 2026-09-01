@@ -10,6 +10,8 @@ defmodule Nerves.BuildAction.ErlinitTest do
   alias Nerves.BuildAction.Erlinit
   alias Nerves.BuildPlan
 
+  @moduletag :tmp_dir
+
   @example """
   # Additional configuration for erlinit
 
@@ -96,7 +98,7 @@ defmodule Nerves.BuildAction.ErlinitTest do
   """
 
   test "parse example file", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       erlinit_opts = Erlinit.decode_config(@example)
 
       assert erlinit_opts == [
@@ -129,14 +131,14 @@ defmodule Nerves.BuildAction.ErlinitTest do
   end
 
   test "merge options", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       erlinit_opts = Erlinit.decode_config(@example)
       assert Erlinit.merge_opts(erlinit_opts, verbose: true)[:verbose] == true
     end)
   end
 
   test "remove option", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       erlinit_opts = Erlinit.decode_config(@example)
       merged_opts = Erlinit.merge_opts(erlinit_opts, alternate_exec: nil)
       refute Erlinit.encode_config(merged_opts) =~ "--alternate_exec"
@@ -144,7 +146,7 @@ defmodule Nerves.BuildAction.ErlinitTest do
   end
 
   test "merge keep options", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       erlinit_opts = Erlinit.decode_config(@example)
       merged_opts = Erlinit.merge_opts(erlinit_opts, mount: "1234")
       assert Erlinit.encode_config(merged_opts) =~ "--mount 1234"
@@ -152,14 +154,14 @@ defmodule Nerves.BuildAction.ErlinitTest do
   end
 
   test "override ctty", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       erlinit_opts = Erlinit.decode_config(@example)
       assert Erlinit.merge_opts(erlinit_opts, ctty: "1234")[:ctty] == "1234"
     end)
   end
 
   test "strings are quoted", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       new_alternate_exec = "/usr/bin/nbtty --tty /dev/ttyAMA0 --wait-input"
       erlinit_opts = Erlinit.decode_config(@example)
       merged_opts = Erlinit.merge_opts(erlinit_opts, alternate_exec: new_alternate_exec)
@@ -169,7 +171,7 @@ defmodule Nerves.BuildAction.ErlinitTest do
   end
 
   test "render example", context do
-    in_tmp(context.test, fn ->
+    in_tmp(context.tmp_dir, fn ->
       result =
         @example
         |> Erlinit.decode_config()
@@ -203,8 +205,7 @@ defmodule Nerves.BuildAction.ErlinitTest do
     end)
   end
 
-  test "adds a generated overlay after artifacts are extracted" do
-    root = Path.join(System.tmp_dir!(), "nerves-erlinit-#{System.unique_integer([:positive])}")
+  test "adds a generated overlay after artifacts are extracted", %{tmp_dir: root} do
     overlay_path = Path.join(root, "overlay")
     system_config_path = Path.join(root, "rootfs_overlay/etc/erlinit.config")
 
@@ -215,8 +216,6 @@ defmodule Nerves.BuildAction.ErlinitTest do
     Application.put_env(:nerves, :erlinit, ctty: "ttyS1", hang_on_exit: nil)
 
     on_exit(fn ->
-      File.rm_rf!(root)
-
       if previous_config do
         Application.put_env(:nerves, :erlinit, previous_config)
       else
@@ -238,8 +237,7 @@ defmodule Nerves.BuildAction.ErlinitTest do
                "--ctty ttyS1\n"
   end
 
-  test "uses start rather than shoehorn when ShoeHorn is not a dependency" do
-    root = Path.join(System.tmp_dir!(), "nerves-erlinit-#{System.unique_integer([:positive])}")
+  test "uses start rather than shoehorn when ShoeHorn is not a dependency", %{tmp_dir: root} do
     base_erlinit_conf = Path.join(root, "erlinit.config")
     output_path = Path.join(root, "overlay")
     File.mkdir_p!(root)
@@ -247,8 +245,6 @@ defmodule Nerves.BuildAction.ErlinitTest do
     previous_config = Application.get_env(:nerves, :erlinit)
 
     on_exit(fn ->
-      File.rm_rf!(root)
-
       if previous_config do
         Application.put_env(:nerves, :erlinit, previous_config)
       else
@@ -290,12 +286,5 @@ defmodule Nerves.BuildAction.ErlinitTest do
     assert File.read!(Path.join(output_path, "etc/erlinit.config")) =~ "--boot shoehorn\n"
   end
 
-  defp in_tmp(which, function) do
-    path = Path.join(System.tmp_dir!(), "nerves-erlinit-test-#{which}")
-
-    File.rm_rf!(path)
-    File.mkdir_p!(path)
-    on_exit(fn -> File.rm_rf!(path) end)
-    File.cd!(path, function)
-  end
+  defp in_tmp(tmp_dir, function), do: File.cd!(tmp_dir, function)
 end

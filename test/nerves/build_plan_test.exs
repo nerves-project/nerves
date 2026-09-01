@@ -68,11 +68,13 @@ defmodule Nerves.BuildPlanTest do
     assert plan.config[:rootfs_flags] == ["-T", "0"]
   end
 
-  test "Nerves V1 actions derive toolchain and system variables from resolved artifacts" do
+  @tag :tmp_dir
+  test "Nerves V1 actions derive toolchain and system variables from resolved artifacts", %{
+    tmp_dir: root
+  } do
     BuildPlanHelpers.delete_env("TEST_NERVES_SYSTEM")
     BuildPlanHelpers.delete_env("TEST_NERVES_TOOLCHAIN")
 
-    root = Path.join(System.tmp_dir!(), "nerves-build-plan-#{System.unique_integer([:positive])}")
     toolchain = Path.join(root, "toolchain")
     system = Path.join(root, "system")
 
@@ -85,8 +87,6 @@ defmodule Nerves.BuildPlanTest do
     File.write!(Path.join(system, "rootfs_overlay/etc/erlinit.config"), "--boot start\n")
 
     :erl_tar.create(Path.join(system, "images/rootfs.tar"), [{~c"placeholder", <<1, 2, 3, 4>>}])
-
-    on_exit(fn -> File.rm_rf!(root) end)
 
     plan =
       %BuildPlan{
@@ -131,8 +131,10 @@ defmodule Nerves.BuildPlanTest do
                "-I#{system}/staging/usr/lib/erlang/lib/erl_interface-1/include"
   end
 
-  test "NERVES_SYSTEM and NERVES_TOOLCHAIN skip artifact downloads and extraction" do
-    root = Path.join(System.tmp_dir!(), "nerves-build-plan-#{System.unique_integer([:positive])}")
+  @tag :tmp_dir
+  test "NERVES_SYSTEM and NERVES_TOOLCHAIN skip artifact downloads and extraction", %{
+    tmp_dir: root
+  } do
     system = Path.join(root, "system")
     toolchain = Path.join(root, "toolchain")
 
@@ -146,7 +148,6 @@ defmodule Nerves.BuildPlanTest do
       System.delete_env("NERVES_SYSTEM")
       System.delete_env("NERVES_TOOLCHAIN")
       System.put_env(restore_env)
-      File.rm_rf!(root)
     end)
 
     build_plan =

@@ -9,16 +9,10 @@ defmodule Nerves.Tar.RoundTripTest do
   alias Nerves.Tar.Reader
   alias Nerves.Tar.Writer
 
-  @tmp_dir Path.join(System.tmp_dir!(), "nerves_tar_roundtrip_test")
+  @moduletag :tmp_dir
 
-  setup do
-    File.mkdir_p!(@tmp_dir)
-    on_exit(fn -> File.rm_rf!(@tmp_dir) end)
-    :ok
-  end
-
-  test "write and read back regular files" do
-    content_file = Path.join(@tmp_dir, "content.bin")
+  test "write and read back regular files", %{tmp_dir: tmp_dir} do
+    content_file = Path.join(tmp_dir, "content.bin")
     File.write!(content_file, "file contents here")
 
     entries = [
@@ -41,7 +35,7 @@ defmodule Nerves.Tar.RoundTripTest do
       )
     ]
 
-    tar_path = Path.join(@tmp_dir, "test.tar")
+    tar_path = Path.join(tmp_dir, "test.tar")
     Writer.write_tar(tar_path, entries)
 
     read_back = Reader.read_tar(tar_path)
@@ -72,7 +66,7 @@ defmodule Nerves.Tar.RoundTripTest do
     assert long_file.size == 18
   end
 
-  test "write and read back symlinks" do
+  test "write and read back symlinks", %{tmp_dir: tmp_dir} do
     entries = [
       Entry.directory("/dev", mode: 0o755),
       Entry.symlink("/dev/ttyABC", mode: 0o777, link: "ttyS0"),
@@ -84,7 +78,7 @@ defmodule Nerves.Tar.RoundTripTest do
       )
     ]
 
-    tar_path = Path.join(@tmp_dir, "symlink.tar")
+    tar_path = Path.join(tmp_dir, "symlink.tar")
     Writer.write_tar(tar_path, entries)
 
     read_back = Reader.read_tar(tar_path)
@@ -99,14 +93,14 @@ defmodule Nerves.Tar.RoundTripTest do
              "../../../usr/share/ca-certificates/mozilla/Autoridad_de_Certificacion_Firmaprofesional_CIF_A62634068.crt"
   end
 
-  test "write and read back a regular file with a GNU long name" do
-    content_file = Path.join(@tmp_dir, "content.bin")
+  test "write and read back a regular file with a GNU long name", %{tmp_dir: tmp_dir} do
+    content_file = Path.join(tmp_dir, "content.bin")
     File.write!(content_file, "file contents here")
 
     path =
       "/srv/erlang/lib/blue_heron-0.5.4/ebin/Elixir.BlueHeron.HCI.Serializable.BlueHeron.HCI.Command.LinkPolicy.WriteDefaultLinkPolicySettings.beam"
 
-    tar_path = Path.join(@tmp_dir, "long_name.tar")
+    tar_path = Path.join(tmp_dir, "long_name.tar")
 
     Writer.write_tar(tar_path, [
       Entry.regular(path, contents: {content_file, 0}, mode: 0o644, size: 18)
@@ -118,14 +112,14 @@ defmodule Nerves.Tar.RoundTripTest do
     assert entry.size == 18
   end
 
-  test "write and read back device nodes" do
+  test "write and read back device nodes", %{tmp_dir: tmp_dir} do
     entries = [
       Entry.directory("/dev", mode: 0o755),
       Entry.block_device("/dev/sda", mode: 0o660, major_device: 8, minor_device: 0),
       Entry.character_device("/dev/ttyS0", mode: 0o660, major_device: 4, minor_device: 64)
     ]
 
-    tar_path = Path.join(@tmp_dir, "devices.tar")
+    tar_path = Path.join(tmp_dir, "devices.tar")
     Writer.write_tar(tar_path, entries)
 
     read_back = Reader.read_tar(tar_path)

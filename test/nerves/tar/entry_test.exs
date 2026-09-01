@@ -80,8 +80,9 @@ defmodule Nerves.Tar.EntryTest do
       assert Entry.read_contents(entry) == {:ok, <<>>}
     end
 
-    test "reads from file path" do
-      tmp = Path.join(System.tmp_dir!(), "nerves_tar_entry_test")
+    @tag :tmp_dir
+    test "reads from file path", %{tmp_dir: tmp_dir} do
+      tmp = Path.join(tmp_dir, "entry")
       File.write!(tmp, "hello world")
 
       entry = %Entry{contents: {tmp, 0}, size: 5}
@@ -89,8 +90,6 @@ defmodule Nerves.Tar.EntryTest do
 
       entry_offset = %Entry{contents: {tmp, 6}, size: 5}
       assert Entry.read_contents(entry_offset) == {:ok, "world"}
-
-      File.rm!(tmp)
     end
   end
 
