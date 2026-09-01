@@ -190,7 +190,8 @@ defmodule Nerves.BuildAction.NervesV1System do
 
       Alternatively Nerves can automatically convert the rootfs.squashfs to a rootfs.tar.
       To do this, it needs `sqfs2tar` which is a part of `squashfs-tools-ng`. See
-      https://github.com/AgentD/squashfs-tools-ng for installation instructions.
+      https://github.com/AgentD/squashfs-tools-ng for installation instructions. Note the
+      `2` in `sqfs2tar` and how it's different from `sqfstar`.
       """)
     end
 
