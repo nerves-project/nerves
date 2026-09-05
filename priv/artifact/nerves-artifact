@@ -8,26 +8,43 @@ set -e
 # This script builds nerves_system_br-based Nerves packages.
 # nerves_system_br is expected to be included as a required dependency.
 setup() {
-  mkdir -p "$NERVES_ARTIFACT_DIR"
   /workspace/nerves_system_br/create-build.sh "/workspace/$NERVES_ARTIFACT_APP/nerves_defconfig" /workspace/build
 }
 
-case "${1:-build}" in
-  build)
-    setup
-    cd /workspace/build
-    make
-    make system NERVES_ARTIFACT_NAME="${NERVES_ARTIFACT_APP}-portable-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}"
-    cp ./*.tar.* "$NERVES_ARTIFACT_DIR/"
-    ;;
+clean() {
+  rm -rf /workspace/build
+  mkdir -p /workspace/build
+}
 
-  shell)
-    setup
-    cd /workspace/build
-    exec /bin/bash
-    ;;
+[ "$#" -gt 0 ] || set -- setup build
 
-  *)
-    exec "$@"
-    ;;
-esac
+for command in "$@"; do
+  case "$command" in
+    clean)
+      clean
+      ;;
+
+    setup)
+      setup
+      ;;
+
+    build)
+      mkdir -p "$NERVES_ARTIFACT_DIR"
+      cd /workspace/build
+      make
+      make system NERVES_ARTIFACT_NAME="${NERVES_ARTIFACT_APP}-portable-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}"
+      cp ./*.tar.* "$NERVES_ARTIFACT_DIR/"
+      ;;
+
+    shell)
+      cd /workspace/build
+      exec /bin/bash
+      ;;
+
+    *)
+      echo "Unknown command: $command" >&2
+      echo "Expected one of: clean setup build shell" >&2
+      exit 1
+      ;;
+  esac
+done

@@ -33,7 +33,40 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
 
     Container
     |> expect(:prepare_artifact_workspace!, fn ^build_plan, ^package ->
-      {"docker", "image", "/downloads"}
+      {"docker", "image", "/downloads", false}
+    end)
+    |> expect(:artifact_run_args, fn ^build_plan,
+                                     ^package,
+                                     "docker",
+                                     "image",
+                                     "/downloads",
+                                     ["setup", "shell"] ->
+      ["run", "shell"]
+    end)
+    |> expect(:work_dir, fn ^package -> "/work" end)
+    |> expect(:sync_work_dir, fn ^build_plan, "docker", ^package, "image" ->
+      assert_received :shell_exited
+      :ok
+    end)
+
+    InteractiveCmd
+    |> expect(:cmd, fn "docker", ["run", "shell"] ->
+      send(test_pid, :shell_exited)
+      {"", 0}
+    end)
+
+    Mix.Task.reenable("nerves.artifact.shell")
+    assert :ok = Mix.Task.run("nerves.artifact.shell")
+  end
+
+  test "nerves.artifact.shell skips setup when sources are unchanged" do
+    package = %{app: :test_system, path: "/tmp/test_system"}
+    build_plan = %BuildPlan{packages: [package]}
+    :persistent_term.put({Nerves, :build_plan}, {build_plan, false})
+
+    Container
+    |> expect(:prepare_artifact_workspace!, fn ^build_plan, ^package ->
+      {"docker", "image", "/downloads", true}
     end)
     |> expect(:artifact_run_args, fn ^build_plan,
                                      ^package,
@@ -44,16 +77,10 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
       ["run", "shell"]
     end)
     |> expect(:work_dir, fn ^package -> "/work" end)
-    |> expect(:sync_work_dir, fn "docker", ^package, "image" ->
-      assert_received :shell_exited
-      :ok
-    end)
+    |> expect(:sync_work_dir, fn ^build_plan, "docker", ^package, "image" -> :ok end)
 
     InteractiveCmd
-    |> expect(:cmd, fn "docker", ["run", "shell"] ->
-      send(test_pid, :shell_exited)
-      {"", 0}
-    end)
+    |> expect(:cmd, fn "docker", ["run", "shell"] -> {"", 0} end)
 
     Mix.Task.reenable("nerves.artifact.shell")
     assert :ok = Mix.Task.run("nerves.artifact.shell")

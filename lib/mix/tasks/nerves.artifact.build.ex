@@ -37,33 +37,49 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
   # and will be found when you run `MIX_TARGET=rpi0 mix firmware` the next
   # time.
   ```
+
+  ## Command line options
+
+    * `--full` - Remove the existing build output before building
+
   """
   use Mix.Task
 
   alias Nerves.Container
   alias Nerves.MixUtils
-  @switches [path: :string]
+
+  @switches [full: :boolean]
 
   @impl Mix.Task
   @spec run([String.t()]) :: :ok
   def run(argv) do
-    {_opts, args, _invalid} = OptionParser.parse(argv, switches: @switches)
+    {opts, args, _invalid} = OptionParser.parse(argv, switches: @switches)
 
     build_plan = Nerves.build_plan()
 
     package = MixUtils.select_package!(build_plan, args)
 
-    build_artifact(build_plan, package)
+    build_artifact(build_plan, package, opts)
   end
 
-  defp build_artifact(build_plan, package) do
+  defp build_artifact(build_plan, package, opts) do
     # The build process is expected to create all of the downloads. Not 100% sure
     # this makes sense, but this is currently the case.
 
     artifact_dl_dir = package.download_path
     archive_paths = Enum.map(package.downloads, fn download -> download.archive_path end)
-    {tool, image, dl_dir} = Container.prepare_artifact_workspace!(build_plan, package)
-    docker_args = Container.artifact_run_args(build_plan, package, tool, image, dl_dir)
+
+    {tool, image, dl_dir, unchanged?} =
+      Container.prepare_artifact_workspace!(build_plan, package)
+
+    command =
+      cond do
+        opts[:full] -> ["clean", "setup", "build"]
+        unchanged? -> ["build"]
+        true -> ["setup", "build"]
+      end
+
+    docker_args = Container.artifact_run_args(build_plan, package, tool, image, dl_dir, command)
 
     MixUtils.info("Building artifact for #{package.app} with #{tool}")
     MixUtils.info("  Work dir:       #{Container.work_dir(package)}")

@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: CC0-1.0
 #
-# Artifact containers receive a mounted /workspace directory containing:
+# Artifact containers receive a mounted /workspace directory that's writable
+# by the default user and contains:
 #   /workspace/<package>  package source and Nerves-aware dependencies
 #   /workspace/build      persistent build output
 #   /workspace/dl         shared download cache and NERVES_ARTIFACT_DIR output
@@ -11,6 +12,7 @@
 # NERVES_ARTIFACT_DIR.
 #
 # Nerves supplies these environment variables:
+#   HISTFILE                            location of the shell history file
 #   NERVES_ARTIFACT_APP                 package name
 #   NERVES_ARTIFACT_VERSION             package version
 #   NERVES_ARTIFACT_SOURCE_FINGERPRINT  package source fingerprint
@@ -24,7 +26,8 @@
 # Elixir or Erlang.
 #
 # The image must provide /usr/local/bin/nerves-artifact as its ENTRYPOINT. It
-# receives `build` for artifact builds and `shell` for interactive shells.
+# receives an ordered list of `clean`, `setup`, `build`, and `shell` commands.
+# For example, `clean setup build` performs a full rebuild.
 FROM ghcr.io/nerves-project/nerves_system_br:latest
 
 USER root
@@ -45,4 +48,4 @@ RUN chmod +x /usr/local/bin/nerves-artifact
 USER nerves
 WORKDIR /workspace/build
 ENTRYPOINT ["/usr/local/bin/nerves-artifact"]
-CMD ["build"]
+CMD ["setup", "build"]

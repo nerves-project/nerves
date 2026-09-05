@@ -59,8 +59,12 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
     build_plan = Nerves.build_plan()
 
     package = MixUtils.select_package!(build_plan, args)
-    {tool, image, dl_dir} = Container.prepare_artifact_workspace!(build_plan, package)
-    docker_args = Container.artifact_run_args(build_plan, package, tool, image, dl_dir, ["shell"])
+
+    {tool, image, dl_dir, unchanged?} =
+      Container.prepare_artifact_workspace!(build_plan, package)
+
+    command = if unchanged?, do: ["shell"], else: ["setup", "shell"]
+    docker_args = Container.artifact_run_args(build_plan, package, tool, image, dl_dir, command)
 
     MixUtils.info("""
     Opening shell for #{package.app} with #{tool}
@@ -69,15 +73,15 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
       Downloads: #{dl_dir}
 
     Source changes will be copied back to #{package.path} when the shell exits.
-    See `nerves.artifact.purge` and `nerves.artifact.build` for deleting the
-    container and non-interactive builds.
+    See `nerves.artifact.clean`, `nerves.artifact.purge`, and
+    `nerves.artifact.build` for cleaning, deleting, and non-interactive builds.
     """)
 
     _ = MixUtils.interactive_cmd(tool, docker_args)
 
-    MixUtils.info("Syncing source changes to #{package.path}")
-    Container.sync_work_dir(tool, package, image)
-    MixUtils.info("Done. Use `git diff` to review changes.")
+    MixUtils.info("Syncing source changes from container")
+    Container.sync_work_dir(build_plan, tool, package, image)
+    MixUtils.info("Done.")
 
     :ok
   end

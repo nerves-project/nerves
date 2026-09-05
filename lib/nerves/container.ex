@@ -8,6 +8,9 @@ defmodule Nerves.Container do
   Helpers for managing containers
   """
 
+  # WARNING: I keep on updating this file using an LLM to prototype new things with building Nerves packages.
+  # The code has gotten out of hand. It's pretty much confined to here and I've been hand coding the
+  # the functionality that escapes. I'm expecting to rewrite this when the dust settles.
   alias Nerves.BuildPlan
   alias Nerves.MixUtils
   alias Nerves.Paths
@@ -50,19 +53,27 @@ defmodule Nerves.Container do
 
   @doc false
   @spec prepare_artifact_workspace!(BuildPlan.t(), BuildPlan.package_info()) ::
-          {String.t(), String.t(), Path.t()}
+          {String.t(), String.t(), Path.t(), boolean()}
   def prepare_artifact_workspace!(build_plan, package) do
     dl_dir = Paths.download_dir()
     File.mkdir_p!(package.download_path)
 
     tool = tool()
     image = package_image!(tool, package)
+    checksum = workspace_checksum(build_plan, package)
+    unchanged? = read_source_checksum(package) == {:ok, checksum}
 
     Mix.shell().info("Preparing container workspace...")
     ensure_work_dir(tool, package)
-    populate_work_dir(build_plan, tool, package, image)
+    ensure_workspace_writable(tool, package, image)
 
-    {tool, image, dl_dir}
+    unless unchanged? do
+      populate_work_dir(build_plan, tool, package, image)
+    end
+
+    write_source_checksum(package, checksum)
+
+    {tool, image, dl_dir, unchanged?}
   end
 
   @doc false
@@ -88,6 +99,8 @@ defmodule Nerves.Container do
       [
         "--env",
         "NERVES_BR_DL_DIR=/workspace/dl",
+        "--env",
+        "HISTFILE=/workspace/.bash_history",
         "--env",
         "TERM=#{term}",
         "--env",
@@ -310,6 +323,36 @@ defmodule Nerves.Container do
 
   defp ensure_tool_running!(_tool), do: :ok
 
+  defp ensure_workspace_writable(tool, package, image) do
+    if match?({:unix, :linux}, :os.type()) do
+      :ok
+    else
+      ensure_volume_workspace_writable(tool, package, image)
+    end
+  end
+
+  defp ensure_volume_workspace_writable(tool, package, image) do
+    root_user_args =
+      if tool == "container", do: ["--uid", "0", "--gid", "0"], else: ["--user", "root"]
+
+    args =
+      ["run", "--rm"] ++
+        root_user_args ++
+        volume_mount_args(tool, volume_name(package), "/mnt/tmp-nerves-workspace") ++
+        [
+          "--entrypoint",
+          "/bin/sh",
+          image,
+          "-c",
+          "chown \"$(stat -c %u:%g /workspace)\" /mnt/tmp-nerves-workspace"
+        ]
+
+    case MixUtils.cmd(tool, args, stderr_to_stdout: true) do
+      {_, 0} -> :ok
+      {output, _} -> Mix.raise("Failed to set workspace ownership: #{String.trim(output)}")
+    end
+  end
+
   # Create a container volume if it doesn't already exist.
   # Docker's `volume create` is idempotent, but Podman returns an error
   # if the volume already exists, so check with `volume inspect` first.
@@ -447,19 +490,90 @@ defmodule Nerves.Container do
   On Linux this is a direct file copy; on macOS it uses a helper container or
   a temporary bind mount.
   """
-  @spec sync_work_dir(String.t(), BuildPlan.package_info(), String.t()) :: :ok
-  def sync_work_dir(tool, package, image) do
-    case {:os.type(), tool} do
-      {{:unix, :linux}, _} ->
-        src = Path.join(work_dir(package), to_string(package.app))
-        sync_local_dir(src, package.path)
+  @spec sync_work_dir(BuildPlan.t(), String.t(), BuildPlan.package_info(), String.t()) :: :ok
+  def sync_work_dir(build_plan, tool, package, image) do
+    Enum.each([package.app | package.deps], fn app ->
+      source_package = BuildPlan.find_package(build_plan, app)
 
-      {_, "container"} ->
-        sync_work_dir_apple_container(package, image)
+      case {:os.type(), tool} do
+        {{:unix, :linux}, _} ->
+          src = Path.join(work_dir(package), to_string(source_package.app))
+          sync_local_dir(src, source_package)
+
+        {_, "container"} ->
+          sync_work_dir_apple_container(package, source_package, image)
+
+        _ ->
+          sync_work_dir_docker_volume(tool, package, source_package, image)
+      end
+    end)
+
+    write_source_checksum(package, workspace_checksum(build_plan, package))
+  end
+
+  @doc false
+  @spec invalidate_source_checksum(BuildPlan.package_info()) :: :ok
+  def invalidate_source_checksum(package) do
+    _ = File.rm(checksum_path(package))
+    :ok
+  end
+
+  @doc false
+  @spec workspace_checksum(BuildPlan.t(), BuildPlan.package_info()) :: String.t()
+  def workspace_checksum(build_plan, package) do
+    image_environment =
+      {File.read!(package.dockerfile), System.version(), System.otp_release()}
+
+    [package.app | package.deps]
+    |> Enum.reduce(
+      :crypto.hash_update(:crypto.hash_init(:sha256), :erlang.term_to_binary(image_environment)),
+      fn app, context ->
+        source_package = BuildPlan.find_package(build_plan, app)
+        context = :crypto.hash_update(context, :erlang.term_to_binary({:app, app}))
+
+        source_package.artifact_source_files
+        |> Enum.map(&{source_package.path, &1})
+        |> Enum.reduce(context, &hash_path/2)
+      end
+    )
+    |> :crypto.hash_final()
+    |> Base.encode16(case: :lower)
+  end
+
+  defp hash_path({source, path}, context) do
+    relative_path = Path.relative_to(path, source)
+    stat = File.lstat!(path)
+    metadata = :erlang.term_to_binary({stat.type, relative_path})
+    context = :crypto.hash_update(context, metadata)
+
+    case stat.type do
+      :regular ->
+        context =
+          :crypto.hash_update(context, :erlang.term_to_binary({:mode, stat.mode}))
+
+        path
+        |> File.stream!(64 * 1024, [])
+        |> Enum.reduce(context, fn data, acc ->
+          :crypto.hash_update(acc, data)
+        end)
+
+      :symlink ->
+        :crypto.hash_update(context, File.read_link!(path))
 
       _ ->
-        sync_work_dir_docker_volume(tool, package, image)
+        context
     end
+  end
+
+  defp checksum_path(package), do: Path.join(work_dir(package), ".nerves-source-checksum")
+
+  defp read_source_checksum(package), do: File.read(checksum_path(package))
+
+  defp write_source_checksum(package, checksum) do
+    path = checksum_path(package)
+    File.mkdir_p!(Path.dirname(path))
+    File.write!(path, checksum)
+    :ok
   end
 
   # --- Linux (bind mount) helpers ---
@@ -539,13 +653,37 @@ defmodule Nerves.Container do
     path
   end
 
-  defp sync_local_dir(src, dest) do
-    case MixUtils.cmd("cp", ["-a", "#{src}/.", dest], stderr_to_stdout: true) do
-      {_, 0} -> :ok
-      {output, _} -> Mix.raise("Failed to sync #{src} to #{dest}: #{String.trim(output)}")
-    end
+  defp sync_local_dir(src, package) do
+    package.artifact_source_files
+    |> Enum.each(fn source ->
+      relative = Path.relative_to(source, src)
+      destination = Path.join(package.path, relative)
+
+      if file_changed?(source, destination) do
+        print_changed_file(package, relative)
+        File.mkdir_p!(Path.dirname(destination))
+        File.cp!(source, destination)
+      end
+    end)
 
     :ok
+  end
+
+  defp file_changed?(source, destination) do
+    with {:ok, source_stat} <- File.lstat(source),
+         {:ok, destination_stat} <- File.lstat(destination),
+         true <- source_stat.type == destination_stat.type do
+      case source_stat.type do
+        :symlink ->
+          File.read_link!(source) != File.read_link!(destination)
+
+        _ ->
+          source_stat.mode != destination_stat.mode ||
+            not match?({_, 0}, MixUtils.cmd("cmp", ["-s", source, destination]))
+      end
+    else
+      _ -> true
+    end
   end
 
   # --- macOS (volume) helpers ---
@@ -589,10 +727,11 @@ defmodule Nerves.Container do
           [
             "--mount",
             "type=bind,source=#{staged_path},target=/source,readonly",
-            image,
+            "--entrypoint",
             "/bin/sh",
+            image,
             "-c",
-            "rm -rf #{destination} && mkdir -p #{destination} && cp -a /source/. #{destination} && chown -R nerves:nerves #{destination}"
+            "rm -rf #{destination} && mkdir -p #{destination} && cp -a /source/. #{destination} && chown -R \"$(stat -c %u:%g /workspace)\" #{destination}"
           ]
 
       case MixUtils.cmd("container", args, stderr_to_stdout: true) do
@@ -617,10 +756,11 @@ defmodule Nerves.Container do
       ] ++
         volume_mount_args("container", volume, "/workspace") ++
         [
-          image,
+          "--entrypoint",
           "/bin/sh",
+          image,
           "-c",
-          "mkdir -p /workspace/build && chown -R nerves:nerves /workspace/build"
+          "mkdir -p /workspace/build && chown -R \"$(stat -c %u:%g /workspace)\" /workspace/build"
         ]
 
     case MixUtils.cmd("container", args, stderr_to_stdout: true) do
@@ -656,10 +796,11 @@ defmodule Nerves.Container do
           "root",
           "--mount",
           "type=volume,src=#{vol},target=/workspace",
-          image,
+          "--entrypoint",
           "/bin/sh",
+          image,
           "-c",
-          "rm -rf #{rm_dirs} && mkdir -p #{all_dirs} && chown -R nerves:nerves #{all_dirs}"
+          "rm -rf #{rm_dirs} && mkdir -p #{all_dirs} && chown -R \"$(stat -c %u:%g /workspace)\" #{all_dirs}"
         ],
         stderr_to_stdout: true
       )
@@ -678,8 +819,9 @@ defmodule Nerves.Container do
           "create",
           "--mount",
           "type=volume,src=#{vol},target=/workspace",
-          image,
-          "true"
+          "--entrypoint",
+          "true",
+          image
         ],
         stderr_to_stdout: true
       )
@@ -722,71 +864,148 @@ defmodule Nerves.Container do
     :ok
   end
 
-  defp sync_work_dir_apple_container(package, image) do
-    volume = volume_name(package)
-
-    args =
-      [
-        "run",
-        "--rm",
-        "--uid",
-        "0",
-        "--gid",
-        "0"
-      ] ++
-        volume_mount_args("container", volume, "/workspace") ++
-        [
-          "--mount",
-          "type=bind,source=#{package.path},target=/destination",
-          image,
-          "/bin/sh",
-          "-c",
-          "find /workspace/#{package.app} -mindepth 1 -maxdepth 1 -exec cp -a -t /destination -- {} +"
-        ]
-
-    case MixUtils.cmd("container", args, stderr_to_stdout: true) do
-      {_, 0} ->
-        :ok
-
-      {output, _} ->
-        Mix.raise("Failed to sync files from container volume: #{String.trim(output)}")
+  defp sync_work_dir_apple_container(workspace_package, source_package, image) do
+    if source_package.artifact_source_files == [] do
+      :ok
+    else
+      sync_work_dir_apple_container_files(workspace_package, source_package, image)
     end
   end
 
-  defp sync_work_dir_docker_volume(tool, package, image) do
-    vol = volume_name(package)
+  defp sync_work_dir_apple_container_files(workspace_package, source_package, image) do
+    volume = volume_name(workspace_package)
 
-    {id_raw, exit_code} =
-      MixUtils.cmd(
-        tool,
+    with_source_manifest(source_package, fn manifest ->
+      args =
         [
-          "create",
-          "--mount",
-          "type=volume,src=#{vol},target=/workspace",
-          image,
-          "true"
-        ],
-        stderr_to_stdout: true
-      )
+          "run",
+          "--rm",
+          "--uid",
+          "0",
+          "--gid",
+          "0"
+        ] ++
+          volume_mount_args("container", volume, "/workspace") ++
+          [
+            "--mount",
+            "type=bind,source=#{Path.dirname(manifest)},target=/nerves-sync,readonly",
+            "--mount",
+            "type=bind,source=#{source_package.path},target=/destination",
+            "--entrypoint",
+            "/bin/sh",
+            image,
+            "-c",
+            sync_script(),
+            "nerves-sync",
+            "/workspace/#{source_package.app}",
+            "/destination",
+            "/nerves-sync/#{Path.basename(manifest)}"
+          ]
 
-    if exit_code != 0 do
-      Mix.raise("Failed to create helper container: #{String.trim(id_raw)}")
-    end
+      case MixUtils.cmd("container", args, stderr_to_stdout: true) do
+        {output, 0} ->
+          print_changed_files(output, source_package)
+          :ok
 
-    container_id = extract_container_id(id_raw)
+        {output, _} ->
+          Mix.raise("Failed to sync files from container volume: #{String.trim(output)}")
+      end
+    end)
+  end
+
+  defp with_source_manifest(package, fun) do
+    manifest =
+      Path.join(staging_dir(), "nerves-manifest-#{System.unique_integer([:positive])}")
+
+    contents = Enum.map(package.artifact_source_files, &[&1, 0])
 
     try do
-      case MixUtils.cmd(tool, ["cp", "#{container_id}:/workspace/#{package.app}/.", package.path],
-             stderr_to_stdout: true
-           ) do
-        {_, 0} -> :ok
-        {output, _} -> Mix.raise("Failed to copy files from volume: #{String.trim(output)}")
-      end
+      File.write!(manifest, contents)
+      fun.(manifest)
     after
-      MixUtils.cmd(tool, ["rm", "-f", container_id], stderr_to_stdout: true)
+      File.rm(manifest)
+    end
+  end
+
+  defp sync_work_dir_docker_volume(tool, workspace_package, source_package, image) do
+    vol = volume_name(workspace_package)
+
+    if source_package.artifact_source_files != [] do
+      with_source_manifest(source_package, fn manifest ->
+        args = [
+          "run",
+          "--rm",
+          "--user",
+          "root",
+          "--mount",
+          "type=volume,src=#{vol},target=/workspace",
+          "--mount",
+          "type=bind,src=#{Path.dirname(manifest)},target=/nerves-sync,readonly",
+          "--mount",
+          "type=bind,src=#{source_package.path},target=/destination",
+          "--entrypoint",
+          "/bin/sh",
+          image,
+          "-c",
+          sync_script(),
+          "nerves-sync",
+          "/workspace/#{source_package.app}",
+          "/destination",
+          "/nerves-sync/#{Path.basename(manifest)}"
+        ]
+
+        case MixUtils.cmd(tool, args, stderr_to_stdout: true) do
+          {output, 0} ->
+            print_changed_files(output, source_package)
+            :ok
+
+          {output, _} ->
+            Mix.raise("Failed to sync files from container volume: #{String.trim(output)}")
+        end
+      end)
     end
 
     :ok
+  end
+
+  defp sync_script() do
+    ~S"""
+    source=$1
+    destination=$2
+    manifest=$3
+    export source destination
+    xargs -0 -r -n1 sh -c '
+      path=$1
+      if [ -L "$source/$path" ]; then
+        if [ ! -L "$destination/$path" ] ||
+           [ "$(readlink "$source/$path")" != "$(readlink "$destination/$path")" ]; then
+          printf "NERVES_SYNC_CHANGED:%s\n" "$path"
+        fi
+      elif [ ! -e "$destination/$path" ] ||
+           ! cmp -s "$source/$path" "$destination/$path" ||
+           [ "$(stat -c %a "$source/$path")" != "$(stat -c %a "$destination/$path")" ]; then
+        printf "NERVES_SYNC_CHANGED:%s\n" "$path"
+      fi
+    ' nerves-sync < "$manifest"
+    tar -C "$source" --null --verbatim-files-from --files-from="$manifest" -cf - |
+      tar -C "$destination" -xf -
+    """
+  end
+
+  defp print_changed_files(output, package) do
+    output
+    |> String.split("\n")
+    |> Enum.filter(&String.starts_with?(&1, "NERVES_SYNC_CHANGED:"))
+    |> Enum.each(fn "NERVES_SYNC_CHANGED:" <> path -> print_changed_file(package, path) end)
+  end
+
+  defp print_changed_file(package, path) do
+    path =
+      package.path
+      |> Path.join(path)
+      |> Path.relative_to_cwd()
+
+    MixUtils.info("  #{path}")
   end
 
   # Buildroot C++ compilation can use 2-4 GB of RAM. Below 3 GB the OOM killer

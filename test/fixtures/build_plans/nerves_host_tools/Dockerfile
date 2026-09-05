@@ -6,5 +6,6 @@ RUN addgroup -S nerves \
  && chmod +x /usr/local/bin/nerves-artifact
 
 USER nerves
+WORKDIR /workspace/build
 ENTRYPOINT ["/usr/local/bin/nerves-artifact"]
-CMD ["build"]
+CMD ["setup", "build"]
