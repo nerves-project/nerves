@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
   the `deps` directory.
 
   Run `mix nerves.artifact.ls` to see the containers created by the Nerves tooling
-  and `mix nerves.artifact.clean` to delete them.
+  and `mix nerves.artifact.purge` to delete them.
 
   ## Examples
 
@@ -69,7 +69,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
       Downloads: #{dl_dir}
 
     Source changes will be copied back to #{package.path} when the shell exits.
-    See `nerves.artifact.clean` and `nerves.artifact.build` for deleting the
+    See `nerves.artifact.purge` and `nerves.artifact.build` for deleting the
     container and non-interactive builds.
     """)
 

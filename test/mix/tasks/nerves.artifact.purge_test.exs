@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Mix.Tasks.Nerves.ArtifactCleanTest do
+defmodule Mix.Tasks.Nerves.ArtifactPurgeTest do
   use ExUnit.Case, async: false
 
   import ExUnit.CaptureIO
@@ -14,12 +14,12 @@ defmodule Mix.Tasks.Nerves.ArtifactCleanTest do
 
   # Spot check the task. See integration tests for better coverage.
 
-  test "nerves.artifact.clean handles projects without Nerves packages" do
-    Mix.Task.reenable("nerves.artifact.clean")
+  test "nerves.artifact.purge handles projects without Nerves packages" do
+    Mix.Task.reenable("nerves.artifact.purge")
 
     output =
       capture_io(fn ->
-        :ok = Mix.Task.run("nerves.artifact.clean", ["--yes"])
+        :ok = Mix.Task.run("nerves.artifact.purge", ["--yes"])
       end)
 
     assert output =~ "No Nerves packages found in the current project."

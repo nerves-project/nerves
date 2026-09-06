@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
   the container when the shell exits.
 
   Run `mix nerves.artifact.ls` to see the containers created by the Nerves tooling
-  and `mix nerves.artifact.clean` to delete them.
+  and `mix nerves.artifact.purge` to delete them.
 
   ## Examples
 

@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: 2025 Frank Hunleth
+# SPDX-FileCopyrightText: 2026 Frank Hunleth
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Mix.Tasks.Nerves.Artifact.Clean do
+defmodule Mix.Tasks.Nerves.Artifact.Purge do
   @shortdoc "Delete artifact files and build volumes"
   @moduledoc """
   Delete Nerves artifact files and container build volumes
@@ -23,10 +23,10 @@ defmodule Mix.Tasks.Nerves.Artifact.Clean do
 
   ## Examples
 
-      $ MIX_TARGET=rpi0 mix nerves.artifact.clean
-      $ MIX_TARGET=rpi0 mix nerves.artifact.clean test_system_rpi0
-      $ MIX_TARGET=rpi0 mix nerves.artifact.clean --all test_system_rpi0
-      $ MIX_TARGET=rpi0 mix nerves.artifact.clean --yes test_system_rpi0
+      $ MIX_TARGET=rpi0 mix nerves.artifact.purge
+      $ MIX_TARGET=rpi0 mix nerves.artifact.purge test_system_rpi0
+      $ MIX_TARGET=rpi0 mix nerves.artifact.purge --all test_system_rpi0
+      $ MIX_TARGET=rpi0 mix nerves.artifact.purge --yes test_system_rpi0
   """
   use Mix.Task
 

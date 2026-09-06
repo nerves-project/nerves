@@ -17,7 +17,7 @@ defmodule Integration.NervesSystemMinimalTest do
 
     # Clean everything up from previous runs first
     {_, 0} =
-      CoverHelper.mix(["nerves.artifact.clean", "nerves_system_minimal", "--yes"],
+      CoverHelper.mix(["nerves.artifact.purge", "nerves_system_minimal", "--yes"],
         cd: @fixture_dir
       )
 
