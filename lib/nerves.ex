@@ -14,6 +14,7 @@ defmodule Nerves do
   alias Nerves.HostOTPCheck
   alias Nerves.MixPackage
   alias Nerves.MixUtils
+  alias Nerves.Paths
 
   @build_plan_key {__MODULE__, :build_plan}
 
@@ -244,7 +245,7 @@ defmodule Nerves do
     package_infos =
       for dep <- packages do
         config = dep.config
-        fingerprint_files = fingerprint_files(config)
+        source_files = artifact_source_files(config, dep)
 
         %{
           app: dep.app,
@@ -257,8 +258,8 @@ defmodule Nerves do
           downloads: [],
           extractors: [],
           dockerfile: dockerfile_path(config, dep.dest),
-          source_fingerprint: Nerves.Fingerprint.fingerprint(fingerprint_files, dep.dest),
-          source_fingerprint_files: fingerprint_files,
+          artifact_source_files: source_files,
+          source_fingerprint: Nerves.Fingerprint.fingerprint(source_files),
           validated_files: []
         }
       end
@@ -319,12 +320,43 @@ defmodule Nerves do
     if dockerfile, do: Path.expand(dockerfile, package_path)
   end
 
-  defp fingerprint_files(config) do
-    # The package author specifies the files to use for the fingerprint. Fall
-    # back to the Nerves 1.x way
-    config[:nerves][:source_fingerprint_files] ||
-      config[:nerves_package][:source_fingerprint_files] ||
-      config[:nerves_package][:checksum] || []
+  defp artifact_source_files(config, dep) do
+    # The package author specifies which files have information used
+    # to create the artifact.
+    #
+    # Nerves 2.x uses `:artifact_source`
+    # Nerves 1.x uses `:checksum` (not original intention, but works.)
+    # If unspecified, use the hex package files
+    # Finally, use `mix.exs` since it's better than nothing.
+    file_patterns =
+      config[:nerves][:artifact_source] || config[:nerves_package][:checksum] ||
+        config[:package][:files] || ["mix.exs"]
+
+    paths = Paths.expand_file_patterns(file_patterns, dep.dest)
+    missing_paths = Enum.reject(paths, &File.exists?/1)
+
+    if missing_paths != [] do
+      raise Nerves.InvalidPlan,
+        message: """
+        Artifact source files are missing
+
+        The following files couldn't be found:
+        #{Enum.join(missing_paths, "\n")}
+
+        Please update #{dep.app}'s `mix.exs` to fix the filename or check
+        whether the file exists.
+
+        For Nerves 2 packages, update the `:nerves` configuration's `:artifact_source`.
+        For Nerves 1 packages, update the `:nerves_package` configuration's `:checksum`.
+
+        If neither are specified, Nerves uses the Hex package `:files` list or
+        `mix.exs`. It's generally better to specify the source files since this
+        list determines when a change to the package changes the validity of the
+        artifact and require rebuilds.
+        """
+    end
+
+    paths
   end
 
   defp add_per_package_plans(build_plan, packages) do

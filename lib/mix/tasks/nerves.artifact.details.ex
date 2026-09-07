@@ -41,7 +41,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Details do
     MixUtils.info("#{package.app}:")
     MixUtils.info("  Version:            #{package.version}")
     MixUtils.info("  Source fingerprint: #{package.source_fingerprint}")
-    MixUtils.info("  Fingerprint files:  #{length(package.source_fingerprint_files)} files")
+    MixUtils.info("  Fingerprint files:  #{length(package.artifact_source_files)} files")
     MixUtils.info("  Dependencies:       #{inspect(package.deps)}")
 
     MixUtils.info("  Downloads:")

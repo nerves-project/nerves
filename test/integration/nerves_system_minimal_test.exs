@@ -31,7 +31,7 @@ defmodule Integration.NervesSystemMinimalTest do
 
     assert File.dir?(dl_dir), "Expected download directory is missing: #{dl_dir}"
 
-    tarball = Path.join(dl_dir, "nerves_system_minimal-portable-0.4.1-AC43A5A.tar.gz")
+    tarball = Path.join(dl_dir, "nerves_system_minimal-portable-0.4.1-835385C.tar.gz")
     assert File.regular?(tarball), "Expected archive is missing: #{tarball}"
   end
 end

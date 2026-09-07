@@ -35,7 +35,8 @@ defmodule Nerves.BuildPlanTest do
           config: [
             rootfs_type: {:squashfs, ["-quiet"]},
             bootfile: "start.boot"
-          ]
+          ],
+          artifact_source: []
         ]
       ],
       dest: "system",
@@ -54,7 +55,7 @@ defmodule Nerves.BuildPlanTest do
       config: [
         app: :system,
         version: "1.0.0",
-        nerves: [config: [rootfs_type: {:erofs, ["-T", "0"]}]]
+        nerves: [config: [rootfs_type: {:erofs, ["-T", "0"]}], artifact_source: []]
       ],
       dest: "system",
       deps: []
