@@ -39,7 +39,7 @@ defmodule NervesSystemMinimal.MixProject do
         {"TARGET_ABI", "gnu"},
         {"TARGET_GCC_FLAGS", "-mabi=lp64 -fstack-protector-strong -mcpu=cortex-a53 -fPIE -pie"}
       ],
-      source_fingerprint_files: ["mix.exs"]
+      artifact_source_files: ["mix.exs"]
     ]
   end
 

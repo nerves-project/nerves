@@ -46,7 +46,7 @@ defmodule Nerves.BuildPlanHelpers do
       downloads: [],
       extractors: [],
       source_fingerprint: "ABC123",
-      source_fingerprint_files: ["mix.exs"],
+      artifact_source_files: ["mix.exs"],
       validated_files: [],
       dockerfile: nil
     }

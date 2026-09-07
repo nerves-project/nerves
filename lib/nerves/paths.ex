@@ -79,4 +79,36 @@ defmodule Nerves.Paths do
         0
     end
   end
+
+  @doc """
+  Expand a list of file patterns to a list of absolute paths
+
+  The input for this are file lists like the `:artifact_source_files` Nerves field
+  in the `mix.exs` or the hex package `:files` field.  It can contain
+  wildcards or point to directories or files.
+
+  Note: This matches the original Nerves checksum algorithm with the exception that missing
+  files don't get pruned. In other words, missing files will result in an error now rather
+  than being silently skipped.
+  """
+  @spec expand_file_patterns([String.t()], String.t()) :: [Path.t()]
+  def expand_file_patterns(paths, base_path) do
+    paths
+    |> Enum.map(&Path.join(base_path, &1))
+    |> Enum.flat_map(&expand/1)
+    |> Enum.map(&Path.expand/1)
+    |> Enum.uniq()
+  end
+
+  defp expand(path) do
+    cond do
+      String.contains?(path, "*") -> regular_wildcard(path)
+      File.dir?(path) -> regular_wildcard(Path.join(path, "**"))
+      true -> [path]
+    end
+  end
+
+  defp regular_wildcard(path) do
+    Path.wildcard(path) |> Enum.filter(&File.regular?/1)
+  end
 end

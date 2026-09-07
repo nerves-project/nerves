@@ -11,7 +11,7 @@ defmodule NervesHostTools.MixProject do
       elixir: "~> 1.17",
       deps: deps(),
       nerves: [
-        source_fingerprint_files: [
+        artifact_source_files: [
           "Dockerfile",
           "nerves-artifact",
           "mix.exs",

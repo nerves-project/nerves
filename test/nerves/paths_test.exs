@@ -75,4 +75,24 @@ defmodule Nerves.PathsTest do
     assert result > 0
     assert result <= 128 * 1024
   end
+
+  @tag :tmp_dir
+  test "expands file patterns", %{tmp_dir: root} do
+    explicit = Path.join(root, "explicit.txt")
+    globbed = Path.join(root, "globbed.txt")
+    nested = Path.join([root, "nested", "child.txt"])
+    missing = Path.join(root, "missing.txt")
+
+    File.write!(explicit, "explicit")
+    File.write!(globbed, "globbed")
+    File.mkdir_p!(Path.dirname(nested))
+    File.write!(nested, "nested")
+    File.mkdir_p!(Path.join(root, "directory.txt"))
+
+    assert Paths.expand_file_patterns(
+             ["explicit.txt", "*.txt", "nested", "missing.txt", "explicit.txt"],
+             root
+           )
+           |> Enum.sort() == [explicit, globbed, missing, nested]
+  end
 end
