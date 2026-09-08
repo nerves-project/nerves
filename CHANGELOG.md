@@ -5,6 +5,15 @@
 
 # Changelog
 
+## v2.0.0-pre.1 - 2026-09-08
+
+This is a major update to the Nerves tooling. These change notes are minimal
+since the prelease is intended to facilitate testing with a limited set of users
+rather than general usage. Some new APIs may change completely and documentation
+hasn't been refresh. Please don't announce, but feel free to try it out and
+report back on the Nerves discord. The intention is to have helpful messages
+guide the Nerves v1 -> v2 updates, so improvements in that area are welcome now.
+
 ## v1.15.0 - 2026-07-10
 
 This release adds support for using [Apple Container](https://opensource.apple.com/projects/container/)
