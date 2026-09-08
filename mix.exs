@@ -62,7 +62,7 @@ defmodule Nerves.MixProject do
       # Nerves tooling can only use pure-Elixir libraries since they're built before
       # the Nerves cross-compilation environment is set up.
       {:interactive_cmd, "~> 0.1"},
-      {:nerves_discovery, "~> 0.1.2"},
+      {:nerves_discovery, "~> 0.1.5"},
       {:tablet, "~> 0.3.1"},
 
       # Development dependencies
