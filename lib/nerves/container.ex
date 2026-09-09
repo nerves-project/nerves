@@ -901,7 +901,10 @@ defmodule Nerves.Container do
     manifest =
       Path.join(staging_dir(), "nerves-manifest-#{System.unique_integer([:positive])}")
 
-    contents = Enum.map(package.artifact_source_files, &[&1, 0])
+    contents =
+      Enum.map(package.artifact_source_files, fn path ->
+        [Path.relative_to(path, package.path), 0]
+      end)
 
     try do
       File.write!(manifest, contents)
@@ -971,8 +974,9 @@ defmodule Nerves.Container do
         printf "NERVES_SYNC_CHANGED:%s\n" "$path"
       fi
     ' nerves-sync < "$manifest"
-    tar -C "$source" --null --verbatim-files-from --files-from="$manifest" -cf - |
-      tar -C "$destination" -xf -
+    tar -C "$source" --null --verbatim-files-from --files-from="$manifest" \
+      -cf /tmp/nerves-sync.tar &&
+      tar -C "$destination" -xf /tmp/nerves-sync.tar
     """
   end
 

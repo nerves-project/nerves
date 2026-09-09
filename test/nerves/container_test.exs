@@ -73,4 +73,45 @@ defmodule Nerves.ContainerTest do
     refute_received {:cmd, "docker", ["create" | _], _}
     refute_received {:cmd, "docker", ["cp" | _], _}
   end
+
+  test "Docker sync uses package-relative manifest paths", %{tmp_dir: tmp_dir} do
+    source = Path.join(tmp_dir, "source")
+    input = Path.join([source, "nested", "input"])
+    dockerfile = Path.join(tmp_dir, "Dockerfile")
+    File.mkdir_p!(Path.dirname(input))
+    File.write!(input, "contents")
+    File.write!(dockerfile, "FROM scratch\n")
+
+    package = %{
+      app: :test_package,
+      deps: [],
+      dockerfile: dockerfile,
+      path: source,
+      artifact_source_files: [input]
+    }
+
+    build_plan = %BuildPlan{packages: [package]}
+    on_exit(fn -> File.rm_rf(Container.work_dir(package)) end)
+    test_pid = self()
+
+    stub(Nerves.MixUtils, :cmd, fn "docker", args, stderr_to_stdout: true ->
+      manifest_mount =
+        Enum.find(args, fn arg ->
+          is_binary(arg) and String.ends_with?(arg, ",target=/nerves-sync,readonly")
+        end)
+
+      manifest_dir =
+        manifest_mount
+        |> String.replace_prefix("type=bind,src=", "")
+        |> String.replace_suffix(",target=/nerves-sync,readonly", "")
+
+      manifest = Path.join(manifest_dir, Path.basename(List.last(args)))
+      send(test_pid, {:manifest, File.read!(manifest), Enum.at(args, -5)})
+      {"", 0}
+    end)
+
+    assert :ok = Container.sync_work_dir(build_plan, "docker", package, "image")
+    assert_received {:manifest, "nested/input\0", script}
+    assert script =~ "-cf /tmp/nerves-sync.tar &&"
+  end
 end
