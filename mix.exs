@@ -124,7 +124,8 @@ defmodule Nerves.MixProject do
         "NOTICE",
         "README.md",
         "REUSE.toml",
-        "scripts"
+        "scripts",
+        "priv"
       ],
       licenses: ["Apache-2.0"],
       links: %{
