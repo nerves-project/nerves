@@ -4,6 +4,7 @@
 #
 Mimic.copy(InteractiveCmd)
 Mimic.copy(Nerves.Container)
+Mimic.copy(Nerves.MixUtils)
 
 ExUnit.start()
 
