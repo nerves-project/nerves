@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 defmodule Nerves.ContainerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
+  use Mimic
 
   alias Nerves.BuildPlan
   alias Nerves.Container
@@ -32,5 +33,44 @@ defmodule Nerves.ContainerTest do
     changed_fingerprint = %{package | source_fingerprint: "NEW"}
 
     assert Container.workspace_checksum(build_plan, changed_fingerprint) == checksum
+  end
+
+  test "Docker copies source through a running container into the workspace volume", %{
+    tmp_dir: tmp_dir
+  } do
+    source = Path.join(tmp_dir, "source")
+    File.mkdir!(source)
+    File.write!(Path.join(source, "input"), "contents")
+
+    package = %{app: :test_package, deps: [], path: source}
+    build_plan = %BuildPlan{packages: [package]}
+    test_pid = self()
+
+    stub(Nerves.MixUtils, :cmd, fn executable, args, options ->
+      send(test_pid, {:cmd, executable, args, options})
+      {"", 0}
+    end)
+
+    assert :ok = Container.populate_work_dir(build_plan, "docker", package, "image")
+
+    assert_received {:cmd, "docker",
+                     [
+                       "run",
+                       "--rm",
+                       "--user",
+                       "root",
+                       "--mount",
+                       "type=volume,src=nerves-work-test_package,target=/workspace",
+                       "--mount",
+                       "type=bind,src=" <> _,
+                       "--entrypoint",
+                       "/bin/sh",
+                       "image",
+                       "-c",
+                       "cp -a /source/. /workspace/test_package"
+                     ], stderr_to_stdout: true}
+
+    refute_received {:cmd, "docker", ["create" | _], _}
+    refute_received {:cmd, "docker", ["cp" | _], _}
   end
 end

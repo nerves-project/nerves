@@ -16,6 +16,7 @@ defmodule Nerves.Container do
   alias Nerves.Paths
 
   @apple_container_default_volume_size "128G"
+  @workspace_layout_version 2
 
   @doc """
   Return the locally cached image built from a package Dockerfile.
@@ -522,7 +523,8 @@ defmodule Nerves.Container do
   @spec workspace_checksum(BuildPlan.t(), BuildPlan.package_info()) :: String.t()
   def workspace_checksum(build_plan, package) do
     image_environment =
-      {File.read!(package.dockerfile), System.version(), System.otp_release()}
+      {@workspace_layout_version, File.read!(package.dockerfile), System.version(),
+       System.otp_release()}
 
     [package.app | package.deps]
     |> Enum.reduce(
@@ -809,59 +811,41 @@ defmodule Nerves.Container do
       Mix.raise("Failed to prepare volume directories: #{String.trim(output)}")
     end
 
-    # Use a disposable stopped container to copy files into the volume.
-    # `docker cp` works on stopped containers; the directories were created
-    # above so trailing-slash destinations work.
-    {id_raw, exit_code} =
-      MixUtils.cmd(
-        tool,
-        [
-          "create",
-          "--mount",
-          "type=volume,src=#{vol},target=/workspace",
-          "--entrypoint",
-          "true",
-          image
-        ],
-        stderr_to_stdout: true
-      )
+    copy_staged_tree_to_docker_volume(tool, pkg.path, vol, pkg_dir, image)
 
-    if exit_code != 0 do
-      Mix.raise("Failed to create helper container: #{String.trim(id_raw)}")
-    end
-
-    container_id = extract_container_id(id_raw)
-
-    try do
-      with_staged_tree(pkg.path, fn staged_path ->
-        case MixUtils.cmd(tool, ["cp", "#{staged_path}/.", "#{container_id}:#{pkg_dir}/"],
-               stderr_to_stdout: true
-             ) do
-          {_, 0} -> :ok
-          {output, _} -> Mix.raise("Failed to copy source into volume: #{String.trim(output)}")
-        end
-      end)
-
-      Enum.each(pkg.deps, fn dep ->
-        dep_package = BuildPlan.find_package(build_plan, dep)
-
-        with_staged_tree(dep_package.path, fn staged_path ->
-          case MixUtils.cmd(
-                 tool,
-                 ["cp", "#{staged_path}/.", "#{container_id}:/workspace/#{dep}/"],
-                 stderr_to_stdout: true
-               ) do
-            {_, 0} -> :ok
-            {output, _} -> Mix.raise("Failed to copy #{dep} into volume: #{String.trim(output)}")
-          end
-        end)
-      end)
-    after
-      _ = MixUtils.cmd(tool, ["rm", "-f", container_id], stderr_to_stdout: true)
-      :ok
-    end
+    Enum.each(pkg.deps, fn dep ->
+      dep_package = BuildPlan.find_package(build_plan, dep)
+      copy_staged_tree_to_docker_volume(tool, dep_package.path, vol, "/workspace/#{dep}", image)
+    end)
 
     :ok
+  end
+
+  # A stopped container does not have its volumes mounted, so `docker cp`
+  # writes into its writable layer instead of the named workspace volume.
+  defp copy_staged_tree_to_docker_volume(tool, source, volume, destination, image) do
+    with_staged_tree(source, fn staged_path ->
+      args = [
+        "run",
+        "--rm",
+        "--user",
+        "root",
+        "--mount",
+        "type=volume,src=#{volume},target=/workspace",
+        "--mount",
+        "type=bind,src=#{staged_path},target=/source,readonly",
+        "--entrypoint",
+        "/bin/sh",
+        image,
+        "-c",
+        "cp -a /source/. #{destination}"
+      ]
+
+      case MixUtils.cmd(tool, args, stderr_to_stdout: true) do
+        {_, 0} -> :ok
+        {output, _} -> Mix.raise("Failed to copy source into volume: #{String.trim(output)}")
+      end
+    end)
   end
 
   defp sync_work_dir_apple_container(workspace_package, source_package, image) do
