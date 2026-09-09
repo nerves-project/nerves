@@ -67,7 +67,7 @@ defmodule Nerves.ContainerTest do
                        "/bin/sh",
                        "image",
                        "-c",
-                       "cp -a /source/. /workspace/test_package"
+                       "cp -a /source/. /workspace/test_package && chown -R \"$(stat -c %u:%g /workspace)\" /workspace/test_package"
                      ], stderr_to_stdout: true}
 
     refute_received {:cmd, "docker", ["create" | _], _}

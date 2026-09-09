@@ -16,7 +16,7 @@ defmodule Nerves.Container do
   alias Nerves.Paths
 
   @apple_container_default_volume_size "128G"
-  @workspace_layout_version 2
+  @workspace_layout_version 3
 
   @doc """
   Return the locally cached image built from a package Dockerfile.
@@ -838,7 +838,7 @@ defmodule Nerves.Container do
         "/bin/sh",
         image,
         "-c",
-        "cp -a /source/. #{destination}"
+        "cp -a /source/. #{destination} && chown -R \"$(stat -c %u:%g /workspace)\" #{destination}"
       ]
 
       case MixUtils.cmd(tool, args, stderr_to_stdout: true) do
