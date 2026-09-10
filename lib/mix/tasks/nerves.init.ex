@@ -39,8 +39,27 @@ defmodule Mix.Tasks.Nerves.Init do
   end
 
   defp skip_nerves_integration?(task_name) do
-    task_name in ["format", "help", "local"] or
-      Enum.any?(["nerves.", "hex.", "local."], &String.starts_with?(task_name, &1))
+    # This needs to be specific since some other repositories have
+    # nerves. mix tasks and those should get the integration since we
+    # don't know what they'll do.
+    task_name in [
+      "format",
+      "help",
+      "local",
+      "nerves.discover",
+      "nerves.info",
+      "nerves.deps.get",
+      "nerves.loadpaths",
+      "nerves.system.shell"
+    ] or
+      Enum.any?(
+        [
+          "nerves.artifact.",
+          "hex.",
+          "local."
+        ],
+        &String.starts_with?(task_name, &1)
+      )
   end
 
   defp task_name_to_existing_module(name) do
