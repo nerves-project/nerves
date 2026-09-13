@@ -8,6 +8,12 @@ defmodule Nerves.BuildPlanHelpers do
 
   alias Nerves.MixPackage
 
+  @doc """
+  Reset the build plan between tests
+
+  Be sure to mark your test module as `async: false` since the build plan is a
+  singleton.
+  """
   @spec reset_plan() :: :ok
   def reset_plan() do
     :persistent_term.erase({Nerves, :build_plan})
