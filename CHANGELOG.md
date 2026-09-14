@@ -5,6 +5,13 @@
 
 # Changelog
 
+## v2.0.0-pre.2 - 2026-09-14
+
+* Changes
+  * Add missing files to hex release that are needed for building artifacts
+  * Fix Docker builds on macOS. Apple Container and Linux/Docker seemed fine
+  * Fix backwards compatibility issues with nerves_system_qemu_aarch64
+
 ## v2.0.0-pre.1 - 2026-09-08
 
 This is a major update to the Nerves tooling. These change notes are minimal
