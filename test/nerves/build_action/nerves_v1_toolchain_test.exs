@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-defmodule Nerves.BuildPlans.NervesV1ToolchainTest do
+defmodule Nerves.BuildAction.NervesV1ToolchainTest do
   use ExUnit.Case, async: false
 
   alias Nerves.BuildPlan
