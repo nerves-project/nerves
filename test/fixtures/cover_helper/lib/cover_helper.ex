@@ -117,7 +117,17 @@ defmodule CoverHelper do
   defp cover_export_name([task | _], opts) do
     path = Path.basename(opts[:cd] || File.cwd!())
 
-    "#{path}_#{target(opts)}_#{task}"
+    unique_path("#{path}_#{target(opts)}_#{task}", 0)
+  end
+
+  defp unique_path(base, counter) do
+    path = base <> "_#{counter}"
+
+    if File.exists?(path) do
+      unique_path(base, counter + 1)
+    else
+      path
+    end
   end
 
   defp target(opts) do
