@@ -18,6 +18,6 @@ defmodule CoverHelper.MixProject do
   end
 
   defp deps do
-    []
+    [{:circular_buffer, "~> 1.1"}]
   end
 end

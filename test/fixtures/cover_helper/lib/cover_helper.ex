@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Frank Hunleth
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule CoverHelper do
   @moduledoc false
 
@@ -60,9 +64,33 @@ defmodule CoverHelper do
   end
 
   defp run_mix(args, opts) do
-    final_opts = Keyword.merge([stderr_to_stdout: true, into: IO.stream()], opts)
-    System.cmd("mix", args, final_opts)
+    if Keyword.has_key?(opts, :into) do
+      System.cmd("mix", args, Keyword.put_new(opts, :stderr_to_stdout, true))
+    else
+      {:ok, output_buffer} = CoverHelper.OutputBuffer.start_link(task_name(args))
+
+      final_opts =
+        Keyword.merge(
+          [stderr_to_stdout: true, into: CoverHelper.OutputBuffer.stream(output_buffer)],
+          opts
+        )
+
+      {_, exit_status} =
+        System.cmd("mix", args, final_opts)
+
+      if exit_status == 0 do
+        CoverHelper.OutputBuffer.clear_status(output_buffer)
+      else
+        CoverHelper.OutputBuffer.dump(output_buffer)
+      end
+
+      :ok = GenServer.stop(output_buffer)
+      {"", exit_status}
+    end
   end
+
+  defp task_name(["cover", _path, _export, task | _]), do: task
+  defp task_name([task | _]), do: task
 
   defp mix_args(["deps.get" | _] = args, _opts), do: args
 
