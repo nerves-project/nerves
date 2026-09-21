@@ -84,7 +84,7 @@ defmodule Nerves.MixProject do
         Advanced: ~r/guides\/advanced\/.?/,
         Cheatsheets: ~r/guides\/cheatsheets\/.?/
       ],
-      extras: ["CHANGELOG.md"] ++ Path.wildcard("guides/*/*.{md,cheatmd}"),
+      extras: ["CHANGELOG.md"] ++ Path.wildcard("guides/*/*.md"),
       skip_undefined_reference_warnings_on: [
         "guides/advanced/updating-projects.md",
         "CHANGELOG.md"
