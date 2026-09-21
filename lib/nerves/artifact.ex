@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2021 Jaremy J. Creechley
 # SPDX-FileCopyrightText: 2023 James Harton
 # SPDX-FileCopyrightText: 2026 Ky Bishop
+# SPDX-FileCopyrightText: 2026 Thomas Winkler
 #
 # SPDX-License-Identifier: Apache-2.0
 #
