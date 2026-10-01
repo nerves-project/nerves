@@ -22,9 +22,13 @@
 
 ## Craft and deploy bulletproof embedded software in Elixir
 
-*This is from the Nerves 2.0 development branch. Please be aware that APIs
-have changed completely and the documentation is lagging. Please continue
-to use Nerves 1.x releases unless you're actively working on this.*
+*This is from the Nerves 2.0 development branch. This branch is ready for Nerves
+1.x use cases for Nerves users with a moderate amount of Nerves experience. Please
+see [Upgrading from v1.x to
+v2.0](https://nerves.hexdocs.pm/2.0.0-pre.2/updating-projects.html#updating-from-v1-x-to-v2-0).
+Nerves 2.0.0 has not been officially released yet, so it's possible for APIs to
+change. Documentation is lagging. If you're even a little unsure, please
+continue to use Nerves 1.x releases.*
 
 Nerves provides tooling and libraries for building small, self-contained
 software images using the rock-solid [Erlang virtual
