@@ -60,6 +60,8 @@ defmodule Nerves.TargetTuple do
   def to_nerves_v1_host_tuple(%{os: "darwin" <> _, arch: "aarch64"}), do: "darwin_arm"
   def to_nerves_v1_host_tuple(%{os: "darwin" <> _, arch: "x86_64"}), do: "darwin_x86_64"
   def to_nerves_v1_host_tuple(%{os: "linux", arch: "aarch64", abi: "gnu"}), do: "linux_aarch64"
+  def to_nerves_v1_host_tuple(%{os: "linux", arch: "aarch64", abi: "musl"}), do: "linux_aarch64"
   def to_nerves_v1_host_tuple(%{os: "linux", arch: "x86_64", abi: "gnu"}), do: "linux_x86_64"
+  def to_nerves_v1_host_tuple(%{os: "linux", arch: "x86_64", abi: "musl"}), do: "linux_x86_64"
   def to_nerves_v1_host_tuple(_), do: :error
 end

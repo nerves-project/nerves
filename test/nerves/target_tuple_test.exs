@@ -23,11 +23,12 @@ defmodule Nerves.TargetTupleTest do
       assert to_nerves_v1_host_tuple("aarch64-apple-darwin25.5.0") == "darwin_arm"
       assert to_nerves_v1_host_tuple("x86_64-apple-darwin23.6.0") == "darwin_x86_64"
       assert to_nerves_v1_host_tuple("x86_64-pc-linux-gnu") == "linux_x86_64"
+      assert to_nerves_v1_host_tuple("x86_64-pc-linux-musl") == "linux_x86_64"
       assert to_nerves_v1_host_tuple("aarch64-unknown-linux-gnu") == "linux_aarch64"
+      assert to_nerves_v1_host_tuple("aarch64-unknown-linux-musl") == "linux_aarch64"
     end
 
     test "returns error on unknown platforms" do
-      assert to_nerves_v1_host_tuple("aarch64-unknown-linux-musl") == :error
       assert to_nerves_v1_host_tuple("riscv64-unknown-linux-gnu") == :error
     end
   end
