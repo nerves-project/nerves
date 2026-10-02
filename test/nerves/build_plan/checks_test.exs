@@ -25,6 +25,14 @@ defmodule Nerves.BuildPlan.ChecksTest do
     assert ^build_plan = BuildPlan.validate!(build_plan)
   end
 
+  test "passing plan without optional env passes" do
+    build_plan = passing_plan()
+    new_env = Map.delete(build_plan.env, "TARGET_CPU")
+    altered_build_plan = %{build_plan | env: new_env}
+
+    assert ^altered_build_plan = BuildPlan.validate!(altered_build_plan)
+  end
+
   test "missing environment variable is detected" do
     starting_plan = passing_plan()
     build_plan = %{starting_plan | env: Map.delete(starting_plan.env, "CROSSCOMPILE")}

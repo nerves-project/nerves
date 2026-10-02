@@ -49,10 +49,18 @@ defmodule Nerves.BuildPlan.Checks do
     STRIP
     TARGET_ABI
     TARGET_ARCH
-    TARGET_CPU
     TARGET_GCC_FLAGS
     TARGET_OS
   ])
+
+  # For historical reasons, the following are optional. Try to keep this
+  # list minimal, since it complicates user expectations.
+  #
+  # (Commented out to avoid warning)
+  #
+  # @optional_env_vars MapSet.new(~w[
+  #   TARGET_CPU
+  # ])
 
   @forbidden_host_env_vars MapSet.new(~w[
     AR
