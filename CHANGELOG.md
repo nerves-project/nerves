@@ -5,6 +5,12 @@
 
 # Changelog
 
+## v2.0.0-pre.3 - 2026-10-02
+
+* Changes
+  * Don't require `TARGET_CPU` in Nerves systems since this isn't needed for
+    x86_64.
+
 ## v2.0.0-pre.2 - 2026-09-14
 
 * Changes
