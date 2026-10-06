@@ -329,6 +329,24 @@ defmodule Nerves.Artifact.Resolvers.GithubAPITest do
     assert :ok = GithubAPI.get(prepared, @good_download_path)
   end
 
+  test "github_api does not send authorization to an external asset host" do
+    prepared = plan(method: :github_api, token: "1234")
+    external_url = "https://downloads.example.com/#{@artifact_filename}"
+
+    HTTPClient
+    |> expect(:get_json, fn _url, opts ->
+      assert {"Authorization", "Bearer 1234"} in opts[:headers]
+      {:ok, release_json([%{"name" => @artifact_filename, "url" => external_url}])}
+    end)
+    |> expect(:download, fn url, _path, opts ->
+      assert url == external_url
+      assert opts[:headers] == [{"Accept", "application/octet-stream"}]
+      :ok
+    end)
+
+    assert :ok = GithubAPI.get(prepared, @good_download_path)
+  end
+
   test "github_release falls back to API on failure when token is set" do
     prepared = plan(token: "1234")
 

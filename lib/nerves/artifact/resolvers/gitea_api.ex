@@ -109,7 +109,10 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPI do
 
     with {:ok, release} <- HTTPClient.get_json(release_url, headers: auth_headers),
          {:ok, download_url} <- find_asset_url(release, opts.artifact_filename) do
-      HTTPClient.download(download_url, dest_path, headers: auth_headers)
+      download_headers =
+        if HTTPClient.same_origin?(opts.api_url, download_url), do: auth_headers, else: []
+
+      HTTPClient.download(download_url, dest_path, headers: download_headers)
     end
   end
 

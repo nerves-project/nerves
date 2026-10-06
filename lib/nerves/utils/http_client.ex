@@ -368,4 +368,32 @@ defmodule Nerves.Utils.HTTPClient do
   defp tuple_to_charlist({k, v}) do
     {to_charlist(k), to_charlist(v)}
   end
+
+  @doc false
+  @spec same_origin?(URI.t() | String.t(), URI.t() | String.t()) :: boolean()
+  def same_origin?(left, right) do
+    left_origin = left |> parse_uri() |> origin()
+    right_origin = right |> parse_uri() |> origin()
+
+    left_origin != :error and left_origin == right_origin
+  end
+
+  defp parse_uri(%URI{} = uri), do: uri
+  defp parse_uri(uri) when is_binary(uri), do: URI.parse(uri)
+
+  defp origin(%URI{scheme: scheme, host: host, userinfo: nil, port: port})
+       when is_binary(scheme) and is_binary(host) and host != "" do
+    scheme = String.downcase(scheme)
+
+    if scheme in ["http", "https"] do
+      {scheme, String.downcase(host), port || default_port(scheme)}
+    else
+      :error
+    end
+  end
+
+  defp origin(_uri), do: :error
+
+  defp default_port("http"), do: 80
+  defp default_port("https"), do: 443
 end

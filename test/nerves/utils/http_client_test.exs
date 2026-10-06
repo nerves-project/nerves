@@ -99,4 +99,17 @@ defmodule Nerves.Utils.HTTPClientTest do
                headers: [{"X-Custom", "test"}]
              )
   end
+
+  test "same_origin? compares URL schemes, hosts, and effective ports" do
+    assert HTTPClient.same_origin?(
+             "https://EXAMPLE.com/api",
+             "https://example.com:443/download"
+           )
+
+    refute HTTPClient.same_origin?("https://example.com", "http://example.com")
+    refute HTTPClient.same_origin?("https://example.com", "https://example.com:444")
+    refute HTTPClient.same_origin?("https://example.com", "https://assets.example.com")
+    refute HTTPClient.same_origin?("https://example.com", "https://example.com@evil.test")
+    refute HTTPClient.same_origin?("https://example.com", "/relative/download")
+  end
 end

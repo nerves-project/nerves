@@ -158,7 +158,10 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
     with {:ok, release} <- HTTPClient.get_json(release_url, headers: auth_headers),
          {:ok, asset_api_url} <- find_asset_url(release, opts.artifact_filename) do
-      download_headers = [{"Accept", "application/octet-stream"} | auth_headers]
+      asset_auth_headers =
+        if HTTPClient.same_origin?(opts.api_url, asset_api_url), do: auth_headers, else: []
+
+      download_headers = [{"Accept", "application/octet-stream"} | asset_auth_headers]
       HTTPClient.download(asset_api_url, dest_path, headers: download_headers)
     end
   end

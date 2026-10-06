@@ -218,4 +218,26 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPITest do
 
     assert :ok = GiteaAPI.get(prepared, @good_download_path)
   end
+
+  test "gitea_api does not send authorization to an external asset host" do
+    prepared = plan(site: :gitea_api, token: "1234")
+    external_url = "https://downloads.example.com/#{@artifact_filename}"
+
+    HTTPClient
+    |> expect(:get_json, fn _url, opts ->
+      assert [{"Authorization", "token 1234"}] = opts[:headers]
+
+      {:ok,
+       release_json([
+         %{"name" => @artifact_filename, "browser_download_url" => external_url}
+       ])}
+    end)
+    |> expect(:download, fn url, _path, opts ->
+      assert url == external_url
+      assert opts[:headers] == []
+      :ok
+    end)
+
+    assert :ok = GiteaAPI.get(prepared, @good_download_path)
+  end
 end
