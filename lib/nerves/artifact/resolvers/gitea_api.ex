@@ -94,14 +94,14 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPI do
     end
   end
 
-  defp download(:gitea_release, opts, dest_path, auth_headers) do
+  defp download(:gitea_release, opts, dest_path, _auth_headers) do
     download_url =
       URI.append_path(
         opts.org_repo_url,
         "/releases/download/#{opts.tag}/#{opts.artifact_filename}"
       )
 
-    HTTPClient.download(download_url, dest_path, headers: auth_headers)
+    HTTPClient.download(download_url, dest_path, headers: [])
   end
 
   defp download(:gitea_api, opts, dest_path, auth_headers) do
@@ -109,7 +109,7 @@ defmodule Nerves.Artifact.Resolvers.GiteaAPI do
 
     with {:ok, release} <- HTTPClient.get_json(release_url, headers: auth_headers),
          {:ok, download_url} <- find_asset_url(release, opts.artifact_filename) do
-      HTTPClient.download(download_url, dest_path, headers: auth_headers)
+      HTTPClient.download(download_url, dest_path, headers: [])
     end
   end
 

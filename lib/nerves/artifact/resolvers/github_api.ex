@@ -142,7 +142,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
         "/#{opts.org_repo}/releases/download/#{opts.tag}/#{opts.artifact_filename}"
       )
 
-    result = HTTPClient.download(download_url, dest_path, headers: auth_headers)
+    result = HTTPClient.download(download_url, dest_path, headers: [])
 
     if match?({:error, _}, result) and auth_headers != [] and opts.api_url != nil do
       # Fall back to API if we have an auth token and know the API URL
@@ -158,7 +158,7 @@ defmodule Nerves.Artifact.Resolvers.GithubAPI do
 
     with {:ok, release} <- HTTPClient.get_json(release_url, headers: auth_headers),
          {:ok, asset_api_url} <- find_asset_url(release, opts.artifact_filename) do
-      download_headers = [{"Accept", "application/octet-stream"} | auth_headers]
+      download_headers = [{"Accept", "application/octet-stream"}]
       HTTPClient.download(asset_api_url, dest_path, headers: download_headers)
     end
   end
