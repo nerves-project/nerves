@@ -27,7 +27,8 @@ defmodule Nerves.Utils.HTTPClient do
           get_opts: opts(),
           progress?: boolean(),
           received: non_neg_integer(),
-          redirects: non_neg_integer()
+          redirects: non_neg_integer(),
+          url: String.t()
         }
 
   @doc """
@@ -203,7 +204,8 @@ defmodule Nerves.Utils.HTTPClient do
        get_opts: opts,
        progress?: progress?,
        received: 0,
-       redirects: redirects
+       redirects: redirects,
+       url: url
      }}
   end
 
@@ -237,6 +239,8 @@ defmodule Nerves.Utils.HTTPClient do
 
             next_location
             |> List.to_string()
+            |> then(&URI.merge(state.url, &1))
+            |> URI.to_string()
             |> start_request(next_get_opts, state.redirects + 1)
             |> await_response()
 

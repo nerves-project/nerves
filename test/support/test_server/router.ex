@@ -82,6 +82,36 @@ defmodule Nerves.TestServer.Router do
     |> Plug.Conn.halt()
   end
 
+  get "/redirect/absolute" do
+    conn
+    |> put_resp_header("location", "http://127.0.0.1:4000/json/ok")
+    |> send_resp(302, "")
+  end
+
+  get "/redirect/root_relative" do
+    conn
+    |> put_resp_header("location", "/json/ok")
+    |> send_resp(302, "")
+  end
+
+  get "/redirect/path_relative" do
+    conn
+    |> put_resp_header("location", "../json/ok")
+    |> send_resp(302, "")
+  end
+
+  get "/redirect/scheme_relative" do
+    conn
+    |> put_resp_header("location", "//127.0.0.1:4000/json/ok")
+    |> send_resp(302, "")
+  end
+
+  get "/redirect/loop" do
+    conn
+    |> put_resp_header("location", "/redirect/loop")
+    |> send_resp(302, "")
+  end
+
   match _ do
     conn
     |> send_resp(404, "Not Found")

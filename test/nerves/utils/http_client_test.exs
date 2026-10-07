@@ -99,4 +99,16 @@ defmodule Nerves.Utils.HTTPClientTest do
                headers: [{"X-Custom", "test"}]
              )
   end
+
+  test "get_json follows absolute and relative redirects" do
+    for path <- ["absolute", "root_relative", "path_relative", "scheme_relative"] do
+      assert {:ok, %{"hello" => "world", "number" => 42}} =
+               HTTPClient.get_json("http://127.0.0.1:4000/redirect/#{path}")
+    end
+  end
+
+  test "get_json limits relative redirects" do
+    assert {:error, :too_many_redirects} =
+             HTTPClient.get_json("http://127.0.0.1:4000/redirect/loop")
+  end
 end

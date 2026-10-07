@@ -5,6 +5,12 @@
 
 # Changelog
 
+## Unreleased
+
+* Fixes
+  * Send Gitea authentication headers when downloading release artifacts
+  * Resolve relative HTTP redirects against the current request URL
+
 ## v1.15.0 - 2026-07-10
 
 This release adds support for using [Apple Container](https://opensource.apple.com/projects/container/)
