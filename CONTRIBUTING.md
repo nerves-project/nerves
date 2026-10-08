@@ -170,10 +170,10 @@ cost of maintaining the project.
 
 <!-- Links -->
 
-[Code of Conduct]: CODE_OF_CONDUCT.md
+[Code of Conduct]: https://github.com/nerves-project/.github/blob/main/CODE_OF_CONDUCT.md
 [Common Changelog]: https://common-changelog.org/
 [Nerves Discord]: https://discord.gg/7TqSpepHw7
 [nerves repository]: https://github.com/nerves-project/nerves
 [OpenCollective site]: https://opencollective.com/nerves-project
 [REUSE Specification]: https://reuse.software/
-[SECURITY.md]: SECURITY.md
+[SECURITY.md]: https://github.com/nerves-project/.github/blob/main/SECURITY.md
