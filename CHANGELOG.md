@@ -5,6 +5,12 @@
 
 # Changelog
 
+## v2.0.0-pre.4 - 2026-10-09
+
+* Changes
+  * Fix typo preventing `SOURCE_DATE_EPOCH` from propogating through the
+    firmware creation step. (@jannikbecher)
+
 ## v2.0.0-pre.3 - 2026-10-02
 
 * Changes
