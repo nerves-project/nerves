@@ -12,8 +12,11 @@ setup() {
 }
 
 clean() {
+  # Leave the build directory before deleting and recreating it.
+  cd /workspace
   rm -rf /workspace/build
   mkdir -p /workspace/build
+  cd /workspace/build
 }
 
 [ "$#" -gt 0 ] || set -- setup build
