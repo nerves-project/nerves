@@ -143,7 +143,7 @@ defmodule Nerves.BuildAction.Firmware do
         | fwup_variables(opts)
       ] ++
         maybe_env("NERVES_PROVISIONING", opts[:fwup_provisioning_conf]) ++
-        maybe_env("SOURCE_DATE_EPOCH", opts[:source_data_epoch])
+        maybe_env("SOURCE_DATE_EPOCH", opts[:source_date_epoch])
 
     MixUtils.info("  Creating #{Path.basename(fw_out)}...")
 
