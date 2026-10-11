@@ -14,10 +14,8 @@
 -->
 # Nerves
 
-[![Backers on Open Collective](https://opencollective.com/nerves-project/backers/badge.svg)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/nerves-project/sponsors/badge.svg)](#sponsors)
 [![Hex version](https://img.shields.io/hexpm/v/nerves.svg "Hex version")](https://hex.pm/packages/nerves)
-[![CircleCI](https://circleci.com/gh/nerves-project/nerves.svg?style=svg)](https://circleci.com/gh/nerves-project/nerves)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/nerves-project/nerves/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nerves-project/nerves/tree/main)
 [![REUSE status](https://api.reuse.software/badge/github.com/nerves-project/nerves)](https://api.reuse.software/info/github.com/nerves-project/nerves)
 
 ## Craft and deploy bulletproof embedded software in Elixir
