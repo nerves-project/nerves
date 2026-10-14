@@ -6,6 +6,7 @@ defmodule Nerves.BuildPlan.ChecksTest do
   use ExUnit.Case, async: false
 
   alias Nerves.BuildPlan
+  alias Nerves.BuildPlanHelpers
 
   defp passing_plan() do
     env =
@@ -17,7 +18,8 @@ defmodule Nerves.BuildPlan.ChecksTest do
            REBAR_TARGET_ARCH STRIP TARGET_ABI TARGET_ARCH TARGET_CPU TARGET_GCC_FLAGS TARGET_OS]
       |> Map.new(&{&1, "value"})
 
-    %BuildPlan{env: env}
+    package = BuildPlanHelpers.package_info(:nerves_system_test, "/system", "/artifact")
+    %BuildPlan{env: env, packages: [package]}
   end
 
   test "passing plan passes" do
@@ -38,6 +40,41 @@ defmodule Nerves.BuildPlan.ChecksTest do
     build_plan = %{starting_plan | env: Map.delete(starting_plan.env, "CROSSCOMPILE")}
 
     assert_raise Nerves.InvalidPlan, ~r/CROSSCOMPILE/, fn ->
+      BuildPlan.validate!(build_plan)
+    end
+  end
+
+  test "missing environment with no Nerves packages points to the selected Mix target" do
+    previous_target = Mix.target()
+    Mix.target(:invalid_target)
+    on_exit(fn -> Mix.target(previous_target) end)
+
+    error =
+      assert_raise Nerves.InvalidPlan, fn ->
+        BuildPlan.validate!(%BuildPlan{})
+      end
+
+    assert error.message =~ "No Nerves-aware packages are available for MIX_TARGET=invalid_target"
+
+    # Messing up the MIX_TARGET is common. Make sure the advanced error message
+    # isn't shown.
+    refute error.message =~ "required Nerves environment variables"
+  end
+
+  test "complete environment without Nerves packages still passes" do
+    build_plan = %{passing_plan() | packages: []}
+    assert ^build_plan = BuildPlan.validate!(build_plan)
+  end
+
+  test "host build without Nerves packages passes" do
+    build_plan = %BuildPlan{host_build?: true}
+    assert ^build_plan = BuildPlan.validate!(build_plan)
+  end
+
+  test "host build still rejects cross-compilation environment variables" do
+    build_plan = %BuildPlan{host_build?: true, env: %{"CC" => "gcc"}}
+
+    assert_raise Nerves.InvalidPlan, ~r/shouldn't be set for host builds.*CC/, fn ->
       BuildPlan.validate!(build_plan)
     end
   end
