@@ -98,12 +98,27 @@ defmodule Nerves.BuildPlan.Checks do
 
       if MapSet.size(missing) > 0 do
         raise InvalidPlan,
-          message:
-            "The following required Nerves environment variables are missing from the build plan: #{pretty_map_set(missing)}"
+          message: missing_env_message(build_plan, missing)
       end
     end
 
     build_plan
+  end
+
+  defp missing_env_message(%BuildPlan{packages: []}, _missing) do
+    """
+    No Nerves-aware packages are available for MIX_TARGET=#{Mix.target()}.
+
+    Check that MIX_TARGET is spelled correctly and matches a target supported
+    by your project's dependencies in mix.exs. A target build needs a Nerves
+    system dependency (usually nerves_system_*) enabled for that target.
+
+    Set MIX_TARGET to the intended target, then run mix deps.get and mix firmware.
+    """
+  end
+
+  defp missing_env_message(_build_plan, missing) do
+    "The following required Nerves environment variables are missing from the build plan: #{pretty_map_set(missing)}"
   end
 
   defp pretty_map_set(ms) do
