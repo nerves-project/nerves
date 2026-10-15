@@ -16,7 +16,7 @@ defmodule Nerves.Container do
   alias Nerves.Paths
 
   @apple_container_default_volume_size "128G"
-  @workspace_layout_version 3
+  @workspace_layout_version 4
 
   @doc """
   Return the locally cached image built from a package Dockerfile.
@@ -606,10 +606,17 @@ defmodule Nerves.Container do
     :ok
   end
 
-  @copy_tree_excludes ["./_build", "./deps", "/.git"]
+  @copy_tree_excludes [
+    "./_build",
+    "./deps",
+    "/.git",
+    "./.nerves",
+    "./buildroot",
+    "./buildroot-[0-9]*"
+  ]
 
-  # Copy the contents of src_dir into dest_dir while skipping generated Mix
-  # directories that can contain broken symlinks or large caches.
+  # Copy the contents of src_dir into dest_dir while skipping generated Mix and
+  # Buildroot directories that can contain broken symlinks or large caches.
   defp copy_tree!(src_dir, dest_dir) do
     archive =
       Path.join(staging_dir(), "nerves-copy-#{System.unique_integer([:positive])}.tar")

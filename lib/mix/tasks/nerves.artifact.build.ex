@@ -102,6 +102,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
         MixUtils.info("Artifact build succeeded.")
 
       {_, status} ->
+        Container.invalidate_source_checksum(package)
         Mix.raise("Container build failed with status #{status}")
     end
   end
