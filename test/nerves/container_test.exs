@@ -43,6 +43,11 @@ defmodule Nerves.ContainerTest do
       File.mkdir!(source)
       File.write!(Path.join(source, "input"), "contents")
 
+      for directory <- ["buildroot", "buildroot-2026.05.3"] do
+        File.mkdir!(Path.join(source, directory))
+        File.write!(Path.join([source, directory, "Makefile"]), "package source")
+      end
+
       dep_source = Path.join(tmp_dir, "dep")
       File.mkdir_p!(Path.join(dep_source, "buildroot-2026.05.3"))
       File.ln_s!("/host-only/buildroot-2026.05.3", Path.join(dep_source, "buildroot"))
@@ -63,6 +68,12 @@ defmodule Nerves.ContainerTest do
 
       assert :ok = Container.populate_work_dir(build_plan, "docker", package, "image")
       assert File.read!(Path.join(workspace, "test_package/input")) == "contents"
+
+      for directory <- ["buildroot", "buildroot-2026.05.3"] do
+        assert File.read!(Path.join([workspace, "test_package", directory, "Makefile"])) ==
+                 "package source"
+      end
+
       assert File.ls!(Path.join(workspace, "nerves_system_br")) == ["patches"]
 
       assert File.read!(Path.join(workspace, "nerves_system_br/patches/buildroot/fix.patch")) ==

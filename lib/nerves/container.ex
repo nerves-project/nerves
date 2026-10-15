@@ -588,7 +588,7 @@ defmodule Nerves.Container do
     # Refresh source
     _ = File.rm_rf(pkg_dest)
     File.mkdir_p!(pkg_dest)
-    copy_tree!(pkg.path, pkg_dest)
+    copy_tree!(pkg, pkg_dest)
 
     # Refresh build deps
     for dep <- pkg.deps do
@@ -597,7 +597,7 @@ defmodule Nerves.Container do
       File.mkdir_p!(dest)
 
       dep_package = BuildPlan.find_package(build_plan, dep)
-      copy_tree!(dep_package.path, dest)
+      copy_tree!(dep_package, dest)
     end
 
     # Ensure build exists
@@ -606,23 +606,21 @@ defmodule Nerves.Container do
     :ok
   end
 
-  @copy_tree_excludes [
-    "./_build",
-    "./deps",
-    "/.git",
-    "./.nerves",
-    "./buildroot",
-    "./buildroot-[0-9]*"
-  ]
+  @copy_tree_excludes ["./_build", "./deps", "/.git", "./.nerves"]
+
+  defp package_excludes(:nerves_system_br), do: ["./buildroot", "./buildroot-[0-9]*"]
+  defp package_excludes(_app), do: []
 
   # Copy the contents of src_dir into dest_dir while skipping generated Mix and
   # Buildroot directories that can contain broken symlinks or large caches.
-  defp copy_tree!(src_dir, dest_dir) do
+  defp copy_tree!(%{app: app, path: src_dir}, dest_dir) do
+    excludes = @copy_tree_excludes ++ package_excludes(app)
+
     archive =
       Path.join(staging_dir(), "nerves-copy-#{System.unique_integer([:positive])}.tar")
 
     tar_create_args =
-      ["cf", archive] ++ Enum.map(@copy_tree_excludes, &"--exclude=#{&1}") ++ ["-C", src_dir, "."]
+      ["cf", archive] ++ Enum.map(excludes, &"--exclude=#{&1}") ++ ["-C", src_dir, "."]
 
     try do
       case MixUtils.cmd("tar", tar_create_args, stderr_to_stdout: true) do
@@ -643,13 +641,13 @@ defmodule Nerves.Container do
     end
   end
 
-  defp with_staged_tree(src_dir, fun) do
+  defp with_staged_tree(package, fun) do
     staged_dir =
       Path.join(staging_dir(), "nerves-stage-#{System.unique_integer([:positive])}")
 
     try do
       File.mkdir_p!(staged_dir)
-      copy_tree!(src_dir, staged_dir)
+      copy_tree!(package, staged_dir)
       fun.(staged_dir)
     after
       File.rm_rf(staged_dir)
@@ -708,11 +706,11 @@ defmodule Nerves.Container do
     volume = volume_name(pkg)
     destination = "/workspace/#{pkg.app}"
 
-    copy_staged_tree_to_apple_volume(pkg.path, volume, destination, image)
+    copy_staged_tree_to_apple_volume(pkg, volume, destination, image)
 
     Enum.each(pkg.deps, fn dep ->
       dep_package = BuildPlan.find_package(build_plan, dep)
-      copy_staged_tree_to_apple_volume(dep_package.path, volume, "/workspace/#{dep}", image)
+      copy_staged_tree_to_apple_volume(dep_package, volume, "/workspace/#{dep}", image)
     end)
 
     prepare_apple_build_dir(volume, image)
@@ -817,11 +815,11 @@ defmodule Nerves.Container do
       Mix.raise("Failed to prepare volume directories: #{String.trim(output)}")
     end
 
-    copy_staged_tree_to_docker_volume(tool, pkg.path, vol, pkg_dir, image)
+    copy_staged_tree_to_docker_volume(tool, pkg, vol, pkg_dir, image)
 
     Enum.each(pkg.deps, fn dep ->
       dep_package = BuildPlan.find_package(build_plan, dep)
-      copy_staged_tree_to_docker_volume(tool, dep_package.path, vol, "/workspace/#{dep}", image)
+      copy_staged_tree_to_docker_volume(tool, dep_package, vol, "/workspace/#{dep}", image)
     end)
 
     :ok
