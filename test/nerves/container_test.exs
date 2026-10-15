@@ -36,19 +36,50 @@ defmodule Nerves.ContainerTest do
   end
 
   if :os.type() == {:unix, :linux} do
-    test "Linux copies source directly into the workspace", %{tmp_dir: tmp_dir} do
+    test "Linux copies sources without host caches and preserves build output", %{
+      tmp_dir: tmp_dir
+    } do
       source = Path.join(tmp_dir, "source")
       File.mkdir!(source)
       File.write!(Path.join(source, "input"), "contents")
 
-      package = %{app: :test_package, deps: [], path: source}
-      build_plan = %BuildPlan{packages: [package]}
-      on_exit(fn -> File.rm_rf(Container.work_dir(package)) end)
+      for directory <- ["buildroot", "buildroot-2026.05.3"] do
+        File.mkdir!(Path.join(source, directory))
+        File.write!(Path.join([source, directory, "Makefile"]), "package source")
+      end
+
+      dep_source = Path.join(tmp_dir, "dep")
+      File.mkdir_p!(Path.join(dep_source, "buildroot-2026.05.3"))
+      File.ln_s!("/host-only/buildroot-2026.05.3", Path.join(dep_source, "buildroot"))
+      File.ln_s!("/host-only/.nerves/dl", Path.join(dep_source, "buildroot-2026.05.3/dl"))
+      File.mkdir_p!(Path.join(dep_source, ".nerves"))
+      File.mkdir_p!(Path.join(dep_source, "patches/buildroot"))
+      File.write!(Path.join(dep_source, "patches/buildroot/fix.patch"), "patch")
+
+      package = %{app: :test_package, deps: [:nerves_system_br], path: source}
+      dep = %{app: :nerves_system_br, path: dep_source}
+      build_plan = %BuildPlan{packages: [package, dep]}
+      workspace = Container.work_dir(package)
+      on_exit(fn -> File.rm_rf(workspace) end)
+      File.mkdir_p!(Path.join(workspace, "build"))
+      File.write!(Path.join(workspace, "build/output"), "keep me")
+      File.mkdir_p!(Path.join(workspace, "nerves_system_br"))
+      File.ln_s!("/old-host/buildroot", Path.join(workspace, "nerves_system_br/buildroot"))
 
       assert :ok = Container.populate_work_dir(build_plan, "docker", package, "image")
+      assert File.read!(Path.join(workspace, "test_package/input")) == "contents"
 
-      copied_input = Path.join([Container.work_dir(package), "test_package", "input"])
-      assert File.read!(copied_input) == "contents"
+      for directory <- ["buildroot", "buildroot-2026.05.3"] do
+        assert File.read!(Path.join([workspace, "test_package", directory, "Makefile"])) ==
+                 "package source"
+      end
+
+      assert File.ls!(Path.join(workspace, "nerves_system_br")) == ["patches"]
+
+      assert File.read!(Path.join(workspace, "nerves_system_br/patches/buildroot/fix.patch")) ==
+               "patch"
+
+      assert File.read!(Path.join(workspace, "build/output")) == "keep me"
     end
 
     test "Linux sync uses package-relative paths", %{tmp_dir: tmp_dir} do
