@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
     end
   end
 
-  test "nerves.artifact.shell syncs changes but invalidates the checksum on failure" do
+  test "nerves.artifact.shell invalidates the checksum even when sync fails" do
     # TODO - capture output to clean up `mix test` output
     package = %{app: :test_system, path: "/tmp/test_system"}
     build_plan = %BuildPlan{packages: [package]}
@@ -46,7 +46,7 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
     |> expect(:work_dir, fn ^package -> "/work" end)
     |> expect(:sync_work_dir, fn ^build_plan, "docker", ^package, "image" ->
       assert_received :shell_exited
-      :ok
+      raise "sync failed"
     end)
     |> expect(:invalidate_source_checksum, fn ^package -> :ok end)
 
@@ -57,7 +57,10 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
     end)
 
     Mix.Task.reenable("nerves.artifact.shell")
-    assert :ok = Mix.Task.run("nerves.artifact.shell")
+
+    assert_raise RuntimeError, "sync failed", fn ->
+      Mix.Task.run("nerves.artifact.shell")
+    end
   end
 
   test "nerves.artifact.shell skips setup when sources are unchanged" do

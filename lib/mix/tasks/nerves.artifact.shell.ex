@@ -80,10 +80,13 @@ defmodule Mix.Tasks.Nerves.Artifact.Shell do
     {_, status} = MixUtils.interactive_cmd(tool, docker_args)
 
     MixUtils.info("Syncing source changes from container")
-    Container.sync_work_dir(build_plan, tool, package, image)
 
-    if status != 0 do
-      Container.invalidate_source_checksum(package)
+    try do
+      Container.sync_work_dir(build_plan, tool, package, image)
+    after
+      if status != 0 do
+        Container.invalidate_source_checksum(package)
+      end
     end
 
     MixUtils.info("Done.")
