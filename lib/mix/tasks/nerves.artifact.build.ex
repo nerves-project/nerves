@@ -103,6 +103,7 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
         print_archives(archive_paths)
 
       {_, status} ->
+        Container.invalidate_source_checksum(package)
         Mix.raise("Container build failed with status #{status}")
     end
   end

@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
     end
   end
 
-  test "nerves.artifact.shell syncs source changes after the shell exits" do
+  test "nerves.artifact.shell syncs changes but invalidates the checksum on failure" do
     # TODO - capture output to clean up `mix test` output
     package = %{app: :test_system, path: "/tmp/test_system"}
     build_plan = %BuildPlan{packages: [package]}
@@ -48,11 +48,12 @@ defmodule Mix.Tasks.Nerves.ArtifactShellTest do
       assert_received :shell_exited
       :ok
     end)
+    |> expect(:invalidate_source_checksum, fn ^package -> :ok end)
 
     InteractiveCmd
     |> expect(:cmd, fn "docker", ["run", "shell"] ->
       send(test_pid, :shell_exited)
-      {"", 0}
+      {"", 2}
     end)
 
     Mix.Task.reenable("nerves.artifact.shell")
