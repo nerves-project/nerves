@@ -39,7 +39,7 @@ defmodule Nerves.ArtifactResolver do
       build_plan
     else
       archive_path = download_archive!(package, download)
-      validate_archive!(:archive, archive_path)
+      validate_download!(package.download_validators, download, archive_path)
       extract_archive!(List.first(package.extractors), archive_path, fingerprint)
       build_plan
     end
@@ -99,7 +99,22 @@ defmodule Nerves.ArtifactResolver do
     Enum.find_value(@site_modules, fn module -> module.plan(site, version, filename) end)
   end
 
-  defp validate_archive!(:archive, archive_path) do
+  defp validate_download!(validators, download, archive_path) do
+    validators =
+      Enum.filter(validators, fn {:archive, options} ->
+        Keyword.fetch!(options, :filename) == download.filename
+      end)
+
+    if validators == [] do
+      Mix.raise("No download validator matches #{download.filename}")
+    end
+
+    Enum.each(validators, fn {:archive, _options} ->
+      validate_archive!(archive_path)
+    end)
+  end
+
+  defp validate_archive!(archive_path) do
     case Archive.validate(archive_path) do
       :ok -> :ok
       {:error, reason} -> Mix.raise("Invalid artifact #{archive_path}: #{reason}")

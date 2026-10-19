@@ -27,7 +27,7 @@ defmodule Nerves.BuildAction.NervesV1ToolchainTest do
     assert package.version == "15.3.0"
     assert package.source_fingerprint == "3006C1F"
     assert package.download_path == download_path
-    assert package.download_validators == [:archive]
+    assert package.download_validators == [{:archive, filename: archive_name}]
 
     assert package.downloads == [
              %{

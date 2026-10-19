@@ -37,7 +37,7 @@ defmodule Nerves.BuildAction.NervesV1Toolchain do
             archive_path = Path.join(package.download_path, archive_name)
 
             Map.merge(package, %{
-              download_validators: [:archive],
+              download_validators: [{:archive, filename: archive_name}],
               downloads: [
                 %{
                   archive_path: archive_path,

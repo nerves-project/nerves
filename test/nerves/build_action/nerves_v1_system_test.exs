@@ -26,7 +26,11 @@ defmodule Nerves.BuildAction.NervesV1SystemTest do
     assert package.version == version
     assert package.source_fingerprint == "7BE9066"
     assert package.download_path == download_path
-    assert package.download_validators == [:archive]
+
+    assert package.download_validators == [
+             {:archive, filename: "nerves_system_rpi0-portable-2.1.1-7BE9066.tar.gz"}
+           ]
+
     assert package.dockerfile == Nerves.Container.legacy_system_dockerfile()
 
     assert package.downloads == [

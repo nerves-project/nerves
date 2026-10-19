@@ -43,7 +43,7 @@ defmodule NervesHostTools.MixProject do
 
     package =
       Map.merge(package, %{
-        download_validators: [:archive],
+        download_validators: [{:archive, filename: archive_name}],
         downloads: [
           %{
             archive_path: archive_path,
