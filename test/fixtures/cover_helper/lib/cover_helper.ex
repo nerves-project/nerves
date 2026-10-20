@@ -8,14 +8,12 @@ defmodule CoverHelper do
   @doc """
   Helper to run mix with code coverage if coverage is being tracked
   """
-  def mix(["deps.get" | _] = args, opts) do
-    # Exporting coverage when getting dependencies doesn't work, so short circuit
-    # it to just run the command.
-    run_mix(args, opts)
-  end
 
   def mix(args, opts) do
-    run_mix(mix_args(args, opts), opts)
+    {command, command_args, env} = mix_command(args, opts)
+    new_env = Keyword.get(opts, :env, []) ++ env
+    new_opts = Keyword.put(opts, :env, new_env)
+    run_mix(command, command_args, task_name(args), new_opts)
   end
 
   @doc """
@@ -37,7 +35,8 @@ defmodule CoverHelper do
   def interactive_mix(args, interactions, opts) do
     script = System.find_executable("script") || raise "Could not find the script utility"
     timeout = Keyword.get(opts, :timeout, :timer.seconds(30))
-    script_args = mix_args(args, opts) |> to_script_args()
+    {command, command_args, script_env} = mix_command(args, opts)
+    script_args = to_script_args(command, command_args)
 
     port =
       Port.open(
@@ -49,25 +48,33 @@ defmodule CoverHelper do
           :stderr_to_stdout,
           args: script_args,
           cd: String.to_charlist(Keyword.fetch!(opts, :cd)),
-          env: port_env(Keyword.get(opts, :env, []))
+          env: port_env(Keyword.get(opts, :env, []) ++ script_env)
         ]
       )
 
     interact(port, interactions, "", "", timeout)
   end
 
-  defp to_script_args(args) do
+  defp to_script_args(command, args) do
     case :os.type() do
-      {:unix, :linux} -> ["-e", "-c", Enum.join(["mix" | args], " "), "-q", "/dev/null"]
-      {:unix, _bsd} -> ["-eq", "/dev/null", "mix" | args]
+      {:unix, :linux} ->
+        command_line =
+          Enum.map_join([command | args], " ", fn arg ->
+            "'" <> String.replace(arg, "'", "'\\''") <> "'"
+          end)
+
+        ["-e", "-c", command_line, "-q", "/dev/null"]
+
+      {:unix, _bsd} ->
+        ["-eq", "/dev/null", command | args]
     end
   end
 
-  defp run_mix(args, opts) do
+  defp run_mix(command, args, task, opts) do
     if Keyword.has_key?(opts, :into) do
-      System.cmd("mix", args, Keyword.put_new(opts, :stderr_to_stdout, true))
+      System.cmd(command, args, Keyword.put_new(opts, :stderr_to_stdout, true))
     else
-      {:ok, output_buffer} = CoverHelper.OutputBuffer.start_link(task_name(args))
+      {:ok, output_buffer} = CoverHelper.OutputBuffer.start_link(task)
 
       final_opts =
         Keyword.merge(
@@ -76,7 +83,7 @@ defmodule CoverHelper do
         )
 
       {_, exit_status} =
-        System.cmd("mix", args, final_opts)
+        System.cmd(command, args, final_opts)
 
       if exit_status == 0 do
         CoverHelper.OutputBuffer.clear_status(output_buffer)
@@ -89,15 +96,25 @@ defmodule CoverHelper do
     end
   end
 
-  defp task_name(["cover", _path, _export, task | _]), do: task
   defp task_name([task | _]), do: task
 
-  defp mix_args(["deps.get" | _] = args, _opts), do: args
+  defp mix_command(args, opts) do
+    case mix_env(args, opts) do
+      [] ->
+        {"mix", args, []}
 
-  defp mix_args(args, opts) do
+      env ->
+        startup = Path.expand("../priv/coverage_startup.exs", __DIR__)
+        {"elixir", ["-r", startup, "-S", "mix" | args], env}
+    end
+  end
+
+  defp mix_env(["deps.get" | _], _opts), do: []
+
+  defp mix_env(args, opts) do
     if :cover.modules() != [],
-      do: ["cover", File.cwd!(), cover_export_name(args, opts)] ++ args,
-      else: args
+      do: [{"COVER_PATH", File.cwd!()}, {"COVER_EXPORT", cover_export_name(args, opts)}],
+      else: []
   end
 
   defp port_env(env) do
@@ -151,7 +168,7 @@ defmodule CoverHelper do
   defp unique_path(base, counter) do
     path = base <> "_#{counter}"
 
-    if File.exists?(path) do
+    if File.exists?(Path.join("cover", path <> ".coverdata")) do
       unique_path(base, counter + 1)
     else
       path
