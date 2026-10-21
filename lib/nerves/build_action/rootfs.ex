@@ -228,7 +228,7 @@ defmodule Nerves.BuildAction.Rootfs do
       "-T",
       "0",
       "-U",
-      "clear"
+      "00000000-0000-0000-0000-000000000000"
     ]
 
   defp default_rootfs_flags(:ext4), do: ["-O", "^resize_inode,^has_journal", "-m", "0"]
