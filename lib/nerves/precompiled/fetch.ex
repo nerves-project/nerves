@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Tom Hoenderdos
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Precompiled.Fetch do
   @moduledoc """
   Bytes in, verified files in `_build` out. Manifests are checked against

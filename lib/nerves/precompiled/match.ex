@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Tom Hoenderdos
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Precompiled.Match do
   @moduledoc """
   The key: when a precompiled build may stand in for a local compile. Pure

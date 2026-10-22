@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Tom Hoenderdos
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Precompiled.MatchTest do
   use ExUnit.Case, async: true
   alias Nerves.Precompiled.Match

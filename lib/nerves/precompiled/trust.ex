@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Tom Hoenderdos
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 defmodule Nerves.Precompiled.Trust do
   @moduledoc """
   The trust chain's top: a root document shipped with `nerves` names the

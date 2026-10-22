@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Frank Hunleth
+# SPDX-FileCopyrightText: 2026 Tom Hoenderdos
 #
 # SPDX-License-Identifier: Apache-2.0
 #
