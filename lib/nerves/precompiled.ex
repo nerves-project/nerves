@@ -90,7 +90,7 @@ defmodule Nerves.Precompiled do
   defp debug_skipped(skipped) do
     if System.get_env("NERVES_PRECOMPILED_DEBUG") == "1" do
       Enum.each(skipped, fn {name, why} ->
-        MixUtils.info("precompiled: #{name}#{pad(name, "")}  skip  #{why}")
+        MixUtils.info(line(%{name: name, version: "", detail: why}, "skip"))
       end)
     end
   end
@@ -121,28 +121,48 @@ defmodule Nerves.Precompiled do
     sname = Atom.to_string(name)
     base = %{name: sname, version: version, bytes: 0}
 
-    result =
-      with sha when is_binary(sha) <- batch.manifests[sname] || {:miss, "not in batch"},
-           {:ok, manifest} <- Fetch.manifest(config, sname, sha),
-           {:ok, entry, _system_key} <-
-             Match.select(manifest, %{
-               name: sname,
-               version: version,
-               lock_entry: lock_entry,
-               lock: lock,
-               system: system || {"host", ""},
-               elixir: System.version(),
-               otp: to_string(:erlang.system_info(:otp_release)),
-               config: config_fun
-             }),
-           {:ok, stats} <-
-             Fetch.install(config, name, entry, lock_entry, build_lib,
-               verify_app: &verify_app(&1, config_fun)
-             ) do
-        {:hit, stats}
-      end
+    try do
+      result =
+        with sha when is_binary(sha) <- batch.manifests[sname] || {:miss, "not in batch"},
+             {:ok, manifest} <- Fetch.manifest(config, sname, sha),
+             {:ok, entry, _system_key} <-
+               Match.select(manifest, %{
+                 name: sname,
+                 version: version,
+                 lock_entry: lock_entry,
+                 lock: lock,
+                 system: system || {"host", ""},
+                 elixir: System.version(),
+                 otp: to_string(:erlang.system_info(:otp_release)),
+                 config: config_fun
+               }),
+             {:ok, stats} <-
+               Fetch.install(config, name, entry, lock_entry, build_lib,
+                 verify_app: &verify_app(&1, config_fun)
+               ) do
+          {:hit, stats}
+        end
 
-    line_for(base, result)
+      line_for(base, result)
+    rescue
+      e ->
+        %{
+          name: sname,
+          version: version,
+          bytes: 0,
+          status: :fail,
+          detail: "candidate crashed: #{Exception.message(e)}"
+        }
+    catch
+      :exit, reason ->
+        %{
+          name: sname,
+          version: version,
+          bytes: 0,
+          status: :fail,
+          detail: "candidate crashed: #{inspect(reason)}"
+        }
+    end
   end
 
   defp line_for(base, {:hit, %{bytes: bytes, files: files, cached: cached}}) do
@@ -212,26 +232,38 @@ defmodule Nerves.Precompiled do
 
   @spec config_lookup(String.t(), [String.t()]) :: {:ok, term()} | :error
   def config_lookup(app, [first | rest]) do
-    with {:ok, value} <- Application.fetch_env(String.to_atom(app), String.to_atom(first)) do
+    with {:ok, app_atom} <- safe_existing_atom(app),
+         {:ok, first_atom} <- safe_existing_atom(first),
+         {:ok, value} <- Application.fetch_env(app_atom, first_atom) do
       Enum.reduce_while(rest, {:ok, value}, &config_lookup_step/2)
     end
   end
 
   defp config_lookup_step(key, {:ok, v}) do
-    k = String.to_atom(key)
-
-    case v do
-      kw when is_list(kw) ->
-        if Keyword.keyword?(kw) and Keyword.has_key?(kw, k),
-          do: {:cont, {:ok, kw[k]}},
-          else: {:halt, :error}
-
-      %{} = m ->
-        if Map.has_key?(m, k), do: {:cont, {:ok, m[k]}}, else: {:halt, :error}
-
-      _ ->
-        {:halt, :error}
+    case safe_existing_atom(key) do
+      {:ok, k} -> config_lookup_in(v, k)
+      :error -> {:halt, :error}
     end
+  end
+
+  defp config_lookup_in(kw, k) when is_list(kw) do
+    if Keyword.keyword?(kw) and Keyword.has_key?(kw, k),
+      do: {:cont, {:ok, kw[k]}},
+      else: {:halt, :error}
+  end
+
+  defp config_lookup_in(%{} = m, k) do
+    if Map.has_key?(m, k), do: {:cont, {:ok, m[k]}}, else: {:halt, :error}
+  end
+
+  defp config_lookup_in(_, _), do: {:halt, :error}
+
+  # A manifest-derived app or key that was never an atom in this VM cannot be
+  # in the project's config; don't grow the atom table from untrusted input.
+  defp safe_existing_atom(s) do
+    {:ok, String.to_existing_atom(s)}
+  rescue
+    ArgumentError -> :error
   end
 
   defp print(%{status: :hit} = l), do: MixUtils.success(line(l, "HIT "))

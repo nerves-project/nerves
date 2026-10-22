@@ -166,6 +166,18 @@ defmodule Nerves.PrecompiledTest do
     assert out =~ ~r/FAIL\s+batch expired/
   end
 
+  test "a malformed manifest fails its candidate without crashing the run", %{
+    f: f,
+    opts: opts,
+    lib: lib
+  } do
+    F.publish(f, %{"ash" => %{"versions" => ["oops"]}})
+    out = run_capturing(opts)
+    assert_received {:report, {:ok, %{fails: 1, misses: 1}}}
+    assert out =~ ~r/ash 3\.5\.2\s+FAIL\s+candidate crashed: /
+    assert File.exists?(Path.join(lib, ".precompiled/report.json"))
+  end
+
   test "system_from_plan finds the v1 system package" do
     plan = %Nerves.BuildPlan{
       packages: [%{app: :nerves_system_rpi4, version: "1.31.0"}],
@@ -183,5 +195,11 @@ defmodule Nerves.PrecompiledTest do
     assert Precompiled.config_lookup("precompiled_test_app", ["mode", "fast"]) == {:ok, true}
     assert Precompiled.config_lookup("precompiled_test_app", ["mode", "slow"]) == :error
     assert Precompiled.config_lookup("precompiled_test_app", ["nothing"]) == :error
+  end
+
+  test "config_lookup never creates an atom from untrusted input" do
+    never = "zz_app_#{System.unique_integer([:positive])}"
+    assert Precompiled.config_lookup(never, ["mode"]) == :error
+    assert_raise ArgumentError, fn -> String.to_existing_atom(never) end
   end
 end
