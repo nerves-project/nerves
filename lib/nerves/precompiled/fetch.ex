@@ -204,20 +204,30 @@ defmodule Nerves.Precompiled.Fetch do
     app = "ebin/#{dep}.app"
 
     cond do
-      Enum.any?(files, fn f ->
-        not (safe_path?(f["path"]) and safe_mode?(f["mode"]) and is_binary(f["sha256"]) and
-                 is_integer(f["size"]))
-      end) ->
-        bad = Enum.find(files, fn f -> not (safe_path?(f["path"]) and safe_mode?(f["mode"])) end)
-        {:fail, "unsafe path or mode (#{inspect(bad["path"])})"}
-
-      not Enum.any?(files, &(&1["path"] == app)) ->
-        {:fail, "no #{app} in entry"}
-
-      true ->
-        :ok
+      why = Enum.find_value(files, &bad_file/1) -> {:fail, why}
+      not Enum.any?(files, &(&1["path"] == app)) -> {:fail, "no #{app} in entry"}
+      true -> :ok
     end
   end
+
+  # `sha256` becomes a cache file name and `size` a download cap, so both
+  # are checked as strictly as the path before anything touches the disk.
+  defp bad_file(%{} = f) do
+    cond do
+      not (safe_path?(f["path"]) and safe_mode?(f["mode"])) ->
+        "unsafe path or mode (#{inspect(f["path"])})"
+
+      not (sha256?(f["sha256"]) and is_integer(f["size"]) and f["size"] >= 0) ->
+        "unsafe file entry (#{f["path"]})"
+
+      true ->
+        nil
+    end
+  end
+
+  defp bad_file(other), do: "unsafe file entry (#{inspect(other)})"
+
+  defp sha256?(sha), do: is_binary(sha) and sha =~ ~r/\A[0-9a-f]{64}\z/
 
   @spec safe_path?(term()) :: boolean()
   def safe_path?(path) when is_binary(path) do

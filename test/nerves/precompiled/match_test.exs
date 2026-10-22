@@ -250,4 +250,32 @@ defmodule Nerves.Precompiled.MatchTest do
                )
     end
   end
+
+  describe "deps the candidate declares" do
+    @decimal {:hex, :decimal, "2.3.0", "i", [:mix], [], "hexpm", "DECOUTER"}
+    @ash_opt {:hex, :ash, "3.5.2", "inner", [:mix],
+              [
+                {:spark, "~> 2.7", [hex: :spark, repo: "hexpm", optional: false]},
+                {:decimal, "~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}
+              ], "hexpm", "ASHOUTER"}
+
+    test "an optional dep in the client lock must be in the build's deps" do
+      lock = Map.merge(@lock, %{ash: @ash_opt, decimal: @decimal})
+      c = ctx(%{lock_entry: @ash_opt, lock: lock})
+
+      assert {:miss, "built without decimal, lock has 2.3.0"} = Match.select(manifest(), c)
+
+      with_decimal =
+        entry()
+        |> put_in(["build", "deps", "decimal"], %{"version" => "2.3.0", "checksum" => "DECOUTER"})
+
+      assert {:ok, _, "nerves_system_rpi4"} =
+               Match.select(manifest("nerves_system_rpi4", with_decimal), c)
+    end
+
+    test "an optional dep absent from the client lock is fine" do
+      c = ctx(%{lock_entry: @ash_opt, lock: Map.put(@lock, :ash, @ash_opt)})
+      assert {:ok, _, _} = Match.select(manifest(), c)
+    end
+  end
 end

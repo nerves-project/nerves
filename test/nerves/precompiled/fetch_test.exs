@@ -279,4 +279,28 @@ defmodule Nerves.Precompiled.FetchTest do
     assert Fetch.marker_term("1.20.3", vsn, Hex.SCM, @lock_entry) ==
              {2, vsn, Hex.SCM, @lock_entry}
   end
+
+  test "a sha256 or size that could become a bad path or count fails the dependency", %{
+    f: f,
+    config: config,
+    build_lib: lib
+  } do
+    for {sha, size} <- [{"../x", 1}, {String.duplicate("A", 64), 1}, {nil, 1}, {F.sha("x"), -1}] do
+      e = entry(with_app(f, [file_entry(sha, size)]))
+
+      assert {:fail, "unsafe file entry (ebin/Elixir.Ash.beam)"} =
+               Fetch.install(config, :ash, e, @lock_entry, lib),
+             inspect({sha, size})
+    end
+
+    refute File.exists?(Path.join(lib, "ash"))
+    refute File.exists?(Path.join(config.home, "files/../x"))
+  end
+
+  test "an unsafe path or mode names the offending path", %{f: f, config: config, build_lib: lib} do
+    e = entry(with_app(f, [file_entry(F.file(f, "x"), 1, "ebin/x.beam", 0o100777)]))
+
+    assert {:fail, ~s|unsafe path or mode ("ebin/x.beam")|} =
+             Fetch.install(config, :ash, e, @lock_entry, lib)
+  end
 end

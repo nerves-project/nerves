@@ -90,6 +90,7 @@ defmodule Nerves.Precompiled.Match do
            end),
          :ok <- present(build, "deps"),
          :ok <- deps_ok(build["deps"], ctx.lock),
+         :ok <- declared_deps_ok(ctx.lock_entry, build["deps"], ctx.lock),
          :ok <- present(build, "compile_env"),
          :ok <- compile_env_ok(build["compile_env"], ctx.config) do
       {:ok, entry, system_key}
@@ -145,6 +146,28 @@ defmodule Nerves.Precompiled.Match do
       end
     end)
   end
+
+  # Every dep the package declares (optional ones included) that this
+  # project locks must have been in the build: an optional dep changes
+  # compile-time branches (`Code.ensure_loaded?/1`), so a build made without
+  # it is not the build Mix would make here. Versions and checksums of the
+  # ones present were already checked by `deps_ok/2`.
+  defp declared_deps_ok({:hex, _, _, _, _, declared, _, _}, built, lock) do
+    Enum.reduce_while(declared, :ok, fn {name, _req, _opts}, :ok ->
+      case lock[name] do
+        nil ->
+          {:cont, :ok}
+
+        entry ->
+          if Map.has_key?(built, Atom.to_string(name)),
+            do: {:cont, :ok},
+            else: {:halt, {:miss, "built without #{name}, lock has #{locked_version(entry)}"}}
+      end
+    end)
+  end
+
+  defp locked_version({:hex, _, v, _, _, _, _, _}), do: v
+  defp locked_version(_), do: "a non-Hex source"
 
   @spec compile_env_from_app(Path.t()) :: [map()] | nil
   def compile_env_from_app(app_path) do
