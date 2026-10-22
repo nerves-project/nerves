@@ -90,10 +90,38 @@ defmodule Nerves.Precompiled.Trust do
 
   defp resolve_keys(_keys, _ids), do: %{}
 
+  @doc """
+  Where the batch sequence and adopted roots live for this source: under
+  `config.home`, named by the source URL and the shipped root's first root
+  key, so two sources (or two trust anchors) never share replay state.
+  Always keyed by the SHIPPED root, so a rotation keeps the same dir.
+  """
+  @spec state_dir(map(), root()) :: Path.t()
+  def state_dir(config, shipped_root) do
+    hash = sha256_hex(config.source <> "|" <> first_root_keyid(shipped_root))
+    Path.join(config.home, binary_part(hash, 0, 16))
+  end
+
+  defp first_root_keyid(%{"roles" => %{"root" => %{"keyids" => [id | _]}}}) when is_binary(id),
+    do: id
+
+  defp first_root_keyid(_), do: ""
+
+  # The shipped file was verified by `load_root/1`; here it only names the dir.
+  defp state_dir(config) do
+    {:ok, body} = File.read(config.root_path)
+    {:ok, env} = safe_decode(body)
+    {:ok, payload} = decode_payload(env)
+    {:ok, root} = safe_decode(payload)
+    state_dir(config, root)
+  end
+
+  defp sha256_hex(bin), do: Base.encode16(:crypto.hash(:sha256, bin), case: :lower)
+
   @spec load_root(map()) :: {:ok, root()} | {:error, String.t()}
   def load_root(config) do
     with {:ok, shipped} <- read_root_file(config.root_path, nil) do
-      case read_root_file(Path.join(config.home, "root.json"), shipped) do
+      case read_root_file(Path.join(state_dir(config, shipped), "root.json"), shipped) do
         {:ok, cached} when is_map(cached) -> {:ok, cached}
         _ -> {:ok, shipped}
       end
@@ -187,8 +215,9 @@ defmodule Nerves.Precompiled.Trust do
          {:ok, candidate} <- safe_decode(payload),
          :ok <- expires_ok(candidate, nil, root),
          :ok <- chained(env, candidate, root) do
-      File.mkdir_p!(config.home)
-      File.write!(Path.join(config.home, "root.json"), body)
+      dir = state_dir(config)
+      File.mkdir_p!(dir)
+      File.write!(Path.join(dir, "root.json"), body)
       {:ok, candidate}
     else
       _ -> {:ok, root}
@@ -208,9 +237,10 @@ defmodule Nerves.Precompiled.Trust do
          {:ok, decoded} <- safe_decode(payload) |> or_error("batch malformed"),
          {:ok, seq, exp, manifests} <- batch_fields(decoded),
          :ok <- not_expired(exp),
-         :ok <- monotonic(config, seq) do
-      File.mkdir_p!(config.home)
-      File.write!(Path.join(config.home, "state"), Integer.to_string(seq))
+         dir = state_dir(config),
+         :ok <- monotonic(dir, seq) do
+      File.mkdir_p!(dir)
+      File.write!(Path.join(dir, "state"), Integer.to_string(seq))
       {:ok, %{sequence: seq, manifests: manifests}}
     end
   rescue
@@ -256,9 +286,9 @@ defmodule Nerves.Precompiled.Trust do
 
   defp safe_parse_iso8601(_), do: :error
 
-  defp monotonic(config, seq) do
+  defp monotonic(dir, seq) do
     stored =
-      case File.read(Path.join(config.home, "state")) do
+      case File.read(Path.join(dir, "state")) do
         {:ok, s} -> s |> String.trim() |> Integer.parse() |> elem_or(0)
         _ -> 0
       end

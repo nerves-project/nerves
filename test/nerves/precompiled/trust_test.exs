@@ -24,6 +24,17 @@ defmodule Nerves.Precompiled.TrustTest do
     %{f: f, config: config, fetch: &fetch/1}
   end
 
+  defp shipped(config) do
+    config.root_path
+    |> File.read!()
+    |> :json.decode()
+    |> Map.fetch!("payload")
+    |> Base.url_decode64!(padding: false)
+    |> :json.decode()
+  end
+
+  defp state_dir(config), do: Trust.state_dir(config, shipped(config))
+
   defp fetch(url) do
     case Nerves.HTTPClient.get(url, into: "") do
       {:ok, body} -> {:ok, body}
@@ -50,7 +61,7 @@ defmodule Nerves.Precompiled.TrustTest do
     assert {:ok, %{sequence: 5, manifests: %{"ash" => _}}} =
              Trust.fetch_batch(config, root, fetch)
 
-    assert File.read!(Path.join(config.home, "state")) =~ "5"
+    assert File.read!(Path.join(state_dir(config), "state")) =~ "5"
   end
 
   test "an expired batch is refused", %{config: config, f: f, fetch: fetch} do
@@ -69,7 +80,7 @@ defmodule Nerves.Precompiled.TrustTest do
     assert {:ok, _} = Trust.fetch_batch(config, root, fetch)
     F.publish(f, %{}, sequence: 6)
     assert {:error, "batch sequence 6 is older than 7"} = Trust.fetch_batch(config, root, fetch)
-    assert File.read!(Path.join(config.home, "state")) =~ "7"
+    assert File.read!(Path.join(state_dir(config), "state")) =~ "7"
   end
 
   test "a batch signed by an unknown key is refused", %{config: config, f: f, fetch: fetch} do
@@ -105,7 +116,7 @@ defmodule Nerves.Precompiled.TrustTest do
     assert {:ok, new_root} = Trust.update_root(config, root, fetch)
     assert {%{} = keys, 1} = Trust.root_keys(new_root, "batch")
     assert Map.keys(keys) == [k2.keyid]
-    assert File.exists?(Path.join(config.home, "root.json"))
+    assert File.exists?(Path.join(state_dir(config), "root.json"))
     assert {:ok, ^new_root} = Trust.load_root(config)
   end
 
@@ -121,7 +132,7 @@ defmodule Nerves.Precompiled.TrustTest do
     F.serve_root(f, F.sign(F.root_payload(k2.keyid, pub, "2031-01-01T00:00:00Z", 2), [k2]))
     {:ok, root} = Trust.load_root(config)
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(config.home, "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "root.json"))
   end
 
   test "a served root with a missing or zero root threshold is ignored, never raises", %{
@@ -139,7 +150,7 @@ defmodule Nerves.Precompiled.TrustTest do
 
     F.serve_root(f, F.sign(missing_threshold, [f.key, k2]))
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(config.home, "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "root.json"))
 
     zero_threshold =
       raw_root(keyid, pub, "2031-01-01T00:00:00Z", 2,
@@ -148,7 +159,7 @@ defmodule Nerves.Precompiled.TrustTest do
 
     F.serve_root(f, F.sign(zero_threshold, [f.key, k2]))
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(config.home, "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "root.json"))
   end
 
   test "a served root whose only key is undersized is ignored, never raises", %{
@@ -175,7 +186,7 @@ defmodule Nerves.Precompiled.TrustTest do
 
     F.serve_root(f, F.sign(payload, [%{keyid: keyid, public: pub, private: priv}]))
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(config.home, "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "root.json"))
   end
 
   test "a batch whose root lacks a batch role is refused, not raised", %{
@@ -231,7 +242,7 @@ defmodule Nerves.Precompiled.TrustTest do
     F.serve_root(f, F.sign(root2, [f.key, k2]))
     {:ok, root} = Trust.load_root(config)
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(config.home, "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "root.json"))
   end
 
   # Builds a root payload like F.root_payload/4 but lets the caller override
@@ -257,5 +268,39 @@ defmodule Nerves.Precompiled.TrustTest do
 
     assert {:error, :below_threshold} =
              Trust.verify_envelope(dup, %{f.key.keyid => f.key.public}, 2)
+  end
+
+  test "state is kept per source: two sources do not see each other's sequence", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    other = %{config | source: "http://localhost:#{Nerves.TestServer.port()}/precompiled"}
+    {:ok, root} = Trust.load_root(config)
+
+    F.publish(f, %{}, sequence: 7)
+    assert {:ok, %{sequence: 7}} = Trust.fetch_batch(config, root, fetch)
+    F.publish(f, %{}, sequence: 6)
+    assert {:ok, %{sequence: 6}} = Trust.fetch_batch(other, root, fetch)
+    assert {:error, "batch sequence 6 is older than 7"} = Trust.fetch_batch(config, root, fetch)
+
+    refute state_dir(config) == state_dir(other)
+    assert Path.dirname(state_dir(config)) == config.home
+    assert File.read!(Path.join(state_dir(other), "state")) =~ "6"
+  end
+
+  test "the state dir is keyed by the shipped root, not a rotated one", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+    k2 = %{keyid: F.sha(pub), public: pub, private: priv}
+    F.serve_root(f, F.sign(F.root_payload(k2.keyid, pub, "2031-01-01T00:00:00Z", 2), [f.key, k2]))
+    {:ok, root} = Trust.load_root(config)
+    {:ok, rotated} = Trust.update_root(config, root, fetch)
+    F.publish(f, %{}, sequence: 4, signers: [k2])
+    assert {:ok, %{sequence: 4}} = Trust.fetch_batch(config, rotated, fetch)
+    assert File.read!(Path.join(state_dir(config), "state")) =~ "4"
   end
 end

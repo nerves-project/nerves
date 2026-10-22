@@ -8,7 +8,8 @@ defmodule Nerves.Precompiled.Config do
     opts = Application.get_env(:nerves, :precompiled, [])
 
     with false <- System.get_env("NERVES_PRECOMPILED") in ["0", "false", "no"],
-         source when is_binary(source) <- opts[:source] do
+         source when is_binary(source) <- opts[:source],
+         :ok <- transport_ok(source) do
       %{
         source: String.trim_trailing(source, "/"),
         except: except(opts[:except]),
@@ -17,6 +18,29 @@ defmodule Nerves.Precompiled.Config do
       }
     else
       _ -> nil
+    end
+  end
+
+  @loopback ["127.0.0.1", "::1", "localhost"]
+
+  # Signatures make the content tamper-proof, but plain http still leaks
+  # which dependencies a project uses and lets a network attacker withhold
+  # updates; allow it only for a source on this machine.
+  defp transport_ok(source) do
+    case URI.parse(source) do
+      %URI{scheme: "https", host: host} when is_binary(host) and host != "" ->
+        :ok
+
+      %URI{scheme: "http", host: host} when host in @loopback ->
+        :ok
+
+      _ ->
+        Nerves.MixUtils.warning(
+          "precompiled: source must be https (http only on loopback), " <>
+            "disabled: #{inspect(source)}"
+        )
+
+        :error
     end
   end
 

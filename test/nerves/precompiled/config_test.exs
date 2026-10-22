@@ -60,4 +60,23 @@ defmodule Nerves.Precompiled.ConfigTest do
     assert_received {:stdio, stdio}
     {result, stdio <> stderr}
   end
+
+  test "plain http is refused except on loopback" do
+    for source <- ["http://example.test/x", "http://10.0.0.1/x", "ftp://example.test/x", "x"] do
+      Application.put_env(:nerves, :precompiled, source: source)
+      {config, out} = with_shell(&Config.load/0)
+      assert config == nil, source
+      assert out =~ "precompiled: source must be https", source
+    end
+
+    for source <- [
+          "https://example.test/x",
+          "http://127.0.0.1:4567/x",
+          "http://localhost:4567/x",
+          "http://[::1]:4567/x"
+        ] do
+      Application.put_env(:nerves, :precompiled, source: source)
+      assert %{source: ^source} = Config.load()
+    end
+  end
 end
