@@ -276,13 +276,21 @@ defmodule Nerves.Precompiled.Trust do
          {:ok, seq, exp, manifests} <- batch_fields(decoded),
          :ok <- not_expired(exp),
          dir = state_dir(config),
-         :ok <- monotonic(dir, seq) do
-      File.mkdir_p!(dir)
-      File.write!(Path.join(dir, "state"), Integer.to_string(seq))
+         :ok <- monotonic(dir, seq),
+         :ok <- write_state(dir, seq) do
       {:ok, %{sequence: seq, manifests: manifests}}
     end
   rescue
     _ -> {:error, "batch malformed"}
+  end
+
+  defp write_state(dir, seq) do
+    with :ok <- File.mkdir_p(dir),
+         :ok <- File.write(Path.join(dir, "state"), Integer.to_string(seq)) do
+      :ok
+    else
+      {:error, reason} -> {:error, "state dir unwritable: #{inspect(reason)}"}
+    end
   end
 
   defp batch_fields(%{

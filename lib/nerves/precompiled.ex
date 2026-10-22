@@ -262,11 +262,17 @@ defmodule Nerves.Precompiled do
     end
   end
 
-  # Dependencies Mix would compile now: status :compile or no app file, Hex SCM.
-  defp mix_deps() do
-    lock = Mix.Dep.Lock.read()
+  defp mix_deps(), do: candidates_from(Mix.Dep.load_and_cache(), Mix.Dep.Lock.read())
 
-    for %Mix.Dep{app: app, status: status, scm: Hex.SCM} <- Mix.Dep.load_and_cache(),
+  @typedoc false
+  @type candidate :: %{name: atom(), version: String.t(), lock_entry: tuple()}
+
+  @doc false
+  # Dependencies Mix would compile now: status :compile or no app file, Hex
+  # SCM, and locked.
+  @spec candidates_from([Mix.Dep.t()], map()) :: [candidate()]
+  def candidates_from(deps, lock) do
+    for %Mix.Dep{app: app, status: status, scm: Hex.SCM} <- deps,
         match?(:compile, status) or match?({:noappfile, _}, status),
         entry = lock[app],
         do: %{name: app, version: elem(entry, 2), lock_entry: entry}

@@ -406,4 +406,17 @@ defmodule Nerves.Precompiled.TrustTest do
     assert version(v2) == 2
     refute v2 == v1
   end
+
+  test "an unwritable state dir is named as such, not as a malformed batch", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    F.publish(f, %{}, sequence: 2)
+    {:ok, root} = Trust.load_root(config)
+    File.mkdir_p!(config.home)
+    File.write!(state_dir(config), "a file where the state dir should be")
+
+    assert {:error, "state dir unwritable: " <> _} = Trust.fetch_batch(config, root, fetch)
+  end
 end

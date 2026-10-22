@@ -203,12 +203,42 @@ defmodule Nerves.PrecompiledTest do
     assert_raise ArgumentError, fn -> String.to_existing_atom(never) end
   end
 
+  test "candidates_from keeps Hex deps Mix would compile now" do
+    decimal = {:hex, :decimal, "2.3.0", "i", [:mix], [], "hexpm", "DOUTER"}
+    lock = %{ash: @ash, jason: @jason, decimal: decimal, gitdep: {:git, "u", "r", []}}
+    dep = fn app, status, scm -> %Mix.Dep{app: app, status: status, scm: scm} end
+
+    assert Precompiled.candidates_from([dep.(:ash, :compile, Hex.SCM)], lock) ==
+             [%{name: :ash, version: "3.5.2", lock_entry: @ash}]
+
+    assert Precompiled.candidates_from([dep.(:jason, {:noappfile, {"a", "b"}}, Hex.SCM)], lock) ==
+             [%{name: :jason, version: "1.4.5", lock_entry: @jason}]
+
+    assert Precompiled.candidates_from([dep.(:decimal, {:ok, "1.0.0"}, Hex.SCM)], lock) == []
+    assert Precompiled.candidates_from([dep.(:gitdep, :compile, Mix.SCM.Git)], lock) == []
+    assert Precompiled.candidates_from([dep.(:absent, :compile, Hex.SCM)], lock) == []
+  end
+
   test "already-compiled deps are left alone", %{f: f, opts: opts, lib: lib} do
-    # A dep that is not in `deps:` (Mix would report it {:ok, _}) is never touched.
+    decimal = {:hex, :decimal, "2.3.0", "i", [:mix], [], "hexpm", "DOUTER"}
     File.mkdir_p!(Path.join(lib, "decimal/ebin"))
     File.write!(Path.join(lib, "decimal/ebin/keep.beam"), "keep")
-    F.publish(f, %{"decimal" => %{"versions" => %{}}})
-    capture_io(fn -> Precompiled.run(opts) end)
+
+    F.publish(f, %{
+      "decimal" => %{
+        "versions" => %{"2.3.0" => %{"nerves_system_rpi4" => good_entry(f, "ash", "1.31.0")}}
+      }
+    })
+
+    deps =
+      Precompiled.candidates_from(
+        [%Mix.Dep{app: :decimal, status: {:ok, "2.3.0"}, scm: Hex.SCM}],
+        %{decimal: decimal}
+      )
+
+    assert deps == []
+    assert run_capturing(Keyword.merge(opts, deps: deps, lock: %{decimal: decimal})) == ""
+    assert_received {:report, :nothing_to_do}
     assert File.read!(Path.join(lib, "decimal/ebin/keep.beam")) == "keep"
   end
 
