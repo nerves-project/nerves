@@ -22,7 +22,6 @@ defmodule Nerves.PrecompiledFixture do
     File.write!(root_path, :json.encode(root_env))
     reset()
     put(:root, root_env)
-    put(:files, %{})
     %{key: key, root_env: root_env, root_path: root_path}
   end
 
@@ -75,9 +74,15 @@ defmodule Nerves.PrecompiledFixture do
 
   @spec tamper_manifest(map(), String.t()) :: :ok
   def tamper_manifest(_fixture, name) do
-    Agent.update(__MODULE__, fn st ->
-      update_in(st, [:manifests, name], fn <<c, rest::binary>> -> <<c + 1, rest::binary>> end)
-    end)
+    case Agent.get(__MODULE__, &get_in(&1, [:manifests, name])) do
+      nil ->
+        raise ArgumentError, "no manifest #{name} to tamper"
+
+      _bytes ->
+        Agent.update(__MODULE__, fn st ->
+          update_in(st, [:manifests, name], fn <<c, rest::binary>> -> <<c + 1, rest::binary>> end)
+        end)
+    end
   end
 
   @spec sign(iodata(), list(map())) :: map()
