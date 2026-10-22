@@ -29,21 +29,40 @@ defmodule Mix.Tasks.Nerves.Info do
 
     case File.read(path) do
       {:ok, body} ->
-        r = :json.decode(body)
-
-        MixUtils.info(
-          "Precompiled:      #{r["hits"]} hit, #{r["misses"]} miss, #{r["fails"]} fail"
-        )
-
-        for %{"name" => n, "version" => v, "status" => s, "detail" => d} <- r["lines"],
-            s != "hit" do
-          MixUtils.info("  #{n} #{v}  #{String.upcase(s)}  #{d}")
-        end
+        print_report(decode_report(body))
 
       _ ->
         MixUtils.info("Precompiled:      not used")
     end
   end
+
+  # A `report.json` is only ever written atomically (see `Nerves.Precompiled`),
+  # but a diagnostic command must never crash on a file it didn't write, e.g.
+  # one left behind by an older version or edited by hand.
+  defp decode_report(body) do
+    case :json.decode(body) do
+      r when is_map(r) -> {:ok, r}
+      _ -> :error
+    end
+  rescue
+    _ -> :error
+  end
+
+  defp print_report({:ok, r}) do
+    hits = Map.get(r, "hits", 0)
+    misses = Map.get(r, "misses", 0)
+    fails = Map.get(r, "fails", 0)
+    lines = Map.get(r, "lines", []) || []
+
+    MixUtils.info("Precompiled:      #{hits} hit, #{misses} miss, #{fails} fail")
+
+    for %{"name" => n, "version" => v, "status" => s, "detail" => d} <- lines,
+        s != "hit" do
+      MixUtils.info("  #{n} #{v}  #{String.upcase(s)}  #{d}")
+    end
+  end
+
+  defp print_report(:error), do: MixUtils.info("Precompiled:      report unreadable")
 
   defp bootstrap_version() do
     archives_path = Mix.path_for(:archives)

@@ -54,4 +54,35 @@ defmodule Mix.Tasks.Nerves.InfoTest do
     assert output =~ "jason 1.4.5  MISS  not in batch"
     refute output =~ "ash 3.5.2  HIT"
   end
+
+  test "a malformed report.json prints report unreadable instead of crashing" do
+    path = Path.join([Mix.Project.build_path(), "lib", ".precompiled"])
+    File.mkdir_p!(path)
+    File.write!(Path.join(path, "report.json"), "{not valid json")
+    on_exit(fn -> File.rm_rf!(path) end)
+
+    output =
+      ExUnit.CaptureIO.capture_io(fn ->
+        Mix.Task.rerun("nerves.info")
+      end)
+
+    assert output =~ "Precompiled:      report unreadable"
+  end
+
+  test "a report.json missing optional keys defaults them to zero/empty" do
+    path = Path.join([Mix.Project.build_path(), "lib", ".precompiled"])
+    File.mkdir_p!(path)
+    File.write!(Path.join(path, "report.json"), :json.encode(%{"hits" => 1}))
+    on_exit(fn -> File.rm_rf!(path) end)
+
+    output =
+      ExUnit.CaptureIO.capture_io(fn ->
+        Mix.Task.rerun("nerves.info")
+      end)
+
+    assert output =~ "Precompiled:      1 hit, 0 miss, 0 fail"
+    refute output =~ "HIT"
+    refute output =~ "MISS"
+    refute output =~ "FAIL"
+  end
 end

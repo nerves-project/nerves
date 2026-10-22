@@ -311,6 +311,9 @@ defmodule Nerves.Precompiled do
         )
     }
 
-    File.write!(Path.join(dir, "report.json"), :json.encode(json))
+    final = Path.join(dir, "report.json")
+    tmp = final <> ".tmp"
+    File.write!(tmp, :json.encode(json))
+    File.rename!(tmp, final)
   end
 end
