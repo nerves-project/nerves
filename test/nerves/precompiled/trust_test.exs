@@ -124,6 +124,131 @@ defmodule Nerves.Precompiled.TrustTest do
     refute File.exists?(Path.join(config.home, "root.json"))
   end
 
+  test "a served root with a missing or zero root threshold is ignored, never raises", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+    keyid = Base.encode16(:crypto.hash(:sha256, pub), case: :lower)
+    k2 = %{keyid: keyid, public: pub, private: priv}
+    {:ok, root} = Trust.load_root(config)
+
+    missing_threshold =
+      raw_root(keyid, pub, "2031-01-01T00:00:00Z", 2, root: %{"keyids" => [keyid]})
+
+    F.serve_root(f, F.sign(missing_threshold, [f.key, k2]))
+    assert {:ok, ^root} = Trust.update_root(config, root, fetch)
+    refute File.exists?(Path.join(config.home, "root.json"))
+
+    zero_threshold =
+      raw_root(keyid, pub, "2031-01-01T00:00:00Z", 2,
+        root: %{"keyids" => [keyid], "threshold" => 0}
+      )
+
+    F.serve_root(f, F.sign(zero_threshold, [f.key, k2]))
+    assert {:ok, ^root} = Trust.update_root(config, root, fetch)
+    refute File.exists?(Path.join(config.home, "root.json"))
+  end
+
+  test "a served root whose only key is undersized is ignored, never raises", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+    keyid = Base.encode16(:crypto.hash(:sha256, pub), case: :lower)
+    short_pub = :crypto.strong_rand_bytes(10)
+    {:ok, root} = Trust.load_root(config)
+
+    payload =
+      :json.encode(%{
+        "version" => 2,
+        "expires" => "2031-01-01T00:00:00Z",
+        "keys" => %{keyid => %{"type" => "ed25519", "public" => F.b64(short_pub)}},
+        "roles" => %{
+          "root" => %{"keyids" => [keyid], "threshold" => 1},
+          "batch" => %{"keyids" => [keyid], "threshold" => 1}
+        }
+      })
+      |> IO.iodata_to_binary()
+
+    F.serve_root(f, F.sign(payload, [%{keyid: keyid, public: pub, private: priv}]))
+    assert {:ok, ^root} = Trust.update_root(config, root, fetch)
+    refute File.exists?(Path.join(config.home, "root.json"))
+  end
+
+  test "a batch whose root lacks a batch role is refused, not raised", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    payload =
+      :json.encode(%{
+        "version" => 1,
+        "expires" => "2030-01-01T00:00:00Z",
+        "keys" => %{f.key.keyid => %{"type" => "ed25519", "public" => F.b64(f.key.public)}},
+        "roles" => %{
+          "root" => %{"keyids" => [f.key.keyid], "threshold" => 1}
+        }
+      })
+      |> IO.iodata_to_binary()
+
+    File.write!(config.root_path, :json.encode(F.sign(payload, [f.key])))
+    F.publish(f, %{}, sequence: 1)
+    {:ok, root} = Trust.load_root(config)
+    assert {:error, "batch signature invalid"} = Trust.fetch_batch(config, root, fetch)
+  end
+
+  test "a shipped root past its own expiry is refused, not raised", %{tmp_dir: dir} do
+    f = F.new(dir, root_expires: "2020-01-01T00:00:00Z")
+
+    config = %{
+      source: F.base_url(),
+      except: [],
+      root_path: f.root_path,
+      home: Path.join(dir, "home")
+    }
+
+    assert {:error, "root document at " <> rest} = Trust.load_root(config)
+    assert rest =~ "expired at 2020-01-01T00:00:00Z"
+  end
+
+  test "a served root with a higher version but expired is ignored, never raises", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+
+    k2 = %{
+      keyid: Base.encode16(:crypto.hash(:sha256, pub), case: :lower),
+      public: pub,
+      private: priv
+    }
+
+    root2 = F.root_payload(k2.keyid, pub, "2020-01-01T00:00:00Z", 2)
+    F.serve_root(f, F.sign(root2, [f.key, k2]))
+    {:ok, root} = Trust.load_root(config)
+    assert {:ok, ^root} = Trust.update_root(config, root, fetch)
+    refute File.exists?(Path.join(config.home, "root.json"))
+  end
+
+  # Builds a root payload like F.root_payload/4 but lets the caller override
+  # the "root" role's shape (to exercise a missing/zero threshold).
+  defp raw_root(keyid, public, expires, version, root: root_role) do
+    :json.encode(%{
+      "version" => version,
+      "expires" => expires,
+      "keys" => %{keyid => %{"type" => "ed25519", "public" => F.b64(public)}},
+      "roles" => %{
+        "root" => root_role,
+        "batch" => %{"keyids" => [keyid], "threshold" => 1}
+      }
+    })
+    |> IO.iodata_to_binary()
+  end
+
   test "verify_envelope rejects garbage and duplicate signatures" do
     assert {:error, :bad_envelope} = Trust.verify_envelope("nope", %{}, 1)
     f = F.new(System.tmp_dir!())
