@@ -49,6 +49,14 @@ defmodule Nerves.Precompiled.FetchTest do
     assert {:error, "HTTP 404"} = Fetch.get_body(config.source <> "/manifests/nope.json")
   end
 
+  test "get_body streams the body and assembles it correctly under the cap" do
+    port = Nerves.TestServer.port()
+
+    assert {:ok, body} = Fetch.get_body("http://127.0.0.1:#{port}/binary", max_bytes: 2048)
+    assert byte_size(body) == 1024
+    assert body == :binary.copy(<<0xDE, 0xAD, 0xBE, 0xEF>>, 256)
+  end
+
   test "manifest: miss on 404, fail on hash mismatch, ok when it matches", %{f: f, config: config} do
     F.publish(f, %{"ash" => %{"versions" => %{"3.5.2" => %{}}}})
 
@@ -133,7 +141,9 @@ defmodule Nerves.Precompiled.FetchTest do
           {"/ebin/x.beam", 33188},
           {"lib/x.beam", 33188},
           {"ebin/x.beam", 0o100777},
-          {"ebin/a\0b", 33188}
+          {"ebin/a\0b", 33188},
+          {"ebin/..\\x", 33188},
+          {"ebin\\x.beam", 33188}
         ] do
       assert {:fail, "unsafe path or mode (" <> _} =
                Fetch.install(
@@ -176,5 +186,18 @@ defmodule Nerves.Precompiled.FetchTest do
 
     assert {:fail, "no ebin/ash.app in entry"} =
              Fetch.install(config, :ash, entry([file_entry(s, 4)]), @lock_entry, lib)
+  end
+
+  test "an exception while staging fails cleanly and leaves _build untouched", %{
+    f: f,
+    config: config,
+    build_lib: lib
+  } do
+    e = entry(with_app(f, [file_entry(F.file(f, "x"), 1)]))
+    File.mkdir_p!(lib)
+    File.write!(Path.join(lib, ".precompiled"), "blocking file, not a directory")
+
+    assert {:fail, "install failed: " <> _} = Fetch.install(config, :ash, e, @lock_entry, lib)
+    refute File.exists?(Path.join(lib, "ash"))
   end
 end

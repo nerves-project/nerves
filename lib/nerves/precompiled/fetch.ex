@@ -40,25 +40,66 @@ defmodule Nerves.Precompiled.Fetch do
            :get,
            {String.to_charlist(url), headers},
            http_opts,
-           [body_format: :binary],
+           [sync: false, stream: :self, receiver: self(), body_format: :binary],
            :nerves
          ) do
-      {:ok, {{_, status, _}, _h, body}} when status in 200..299 ->
-        if byte_size(body) > max,
-          do: {:error, "response larger than #{max} bytes"},
-          else: {:ok, body}
+      {:ok, request_id} -> await_body(request_id, uri, max, n, [], 0)
+      {:error, reason} -> {:error, "request failed: #{inspect(reason)}"}
+    end
+  end
 
-      {:ok, {{_, status, _}, h, _}} when status in [301, 302, 303, 307, 308] ->
+  # `stream: :self` only streams a 2xx response: a redirect or an error
+  # status instead arrives as a single whole-body message, same as
+  # `Nerves.HTTPClient.get/2`'s receive loop.
+  defp await_body(ref, uri, max, n, acc, size) do
+    receive do
+      {:http, {^ref, :stream_start, _headers}} ->
+        await_body(ref, uri, max, n, acc, size)
+
+      {:http, {^ref, :stream, chunk}} ->
+        size = size + byte_size(chunk)
+
+        if size > max do
+          cancel(ref)
+          {:error, "response larger than #{max} bytes"}
+        else
+          await_body(ref, uri, max, n, [acc, chunk], size)
+        end
+
+      {:http, {^ref, :stream_end, _headers}} ->
+        {:ok, IO.iodata_to_binary(acc)}
+
+      {:http, {^ref, {{_, status, _}, h, _body}}} when status in [301, 302, 303, 307, 308] ->
         case List.keyfind(h, ~c"location", 0) do
           {_, loc} -> follow(uri, URI.merge(uri, to_string(loc)), max, n)
           nil -> {:error, "HTTP #{status} without location"}
         end
 
-      {:ok, {{_, status, _}, _, _}} ->
+      {:http, {^ref, {{_, status, _}, _h, _body}}} ->
         {:error, "HTTP #{status}"}
 
-      {:error, reason} ->
+      {:http, {^ref, {:error, reason}}} ->
         {:error, "request failed: #{inspect(reason)}"}
+    after
+      60_000 ->
+        cancel(ref)
+        {:error, "request timed out"}
+    end
+  end
+
+  defp cancel(ref) do
+    :httpc.cancel_request(ref, :nerves)
+    flush(ref)
+  end
+
+  # `cancel_request/2` stops future deliveries but does not retroactively
+  # unsend messages already in our mailbox; drain them so a canceled
+  # request's stray chunks never leak into a later call's receive.
+  defp flush(ref) do
+    receive do
+      {:http, {^ref, _}} -> flush(ref)
+    after
+      0 -> :ok
     end
   end
 
@@ -112,18 +153,24 @@ defmodule Nerves.Precompiled.Fetch do
     dest = Path.join(build_lib, Atom.to_string(dep))
     verify_app = Keyword.get(opts, :verify_app, fn _ -> :ok end)
 
-    with :ok <- validate(files, dep),
-         {:ok, stats} <- stage(config, files, staging),
-         :ok <- verify_app.(Path.join([staging, "ebin", "#{dep}.app"])) do
-      write_marker(staging, lock_entry)
-      File.rm_rf!(dest)
-      File.mkdir_p!(build_lib)
-      File.rename!(staging, dest)
-      {:ok, stats}
-    else
-      {:fail, _} = fail ->
+    try do
+      with :ok <- validate(files, dep),
+           {:ok, stats} <- stage(config, files, staging),
+           :ok <- verify_app.(Path.join([staging, "ebin", "#{dep}.app"])) do
+        write_marker(staging, lock_entry)
+        File.rm_rf!(dest)
+        File.mkdir_p!(build_lib)
+        File.rename!(staging, dest)
+        {:ok, stats}
+      else
+        {:fail, _} = fail ->
+          File.rm_rf!(staging)
+          fail
+      end
+    rescue
+      e ->
         File.rm_rf!(staging)
-        fail
+        {:fail, "install failed: #{Exception.message(e)}"}
     end
   end
 
@@ -149,6 +196,7 @@ defmodule Nerves.Precompiled.Fetch do
   @spec safe_path?(term()) :: boolean()
   def safe_path?(path) when is_binary(path) do
     String.valid?(path) and not String.contains?(path, <<0>>) and
+      not String.contains?(path, "\\") and
       (String.starts_with?(path, "ebin/") or String.starts_with?(path, "priv/")) and
       Path.type(path) == :relative and not Enum.member?(Path.split(path), "..") and
       Path.expand(path, "/x") |> String.starts_with?("/x/")
