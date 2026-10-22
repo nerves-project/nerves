@@ -162,6 +162,14 @@ defmodule Nerves.Precompiled.Fetch do
         File.rm_rf!(dest)
         File.mkdir_p!(build_lib)
         File.rename!(staging, dest)
+
+        link_sources(
+          dep,
+          entry,
+          dest,
+          Keyword.get_lazy(opts, :deps_path, &Mix.Project.deps_path/0)
+        )
+
         {:ok, stats}
       else
         {:fail, _} = fail ->
@@ -173,6 +181,23 @@ defmodule Nerves.Precompiled.Fetch do
         File.rm_rf!(staging)
         {:fail, "install failed: #{Exception.message(e)}"}
     end
+  end
+
+  # Mix links deps/<dep>/include (and src for rebar deps, and priv) into
+  # _build when it builds a dep; a dep installed here is never built, so
+  # mirror that or a dependent's -include_lib/Record.extract fails.
+  defp link_sources(dep, entry, dest, deps_path) do
+    source = Path.join(deps_path, Atom.to_string(dep))
+    priv = if (entry["priv"] || []) == [], do: ["priv"], else: []
+
+    for name <- ["include", "src" | priv],
+        from = Path.join(source, name),
+        to = Path.join(dest, name),
+        File.dir?(from) and not File.exists?(to) do
+      Mix.Utils.symlink_or_copy(from, to)
+    end
+
+    :ok
   end
 
   defp validate(files, dep) do

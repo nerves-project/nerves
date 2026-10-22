@@ -220,4 +220,46 @@ defmodule Nerves.Precompiled.FetchTest do
     assert {:fail, "install failed: " <> _} = Fetch.install(config, :ash, e, @lock_entry, lib)
     refute File.exists?(Path.join(lib, "ash"))
   end
+
+  test "include/ and src/ from deps/<dep> are linked into the installed dep", %{
+    f: f,
+    config: config,
+    build_lib: lib,
+    tmp_dir: dir
+  } do
+    deps = Path.join(dir, "deps")
+    File.mkdir_p!(Path.join(deps, "ash/include"))
+    File.write!(Path.join(deps, "ash/include/x.hrl"), "-record(x, {a}).\n")
+    File.mkdir_p!(Path.join(deps, "ash/src"))
+    File.write!(Path.join(deps, "ash/src/ash.erl"), "-module(ash).\n")
+    File.mkdir_p!(Path.join(deps, "ash/priv"))
+    File.write!(Path.join(deps, "ash/priv/data.txt"), "data")
+
+    e = entry(with_app(f, [file_entry(F.file(f, "b"), 1)]))
+
+    assert {:ok, _} = Fetch.install(config, :ash, e, @lock_entry, lib, deps_path: deps)
+    assert File.read!(Path.join(lib, "ash/include/x.hrl")) == "-record(x, {a}).\n"
+    assert File.read!(Path.join(lib, "ash/src/ash.erl")) == "-module(ash).\n"
+    # The manifest supplied no priv/, so Mix's own priv link is mirrored.
+    assert File.read!(Path.join(lib, "ash/priv/data.txt")) == "data"
+  end
+
+  test "a manifest-supplied priv/ is not replaced by deps/<dep>/priv", %{
+    f: f,
+    config: config,
+    build_lib: lib,
+    tmp_dir: dir
+  } do
+    deps = Path.join(dir, "deps")
+    File.mkdir_p!(Path.join(deps, "ash/priv"))
+    File.write!(Path.join(deps, "ash/priv/data.txt"), "from deps")
+
+    e =
+      entry(with_app(f, [file_entry(F.file(f, "b"), 1)]))
+      |> Map.put("priv", [file_entry(F.file(f, "built"), 5, "priv/data.txt")])
+
+    assert {:ok, _} = Fetch.install(config, :ash, e, @lock_entry, lib, deps_path: deps)
+    assert File.read!(Path.join(lib, "ash/priv/data.txt")) == "built"
+    refute File.exists?(Path.join(lib, "ash/include"))
+  end
 end
