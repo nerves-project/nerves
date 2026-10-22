@@ -29,7 +29,7 @@ defmodule Nerves.Precompiled do
           lines: [line()]
         }
 
-  @spec run(keyword()) :: :disabled | {:ok, report()}
+  @spec run(keyword()) :: :disabled | :nothing_to_do | {:ok, report()}
   def run(opts \\ []) do
     with %{} = config <- Config.load(),
          false <- Keyword.get(opts, :host?, Mix.target() == :host) do
@@ -37,22 +37,41 @@ defmodule Nerves.Precompiled do
     else
       _ -> :disabled
     end
+  rescue
+    e -> step_skipped(Exception.message(e))
+  catch
+    :exit, reason -> step_skipped(inspect(reason))
+    :throw, reason -> step_skipped(inspect(reason))
+  end
+
+  # Skipping is never an error: whatever goes wrong, Mix compiles as usual.
+  defp step_skipped(reason) do
+    MixUtils.warning("precompiled: step skipped: #{reason}")
+    :disabled
   end
 
   defp do_run(config, opts) do
     started = System.monotonic_time(:millisecond)
     lock = Keyword.get_lazy(opts, :lock, &Mix.Dep.Lock.read/0)
 
+    {candidates, skipped} =
+      candidates(Keyword.get_lazy(opts, :deps, &mix_deps/0), lock, config.except)
+
+    if candidates == [] do
+      debug("precompiled: no dependencies to check")
+      :nothing_to_do
+    else
+      debug_skipped(skipped)
+      check(candidates, config, lock, opts, started)
+    end
+  end
+
+  defp check(candidates, config, lock, opts, started) do
     build_lib =
       Keyword.get_lazy(opts, :build_lib, fn -> Path.join(Mix.Project.build_path(), "lib") end)
 
     system = Keyword.get_lazy(opts, :system, fn -> system_from_plan(Nerves.build_plan()) end)
     config_fun = Keyword.get(opts, :config_fun, &config_lookup/2)
-
-    {candidates, skipped} =
-      candidates(Keyword.get_lazy(opts, :deps, &mix_deps/0), lock, config.except)
-
-    debug_skipped(skipped)
 
     lines = lines_for(candidates, config, lock, system, config_fun, build_lib)
     Enum.each(lines, &print/1)
@@ -87,8 +106,12 @@ defmodule Nerves.Precompiled do
     end
   end
 
+  defp debug?(), do: System.get_env("NERVES_PRECOMPILED_DEBUG") == "1"
+
+  defp debug(msg), do: if(debug?(), do: MixUtils.info(msg))
+
   defp debug_skipped(skipped) do
-    if System.get_env("NERVES_PRECOMPILED_DEBUG") == "1" do
+    if debug?() do
       Enum.each(skipped, fn {name, why} ->
         MixUtils.info(line(%{name: name, version: "", detail: why}, "skip"))
       end)
@@ -154,7 +177,7 @@ defmodule Nerves.Precompiled do
           detail: "candidate crashed: #{Exception.message(e)}"
         }
     catch
-      :exit, reason ->
+      kind, reason when kind in [:exit, :throw] ->
         %{
           name: sname,
           version: version,

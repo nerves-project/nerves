@@ -11,13 +11,32 @@ defmodule Nerves.Precompiled.Config do
          source when is_binary(source) <- opts[:source] do
       %{
         source: String.trim_trailing(source, "/"),
-        except: Enum.map(opts[:except] || [], &to_atom/1),
+        except: except(opts[:except]),
         root_path: opts[:root] || Path.join(:code.priv_dir(:nerves), "precompiled/root.json"),
         home: System.get_env("NERVES_PRECOMPILED_HOME") || Path.expand("~/.nerves/precompiled")
       }
     else
       _ -> nil
     end
+  end
+
+  defp except(list) when is_list(list) do
+    {good, bad} = Enum.split_with(list, &(is_atom(&1) or is_binary(&1)))
+
+    if bad != [] do
+      Nerves.MixUtils.warning(
+        "precompiled: ignoring except entries that are not dependency names: #{inspect(bad)}"
+      )
+    end
+
+    Enum.map(good, &to_atom/1)
+  end
+
+  defp except(nil), do: []
+
+  defp except(other) do
+    Nerves.MixUtils.warning("precompiled: ignoring except, not a list: #{inspect(other)}")
+    []
   end
 
   defp to_atom(a) when is_atom(a), do: a

@@ -215,4 +215,60 @@ defmodule Nerves.PrecompiledTest do
   test "host target is disabled even with a source", %{opts: opts} do
     assert Precompiled.run(Keyword.put(opts, :host?, true)) == :disabled
   end
+
+  test "no candidates: no network, no output, no report", %{f: f, opts: opts, lib: lib} do
+    F.publish(f, %{}, sequence: 3)
+    opts = Keyword.put(opts, :deps, [])
+
+    assert run_capturing(opts) == ""
+    assert_received {:report, :nothing_to_do}
+    refute File.exists?(Path.join(lib, ".precompiled/report.json"))
+    # The batch fetch would have stored the sequence under the home dir.
+    refute File.exists?(System.get_env("NERVES_PRECOMPILED_HOME"))
+  end
+
+  test "no candidates in DEBUG mode prints one line", %{opts: opts} do
+    System.put_env("NERVES_PRECOMPILED_DEBUG", "1")
+    on_exit(fn -> System.delete_env("NERVES_PRECOMPILED_DEBUG") end)
+
+    out = run_capturing(Keyword.put(opts, :deps, []))
+    assert_received {:report, :nothing_to_do}
+    assert [_one] = String.split(out, "\n", trim: true)
+    assert out =~ "precompiled: no dependencies to check"
+  end
+
+  test "an unwritable _build skips the step with one warning, never raises", %{
+    f: f,
+    opts: opts,
+    tmp_dir: dir
+  } do
+    F.publish(f, %{})
+    blocker = Path.join(dir, "_build_file")
+    File.write!(blocker, "a file where _build/<t>/lib should be")
+
+    out = run_capturing(Keyword.put(opts, :build_lib, blocker))
+    assert_received {:report, :disabled}
+    assert out =~ "precompiled: step skipped: "
+  end
+
+  test "a throw inside a candidate is that candidate's FAIL", %{f: f, opts: opts} do
+    e = good_entry(f, "ash", "1.31.0")
+    app = "{application, ash, [{compile_env, [{ash, [mode], {ok, fast}}]}]}.\n"
+
+    e =
+      update_in(e["ebin"], fn files ->
+        Enum.map(files, fn
+          %{"path" => "ebin/ash.app"} = x ->
+            %{x | "sha256" => F.file(f, app), "size" => byte_size(app)}
+
+          x ->
+            x
+        end)
+      end)
+
+    F.publish(f, %{"ash" => %{"versions" => %{"3.5.2" => %{"nerves_system_rpi4" => e}}}})
+    out = run_capturing(Keyword.put(opts, :config_fun, fn _, _ -> throw(:boom) end))
+    assert_received {:report, {:ok, %{fails: 1, misses: 1}}}
+    assert out =~ ~r/ash 3\.5\.2\s+FAIL\s+candidate crashed: :boom/
+  end
 end

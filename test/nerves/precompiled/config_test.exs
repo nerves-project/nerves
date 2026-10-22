@@ -40,4 +40,24 @@ defmodule Nerves.Precompiled.ConfigTest do
     System.put_env("NERVES_PRECOMPILED", "0")
     assert Config.load() == nil
   end
+
+  test "except entries that are neither atoms nor strings are ignored" do
+    Application.put_env(:nerves, :precompiled, source: "https://x", except: [1, "ash", :jason])
+
+    {config, out} = with_shell(&Config.load/0)
+    assert config.except == [:ash, :jason]
+    assert out =~ "except"
+  end
+
+  defp with_shell(fun) do
+    stderr =
+      ExUnit.CaptureIO.capture_io(:stderr, fn ->
+        stdio = ExUnit.CaptureIO.capture_io(fn -> send(self(), {:result, fun.()}) end)
+        send(self(), {:stdio, stdio})
+      end)
+
+    assert_received {:result, result}
+    assert_received {:stdio, stdio}
+    {result, stdio <> stderr}
+  end
 end
