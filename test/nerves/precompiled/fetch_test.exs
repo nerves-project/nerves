@@ -73,6 +73,26 @@ defmodule Nerves.Precompiled.FetchTest do
     assert {:fail, "manifest hash differs from batch"} = Fetch.manifest(config, "ash", sha)
   end
 
+  test "manifest: a manifest larger than the default 8 MB body cap still fetches", %{
+    f: f,
+    config: config
+  } do
+    F.publish(f, %{
+      "ash" => %{
+        "versions" => %{"3.5.2" => %{"pad" => String.duplicate("a", 9 * 1024 * 1024)}}
+      }
+    })
+
+    sha =
+      F.get(:batch)
+      |> then(fn env ->
+        env["payload"] |> Base.url_decode64!(padding: false) |> :json.decode()
+      end)
+      |> get_in(["manifests", "ash"])
+
+    assert {:ok, %{"versions" => _}} = Fetch.manifest(config, "ash", sha)
+  end
+
   test "install downloads, verifies, writes the marker and renames atomically", %{
     f: f,
     config: config,

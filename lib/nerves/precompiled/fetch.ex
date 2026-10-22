@@ -8,6 +8,7 @@ defmodule Nerves.Precompiled.Fetch do
   """
 
   @max_body 8 * 1024 * 1024
+  @max_manifest 64 * 1024 * 1024
   @max_redirects 5
   @ok_modes [0o644, 0o755, 0o100644, 0o100755]
 
@@ -124,7 +125,7 @@ defmodule Nerves.Precompiled.Fetch do
   @spec manifest(map(), String.t(), String.t()) ::
           {:ok, map()} | {:miss, String.t()} | {:fail, String.t()}
   def manifest(config, name, expected_sha) do
-    case get_body("#{config.source}/manifests/#{name}.json") do
+    case get_body("#{config.source}/manifests/#{name}.json", max_bytes: @max_manifest) do
       {:ok, bytes} ->
         if sha256(bytes) == expected_sha,
           do: decode(bytes),
