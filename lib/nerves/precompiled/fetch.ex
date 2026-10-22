@@ -1,0 +1,247 @@
+defmodule Nerves.Precompiled.Fetch do
+  @moduledoc """
+  Bytes in, verified files in `_build` out. Manifests are checked against
+  the hash the batch names; files against the hash the manifest names,
+  before anything reaches the build directory. Install is atomic per
+  dependency: staged under `_build/<t>/lib/.precompiled/<dep>`, renamed
+  into place with Mix's "already compiled" marker.
+  """
+
+  @max_body 8 * 1024 * 1024
+  @max_redirects 5
+  @ok_modes [0o644, 0o755, 0o100644, 0o100755]
+
+  @spec get_body(String.t(), keyword()) :: {:ok, binary()} | {:error, String.t()}
+  def get_body(url, opts \\ []) do
+    ensure_httpc_started()
+    request(url, Keyword.get(opts, :max_bytes, @max_body), 0)
+  end
+
+  defp ensure_httpc_started() do
+    case :inets.start(:httpc, profile: :nerves) do
+      :ok -> :ok
+      {:error, {:already_started, _}} -> :ok
+      other -> other
+    end
+  end
+
+  defp request(_url, _max, n) when n > @max_redirects, do: {:error, "too many redirects"}
+
+  defp request(url, max, n) do
+    uri = URI.parse(url)
+
+    http_opts =
+      [autoredirect: false, timeout: 60_000] ++
+        ssl_opts(uri) ++ Nerves.HTTPClient.proxy_request_options(url)
+
+    headers = [{~c"user-agent", String.to_charlist("Nerves/#{Nerves.version()}")}]
+
+    case :httpc.request(
+           :get,
+           {String.to_charlist(url), headers},
+           http_opts,
+           [body_format: :binary],
+           :nerves
+         ) do
+      {:ok, {{_, status, _}, _h, body}} when status in 200..299 ->
+        if byte_size(body) > max,
+          do: {:error, "response larger than #{max} bytes"},
+          else: {:ok, body}
+
+      {:ok, {{_, status, _}, h, _}} when status in [301, 302, 303, 307, 308] ->
+        case List.keyfind(h, ~c"location", 0) do
+          {_, loc} -> follow(uri, URI.merge(uri, to_string(loc)), max, n)
+          nil -> {:error, "HTTP #{status} without location"}
+        end
+
+      {:ok, {{_, status, _}, _, _}} ->
+        {:error, "HTTP #{status}"}
+
+      {:error, reason} ->
+        {:error, "request failed: #{inspect(reason)}"}
+    end
+  end
+
+  defp follow(%URI{host: h, scheme: s}, %URI{host: h, scheme: s} = next, max, n),
+    do: request(URI.to_string(next), max, n + 1)
+
+  defp follow(_from, _to, _max, _n), do: {:error, "redirect to another host refused"}
+
+  defp ssl_opts(%URI{scheme: "https"}) do
+    [
+      ssl: [
+        verify: :verify_peer,
+        cacerts: :public_key.cacerts_get(),
+        depth: 3,
+        customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
+      ]
+    ]
+  end
+
+  defp ssl_opts(_), do: []
+
+  @spec manifest(map(), String.t(), String.t()) ::
+          {:ok, map()} | {:miss, String.t()} | {:fail, String.t()}
+  def manifest(config, name, expected_sha) do
+    case get_body("#{config.source}/manifests/#{name}.json") do
+      {:ok, bytes} ->
+        if sha256(bytes) == expected_sha,
+          do: decode(bytes),
+          else: {:fail, "manifest hash differs from batch"}
+
+      {:error, "HTTP 404"} ->
+        {:miss, "no manifest"}
+
+      {:error, reason} ->
+        {:miss, "manifest unavailable: #{reason}"}
+    end
+  end
+
+  defp decode(bytes) do
+    {:ok, :json.decode(bytes)}
+  rescue
+    _ -> {:fail, "manifest is not JSON"}
+  end
+
+  @spec install(map(), atom(), map(), tuple(), Path.t(), keyword()) ::
+          {:ok, %{files: non_neg_integer(), bytes: non_neg_integer(), cached: non_neg_integer()}}
+          | {:fail, String.t()}
+  def install(config, dep, entry, lock_entry, build_lib, opts \\ []) do
+    files = (entry["ebin"] || []) ++ (entry["priv"] || [])
+    staging = Path.join([build_lib, ".precompiled", Atom.to_string(dep)])
+    dest = Path.join(build_lib, Atom.to_string(dep))
+    verify_app = Keyword.get(opts, :verify_app, fn _ -> :ok end)
+
+    with :ok <- validate(files, dep),
+         {:ok, stats} <- stage(config, files, staging),
+         :ok <- verify_app.(Path.join([staging, "ebin", "#{dep}.app"])) do
+      write_marker(staging, lock_entry)
+      File.rm_rf!(dest)
+      File.mkdir_p!(build_lib)
+      File.rename!(staging, dest)
+      {:ok, stats}
+    else
+      {:fail, _} = fail ->
+        File.rm_rf!(staging)
+        fail
+    end
+  end
+
+  defp validate(files, dep) do
+    app = "ebin/#{dep}.app"
+
+    cond do
+      Enum.any?(files, fn f ->
+        not (safe_path?(f["path"]) and safe_mode?(f["mode"]) and is_binary(f["sha256"]) and
+                 is_integer(f["size"]))
+      end) ->
+        bad = Enum.find(files, fn f -> not (safe_path?(f["path"]) and safe_mode?(f["mode"])) end)
+        {:fail, "unsafe path or mode (#{inspect(bad["path"])})"}
+
+      not Enum.any?(files, &(&1["path"] == app)) ->
+        {:fail, "no #{app} in entry"}
+
+      true ->
+        :ok
+    end
+  end
+
+  @spec safe_path?(term()) :: boolean()
+  def safe_path?(path) when is_binary(path) do
+    String.valid?(path) and not String.contains?(path, <<0>>) and
+      (String.starts_with?(path, "ebin/") or String.starts_with?(path, "priv/")) and
+      Path.type(path) == :relative and not Enum.member?(Path.split(path), "..") and
+      Path.expand(path, "/x") |> String.starts_with?("/x/")
+  end
+
+  def safe_path?(_), do: false
+
+  @spec safe_mode?(term()) :: boolean()
+  def safe_mode?(mode), do: mode in @ok_modes
+
+  defp stage(config, files, staging) do
+    File.rm_rf!(staging)
+    File.mkdir_p!(staging)
+    cache = Path.join(config.home, "files")
+    File.mkdir_p!(cache)
+
+    Enum.reduce_while(files, {:ok, %{files: 0, bytes: 0, cached: 0}}, fn f, {:ok, acc} ->
+      case fetch_file(config, cache, f) do
+        {:ok, cached_path, cached?} ->
+          target = Path.join(staging, f["path"])
+          File.mkdir_p!(Path.dirname(target))
+          File.cp!(cached_path, target)
+          File.chmod!(target, Bitwise.band(f["mode"], 0o777))
+
+          {:cont,
+           {:ok,
+            %{
+              acc
+              | files: acc.files + 1,
+                bytes: acc.bytes + f["size"],
+                cached: acc.cached + if(cached?, do: 1, else: 0)
+            }}}
+
+        {:fail, _} = fail ->
+          {:halt, fail}
+      end
+    end)
+  end
+
+  defp fetch_file(config, cache, %{"sha256" => sha, "size" => size, "path" => path}) do
+    cached = Path.join(cache, sha)
+
+    if File.exists?(cached) and verify(cached, sha, size) == :ok do
+      {:ok, cached, true}
+    else
+      tmp = cached <> ".tmp-#{System.unique_integer([:positive])}"
+
+      with {:ok, body} <-
+             get_body("#{config.source}/files/#{sha}", max_bytes: size) |> file_error(sha),
+           :ok <- File.write(tmp, body),
+           :ok <- verify(tmp, sha, size) |> name_path(path) do
+        File.rename!(tmp, cached)
+        {:ok, cached, false}
+      else
+        {:fail, _} = fail ->
+          File.rm(tmp)
+          fail
+      end
+    end
+  end
+
+  defp file_error({:ok, _} = ok, _), do: ok
+
+  defp file_error({:error, "response larger" <> _}, _),
+    do: {:fail, "file larger than declared size"}
+
+  defp file_error({:error, reason}, sha), do: {:fail, "file not available: #{sha} (#{reason})"}
+
+  defp verify(path, sha, size) do
+    case File.stat(path) do
+      {:ok, %{size: ^size}} ->
+        if sha256(File.read!(path)) == sha, do: :ok, else: {:fail, "sha256 mismatch"}
+
+      {:ok, _} ->
+        {:fail, "size mismatch"}
+
+      _ ->
+        {:fail, "unreadable"}
+    end
+  end
+
+  defp name_path(:ok, _), do: :ok
+  defp name_path({:fail, why}, path), do: {:fail, "#{why} (#{path})"}
+
+  defp write_marker(staging, lock_entry) do
+    marker =
+      :erlang.term_to_binary(
+        {2, {System.version(), :erlang.system_info(:otp_release)}, Hex.SCM, lock_entry}
+      )
+
+    File.mkdir_p!(Path.join(staging, ".mix"))
+    File.write!(Path.join([staging, ".mix", "compile.elixir_scm"]), marker)
+  end
+
+  defp sha256(bytes), do: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower)
+end
