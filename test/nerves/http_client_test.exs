@@ -9,7 +9,7 @@ defmodule Nerves.HTTPClientTest do
 
   alias Nerves.HTTPClient
 
-  @base_url "http://127.0.0.1:4000"
+  @base_url "http://127.0.0.1:#{Nerves.TestServer.port()}"
 
   setup_all do
     pid = start_supervised!(Nerves.TestServer)

@@ -6,6 +6,8 @@ Mimic.copy(InteractiveCmd)
 Mimic.copy(Nerves.Container)
 Mimic.copy(Nerves.MixUtils)
 
+Nerves.PrecompiledFixture.start_link()
+
 ExUnit.start()
 
 # Exclude integration tests by default
