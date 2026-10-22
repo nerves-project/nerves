@@ -85,4 +85,22 @@ defmodule Mix.Tasks.Nerves.InfoTest do
     refute output =~ "MISS"
     refute output =~ "FAIL"
   end
+
+  for {label, report} <- [
+        {"a non-integer counter", %{"hits" => "1"}},
+        {"lines that are not a list", %{"hits" => 1, "lines" => "x"}},
+        {"a non-string status",
+         %{"lines" => [%{"name" => "a", "version" => "1", "status" => 1, "detail" => "d"}]}},
+        {"a non-map line", %{"lines" => [1]}}
+      ] do
+    test "a report.json with #{label} prints report unreadable" do
+      path = Path.join([Mix.Project.build_path(), "lib", ".precompiled"])
+      File.mkdir_p!(path)
+      File.write!(Path.join(path, "report.json"), :json.encode(unquote(Macro.escape(report))))
+      on_exit(fn -> File.rm_rf!(path) end)
+
+      output = ExUnit.CaptureIO.capture_io(fn -> Mix.Task.rerun("nerves.info") end)
+      assert output =~ "Precompiled:      report unreadable"
+    end
+  end
 end

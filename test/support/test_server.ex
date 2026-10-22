@@ -84,6 +84,15 @@ defmodule Nerves.TestServer do
     |> send_resp(302, "")
   end
 
+  get "/precompiled/redirect_port/*rest" do
+    conn
+    |> put_resp_header(
+      "location",
+      "http://127.0.0.1:#{@port + 1}/precompiled/" <> Enum.join(rest, "/")
+    )
+    |> send_resp(302, "")
+  end
+
   defp serve_json(conn, nil), do: send_resp(conn, 503, "none")
 
   defp serve_json(conn, map),

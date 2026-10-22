@@ -307,4 +307,9 @@ defmodule Nerves.Precompiled.FetchTest do
     assert {:fail, ~s|unsafe path or mode ("ebin/x.beam")|} =
              Fetch.install(config, :ash, e, @lock_entry, lib)
   end
+
+  test "get_body refuses a redirect to another port on the same host", %{config: config} do
+    assert {:error, "redirect to another host refused"} =
+             Fetch.get_body(config.source <> "/redirect_port/batch.json")
+  end
 end

@@ -419,4 +419,27 @@ defmodule Nerves.Precompiled.TrustTest do
 
     assert {:error, "state dir unwritable: " <> _} = Trust.fetch_batch(config, root, fetch)
   end
+
+  test "root_keys drops keys whose keyid is not their hash or whose type is not ed25519" do
+    good = key()
+    misnamed = key()
+    other_type = key()
+
+    root = %{
+      "keys" => %{
+        good.keyid => %{"type" => "ed25519", "public" => F.b64(good.public)},
+        "not-the-hash" => %{"type" => "ed25519", "public" => F.b64(misnamed.public)},
+        other_type.keyid => %{"type" => "rsa", "public" => F.b64(other_type.public)}
+      },
+      "roles" => %{
+        "batch" => %{
+          "keyids" => [good.keyid, "not-the-hash", other_type.keyid],
+          "threshold" => 1
+        }
+      }
+    }
+
+    assert {keys, 1} = Trust.root_keys(root, "batch")
+    assert Map.keys(keys) == [good.keyid]
+  end
 end

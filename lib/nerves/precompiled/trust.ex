@@ -83,8 +83,9 @@ defmodule Nerves.Precompiled.Trust do
 
   defp resolve_keys(keys, ids) when is_map(keys) do
     Enum.reduce(ids, %{}, fn id, acc ->
-      with %{"public" => pub} <- keys[id],
-           {:ok, bin} <- Base.url_decode64(pub, padding: false) do
+      with %{"public" => pub, "type" => "ed25519"} when is_binary(pub) <- keys[id],
+           {:ok, bin} <- Base.url_decode64(pub, padding: false),
+           true <- sha256_hex(bin) == id do
         Map.put(acc, id, bin)
       else
         _ -> acc

@@ -108,8 +108,13 @@ defmodule Nerves.Precompiled.Fetch do
     end
   end
 
-  defp follow(%URI{host: h, scheme: s}, %URI{host: h, scheme: s} = next, max, n),
-    do: request(URI.to_string(next), max, n + 1)
+  defp follow(
+         %URI{host: h, scheme: s, port: p},
+         %URI{host: h, scheme: s, port: p} = next,
+         max,
+         n
+       ),
+       do: request(URI.to_string(next), max, n + 1)
 
   defp follow(_from, _to, _max, _n), do: {:error, "redirect to another host refused"}
 

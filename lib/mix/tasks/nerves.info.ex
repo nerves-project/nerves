@@ -49,20 +49,48 @@ defmodule Mix.Tasks.Nerves.Info do
   end
 
   defp print_report({:ok, r}) do
-    hits = Map.get(r, "hits", 0)
-    misses = Map.get(r, "misses", 0)
-    fails = Map.get(r, "fails", 0)
-    lines = Map.get(r, "lines", []) || []
+    with {:ok, hits} <- counter(r, "hits"),
+         {:ok, misses} <- counter(r, "misses"),
+         {:ok, fails} <- counter(r, "fails"),
+         {:ok, lines} <- report_lines(Map.get(r, "lines")) do
+      MixUtils.info("Precompiled:      #{hits} hit, #{misses} miss, #{fails} fail")
 
-    MixUtils.info("Precompiled:      #{hits} hit, #{misses} miss, #{fails} fail")
-
-    for %{"name" => n, "version" => v, "status" => s, "detail" => d} <- lines,
-        s != "hit" do
-      MixUtils.info("  #{n} #{v}  #{String.upcase(s)}  #{d}")
+      for {n, v, s, d} <- lines, s != "hit" do
+        MixUtils.info("  #{n} #{v}  #{String.upcase(s)}  #{d}")
+      end
+    else
+      _ -> print_report(:error)
     end
   end
 
   defp print_report(:error), do: MixUtils.info("Precompiled:      report unreadable")
+
+  defp counter(r, key) do
+    case Map.get(r, key, 0) do
+      n when is_integer(n) -> {:ok, n}
+      _ -> :error
+    end
+  end
+
+  defp report_lines(nil), do: {:ok, []}
+
+  defp report_lines(lines) when is_list(lines) do
+    lines
+    |> Enum.reduce_while({:ok, []}, fn
+      %{"name" => n, "version" => v, "status" => s, "detail" => d}, {:ok, acc}
+      when is_binary(n) and is_binary(v) and is_binary(s) and is_binary(d) ->
+        {:cont, {:ok, [{n, v, s, d} | acc]}}
+
+      _, _ ->
+        {:halt, :error}
+    end)
+    |> case do
+      {:ok, acc} -> {:ok, Enum.reverse(acc)}
+      :error -> :error
+    end
+  end
+
+  defp report_lines(_), do: :error
 
   defp bootstrap_version() do
     archives_path = Mix.path_for(:archives)

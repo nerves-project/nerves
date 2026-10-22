@@ -67,7 +67,8 @@ defmodule Nerves.PrecompiledTest do
 
   defp good_entry(f, dep, system_version) do
     beam = "beam #{dep}"
-    app = "{application, #{dep}, []}.\n"
+    vsn = if dep == "ash", do: "3.5.2", else: "1.4.5"
+    app = "{application, #{dep}, [{vsn, \"#{vsn}\"}]}.\n"
 
     %{
       "ebin" => [
@@ -139,7 +140,7 @@ defmodule Nerves.PrecompiledTest do
 
   test "a downloaded .app whose compile_env differs is a FAIL", %{f: f, opts: opts, lib: lib} do
     e = good_entry(f, "ash", "1.31.0")
-    app = "{application, ash, [{compile_env, [{ash, [mode], {ok, fast}}]}]}.\n"
+    app = "{application, ash, [{vsn, \"3.5.2\"}, {compile_env, [{ash, [mode], {ok, fast}}]}]}.\n"
 
     e =
       update_in(e["ebin"], fn files ->
@@ -283,7 +284,7 @@ defmodule Nerves.PrecompiledTest do
 
   test "a throw inside a candidate is that candidate's FAIL", %{f: f, opts: opts} do
     e = good_entry(f, "ash", "1.31.0")
-    app = "{application, ash, [{compile_env, [{ash, [mode], {ok, fast}}]}]}.\n"
+    app = "{application, ash, [{vsn, \"3.5.2\"}, {compile_env, [{ash, [mode], {ok, fast}}]}]}.\n"
 
     e =
       update_in(e["ebin"], fn files ->
@@ -342,5 +343,32 @@ defmodule Nerves.PrecompiledTest do
     out = run_capturing(opts)
     assert_received {:report, {:ok, %{hits: 1}}}
     refute out =~ "stripped"
+  end
+
+  for {app, label} <- [
+        {"{application, other, [{vsn, \"3.5.2\"}]}.\n", "other 3.5.2"},
+        {"{application, ash, [{vsn, \"9.9.9\"}]}.\n", "ash 9.9.9"},
+        {"{application, ash, []}.\n", "ash nil"}
+      ] do
+    test "a downloaded .app naming #{label} is a FAIL", %{f: f, opts: opts, lib: lib} do
+      app = unquote(app)
+
+      e =
+        update_in(good_entry(f, "ash", "1.31.0")["ebin"], fn files ->
+          Enum.map(files, fn
+            %{"path" => "ebin/ash.app"} = x ->
+              %{x | "sha256" => F.file(f, app), "size" => byte_size(app)}
+
+            x ->
+              x
+          end)
+        end)
+
+      F.publish(f, %{"ash" => %{"versions" => %{"3.5.2" => %{"nerves_system_rpi4" => e}}}})
+      out = run_capturing(opts)
+      assert_received {:report, {:ok, %{fails: 1}}}
+      assert out =~ "FAIL  downloaded .app names #{unquote(label)}"
+      refute File.exists?(Path.join(lib, "ash"))
+    end
   end
 end

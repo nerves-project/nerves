@@ -171,7 +171,7 @@ defmodule Nerves.Precompiled do
                }),
              {:ok, stats} <-
                Fetch.install(config, name, entry, lock_entry, build_lib,
-                 verify_app: &verify_app(&1, config_fun)
+                 verify_app: &verify_app(&1, sname, version, config_fun)
                ) do
           {:hit, Map.put(stats, :stripped, stripped?(Path.join(build_lib, sname), sname))}
         end
@@ -231,10 +231,27 @@ defmodule Nerves.Precompiled do
   # Rule 5, second half: the manifest said the compile_env matches; the
   # downloaded .app is the authority. A manifest that lies still cannot
   # plant a mismatched build.
-  defp verify_app(app_path, config_fun) do
-    case Match.compile_env_from_app(app_path) do
-      nil -> {:fail, "staged .app unreadable"}
-      items -> Match.compile_env_ok(items, config_fun) |> as_fail()
+  defp verify_app(app_path, name, version, config_fun) do
+    with :ok <- app_identity(app_path, name, version) do
+      case Match.compile_env_from_app(app_path) do
+        nil -> {:fail, "staged .app unreadable"}
+        items -> Match.compile_env_ok(items, config_fun) |> as_fail()
+      end
+    end
+  end
+
+  # The .app must be the locked package's: same application, same version.
+  defp app_identity(app_path, name, version) do
+    case :file.consult(String.to_charlist(app_path)) do
+      {:ok, [{:application, app, props}]} when is_atom(app) and is_list(props) ->
+        vsn = if is_list(props[:vsn]), do: to_string(props[:vsn]), else: "nil"
+
+        if Atom.to_string(app) == name and vsn == version,
+          do: :ok,
+          else: {:fail, "downloaded .app names #{app} #{vsn}"}
+
+      _ ->
+        {:fail, "staged .app unreadable"}
     end
   end
 
