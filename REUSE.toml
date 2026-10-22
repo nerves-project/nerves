@@ -12,7 +12,8 @@ path = [
  "**/darwin_defconfig",
  "**/linux_defconfig",
  "resources/menu-search-tip.gif",
- "test/fixtures/**/*"
+ "test/fixtures/**/*",
+ "priv/precompiled/root.json"
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "None"

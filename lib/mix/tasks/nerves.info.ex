@@ -21,6 +21,28 @@ defmodule Mix.Tasks.Nerves.Info do
     MixUtils.info("Nerves:           #{Nerves.version()}")
     MixUtils.info("Nerves Bootstrap: #{bootstrap_version()}")
     MixUtils.info("Elixir:           #{System.version()}")
+    precompiled_info()
+  end
+
+  defp precompiled_info() do
+    path = Path.join([Mix.Project.build_path(), "lib", ".precompiled", "report.json"])
+
+    case File.read(path) do
+      {:ok, body} ->
+        r = :json.decode(body)
+
+        MixUtils.info(
+          "Precompiled:      #{r["hits"]} hit, #{r["misses"]} miss, #{r["fails"]} fail"
+        )
+
+        for %{"name" => n, "version" => v, "status" => s, "detail" => d} <- r["lines"],
+            s != "hit" do
+          MixUtils.info("  #{n} #{v}  #{String.upcase(s)}  #{d}")
+        end
+
+      _ ->
+        MixUtils.info("Precompiled:      not used")
+    end
   end
 
   defp bootstrap_version() do

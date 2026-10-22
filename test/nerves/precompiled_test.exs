@@ -202,4 +202,17 @@ defmodule Nerves.PrecompiledTest do
     assert Precompiled.config_lookup(never, ["mode"]) == :error
     assert_raise ArgumentError, fn -> String.to_existing_atom(never) end
   end
+
+  test "already-compiled deps are left alone", %{f: f, opts: opts, lib: lib} do
+    # A dep that is not in `deps:` (Mix would report it {:ok, _}) is never touched.
+    File.mkdir_p!(Path.join(lib, "decimal/ebin"))
+    File.write!(Path.join(lib, "decimal/ebin/keep.beam"), "keep")
+    F.publish(f, %{"decimal" => %{"versions" => %{}}})
+    capture_io(fn -> Precompiled.run(opts) end)
+    assert File.read!(Path.join(lib, "decimal/ebin/keep.beam")) == "keep"
+  end
+
+  test "host target is disabled even with a source", %{opts: opts} do
+    assert Precompiled.run(Keyword.put(opts, :host?, true)) == :disabled
+  end
 end
