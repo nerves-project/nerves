@@ -107,43 +107,94 @@ defmodule Nerves.Precompiled.Trust do
 
   defp first_root_keyid(_), do: ""
 
-  # The shipped file was verified by `load_root/1`; here it only names the dir.
-  defp state_dir(config) do
+  # The shipped file was verified by `load_root/1`; here it only names the
+  # dir and seeds the chain fold.
+  defp shipped_root(config) do
     {:ok, body} = File.read(config.root_path)
     {:ok, env} = safe_decode(body)
     {:ok, payload} = decode_payload(env)
     {:ok, root} = safe_decode(payload)
-    state_dir(config, root)
+    root
   end
+
+  defp state_dir(config), do: state_dir(config, shipped_root(config))
 
   defp sha256_hex(bin), do: Base.encode16(:crypto.hash(:sha256, bin), case: :lower)
 
+  @doc """
+  The root in use: the shipped root, advanced along the adopted chain in
+  `roots.json`. The shipped root must verify under its own root role; each
+  chain entry must also verify under the previous root's root role, have a
+  higher version and be unexpired, and the first one that fails ends the
+  chain. Only the root in use must be unexpired, so a release keeps working
+  past its shipped root's expiry once a newer root has been adopted.
+  """
   @spec load_root(map()) :: {:ok, root()} | {:error, String.t()}
   def load_root(config) do
-    with {:ok, shipped} <- read_root_file(config.root_path, nil) do
-      case read_root_file(Path.join(state_dir(config, shipped), "root.json"), shipped) do
-        {:ok, cached} when is_map(cached) -> {:ok, cached}
-        _ -> {:ok, shipped}
+    with {:ok, shipped} <- read_shipped(config.root_path) do
+      {root, adopted} = fold_chain(shipped, read_chain(state_dir(config, shipped)))
+
+      case check_expiry(expires_of(root)) do
+        :ok ->
+          {:ok, root}
+
+        :error when adopted == [] ->
+          {:error, "root document at #{config.root_path} expired at #{expires_of(root)}"}
+
+        :error ->
+          {:error, "cached root expired at #{expires_of(root)}"}
       end
     end
   rescue
     _ -> {:error, "root document at #{config.root_path} is invalid"}
   end
 
-  # A root file must verify under its own root role, not be expired, and
-  # when `trusted` is given (a cached update), also verify under the
-  # trusted root's root role, and be newer.
-  defp read_root_file(path, trusted) do
+  defp read_shipped(path) do
     with {:ok, body} <- File.read(path),
          {:ok, env} <- safe_decode(body),
          {:ok, payload} <- self_verify(env),
-         {:ok, root} <- safe_decode(payload),
-         :ok <- expires_ok(root, path, trusted),
-         :ok <- chained(env, root, trusted) do
+         {:ok, root} <- safe_decode(payload) do
       {:ok, root}
     else
-      {:error, reason} when is_binary(reason) -> {:error, reason}
       _ -> {:error, "root document at #{path} is invalid"}
+    end
+  end
+
+  defp read_chain(dir) do
+    with {:ok, body} <- File.read(Path.join(dir, "roots.json")),
+         {:ok, envs} when is_list(envs) <- safe_decode(body) do
+      envs
+    else
+      _ -> []
+    end
+  end
+
+  # {root in use, envelopes adopted on the way there}
+  defp fold_chain(shipped, envs) do
+    {root, adopted} =
+      Enum.reduce_while(envs, {shipped, []}, fn env, {current, adopted} ->
+        case adopt(env, current) do
+          {:ok, next} -> {:cont, {next, [env | adopted]}}
+          :error -> {:halt, {current, adopted}}
+        end
+      end)
+
+    {root, Enum.reverse(adopted)}
+  end
+
+  # A root may follow `current` when it verifies under its own root role and
+  # under current's, is newer, and has not expired.
+  defp adopt(env, current) do
+    {keys, t} = root_keys(current, "root")
+
+    with {:ok, payload} <- self_verify(env),
+         {:ok, root} <- safe_decode(payload),
+         true <- newer?(root, current),
+         {:ok, _} <- verify_envelope(env, keys, t),
+         :ok <- check_expiry(expires_of(root)) do
+      {:ok, root}
+    else
+      _ -> :error
     end
   end
 
@@ -155,20 +206,6 @@ defmodule Nerves.Precompiled.Trust do
       {:ok, payload}
     else
       _ -> {:error, "root signature invalid"}
-    end
-  end
-
-  defp expires_ok(root, path, nil) do
-    case check_expiry(expires_of(root)) do
-      :ok -> :ok
-      :error -> {:error, "root document at #{path} expired at #{expires_of(root)}"}
-    end
-  end
-
-  defp expires_ok(root, _path, _trusted) do
-    case check_expiry(expires_of(root)) do
-      :ok -> :ok
-      :error -> {:error, "root expired"}
     end
   end
 
@@ -184,19 +221,6 @@ defmodule Nerves.Precompiled.Trust do
 
   defp check_expiry(_), do: :error
 
-  defp chained(_env, _root, nil), do: :ok
-
-  defp chained(env, root, trusted) do
-    {keys, t} = root_keys(trusted, "root")
-
-    with true <- newer?(root, trusted),
-         {:ok, _} <- verify_envelope(env, keys, t) do
-      :ok
-    else
-      _ -> {:error, "root update not signed by the current root"}
-    end
-  end
-
   defp newer?(root, trusted) do
     with %{"version" => rv} when is_integer(rv) <- root,
          %{"version" => tv} when is_integer(tv) <- trusted do
@@ -206,24 +230,34 @@ defmodule Nerves.Precompiled.Trust do
     end
   end
 
+  @doc """
+  Adopt the source's served root when it chains from `root` (the root in
+  use), appending it to `roots.json`. Anything else keeps `root`.
+  """
   @spec update_root(map(), root(), (String.t() -> {:ok, binary()} | {:error, term()})) ::
           {:ok, root()}
   def update_root(config, root, fetch) do
     with {:ok, body} <- fetch.(config.source <> "/root.json"),
-         {:ok, env} <- safe_decode(body),
-         {:ok, payload} <- self_verify(env),
-         {:ok, candidate} <- safe_decode(payload),
-         :ok <- expires_ok(candidate, nil, root),
-         :ok <- chained(env, candidate, root) do
-      dir = state_dir(config)
-      File.mkdir_p!(dir)
-      File.write!(Path.join(dir, "root.json"), body)
+         {:ok, env} when is_map(env) <- safe_decode(body),
+         {:ok, candidate} <- adopt(env, root) do
+      shipped = shipped_root(config)
+      dir = state_dir(config, shipped)
+      {_, adopted} = fold_chain(shipped, read_chain(dir))
+      write_atomic(dir, "roots.json", :json.encode(adopted ++ [env]))
       {:ok, candidate}
     else
       _ -> {:ok, root}
     end
   rescue
     _ -> {:ok, root}
+  end
+
+  defp write_atomic(dir, name, data) do
+    File.mkdir_p!(dir)
+    final = Path.join(dir, name)
+    tmp = final <> ".tmp"
+    File.write!(tmp, data)
+    File.rename!(tmp, final)
   end
 
   @spec fetch_batch(map(), root(), (String.t() -> {:ok, binary()} | {:error, term()})) ::

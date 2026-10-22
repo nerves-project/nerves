@@ -116,7 +116,7 @@ defmodule Nerves.Precompiled.TrustTest do
     assert {:ok, new_root} = Trust.update_root(config, root, fetch)
     assert {%{} = keys, 1} = Trust.root_keys(new_root, "batch")
     assert Map.keys(keys) == [k2.keyid]
-    assert File.exists?(Path.join(state_dir(config), "root.json"))
+    assert File.exists?(Path.join(state_dir(config), "roots.json"))
     assert {:ok, ^new_root} = Trust.load_root(config)
   end
 
@@ -132,7 +132,7 @@ defmodule Nerves.Precompiled.TrustTest do
     F.serve_root(f, F.sign(F.root_payload(k2.keyid, pub, "2031-01-01T00:00:00Z", 2), [k2]))
     {:ok, root} = Trust.load_root(config)
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(state_dir(config), "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "roots.json"))
   end
 
   test "a served root with a missing or zero root threshold is ignored, never raises", %{
@@ -150,7 +150,7 @@ defmodule Nerves.Precompiled.TrustTest do
 
     F.serve_root(f, F.sign(missing_threshold, [f.key, k2]))
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(state_dir(config), "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "roots.json"))
 
     zero_threshold =
       raw_root(keyid, pub, "2031-01-01T00:00:00Z", 2,
@@ -159,7 +159,7 @@ defmodule Nerves.Precompiled.TrustTest do
 
     F.serve_root(f, F.sign(zero_threshold, [f.key, k2]))
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(state_dir(config), "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "roots.json"))
   end
 
   test "a served root whose only key is undersized is ignored, never raises", %{
@@ -186,7 +186,7 @@ defmodule Nerves.Precompiled.TrustTest do
 
     F.serve_root(f, F.sign(payload, [%{keyid: keyid, public: pub, private: priv}]))
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(state_dir(config), "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "roots.json"))
   end
 
   test "a batch whose root lacks a batch role is refused, not raised", %{
@@ -242,7 +242,7 @@ defmodule Nerves.Precompiled.TrustTest do
     F.serve_root(f, F.sign(root2, [f.key, k2]))
     {:ok, root} = Trust.load_root(config)
     assert {:ok, ^root} = Trust.update_root(config, root, fetch)
-    refute File.exists?(Path.join(state_dir(config), "root.json"))
+    refute File.exists?(Path.join(state_dir(config), "roots.json"))
   end
 
   # Builds a root payload like F.root_payload/4 but lets the caller override
@@ -302,5 +302,104 @@ defmodule Nerves.Precompiled.TrustTest do
     F.publish(f, %{}, sequence: 4, signers: [k2])
     assert {:ok, %{sequence: 4}} = Trust.fetch_batch(config, rotated, fetch)
     assert File.read!(Path.join(state_dir(config), "state")) =~ "4"
+  end
+
+  defp key() do
+    {pub, priv} = :crypto.generate_key(:eddsa, :ed25519)
+    %{keyid: F.sha(pub), public: pub, private: priv}
+  end
+
+  defp root_env(k, version, expires, signers),
+    do: F.sign(F.root_payload(k.keyid, k.public, expires, version), signers)
+
+  defp write_chain(config, envs) do
+    File.mkdir_p!(state_dir(config))
+    File.write!(Path.join(state_dir(config), "roots.json"), :json.encode(envs))
+  end
+
+  defp version(root), do: root["version"]
+
+  test "two-hop rotation: v2 signed by v1, then v3 signed by v2 only, ends on v3", %{
+    config: config,
+    f: f,
+    fetch: fetch
+  } do
+    k2 = key()
+    k3 = key()
+    {:ok, v1} = Trust.load_root(config)
+
+    F.serve_root(f, root_env(k2, 2, "2031-01-01T00:00:00Z", [f.key, k2]))
+    assert {:ok, v2} = Trust.update_root(config, v1, fetch)
+    assert version(v2) == 2
+
+    F.serve_root(f, root_env(k3, 3, "2031-01-01T00:00:00Z", [k2, k3]))
+    assert {:ok, v3} = Trust.update_root(config, v2, fetch)
+    assert version(v3) == 3
+
+    assert {:ok, ^v3} = Trust.load_root(config)
+
+    chain =
+      Path.join(state_dir(config), "roots.json") |> File.read!() |> :json.decode()
+
+    assert length(chain) == 2
+  end
+
+  test "a self-signed root dropped into roots.json is ignored", %{config: config} do
+    k9 = key()
+    {:ok, v1} = Trust.load_root(config)
+    write_chain(config, [root_env(k9, 9, "2031-01-01T00:00:00Z", [k9])])
+    assert {:ok, ^v1} = Trust.load_root(config)
+  end
+
+  test "an expired shipped root is fine when the chain leads to an unexpired root", %{
+    tmp_dir: dir
+  } do
+    f = F.new(dir, root_expires: "2020-01-01T00:00:00Z")
+
+    config = %{
+      source: F.base_url(),
+      except: [],
+      root_path: f.root_path,
+      home: Path.join(dir, "h")
+    }
+
+    k2 = key()
+    write_chain(config, [root_env(k2, 2, "2031-01-01T00:00:00Z", [f.key, k2])])
+
+    assert {:ok, v2} = Trust.load_root(config)
+    assert version(v2) == 2
+  end
+
+  test "an expired chain entry is skipped and the fold stops there", %{
+    config: config,
+    f: f
+  } do
+    k2 = key()
+    k3 = key()
+    {:ok, v1} = Trust.load_root(config)
+
+    write_chain(config, [
+      root_env(k2, 2, "2020-01-01T00:00:00Z", [f.key, k2]),
+      root_env(k3, 3, "2031-01-01T00:00:00Z", [k2, k3])
+    ])
+
+    assert {:ok, ^v1} = Trust.load_root(config)
+  end
+
+  test "a chain entry after a bad one is not used", %{config: config, f: f} do
+    k2 = key()
+    k3 = key()
+    k4 = key()
+    {:ok, v1} = Trust.load_root(config)
+
+    write_chain(config, [
+      root_env(k2, 2, "2031-01-01T00:00:00Z", [f.key, k2]),
+      root_env(k3, 3, "2031-01-01T00:00:00Z", [k3]),
+      root_env(k4, 4, "2031-01-01T00:00:00Z", [k3, k4])
+    ])
+
+    assert {:ok, v2} = Trust.load_root(config)
+    assert version(v2) == 2
+    refute v2 == v1
   end
 end
