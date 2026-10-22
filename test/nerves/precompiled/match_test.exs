@@ -193,6 +193,25 @@ defmodule Nerves.Precompiled.MatchTest do
                )
     end
 
+    test "deps with a non-existing atom name does not create atoms" do
+      name = "zz_never_an_atom_#{System.unique_integer([:positive])}"
+      expected_msg = "built against #{name} 1.0.0, not in lock"
+
+      deps = %{name => %{"version" => "1.0.0", "checksum" => "X"}}
+
+      assert {:miss, ^expected_msg} =
+               Match.select(
+                 manifest(
+                   "nerves_system_rpi4",
+                   entry(%{"build" => Map.put(entry()["build"], "deps", deps)})
+                 ),
+                 ctx()
+               )
+
+      # Verify the atom was not created
+      assert_raise ArgumentError, fn -> String.to_existing_atom(name) end
+    end
+
     test "compile_env_from_app reads the .app into the manifest shape", %{} do
       dir = System.tmp_dir!() |> Path.join("match-#{System.unique_integer([:positive])}")
       File.mkdir_p!(dir)

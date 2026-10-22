@@ -122,7 +122,15 @@ defmodule Nerves.Precompiled.Match do
 
   defp deps_ok(deps, lock) do
     Enum.reduce_while(deps, :ok, fn {name, %{"version" => v, "checksum" => c}}, :ok ->
-      case lock[String.to_atom(name)] do
+      atom_name =
+        try do
+          String.to_existing_atom(name)
+        rescue
+          ArgumentError ->
+            nil
+        end
+
+      case lock[atom_name] do
         {:hex, _, ^v, _, _, _, _, ^c} ->
           {:cont, :ok}
 
@@ -162,7 +170,7 @@ defmodule Nerves.Precompiled.Match do
       for %{"app" => app, "path" => path, "value" => value} <- items,
           :erlang.binary_to_term(Base.url_decode64!(value, padding: false), [:safe]) !=
             config.(app, path),
-          do: "#{app} #{inspect(Enum.map(path, &String.to_atom/1))}"
+          do: "#{app} [:#{Enum.join(path, ", :")}]"
 
     if mismatches == [],
       do: :ok,
