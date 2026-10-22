@@ -308,13 +308,26 @@ defmodule Nerves.Precompiled.Fetch do
   defp name_path({:fail, why}, path), do: {:fail, "#{why} (#{path})"}
 
   defp write_marker(staging, lock_entry) do
-    marker =
-      :erlang.term_to_binary(
-        {2, {System.version(), :erlang.system_info(:otp_release)}, Hex.SCM, lock_entry}
-      )
+    vsn = {System.version(), :erlang.system_info(:otp_release)}
+    marker = :erlang.term_to_binary(marker_term(vsn, Hex.SCM, lock_entry))
 
     File.mkdir_p!(Path.join(staging, ".mix"))
     File.write!(Path.join([staging, ".mix", "compile.elixir_scm"]), marker)
+  end
+
+  @doc """
+  Mix's "already compiled" marker (`Mix.Dep.ElixirSCM`) in the format the
+  running Mix reads: Elixir 1.20 added the lock (format 2); 1.17 to 1.19
+  read format 1 and would treat format 2 as stale and recompile the dep.
+  """
+  @spec marker_term({String.t(), charlist()}, module(), tuple()) :: tuple()
+  def marker_term(vsn, scm, lock_entry), do: marker_term(System.version(), vsn, scm, lock_entry)
+
+  @spec marker_term(String.t(), {String.t(), charlist()}, module(), tuple()) :: tuple()
+  def marker_term(elixir_version, vsn, scm, lock_entry) do
+    if Version.match?(elixir_version, ">= 1.20.0"),
+      do: {2, vsn, scm, lock_entry},
+      else: {1, vsn, scm}
   end
 
   defp sha256(bytes), do: Base.encode16(:crypto.hash(:sha256, bytes), case: :lower)

@@ -111,11 +111,15 @@ defmodule Nerves.Precompiled.FetchTest do
     refute File.exists?(Path.join(lib, "ash/ebin/stale.beam"))
     refute File.exists?(Path.join(lib, ".precompiled/ash"))
 
-    marker =
-      Path.join(lib, "ash/.mix/compile.elixir_scm") |> File.read!() |> :erlang.binary_to_term()
+    # Mix itself must read the marker as "compiled by this Elixir/OTP with Hex".
+    vsn = {System.version(), :erlang.system_info(:otp_release)}
 
-    assert marker ==
-             {2, {System.version(), :erlang.system_info(:otp_release)}, Hex.SCM, @lock_entry}
+    if Version.match?(System.version(), ">= 1.20.0") do
+      assert {:ok, ^vsn, Hex.SCM, @lock_entry} =
+               Mix.Dep.ElixirSCM.read(Path.join(lib, "ash/.mix"))
+    else
+      assert {:ok, ^vsn, Hex.SCM} = Mix.Dep.ElixirSCM.read(Path.join(lib, "ash/.mix"))
+    end
 
     assert File.exists?(Path.join(config.home, "files/#{s1}"))
 
@@ -261,5 +265,18 @@ defmodule Nerves.Precompiled.FetchTest do
     assert {:ok, _} = Fetch.install(config, :ash, e, @lock_entry, lib, deps_path: deps)
     assert File.read!(Path.join(lib, "ash/priv/data.txt")) == "built"
     refute File.exists?(Path.join(lib, "ash/include"))
+  end
+
+  test "marker_term/4 writes the marker format of the running Mix" do
+    vsn = {"1.19.5", ~c"28"}
+
+    assert Fetch.marker_term("1.19.5", vsn, Hex.SCM, @lock_entry) == {1, vsn, Hex.SCM}
+    assert Fetch.marker_term("1.17.0", vsn, Hex.SCM, @lock_entry) == {1, vsn, Hex.SCM}
+
+    assert Fetch.marker_term("1.20.0", vsn, Hex.SCM, @lock_entry) ==
+             {2, vsn, Hex.SCM, @lock_entry}
+
+    assert Fetch.marker_term("1.20.3", vsn, Hex.SCM, @lock_entry) ==
+             {2, vsn, Hex.SCM, @lock_entry}
   end
 end
