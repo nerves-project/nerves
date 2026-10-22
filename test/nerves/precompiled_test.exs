@@ -271,4 +271,46 @@ defmodule Nerves.PrecompiledTest do
     assert_received {:report, {:ok, %{fails: 1, misses: 1}}}
     assert out =~ ~r/ash 3\.5\.2\s+FAIL\s+candidate crashed: :boom/
   end
+
+  defp with_beam(f, entry, beam) do
+    app = "{application, ash, [{vsn, \"3.5.2\"}, {modules, ['Elixir.X']}]}.\n"
+
+    update_in(entry["ebin"], fn files ->
+      Enum.map(files, fn
+        %{"path" => "ebin/ash.app"} = x ->
+          %{x | "sha256" => F.file(f, app), "size" => byte_size(app)}
+
+        %{"path" => "ebin/Elixir.X.beam"} = x ->
+          %{x | "sha256" => F.file(f, beam), "size" => byte_size(beam)}
+      end)
+    end)
+  end
+
+  test "HITs whose beams carry no debug_info are counted once", %{f: f, opts: opts} do
+    e = with_beam(f, good_entry(f, "ash", "1.31.0"), "beam bytes")
+    F.publish(f, %{"ash" => %{"versions" => %{"3.5.2" => %{"nerves_system_rpi4" => e}}}})
+
+    out = run_capturing(opts)
+    assert_received {:report, {:ok, %{hits: 1}}}
+
+    assert out =~
+             "precompiled: 1 hits carry stripped beams; protocols they define are not " <>
+               "consolidated and Dialyzer has no types for them"
+  end
+
+  test "HITs with debug_info print no stripped line", %{f: f, opts: opts} do
+    {:module, _, beam, _} =
+      defmodule WithDbgi do
+        @moduledoc false
+        @spec x() :: :x
+        def x(), do: :x
+      end
+
+    e = with_beam(f, good_entry(f, "ash", "1.31.0"), beam)
+    F.publish(f, %{"ash" => %{"versions" => %{"3.5.2" => %{"nerves_system_rpi4" => e}}}})
+
+    out = run_capturing(opts)
+    assert_received {:report, {:ok, %{hits: 1}}}
+    refute out =~ "stripped"
+  end
 end

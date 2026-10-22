@@ -542,6 +542,10 @@ dependency lock entry and compile-time config match exactly; everything else
 compiles normally. Each dependency prints `HIT`, `MISS` or `FAIL` with the
 reason, and `mix nerves.info` repeats the result of the last run.
 
+Precompiled builds may carry stripped beams, without debug info. They run the
+same, but protocols they define are not consolidated and Dialyzer has no types
+for them; when that happens the run says so in one line.
+
 Use `except:` to opt specific dependencies out of this check:
 
 ```elixir

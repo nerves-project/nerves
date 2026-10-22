@@ -77,6 +77,7 @@ defmodule Nerves.Precompiled do
     Enum.each(lines, &print/1)
     report = summarize(lines, System.monotonic_time(:millisecond) - started)
     print_summary(report, length(lines))
+    print_stripped(Enum.count(lines, &Map.get(&1, :stripped, false)))
     write_report(build_lib, report)
     {:ok, report}
   end
@@ -125,6 +126,15 @@ defmodule Nerves.Precompiled do
     )
   end
 
+  defp print_stripped(0), do: :ok
+
+  defp print_stripped(n) do
+    MixUtils.info(
+      "precompiled: #{n} hits carry stripped beams; protocols they define are not " <>
+        "consolidated and Dialyzer has no types for them"
+    )
+  end
+
   defp batch(config) do
     with {:ok, root} <- Trust.load_root(config),
          {:ok, root} <- Trust.update_root(config, root, &Fetch.get_body/1) do
@@ -163,7 +173,7 @@ defmodule Nerves.Precompiled do
                Fetch.install(config, name, entry, lock_entry, build_lib,
                  verify_app: &verify_app(&1, config_fun)
                ) do
-          {:hit, stats}
+          {:hit, Map.put(stats, :stripped, stripped?(Path.join(build_lib, sname), sname))}
         end
 
       line_for(base, result)
@@ -188,9 +198,28 @@ defmodule Nerves.Precompiled do
     end
   end
 
-  defp line_for(base, {:hit, %{bytes: bytes, files: files, cached: cached}}) do
+  # Release-stripped beams (no debug_info chunk) still load and run, but
+  # Mix cannot consolidate the protocols they define. Judged by the first
+  # module the .app lists.
+  defp stripped?(dir, name) do
+    with {:ok, [{:application, _, props}]} <-
+           :file.consult(String.to_charlist(Path.join([dir, "ebin", name <> ".app"]))),
+         [first | _] <- Keyword.get(props, :modules, []) do
+      beam = Path.join([dir, "ebin", "#{first}.beam"])
+
+      not match?(
+        {:ok, {_, [{:debug_info, _}]}},
+        :beam_lib.chunks(String.to_charlist(beam), [:debug_info])
+      )
+    else
+      _ -> false
+    end
+  end
+
+  defp line_for(base, {:hit, %{bytes: bytes, files: files, cached: cached} = stats}) do
     %{base | bytes: bytes}
     |> Map.merge(%{
+      stripped: stats.stripped,
       status: :hit,
       detail: "#{mb(bytes)} MB#{if cached == files, do: ", cached", else: ""}"
     })
@@ -308,7 +337,7 @@ defmodule Nerves.Precompiled do
       fails: count.(:fail),
       bytes: Enum.sum(Enum.map(lines, & &1.bytes)),
       seconds: ms / 1000,
-      lines: Enum.map(lines, &Map.delete(&1, :bytes))
+      lines: Enum.map(lines, &Map.drop(&1, [:bytes, :stripped]))
     }
   end
 
