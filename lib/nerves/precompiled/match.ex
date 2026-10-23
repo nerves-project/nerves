@@ -71,10 +71,23 @@ defmodule Nerves.Precompiled.Match do
     {system, system_version} = ctx.system
     systems = get_in(manifest, ["versions", ctx.version]) || %{}
 
+    if systems == %{} do
+      {:miss, "not built for #{ctx.version}"}
+    else
+      select_entry(systems["pure_elixir"], systems[system], system, system_version, ctx)
+    end
+  end
+
+  # A pure_elixir entry is the host build of a package whose whole closure
+  # is pure Elixir, the same for every system, so it is tried first; the
+  # system entry is the fallback, and its reason wins on a double miss.
+  defp select_entry(pe, sys, system, system_version, ctx) do
+    pe_result = if pe, do: check(pe, "pure_elixir", ctx)
+
     cond do
-      systems == %{} -> {:miss, "not built for #{ctx.version}"}
-      entry = systems[system] -> check(entry, system, ctx)
-      entry = systems["pure_elixir"] -> check(entry, "pure_elixir", ctx)
+      match?({:ok, _, _}, pe_result) -> pe_result
+      sys -> check(sys, system, ctx)
+      pe_result -> pe_result
       true -> {:miss, "not built for #{system} #{system_version}"}
     end
   end

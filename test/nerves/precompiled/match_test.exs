@@ -282,4 +282,35 @@ defmodule Nerves.Precompiled.MatchTest do
       assert {:ok, _, _} = Match.select(manifest(), c)
     end
   end
+
+  describe "select/2 with both pure_elixir and a system entry" do
+    defp stale(), do: entry(%{"build" => Map.delete(entry()["build"], "package_checksum")})
+
+    defp pure(over \\ %{}),
+      do: entry(%{"build" => Map.merge(entry()["build"], Map.put(over, "system_version", nil))})
+
+    defp both(pe, sys),
+      do: %{"versions" => %{"3.5.2" => %{"pure_elixir" => pe, "nerves_system_rpi4" => sys}}}
+
+    @wrong_env [%{"app" => "ash", "path" => ["mode"], "value" => "g3cEZmFzdA"}]
+
+    test "a passing pure_elixir entry wins over a stale system entry" do
+      assert {:ok, _, "pure_elixir"} = Match.select(both(pure(), stale()), ctx())
+    end
+
+    test "a pure_elixir entry that fails the key falls back to a passing system entry" do
+      assert {:ok, _, "nerves_system_rpi4"} =
+               Match.select(both(pure(%{"compile_env" => @wrong_env}), entry()), ctx())
+    end
+
+    test "when both fail, the system entry's reason is returned" do
+      assert {:miss, "build predates package_checksum"} =
+               Match.select(both(pure(%{"compile_env" => @wrong_env}), stale()), ctx())
+    end
+
+    test "only a failing pure_elixir entry returns its reason" do
+      m = %{"versions" => %{"3.5.2" => %{"pure_elixir" => pure(%{"compile_env" => @wrong_env})}}}
+      assert {:miss, "compile_env differs: ash [:mode]"} = Match.select(m, ctx())
+    end
+  end
 end
