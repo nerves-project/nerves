@@ -75,9 +75,9 @@ defmodule Nerves.Precompiled.ConfigTest do
 
     for source <- [
           "https://example.test/x",
-          "http://127.0.0.1:4567/x",
-          "http://localhost:4567/x",
-          "http://[::1]:4567/x"
+          "http://127.0.0.1:4000/x",
+          "http://localhost:4000/x",
+          "http://[::1]:4000/x"
         ] do
       Application.put_env(:nerves, :precompiled, source: source)
       assert %{source: ^source} = Config.load()

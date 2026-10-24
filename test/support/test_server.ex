@@ -6,7 +6,7 @@ defmodule Nerves.TestServer do
   @moduledoc false
   use Plug.Router
 
-  @port 4567
+  @port 4000
 
   plug(:match)
   plug(:dispatch)
