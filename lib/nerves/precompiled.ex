@@ -31,23 +31,13 @@ defmodule Nerves.Precompiled do
 
   @spec run(keyword()) :: :disabled | :nothing_to_do | {:ok, report()}
   def run(opts \\ []) do
-    with %{} = config <- Config.load(),
-         false <- Keyword.get(opts, :host?, Mix.target() == :host) do
-      do_run(config, opts)
-    else
-      _ -> :disabled
-    end
-  rescue
-    e -> step_skipped(Exception.message(e))
-  catch
-    :exit, reason -> step_skipped(inspect(reason))
-    :throw, reason -> step_skipped(inspect(reason))
-  end
+    config = Config.load()
 
-  # Skipping is never an error: whatever goes wrong, Mix compiles as usual.
-  defp step_skipped(reason) do
-    MixUtils.warning("precompiled: step skipped: #{reason}")
-    :disabled
+    cond do
+      config == nil -> :disabled
+      Keyword.get(opts, :host?, Mix.target() == :host) -> :disabled
+      true -> do_run(config, opts)
+    end
   end
 
   defp do_run(config, opts) do
@@ -70,6 +60,9 @@ defmodule Nerves.Precompiled do
     build_lib =
       Keyword.get_lazy(opts, :build_lib, fn -> Path.join(Mix.Project.build_path(), "lib") end)
 
+    # Nerves.build_plan/0 raises only when the project itself is broken; it
+    # already ran, unguarded, one line earlier in `nerves.init`'s
+    # export_env/0, so a raise here means that already failed first.
     system = Keyword.get_lazy(opts, :system, fn -> system_from_plan(Nerves.build_plan()) end)
     config_fun = Keyword.get(opts, :config_fun, &config_lookup/2)
 
@@ -279,6 +272,9 @@ defmodule Nerves.Precompiled do
     end
   end
 
+  # Mix.Dep.load_and_cache/0 and Mix.Dep.Lock.read/0 raise only when the
+  # project itself is broken, in which case Mix is about to fail the same
+  # way; no try here.
   defp mix_deps(), do: candidates_from(Mix.Dep.load_and_cache(), Mix.Dep.Lock.read())
 
   @typedoc false
@@ -364,9 +360,10 @@ defmodule Nerves.Precompiled do
     }
   end
 
+  # The report is a convenience artifact, not the run's result: an
+  # unwritable _build degrades to a warning rather than failing the step.
   defp write_report(build_lib, report) do
     dir = Path.join(build_lib, ".precompiled")
-    File.mkdir_p!(dir)
 
     json = %{
       "hits" => report.hits,
@@ -388,7 +385,15 @@ defmodule Nerves.Precompiled do
 
     final = Path.join(dir, "report.json")
     tmp = final <> ".tmp"
-    File.write!(tmp, :json.encode(json))
-    File.rename!(tmp, final)
+
+    with :ok <- File.mkdir_p(dir),
+         :ok <- File.write(tmp, :json.encode(json)),
+         :ok <- File.rename(tmp, final) do
+      :ok
+    else
+      {:error, reason} ->
+        MixUtils.warning("precompiled: could not write report.json: #{inspect(reason)}")
+        :ok
+    end
   end
 end

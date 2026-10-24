@@ -268,18 +268,31 @@ defmodule Nerves.PrecompiledTest do
     assert out =~ "precompiled: no dependencies to check"
   end
 
-  test "an unwritable _build skips the step with one warning, never raises", %{
+  test "an unwritable build_lib degrades report.json to one warning, run still completes", %{
     f: f,
     opts: opts,
     tmp_dir: dir
   } do
-    F.publish(f, %{})
+    F.publish(f, %{
+      "ash" => %{
+        "versions" => %{"3.5.2" => %{"nerves_system_rpi4" => good_entry(f, "ash", "1.31.0")}}
+      }
+    })
+
     blocker = Path.join(dir, "_build_file")
     File.write!(blocker, "a file where _build/<t>/lib should be")
 
     out = run_capturing(Keyword.put(opts, :build_lib, blocker))
-    assert_received {:report, :disabled}
-    assert out =~ "precompiled: step skipped: "
+    assert_received {:report, {:ok, report}}
+    # build_lib is a plain file, so ash's install (an otherwise-HIT
+    # candidate) fails to stage into it, and jason stays a MISS as usual.
+    # What this test exercises is that write_report's own failure to create
+    # "<blocker>/.precompiled" only warns instead of raising.
+    assert report.hits == 0 and report.misses == 1 and report.fails == 1
+    assert out =~ ~r/ash 3\.5\.2\s+FAIL\s+install failed: /
+    assert out =~ ~r/jason 1\.4\.5\s+MISS\s+not in batch/
+    warnings = out |> String.split("\n") |> Enum.filter(&(&1 =~ "could not write report.json"))
+    assert length(warnings) == 1
   end
 
   test "a throw inside a candidate is that candidate's FAIL", %{f: f, opts: opts} do
