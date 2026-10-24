@@ -5,6 +5,17 @@
 
 # Changelog
 
+## v1.15.1 - 2026-10-24
+
+* Changes
+  * Raise the HTTP response header limit to 64 KiB so artifact downloads work
+    with servers that return large headers. (@georgeguimaraes)
+  * Use TLS 1.2 for artifact downloads to avoid connection resets on networks
+    with middleboxes that don't support TLS 1.3.
+  * Report a missing `ERTS_DIR` environment variable explicitly instead of
+    passing `nil` to Mix and causing a cryptic release configuration error.
+    kkk(@LostKobrakai)
+
 ## v1.15.0 - 2026-07-10
 
 This release adds support for using [Apple Container](https://opensource.apple.com/projects/container/)
