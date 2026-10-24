@@ -31,6 +31,13 @@ defmodule Nerves.TestServer do
     |> send_resp(200, body)
   end
 
+  get "/json/large_headers" do
+    conn
+    |> put_resp_header("content-security-policy", String.duplicate("a", 12 * 1024))
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, :json.encode(%{"hello" => "world"}))
+  end
+
   get "/json/invalid" do
     conn
     |> put_resp_content_type("application/json")
