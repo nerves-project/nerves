@@ -10,6 +10,9 @@ defmodule Mix.Tasks.Nerves.Init do
   @moduledoc false
   use Mix.Task
 
+  # The optional dependency is not there in most projects.
+  @compile {:no_warn_undefined, NervesPrecompiled}
+
   @impl Mix.Task
   def run(_args) do
     [task_name | task_args] = System.argv()
@@ -21,7 +24,7 @@ defmodule Mix.Tasks.Nerves.Init do
       task_name == "do" ->
         # Guess that at least one command is going to require Nerves integration
         Nerves.export_env()
-        Nerves.Precompiled.run()
+        precompiled()
 
       skip_nerves_integration?(task_name) ->
         # Short circuit Mix compilation to run Nerves tasks without compiling
@@ -36,8 +39,16 @@ defmodule Mix.Tasks.Nerves.Init do
 
       true ->
         Nerves.export_env()
-        Nerves.Precompiled.run()
+        precompiled()
     end
+  end
+
+  # When the project depends on nerves_precompiled, let it install matching
+  # builds before Mix compiles the dependencies. nerves_bootstrap compiled
+  # it together with nerves, so it is loadable here.
+  defp precompiled() do
+    if Code.ensure_loaded?(NervesPrecompiled), do: NervesPrecompiled.run()
+    :ok
   end
 
   defp skip_nerves_integration?(task_name) do

@@ -65,6 +65,11 @@ defmodule Nerves.MixProject do
       {:nerves_discovery, "~> 0.1.6"},
       {:tablet, "~> 0.3.1"},
 
+      # Optional: install precompiled dependency builds before compiling.
+      # Declared here so nerves_bootstrap compiles it with nerves, before
+      # nerves.init runs. Projects opt in by adding it to their own deps.
+      {:nerves_precompiled, "~> 0.1", optional: true},
+
       # Development dependencies
       {:credo, "~> 1.6", only: :dev, runtime: false},
       {:cover_helper, path: "test/fixtures/cover_helper", only: :test, runtime: false},

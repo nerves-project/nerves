@@ -56,12 +56,12 @@ defmodule Nerves.HTTPClientTest do
   describe "get/2 with same_origin" do
     test "refuses a redirect to a different host on the same port" do
       assert {:error, :cross_origin_redirect} =
-               HTTPClient.get("#{@base_url}/precompiled/redirect/binary", same_origin: true)
+               HTTPClient.get("#{@base_url}/redirect/binary", same_origin: true)
     end
 
     test "refuses a redirect to a different port on the same host" do
       assert {:error, :cross_origin_redirect} =
-               HTTPClient.get("#{@base_url}/precompiled/redirect_port/binary", same_origin: true)
+               HTTPClient.get("#{@base_url}/redirect_port/binary", same_origin: true)
     end
 
     test "follows the redirect by default" do
@@ -69,7 +69,7 @@ defmodule Nerves.HTTPClientTest do
       # setups, so exercise the same-host, different-port redirect instead:
       # nothing listens on @port + 1, so this still ends quickly.
       assert {:error, _reason} =
-               HTTPClient.get("#{@base_url}/precompiled/redirect_port/binary")
+               HTTPClient.get("#{@base_url}/redirect_port/binary")
     end
   end
 
