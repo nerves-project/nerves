@@ -50,9 +50,10 @@ defmodule Nerves.Precompiled.Fetch do
     :httpc.set_options(opts, :nerves)
   end
 
-  defp request(_url, _max, n) when n > @max_redirects, do: {:error, "too many redirects"}
+  defp request(_url, _max_bytes, redirects) when redirects > @max_redirects,
+    do: {:error, "too many redirects"}
 
-  defp request(url, max, n) do
+  defp request(url, max_bytes, redirects) do
     uri = URI.parse(url)
 
     http_opts =
@@ -68,7 +69,7 @@ defmodule Nerves.Precompiled.Fetch do
            [sync: false, stream: :self, receiver: self(), body_format: :binary],
            :nerves
          ) do
-      {:ok, request_id} -> await_body(request_id, uri, max, n, [], 0)
+      {:ok, request_id} -> await_body(request_id, uri, max_bytes, redirects, [], 0)
       {:error, reason} -> {:error, "request failed: #{inspect(reason)}"}
     end
   end
@@ -76,19 +77,19 @@ defmodule Nerves.Precompiled.Fetch do
   # `stream: :self` only streams a 2xx response: a redirect or an error
   # status instead arrives as a single whole-body message, same as
   # `Nerves.HTTPClient.get/2`'s receive loop.
-  defp await_body(ref, uri, max, n, acc, size) do
+  defp await_body(ref, uri, max_bytes, redirects, acc, size) do
     receive do
       {:http, {^ref, :stream_start, _headers}} ->
-        await_body(ref, uri, max, n, acc, size)
+        await_body(ref, uri, max_bytes, redirects, acc, size)
 
       {:http, {^ref, :stream, chunk}} ->
         size = size + byte_size(chunk)
 
-        if size > max do
+        if size > max_bytes do
           cancel(ref)
-          {:error, "response larger than #{max} bytes"}
+          {:error, "response larger than #{max_bytes} bytes"}
         else
-          await_body(ref, uri, max, n, [acc, chunk], size)
+          await_body(ref, uri, max_bytes, redirects, [acc, chunk], size)
         end
 
       {:http, {^ref, :stream_end, _headers}} ->
@@ -96,7 +97,7 @@ defmodule Nerves.Precompiled.Fetch do
 
       {:http, {^ref, {{_, status, _}, h, _body}}} when status in [301, 302, 303, 307, 308] ->
         case List.keyfind(h, ~c"location", 0) do
-          {_, loc} -> follow(uri, URI.merge(uri, to_string(loc)), max, n)
+          {_, loc} -> follow(uri, URI.merge(uri, to_string(loc)), max_bytes, redirects)
           nil -> {:error, "HTTP #{status} without location"}
         end
 
@@ -131,12 +132,13 @@ defmodule Nerves.Precompiled.Fetch do
   defp follow(
          %URI{host: h, scheme: s, port: p},
          %URI{host: h, scheme: s, port: p} = next,
-         max,
-         n
+         max_bytes,
+         redirects
        ),
-       do: request(URI.to_string(next), max, n + 1)
+       do: request(URI.to_string(next), max_bytes, redirects + 1)
 
-  defp follow(_from, _to, _max, _n), do: {:error, "redirect to another host refused"}
+  defp follow(_from, _to, _max_bytes, _redirects),
+    do: {:error, "redirect to another host refused"}
 
   defp ssl_opts(%URI{scheme: "https"}) do
     [
