@@ -82,6 +82,11 @@ defmodule Nerves.Utils.HTTPClientTest do
              HTTPClient.get_json("http://127.0.0.1:4000/json/ok")
   end
 
+  test "get_json accepts response headers larger than httpc's default limit" do
+    assert {:ok, %{"hello" => "world"}} =
+             HTTPClient.get_json("http://127.0.0.1:4000/json/large_headers")
+  end
+
   test "get_json returns error on invalid JSON" do
     assert {:error, _} = HTTPClient.get_json("http://127.0.0.1:4000/json/invalid")
   end
