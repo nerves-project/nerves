@@ -191,7 +191,7 @@ defmodule Nerves.Utils.HTTPClient do
         :get,
         {String.to_charlist(url), headers},
         http_opts,
-        [stream: :self, receiver: self(), sync: false],
+        [stream: :self, receiver: self(), sync: false, max_header_size: 65_536],
         :nerves
       )
 

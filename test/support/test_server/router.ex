@@ -70,6 +70,13 @@ defmodule Nerves.TestServer.Router do
     |> send_resp(200, Jason.encode!(%{hello: "world", number: 42}))
   end
 
+  get "/json/large_headers" do
+    conn
+    |> put_resp_header("content-security-policy", String.duplicate("a", 12 * 1024))
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{hello: "world"}))
+  end
+
   get "/json/invalid" do
     conn
     |> put_resp_content_type("application/json")
