@@ -41,20 +41,6 @@ defmodule Nerves.Precompiled.FetchTest do
     files ++ [file_entry(F.file(f, app), byte_size(app), "ebin/ash.app")]
   end
 
-  test "get_body refuses to fetch when the httpc profile cannot start" do
-    # Stop the profile the setup started, then make :inets refuse to start it
-    # again by stopping inets itself; get_body must report that, not continue.
-    :inets.stop(:httpc, :nerves)
-    :ok = :inets.stop()
-
-    try do
-      assert {:error, "httpc unavailable: " <> _} = Fetch.get_body(F.base_url() <> "/batch.json")
-    after
-      :ok = :inets.start()
-      :inets.start(:httpc, profile: :nerves)
-    end
-  end
-
   test "get_body caps size and refuses cross-host redirects", %{config: config} do
     port = Nerves.TestServer.port()
 
@@ -64,7 +50,8 @@ defmodule Nerves.Precompiled.FetchTest do
     assert {:error, "response larger than 10 bytes"} =
              Fetch.get_body("http://127.0.0.1:#{port}/binary", max_bytes: 10)
 
-    assert {:error, "HTTP 404"} = Fetch.get_body(config.source <> "/manifests/nope.json")
+    assert {:error, "Status 404 Not Found"} =
+             Fetch.get_body(config.source <> "/manifests/nope.json")
   end
 
   test "get_body streams the body and assembles it correctly under the cap" do

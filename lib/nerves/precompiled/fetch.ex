@@ -15,146 +15,31 @@ defmodule Nerves.Precompiled.Fetch do
   @max_body_bytes 8_388_608
   # 64 MiB: manifests of packages with many versions and systems run past 8 MiB
   @max_manifest_bytes 67_108_864
-  @max_redirects 5
   @ok_modes [0o644, 0o755, 0o100644, 0o100755]
 
   @spec get_body(String.t(), keyword()) :: {:ok, binary()} | {:error, String.t()}
   def get_body(url, opts \\ []) do
-    case ensure_httpc_started() do
-      :ok -> request(url, Keyword.get(opts, :max_bytes, @max_body_bytes))
-      {:error, reason} -> {:error, "httpc unavailable: #{inspect(reason)}"}
-    end
+    url
+    |> Nerves.HTTPClient.get(
+      into: "",
+      max_bytes: Keyword.get(opts, :max_bytes, @max_body_bytes),
+      same_origin: true,
+      progress?: false
+    )
+    |> map_error()
   end
 
-  # The :nerves httpc profile is normally started by Nerves.HTTPClient; a
-  # bare `mix firmware` reaches this module first. Start it the same way,
-  # with the same keep-alive settings, and refuse to fetch if that fails.
-  defp ensure_httpc_started() do
-    case :inets.start(:httpc, profile: :nerves) do
-      {:ok, _pid} -> configure_httpc()
-      {:error, {:already_started, _pid}} -> :ok
-      {:error, reason} -> {:error, reason}
-    end
-  end
+  defp map_error({:ok, body}), do: {:ok, body}
 
-  defp configure_httpc() do
-    opts =
-      [
-        max_sessions: 8,
-        max_keep_alive_length: 4,
-        max_pipeline_length: 4,
-        keep_alive_timeout: 120_000,
-        pipeline_timeout: 60_000
-      ] ++ Nerves.HTTPClient.proxy_httpc_options()
+  defp map_error({:error, {:too_large, max_bytes}}),
+    do: {:error, "response larger than #{max_bytes} bytes"}
 
-    :httpc.set_options(opts, :nerves)
-  end
-
-  # `redirects` counts the redirects followed so far; a fresh request starts at 0.
-  defp request(url, max_bytes, redirects \\ 0)
-
-  defp request(_url, _max_bytes, redirects) when redirects > @max_redirects,
-    do: {:error, "too many redirects"}
-
-  defp request(url, max_bytes, redirects) do
-    uri = URI.parse(url)
-
-    http_opts =
-      [autoredirect: false, timeout: 60_000] ++
-        ssl_opts(uri) ++ Nerves.HTTPClient.proxy_request_options(url)
-
-    headers = [{~c"user-agent", String.to_charlist("Nerves/#{Nerves.version()}")}]
-
-    case :httpc.request(
-           :get,
-           {String.to_charlist(url), headers},
-           http_opts,
-           [sync: false, stream: :self, receiver: self(), body_format: :binary],
-           :nerves
-         ) do
-      {:ok, request_id} -> await_body(request_id, uri, max_bytes, redirects, [], 0)
-      {:error, reason} -> {:error, "request failed: #{inspect(reason)}"}
-    end
-  end
-
-  # `stream: :self` only streams a 2xx response: a redirect or an error
-  # status instead arrives as a single whole-body message, same as
-  # `Nerves.HTTPClient.get/2`'s receive loop.
-  defp await_body(ref, uri, max_bytes, redirects, acc, size) do
-    receive do
-      {:http, {^ref, :stream_start, _headers}} ->
-        await_body(ref, uri, max_bytes, redirects, acc, size)
-
-      {:http, {^ref, :stream, chunk}} ->
-        size = size + byte_size(chunk)
-
-        if size > max_bytes do
-          cancel(ref)
-          {:error, "response larger than #{max_bytes} bytes"}
-        else
-          await_body(ref, uri, max_bytes, redirects, [acc, chunk], size)
-        end
-
-      {:http, {^ref, :stream_end, _headers}} ->
-        {:ok, IO.iodata_to_binary(acc)}
-
-      {:http, {^ref, {{_, status, _}, h, _body}}} when status in [301, 302, 303, 307, 308] ->
-        case List.keyfind(h, ~c"location", 0) do
-          {_, loc} -> follow(uri, URI.merge(uri, to_string(loc)), max_bytes, redirects)
-          nil -> {:error, "HTTP #{status} without location"}
-        end
-
-      {:http, {^ref, {{_, status, _}, _h, _body}}} ->
-        {:error, "HTTP #{status}"}
-
-      {:http, {^ref, {:error, reason}}} ->
-        {:error, "request failed: #{inspect(reason)}"}
-    after
-      60_000 ->
-        cancel(ref)
-        {:error, "request timed out"}
-    end
-  end
-
-  defp cancel(ref) do
-    :httpc.cancel_request(ref, :nerves)
-    flush(ref)
-  end
-
-  # `cancel_request/2` stops future deliveries but does not retroactively
-  # unsend messages already in our mailbox; drain them so a canceled
-  # request's stray chunks never leak into a later call's receive.
-  defp flush(ref) do
-    receive do
-      {:http, {^ref, _}} -> flush(ref)
-    after
-      0 -> :ok
-    end
-  end
-
-  defp follow(
-         %URI{host: h, scheme: s, port: p},
-         %URI{host: h, scheme: s, port: p} = next,
-         max_bytes,
-         redirects
-       ),
-       do: request(URI.to_string(next), max_bytes, redirects + 1)
-
-  defp follow(_from, _to, _max_bytes, _redirects),
+  defp map_error({:error, :cross_origin_redirect}),
     do: {:error, "redirect to another host refused"}
 
-  defp ssl_opts(%URI{scheme: "https"}) do
-    [
-      ssl: [
-        verify: :verify_peer,
-        cacerts: :public_key.cacerts_get(),
-        depth: 3,
-        customize_hostname_check: [match_fun: :public_key.pkix_verify_hostname_match_fun(:https)]
-      ]
-    ]
-  end
-
-  defp ssl_opts(_), do: []
+  defp map_error({:error, :too_many_redirects}), do: {:error, "too many redirects"}
+  defp map_error({:error, reason}) when is_binary(reason), do: {:error, reason}
+  defp map_error({:error, reason}), do: {:error, inspect(reason)}
 
   @spec manifest(map(), String.t(), String.t()) ::
           {:ok, map()} | {:miss, String.t()} | {:fail, String.t()}
@@ -165,7 +50,7 @@ defmodule Nerves.Precompiled.Fetch do
           do: decode(bytes),
           else: {:fail, "manifest hash differs from batch"}
 
-      {:error, "HTTP 404"} ->
+      {:error, "Status 404 Not Found"} ->
         {:miss, "no manifest"}
 
       {:error, reason} ->

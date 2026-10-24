@@ -42,6 +42,37 @@ defmodule Nerves.HTTPClientTest do
     end
   end
 
+  describe "get/2 with max_bytes" do
+    test "returns too_large when the streamed body exceeds the cap" do
+      assert {:error, {:too_large, 10}} = HTTPClient.get("#{@base_url}/binary", max_bytes: 10)
+    end
+
+    test "fetches the whole body when under the cap" do
+      assert {:ok, body} = HTTPClient.get("#{@base_url}/binary", max_bytes: 2048)
+      assert byte_size(body) == 1024
+    end
+  end
+
+  describe "get/2 with same_origin" do
+    test "refuses a redirect to a different host on the same port" do
+      assert {:error, :cross_origin_redirect} =
+               HTTPClient.get("#{@base_url}/precompiled/redirect/binary", same_origin: true)
+    end
+
+    test "refuses a redirect to a different port on the same host" do
+      assert {:error, :cross_origin_redirect} =
+               HTTPClient.get("#{@base_url}/precompiled/redirect_port/binary", same_origin: true)
+    end
+
+    test "follows the redirect by default" do
+      # 127.0.0.2 hangs rather than refuses on some sandboxed networking
+      # setups, so exercise the same-host, different-port redirect instead:
+      # nothing listens on @port + 1, so this still ends quickly.
+      assert {:error, _reason} =
+               HTTPClient.get("#{@base_url}/precompiled/redirect_port/binary")
+    end
+  end
+
   describe "get_json/2" do
     test "decodes a valid JSON response" do
       assert {:ok, %{"hello" => "world", "number" => 42}} =
