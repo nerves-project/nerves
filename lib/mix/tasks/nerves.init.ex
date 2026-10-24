@@ -10,7 +10,8 @@ defmodule Mix.Tasks.Nerves.Init do
   @moduledoc false
   use Mix.Task
 
-  # The optional dependency is not there in most projects.
+  # nerves_precompiled is a dependency of the project, not of nerves, so it is
+  # absent in most projects.
   @compile {:no_warn_undefined, NervesPrecompiled}
 
   @impl Mix.Task
