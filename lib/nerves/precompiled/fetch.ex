@@ -20,16 +20,34 @@ defmodule Nerves.Precompiled.Fetch do
 
   @spec get_body(String.t(), keyword()) :: {:ok, binary()} | {:error, String.t()}
   def get_body(url, opts \\ []) do
-    ensure_httpc_started()
-    request(url, Keyword.get(opts, :max_bytes, @max_body), 0)
+    case ensure_httpc_started() do
+      :ok -> request(url, Keyword.get(opts, :max_bytes, @max_body), 0)
+      {:error, reason} -> {:error, "httpc unavailable: #{inspect(reason)}"}
+    end
   end
 
+  # The :nerves httpc profile is normally started by Nerves.HTTPClient; a
+  # bare `mix firmware` reaches this module first. Start it the same way,
+  # with the same keep-alive settings, and refuse to fetch if that fails.
   defp ensure_httpc_started() do
     case :inets.start(:httpc, profile: :nerves) do
-      :ok -> :ok
-      {:error, {:already_started, _}} -> :ok
-      other -> other
+      {:ok, _pid} -> configure_httpc()
+      {:error, {:already_started, _pid}} -> :ok
+      {:error, reason} -> {:error, reason}
     end
+  end
+
+  defp configure_httpc() do
+    opts =
+      [
+        max_sessions: 8,
+        max_keep_alive_length: 4,
+        max_pipeline_length: 4,
+        keep_alive_timeout: 120_000,
+        pipeline_timeout: 60_000
+      ] ++ Nerves.HTTPClient.proxy_httpc_options()
+
+    :httpc.set_options(opts, :nerves)
   end
 
   defp request(_url, _max, n) when n > @max_redirects, do: {:error, "too many redirects"}
