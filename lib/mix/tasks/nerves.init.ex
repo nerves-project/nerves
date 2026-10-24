@@ -21,6 +21,7 @@ defmodule Mix.Tasks.Nerves.Init do
       task_name == "do" ->
         # Guess that at least one command is going to require Nerves integration
         Nerves.export_env()
+        Nerves.Precompiled.run()
 
       skip_nerves_integration?(task_name) ->
         # Short circuit Mix compilation to run Nerves tasks without compiling
@@ -35,6 +36,7 @@ defmodule Mix.Tasks.Nerves.Init do
 
       true ->
         Nerves.export_env()
+        Nerves.Precompiled.run()
     end
   end
 

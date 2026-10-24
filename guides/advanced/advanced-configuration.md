@@ -524,3 +524,35 @@ or put it wherever you prefer. The configuration file is not running with the
 Nerves environment variables. The script will have access to them however. The
 script will receive the filepath of the filesystem as the first argument and
 this allows you to sign it or otherwise amend it.
+
+## Precompiled dependencies
+
+Nerves can skip compiling a dependency when a matching, signed build already
+exists for it. This is opt-in and off by default:
+
+```elixir
+config :nerves, :precompiled,
+  source: "https://compatibility.nerves-project.org/api/precompiled"
+```
+
+With this set, `mix firmware` checks every dependency Mix is about to compile
+against the configured source before compiling it. A dependency is installed
+instead of compiled only when its Elixir version, OTP version, Nerves system,
+dependency lock entry and compile-time config match exactly; everything else
+compiles normally. Each dependency prints `HIT`, `MISS` or `FAIL` with the
+reason, and `mix nerves.info` repeats the result of the last run.
+
+Precompiled builds may carry stripped beams, without debug info. They run the
+same, but protocols they define are not consolidated and Dialyzer has no types
+for them; when that happens the run says so in one line.
+
+Use `except:` to opt specific dependencies out of this check:
+
+```elixir
+config :nerves, :precompiled,
+  source: "https://compatibility.nerves-project.org/api/precompiled",
+  except: [:nerves_runtime]
+```
+
+Set `NERVES_PRECOMPILED=0` to disable a run entirely without changing the
+project's configuration, for example to force a clean local build.

@@ -17,7 +17,9 @@ defmodule Nerves.HTTPClient do
   @type opts :: [
           into: Collectable.t(),
           progress?: boolean(),
-          headers: [{String.t() | charlist(), String.t() | charlist()}]
+          headers: [{String.t() | charlist(), String.t() | charlist()}],
+          max_bytes: pos_integer() | :infinity,
+          same_origin: boolean()
         ]
 
   @type request_state :: %{
@@ -25,9 +27,12 @@ defmodule Nerves.HTTPClient do
           collector_acc: term(),
           content_length: non_neg_integer(),
           get_opts: opts(),
+          max_bytes: pos_integer() | :infinity,
           progress?: boolean(),
           received: non_neg_integer(),
-          redirects: non_neg_integer()
+          redirects: non_neg_integer(),
+          same_origin: boolean(),
+          uri: URI.t()
         }
 
   @doc """
@@ -102,6 +107,12 @@ defmodule Nerves.HTTPClient do
   * `:into` - a `Collectable.t()` for receiving the results. Defaults to `""`
   * `:progress?` - set to `true` to show a progress bar. Defaults to `false`
   * `:headers` - a list of additional HTTP headers to include
+  * `:max_bytes` - cap on the number of bytes read, counting content-length
+    (when known) and streamed data. Defaults to `:infinity`. Returns
+    `{:error, {:too_large, max_bytes}}` once exceeded
+  * `:same_origin` - when `true`, refuse to follow a redirect whose host,
+    scheme or port differs from the request it redirected from, returning
+    `{:error, :cross_origin_redirect}` instead. Defaults to `false`
 
   Returns `{:ok, collected}` or `{:error, reason}`.
   """
@@ -130,7 +141,7 @@ defmodule Nerves.HTTPClient do
   end
 
   def get(url, opts) do
-    _ = Keyword.validate!(opts, [:headers, :into, :progress?])
+    _ = Keyword.validate!(opts, [:headers, :into, :progress?, :max_bytes, :same_origin])
     start_httpc()
 
     url
@@ -144,6 +155,8 @@ defmodule Nerves.HTTPClient do
 
   defp start_request(url, opts, redirects) do
     progress? = Keyword.get(opts, :progress?, false)
+    max_bytes = Keyword.get(opts, :max_bytes, :infinity)
+    same_origin = Keyword.get(opts, :same_origin, false)
 
     into = Keyword.get(opts, :into, "")
     {acc, collector} = Collectable.into(into)
@@ -184,9 +197,12 @@ defmodule Nerves.HTTPClient do
        collector_acc: acc,
        content_length: 0,
        get_opts: opts,
+       max_bytes: max_bytes,
        progress?: progress?,
        received: 0,
-       redirects: redirects
+       redirects: redirects,
+       same_origin: same_origin,
+       uri: URI.parse(url)
      }}
   end
 
@@ -198,13 +214,24 @@ defmodule Nerves.HTTPClient do
         err
 
       {:http, {^request_ref, :stream_start, headers}} ->
-        await_response({:await, request_ref, %{state | content_length: content_length(headers)}})
+        content_length = content_length(headers)
+
+        if exceeds?(content_length, state.max_bytes) do
+          too_large(request_ref, state)
+        else
+          await_response({:await, request_ref, %{state | content_length: content_length}})
+        end
 
       {:http, {^request_ref, :stream, data}} ->
         size = byte_size(data) + state.received
-        acc = state.collector.(state.collector_acc, {:cont, data})
-        put_progress(state, size)
-        await_response({:await, request_ref, %{state | received: size, collector_acc: acc}})
+
+        if exceeds?(size, state.max_bytes) do
+          too_large(request_ref, state)
+        else
+          acc = state.collector.(state.collector_acc, {:cont, data})
+          put_progress(state, size)
+          await_response({:await, request_ref, %{state | received: size, collector_acc: acc}})
+        end
 
       {:http, {^request_ref, :stream_end, _headers}} ->
         progress_done(state)
@@ -216,12 +243,18 @@ defmodule Nerves.HTTPClient do
 
         case Enum.find(headers, fn {key, _} -> key == ~c"location" end) do
           {~c"location", next_location} ->
-            next_get_opts = Keyword.drop(state.get_opts, [:headers])
+            next_uri = URI.merge(state.uri, List.to_string(next_location))
 
-            next_location
-            |> List.to_string()
-            |> start_request(next_get_opts, state.redirects + 1)
-            |> await_response()
+            if state.same_origin and cross_origin?(state.uri, next_uri) do
+              {:error, :cross_origin_redirect}
+            else
+              next_get_opts = Keyword.drop(state.get_opts, [:headers])
+
+              next_uri
+              |> URI.to_string()
+              |> start_request(next_get_opts, state.redirects + 1)
+              |> await_response()
+            end
 
           _ ->
             {:error, format_error(status_code, reason)}
@@ -232,6 +265,29 @@ defmodule Nerves.HTTPClient do
         {:error, format_error(status_code, reason)}
     end
   end
+
+  defp too_large(request_ref, state) do
+    :httpc.cancel_request(request_ref, :nerves)
+    drain(request_ref)
+    state.collector.(state.collector_acc, :halt)
+    {:error, {:too_large, state.max_bytes}}
+  end
+
+  defp drain(request_ref) do
+    receive do
+      {:http, {^request_ref, _}} -> drain(request_ref)
+    after
+      0 -> :ok
+    end
+  end
+
+  defp exceeds?(_size, :infinity), do: false
+  defp exceeds?(size, max_bytes), do: size > max_bytes
+
+  defp cross_origin?(%URI{host: h, scheme: s, port: p}, %URI{host: h, scheme: s, port: p}),
+    do: false
+
+  defp cross_origin?(_from, _to), do: true
 
   defp content_length(headers) do
     case Enum.find(headers, fn {key, _} -> key == ~c"content-length" end) do
