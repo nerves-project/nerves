@@ -12,16 +12,16 @@ defmodule Nerves.Precompiled.Fetch do
   """
 
   # 8 MiB: root, batch and any other document
-  @max_body 8_388_608
+  @max_body_bytes 8_388_608
   # 64 MiB: manifests of packages with many versions and systems run past 8 MiB
-  @max_manifest 67_108_864
+  @max_manifest_bytes 67_108_864
   @max_redirects 5
   @ok_modes [0o644, 0o755, 0o100644, 0o100755]
 
   @spec get_body(String.t(), keyword()) :: {:ok, binary()} | {:error, String.t()}
   def get_body(url, opts \\ []) do
     case ensure_httpc_started() do
-      :ok -> request(url, Keyword.get(opts, :max_bytes, @max_body), 0)
+      :ok -> request(url, Keyword.get(opts, :max_bytes, @max_body_bytes), 0)
       {:error, reason} -> {:error, "httpc unavailable: #{inspect(reason)}"}
     end
   end
@@ -156,7 +156,7 @@ defmodule Nerves.Precompiled.Fetch do
   @spec manifest(map(), String.t(), String.t()) ::
           {:ok, map()} | {:miss, String.t()} | {:fail, String.t()}
   def manifest(config, name, expected_sha) do
-    case get_body("#{config.source}/manifests/#{name}.json", max_bytes: @max_manifest) do
+    case get_body("#{config.source}/manifests/#{name}.json", max_bytes: @max_manifest_bytes) do
       {:ok, bytes} ->
         if sha256(bytes) == expected_sha,
           do: decode(bytes),
