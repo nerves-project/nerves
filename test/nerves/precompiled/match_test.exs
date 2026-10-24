@@ -303,9 +303,23 @@ defmodule Nerves.Precompiled.MatchTest do
                Match.select(both(pure(%{"compile_env" => @wrong_env}), entry()), ctx())
     end
 
-    test "when both fail, the system entry's reason is returned" do
-      assert {:miss, "build predates package_checksum"} =
+    test "when both fail and both carry build inputs, the system entry's reason is returned" do
+      sys = entry(%{"build" => Map.put(entry()["build"], "otp", "28")})
+
+      assert {:miss, "built with OTP 28, running 29"} =
+               Match.select(both(pure(%{"compile_env" => @wrong_env}), sys), ctx())
+    end
+
+    test "a fresh pure_elixir entry's reason wins over a stale system entry on a double miss" do
+      assert {:miss, "compile_env differs: ash [:mode]"} =
                Match.select(both(pure(%{"compile_env" => @wrong_env}), stale()), ctx())
+    end
+
+    test "a fresh system entry's reason wins over a stale pure_elixir entry on a double miss" do
+      pe = pure(%{"package_checksum" => nil})
+      sys = entry(%{"build" => Map.put(entry()["build"], "otp", "28")})
+
+      assert {:miss, "built with OTP 28, running 29"} = Match.select(both(pe, sys), ctx())
     end
 
     test "only a failing pure_elixir entry returns its reason" do

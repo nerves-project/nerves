@@ -80,17 +80,44 @@ defmodule Nerves.Precompiled.Match do
 
   # A pure_elixir entry is the host build of a package whose whole closure
   # is pure Elixir, the same for every system, so it is tried first; the
-  # system entry is the fallback, and its reason wins on a double miss.
+  # system entry is the fallback. On a double miss, the system entry's
+  # reason wins unless only the pure_elixir entry carries build inputs
+  # (see `prefer_reason/2`) — a stale entry's "running X" reason is less
+  # useful than a fresh entry's real miss.
   defp select_entry(pe, sys, system, system_version, ctx) do
     pe_result = if pe, do: check(pe, "pure_elixir", ctx)
 
     cond do
-      match?({:ok, _, _}, pe_result) -> pe_result
-      sys -> check(sys, system, ctx)
-      pe_result -> pe_result
-      true -> {:miss, "not built for #{system} #{system_version}"}
+      match?({:ok, _, _}, pe_result) ->
+        pe_result
+
+      sys ->
+        sys_result = check(sys, system, ctx)
+
+        case sys_result do
+          {:ok, _, _} -> sys_result
+          _ -> if prefer_reason(pe, sys) == :pure_elixir, do: pe_result, else: sys_result
+        end
+
+      pe_result ->
+        pe_result
+
+      true ->
+        {:miss, "not built for #{system} #{system_version}"}
     end
   end
+
+  # On a double miss, picks whose reason to report: the entry whose build
+  # map carries build inputs (a non-nil package_checksum) is informative;
+  # one that predates those fields only says it ran a different toolchain.
+  # A tie — both carry them, or neither does — keeps the system entry.
+  @spec prefer_reason(map() | nil, map() | nil) :: :pure_elixir | :system
+  defp prefer_reason(pe, sys) do
+    if carries_inputs?(pe) and not carries_inputs?(sys), do: :pure_elixir, else: :system
+  end
+
+  defp carries_inputs?(entry),
+    do: entry != nil and not is_nil(get_in(entry, ["build", "package_checksum"]))
 
   defp check(entry, system_key, ctx) do
     build = entry["build"] || %{}
