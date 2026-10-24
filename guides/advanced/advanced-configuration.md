@@ -528,22 +528,24 @@ this allows you to sign it or otherwise amend it.
 ## Precompiled dependencies
 
 Nerves can skip compiling a dependency when a matching, signed build already
-exists for it. This is opt-in and lives in the `nerves_precompiled` library:
+exists for it. This is opt-in and lives in the `elixir_precompiled` library:
 
 ```elixir
 # mix.exs
-{:nerves_precompiled, github: "TomHoenderdos/nerves_precompiled"},
+{:elixir_precompiled, github: "TomHoenderdos/elixir_precompiled"},
 
 # config/config.exs
-config :nerves_precompiled,
+config :elixir_precompiled,
   source: "https://compatibility.nerves-project.org/api/precompiled"
 ```
 
 With this set, `mix firmware` checks every dependency Mix is about to compile
 against the configured source before compiling it. A dependency is installed
-instead of compiled only when its Elixir version, OTP version, Nerves system,
-dependency lock entry and compile-time config match exactly; everything else
-compiles normally. Each dependency prints `HIT`, `MISS` or `FAIL` with the
+instead of compiled only when the build was made for this Nerves system (or
+is pure Elixir), on the running Elixir minor at a patch no newer than the
+running one, on the same OTP major, in the same dependency env, and against
+the same lock entries and compile-time config; everything else compiles
+normally. Each dependency prints `HIT`, `MISS` or `FAIL` with the
 reason, and `mix nerves.info` repeats the result of the last run. The
-library's README covers `except:`, `NERVES_PRECOMPILED=0` and use on a
+library's README covers `except:`, `ELIXIR_PRECOMPILED=0` and use on a
 device.

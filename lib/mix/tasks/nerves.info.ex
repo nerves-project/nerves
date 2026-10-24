@@ -36,7 +36,7 @@ defmodule Mix.Tasks.Nerves.Info do
     end
   end
 
-  # A `report.json` is only ever written atomically (see the `nerves_precompiled` library),
+  # A `report.json` is only ever written atomically (see the `elixir_precompiled` library),
   # but a diagnostic command must never crash on a file it didn't write, e.g.
   # one left behind by an older version or edited by hand.
   defp decode_report(body) do

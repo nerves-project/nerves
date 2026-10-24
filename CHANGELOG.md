@@ -8,13 +8,13 @@
 ## v2.0.0-pre.5 - unreleased
 
 * New features
-  * Optional integration with `nerves_precompiled`. With the library in the
+  * Optional integration with `elixir_precompiled`. With the library in the
     project's dependencies and a `source` configured, `mix firmware` installs
     signed, verified builds from the Nerves compatibility portal for every
-    dependency whose Elixir, OTP, Nerves system, dependency lock and
-    compile-time config match exactly, and compiles the rest. Each dependency
+    dependency whose target, Elixir minor, OTP major, dependency env,
+    lock entry and compile-time config match, and compiles the rest. Each dependency
     prints HIT, MISS or FAIL with the reason; `mix nerves.info` repeats the
-    last run. See https://github.com/TomHoenderdos/nerves_precompiled.
+    last run. See https://github.com/TomHoenderdos/elixir_precompiled.
 
 ## v2.0.0-pre.4 - 2026-10-09
 

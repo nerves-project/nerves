@@ -10,9 +10,9 @@ defmodule Mix.Tasks.Nerves.Init do
   @moduledoc false
   use Mix.Task
 
-  # nerves_precompiled is a dependency of the project, not of nerves, so it is
+  # elixir_precompiled is a dependency of the project, not of nerves, so it is
   # absent in most projects.
-  @compile {:no_warn_undefined, NervesPrecompiled}
+  @compile {:no_warn_undefined, ElixirPrecompiled}
 
   @impl Mix.Task
   def run(_args) do
@@ -44,19 +44,19 @@ defmodule Mix.Tasks.Nerves.Init do
     end
   end
 
-  # Projects opt in by depending on nerves_precompiled. nerves_bootstrap has
+  # Projects opt in by depending on elixir_precompiled. nerves_bootstrap has
   # compiled only nerves and its children at this point, so the library is
   # compiled here, before Mix compiles the rest, and then asked to install
   # matching builds for what remains.
   defp precompiled() do
-    if Enum.any?(Mix.Dep.cached(), &(&1.app == :nerves_precompiled)) do
-      Mix.Tasks.Deps.Compile.run(["nerves_precompiled"])
+    if Enum.any?(Mix.Dep.cached(), &(&1.app == :elixir_precompiled)) do
+      Mix.Tasks.Deps.Compile.run(["elixir_precompiled"])
 
       Code.prepend_path(
-        Path.join([Mix.Project.build_path(), "lib", "nerves_precompiled", "ebin"])
+        Path.join([Mix.Project.build_path(), "lib", "elixir_precompiled", "ebin"])
       )
 
-      if Code.ensure_loaded?(NervesPrecompiled), do: NervesPrecompiled.run()
+      if Code.ensure_loaded?(ElixirPrecompiled), do: ElixirPrecompiled.run()
     end
 
     :ok
