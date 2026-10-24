@@ -5,6 +5,16 @@
 
 # Changelog
 
+## v2.0.0-pre.5 - 2026-10-24
+
+* Changes
+  * Raise the HTTP response header limit to 64 KiB so artifact downloads work
+    with servers that return large headers. (@georgeguimaraes)
+  * Fix artifact clean working directory (@jannikbecher)
+  * Improve error message when `MIX_TARGET` is set incorrectly
+  * Explicitly pass all zeros UUID to mkfs.erofs to avoid failures with older
+    versions
+
 ## v2.0.0-pre.4 - 2026-10-09
 
 * Changes
