@@ -43,11 +43,21 @@ defmodule Mix.Tasks.Nerves.Init do
     end
   end
 
-  # When the project depends on nerves_precompiled, let it install matching
-  # builds before Mix compiles the dependencies. nerves_bootstrap compiled
-  # it together with nerves, so it is loadable here.
+  # Projects opt in by depending on nerves_precompiled. nerves_bootstrap has
+  # compiled only nerves and its children at this point, so the library is
+  # compiled here, before Mix compiles the rest, and then asked to install
+  # matching builds for what remains.
   defp precompiled() do
-    if Code.ensure_loaded?(NervesPrecompiled), do: NervesPrecompiled.run()
+    if Enum.any?(Mix.Dep.cached(), &(&1.app == :nerves_precompiled)) do
+      Mix.Tasks.Deps.Compile.run(["nerves_precompiled"])
+
+      Code.prepend_path(
+        Path.join([Mix.Project.build_path(), "lib", "nerves_precompiled", "ebin"])
+      )
+
+      if Code.ensure_loaded?(NervesPrecompiled), do: NervesPrecompiled.run()
+    end
+
     :ok
   end
 
