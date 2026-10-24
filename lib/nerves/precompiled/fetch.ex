@@ -26,20 +26,18 @@ defmodule Nerves.Precompiled.Fetch do
       same_origin: true,
       progress?: false
     )
-    |> map_error()
+    |> case do
+      {:ok, body} -> {:ok, body}
+      {:error, reason} -> {:error, describe_error(reason)}
+    end
   end
 
-  defp map_error({:ok, body}), do: {:ok, body}
-
-  defp map_error({:error, {:too_large, max_bytes}}),
-    do: {:error, "response larger than #{max_bytes} bytes"}
-
-  defp map_error({:error, :cross_origin_redirect}),
-    do: {:error, "redirect to another host refused"}
-
-  defp map_error({:error, :too_many_redirects}), do: {:error, "too many redirects"}
-  defp map_error({:error, reason}) when is_binary(reason), do: {:error, reason}
-  defp map_error({:error, reason}), do: {:error, inspect(reason)}
+  # The reason a fetch failed, as the line a user reads next to the dependency.
+  defp describe_error({:too_large, max_bytes}), do: "response larger than #{max_bytes} bytes"
+  defp describe_error(:cross_origin_redirect), do: "redirect to another host refused"
+  defp describe_error(:too_many_redirects), do: "too many redirects"
+  defp describe_error(reason) when is_binary(reason), do: reason
+  defp describe_error(reason), do: inspect(reason)
 
   @spec manifest(map(), String.t(), String.t()) ::
           {:ok, map()} | {:miss, String.t()} | {:fail, String.t()}
