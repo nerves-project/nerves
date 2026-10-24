@@ -21,7 +21,7 @@ defmodule Nerves.Precompiled.Fetch do
   @spec get_body(String.t(), keyword()) :: {:ok, binary()} | {:error, String.t()}
   def get_body(url, opts \\ []) do
     case ensure_httpc_started() do
-      :ok -> request(url, Keyword.get(opts, :max_bytes, @max_body_bytes), 0)
+      :ok -> request(url, Keyword.get(opts, :max_bytes, @max_body_bytes))
       {:error, reason} -> {:error, "httpc unavailable: #{inspect(reason)}"}
     end
   end
@@ -49,6 +49,9 @@ defmodule Nerves.Precompiled.Fetch do
 
     :httpc.set_options(opts, :nerves)
   end
+
+  # `redirects` counts the redirects followed so far; a fresh request starts at 0.
+  defp request(url, max_bytes, redirects \\ 0)
 
   defp request(_url, _max_bytes, redirects) when redirects > @max_redirects,
     do: {:error, "too many redirects"}
