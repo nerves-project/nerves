@@ -5,6 +5,7 @@
 # SPDX-FileCopyrightText: 2021 Jon Carstens
 # SPDX-FileCopyrightText: 2021 Jon Thacker
 # SPDX-FileCopyrightText: 2022 Martin Wagner
+# SPDX-FileCopyrightText: 2026 George Guimarães
 #
 # SPDX-License-Identifier: Apache-2.0
 #
