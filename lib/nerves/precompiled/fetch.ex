@@ -11,8 +11,10 @@ defmodule Nerves.Precompiled.Fetch do
   into place with Mix's "already compiled" marker.
   """
 
-  @max_body 8 * 1024 * 1024
-  @max_manifest 64 * 1024 * 1024
+  # 8 MiB: root, batch and any other document
+  @max_body 8_388_608
+  # 64 MiB: manifests of packages with many versions and systems run past 8 MiB
+  @max_manifest 67_108_864
   @max_redirects 5
   @ok_modes [0o644, 0o755, 0o100644, 0o100755]
 
