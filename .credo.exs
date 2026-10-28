@@ -5,7 +5,10 @@
   configs: [
     %{
       name: "default",
-      files: %{included: ["compat/", "lib/", "test/"], excluded: ["test/fixtures/"]},
+      files: %{
+        included: ["compat/", "lib/", "test/"],
+        excluded: ["test/fixtures/", "lib/nerves/treeshake/", "test/treeshake/"]
+      },
       strict: true,
       checks: [
         {Credo.Check.Design.AliasUsage, false},

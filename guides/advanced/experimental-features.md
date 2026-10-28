@@ -10,6 +10,58 @@
 The features described in this document are experimental. They are under
 consideration and or actively being developed.
 
+## BEAM tree-shaking
+
+Nerves includes a copy of [Popcorn's tree-shaker](https://github.com/software-mansion/popcorn/tree/main/popcorn/elixir/lib/treeshake)
+to remove unreachable modules and functions from firmware. It is disabled by
+default. To enable it, add the following to
+`config/target.exs`:
+
+```elixir
+config :nerves, treeshake: true
+```
+
+Tree-shaking analyzes the assembled release before
+creating the root filesystem and does not modify compiled dependencies or cached
+system artifacts. The release's `strip_beams` option still applies after
+tree-shaking.
+
+Static analysis cannot discover every dynamic call, including calls entered at
+the IEx console or modules named at runtime. Application callbacks and modules
+referenced by application configuration or named literally in `runtime.exs`
+or Elixir scripts in rootfs overlay directories (including `/etc/iex.exs`)
+are preserved automatically. These scripts are parsed, not executed, during
+the build. Function captures in application configuration (for example,
+`&MyApp.callback/2`) also preserve their referenced modules.
+The OTP core, Elixir compiler, IEx APIs, runtime tracing tools, SSH
+recovery APIs, and `nerves_runtime` firmware validation and watchdog callbacks
+are also preserved by default. Preserve additional APIs explicitly:
+
+```elixir
+config :nerves,
+  treeshake: [
+    keep: [
+      mod: Circuits.GPIO,
+      mfa: {MyApp, :remote_callback, 2}
+    ]
+  ]
+```
+
+Configuration evaluated only at runtime may require explicit preservation rules
+too. Exercise startup, networking, firmware updates, recovery paths, and console
+commands on hardware before deploying tree-shaken firmware.
+
+Use `keep_applications: [:my_app]` to preserve an application's entire public API
+in addition to the base preservation list. There is no need to repeat the base
+applications. See `Nerves.BuildAction.Treeshake` for all options.
+
+To list removed modules and functions in the build output, add `debug: true`
+alongside your other tree-shaking options:
+
+```elixir
+config :nerves, treeshake: [debug: true]
+```
+
 ## Firmware patches
 
 Firmware update files (`.fw`) contain everything your target needs to boot and

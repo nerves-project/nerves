@@ -25,5 +25,6 @@
   "tablet": {:hex, :tablet, "0.3.3", "cf2975d34da2e26a42e0a09e3ac67e63171a3ad1a8da41be9c23ffda484eb84d", [:mix], [], "hexpm", "2701b7a6f8bca941ef036a982d7789a6aebd9e8802b2e26665391295935f4925"},
   "telemetry": {:hex, :telemetry, "1.4.2", "a0cb522801dffb1c49fe6e30561badffc7b6d0e180db1300df759faa22062855", [:rebar3], [], "hexpm", "928f6495066506077862c0d1646609eed891a4326bee3126ba54b60af61febb1"},
   "thousand_island": {:hex, :thousand_island, "1.6.0", "d6ad7c2220c96a270cc8ca1586ec4d8bde648a4a3a53f003ce093f41beec0288", [:mix], [{:telemetry, "~> 0.4 or ~> 1.0", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "4d4720470f091fc21a1311777c2ac66916c43621bffc068590c9f9bb3cd057a3"},
+  "treeshake": {:git, "https://github.com/software-mansion-labs/elixir-treeshake.git", "458e72cbc5d4147e515ecfc32f41b2e8aa943f97", []},
   "websock": {:hex, :websock, "0.5.3", "2f69a6ebe810328555b6fe5c831a851f485e303a7c8ce6c5f675abeb20ebdadc", [:mix], [], "hexpm", "6105453d7fac22c712ad66fab1d45abdf049868f253cf719b625151460b8b453"},
 }
