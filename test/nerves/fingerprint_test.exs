@@ -23,6 +23,19 @@ defmodule Nerves.FingerprintTest do
     assert_raise File.Error, fn -> Fingerprint.fingerprint([Path.join(tmp_dir, "test.txt")]) end
   end
 
+  test "checksum.exs never contributes to fingerprints, even when missing", %{tmp_dir: tmp_dir} do
+    file = Path.join(tmp_dir, "source")
+    manifest = Path.join(tmp_dir, "checksum.exs")
+    File.write!(file, "source")
+    expected = Fingerprint.fingerprint([file])
+
+    assert Fingerprint.fingerprint([file, manifest]) == expected
+    File.write!(manifest, "first")
+    assert Fingerprint.fingerprint([manifest, file]) == expected
+    File.write!(manifest, "second")
+    assert Fingerprint.fingerprint([file, manifest]) == expected
+  end
+
   test "file order matters", %{tmp_dir: tmp_dir} do
     file1 = Path.join(tmp_dir, "file1.txt")
     file2 = Path.join(tmp_dir, "file2.txt")

@@ -104,6 +104,24 @@ defmodule Nerves.BuildPlan do
   Use `{:archive, filename: filename}`. The `:filename` option is required and
   specifies the file to check.
 
+  ## Checksum
+
+  Verify the SHA256 checksum of a download against `checksum.exs` in the package
+  source directory, published with the package sources on Hex. Generate the
+  manifest with `mix nerves.artifact.checksum` and include it in the Hex package's
+  `:files` list. Never download the manifest from the artifact server as a
+  substitute for the published copy.
+
+  The manifest must be a literal map of filenames to `"sha256:<lowercase hex>"`
+  strings. It is parsed as data, not evaluated as Elixir code. Missing manifests,
+  missing entries, malformed checksums, and mismatches fail validation.
+  When combined with OpenSSL signature validation, both checks must pass.
+
+  Options:
+    - `:filename` - the file to verify (required)
+
+  Files named `checksum.exs` are excluded from artifact source fingerprints.
+
   ## OpenSSL Signature
 
   This is the simplest type of validation that can be done using the `openssl` command
@@ -139,7 +157,10 @@ defmodule Nerves.BuildPlan do
     - `:public_keys` - a list of public keys in PEM form and as strings (required)
   """
   @type download_validator() ::
-          {:archive, keyword()} | {:openssl_signature, keyword()} | {:skip, keyword()}
+          {:archive, keyword()}
+          | {:checksum, keyword()}
+          | {:openssl_signature, keyword()}
+          | {:skip, keyword()}
 
   @typedoc """
   Specify how download files are processed

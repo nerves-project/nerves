@@ -313,6 +313,64 @@ The following keys are supported:
     source files, so that it will be re-compiled instead of using the cache if
     the source files no longer match.
 
+## Verifying Artifacts with Published Checksums
+
+With Nerves 2, Nerves v1 system packages can opt in to SHA256 checksum
+verification instead of, or in addition to, OpenSSL signatures. Add this to
+the system's `:nerves_package` configuration before building its artifact:
+
+```elixir
+artifact_checksum: true
+```
+
+Nerves derives the system's single portable archive filename and verifies it
+against the manifest in the package source directory before extraction. It
+does not download the manifest from an artifact site. Missing manifests,
+missing entries, malformed checksums, and mismatches fail verification.
+If `artifact_public_keys` is also configured, both checks must pass.
+Existing systems remain unchanged unless they opt in. This shorthand does
+not apply to toolchains.
+
+To publish a release:
+
+1. Finalize the package configuration, including adding `"checksum.exs"` to
+   the Hex package's `:files` list.
+2. Build the archive and upload it to the configured artifact site.
+3. Run `mix nerves.artifact.checksum` from the system package directory and
+   review the generated `checksum.exs`.
+4. Publish the Hex package with the manifest included.
+
+The manifest uses the same format as `elixir_make`:
+
+```elixir
+%{
+  "example_system-portable-1.0.0-ABC1234.tar.gz" => "sha256:<64 lowercase hex digits>"
+}
+```
+
+The task uses cached archives when available and downloads missing ones. It
+does not verify against an existing manifest or extract artifacts, so only
+generate checksums from artifacts you trust. It replaces the manifest rather
+than merging entries and leaves it untouched if an archive cannot be obtained.
+For a dependency, run `mix nerves.artifact.checksum PACKAGE`, setting
+`MIX_TARGET` as needed.
+
+Nerves 2 packages can opt in by adding
+`{:checksum, filename: filename}` to their
+package's `download_validators`. The task includes archives referenced by
+extractors in the selected package's active build plan, not artifacts for
+every host platform. Signature sidecars are excluded.
+
+Files named `checksum.exs` never contribute to source fingerprints, even when
+listed in Hex's `:files`, the legacy `:checksum` list, or
+`:artifact_source_files`. This avoids changing the archive filename when
+generating its checksum. The manifest is always named `checksum.exs`.
+
+The trust anchor for this method is the manifest shipped in the Hex package.
+Checksums do not provide an independent signing identity. As with signature
+verification, existing local-build overrides and extracted-artifact caching
+remain unchanged.
+
 ## Customizing Your Own Nerves System
 
 [This document has been moved](https://nerves.hexdocs.pm/customizing-systems.html)
