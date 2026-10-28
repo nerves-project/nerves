@@ -64,6 +64,7 @@ defmodule Nerves.MixProject do
       {:interactive_cmd, "~> 0.1"},
       {:nerves_discovery, "~> 0.1.6"},
       {:tablet, "~> 0.3.1"},
+      {:treeshake, github: "software-mansion-labs/elixir-treeshake"},
 
       # Development dependencies
       {:credo, "~> 1.6", only: :dev, runtime: false},
