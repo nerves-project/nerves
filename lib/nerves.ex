@@ -332,7 +332,11 @@ defmodule Nerves do
       config[:nerves][:artifact_source_files] || config[:nerves_package][:checksum] ||
         config[:package][:files] || ["mix.exs"]
 
-    paths = Paths.expand_file_patterns(file_patterns, dep.dest)
+    paths =
+      file_patterns
+      |> Paths.expand_file_patterns(dep.dest)
+      |> Enum.reject(&(Path.basename(&1) == "checksum.exs"))
+
     missing_paths = Enum.reject(paths, &File.exists?/1)
 
     if missing_paths != [] do
@@ -383,7 +387,7 @@ defmodule Nerves do
             artifact_sites: legacy_config[:artifact_sites] || [],
             package_env: legacy_config[:env] || [],
             build_runner_opts: legacy_config[:build_runner_opts] || []
-          ] ++ Keyword.take(legacy_config, [:artifact_public_keys])
+          ] ++ Keyword.take(legacy_config, [:artifact_public_keys, :artifact_checksum])
 
         [actions: [{action, opts}]]
     end

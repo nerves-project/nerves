@@ -67,6 +67,69 @@ defmodule Nerves.BuildPlanTest do
   end
 
   @tag :tmp_dir
+  test "v1 systems opt in to checksum validation without changing the source fingerprint", %{
+    tmp_dir: tmp_dir
+  } do
+    File.write!(Path.join(tmp_dir, "source"), "source")
+
+    package = %MixPackage{
+      app: :system,
+      config: [
+        version: "1.0.0",
+        nerves_package: [type: :system],
+        package: [files: ["source", "checksum.exs"]]
+      ],
+      dest: tmp_dir,
+      deps: []
+    }
+
+    [unsigned] = Nerves.create_build_plan([package]).packages
+    [download] = unsigned.downloads
+    assert unsigned.download_validators == [{:archive, filename: download.filename}]
+    assert unsigned.artifact_source_files == [Path.join(tmp_dir, "source")]
+
+    disabled_config =
+      Keyword.put(package.config, :nerves_package, type: :system, artifact_checksum: false)
+
+    [disabled] = Nerves.create_build_plan([%{package | config: disabled_config}]).packages
+    assert disabled.download_validators == unsigned.download_validators
+
+    config =
+      Keyword.put(package.config, :nerves_package,
+        type: :system,
+        artifact_checksum: true
+      )
+
+    [checksummed] = Nerves.create_build_plan([%{package | config: config}]).packages
+
+    assert {:checksum, filename: download.filename} in checksummed.download_validators
+
+    assert checksummed.downloads == unsigned.downloads
+    assert checksummed.source_fingerprint == unsigned.source_fingerprint
+
+    File.write!(Path.join(tmp_dir, "checksum.exs"), "%{}")
+    [published] = Nerves.create_build_plan([%{package | config: config}]).packages
+    assert published.source_fingerprint == checksummed.source_fingerprint
+    assert published.downloads == checksummed.downloads
+    assert published.artifact_source_files == [Path.join(tmp_dir, "source")]
+
+    both_config =
+      Keyword.update!(
+        config,
+        :nerves_package,
+        &Keyword.put(&1, :artifact_public_keys, ["public key"])
+      )
+
+    [both] = Nerves.create_build_plan([%{package | config: both_config}]).packages
+
+    assert {:checksum, filename: download.filename} in both.download_validators
+
+    assert {:openssl_signature, filename: download.filename, public_keys: ["public key"]} in both.download_validators
+
+    assert length(both.downloads) == 2
+  end
+
+  @tag :tmp_dir
   test "Nerves V1 actions derive toolchain and system variables from resolved artifacts", %{
     tmp_dir: root
   } do

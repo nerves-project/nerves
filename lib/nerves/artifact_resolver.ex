@@ -6,6 +6,7 @@ defmodule Nerves.ArtifactResolver do
   @moduledoc false
 
   alias Nerves.Artifact.Archive
+  alias Nerves.Artifact.Checksum
   alias Nerves.BuildPlan
   alias Nerves.MixUtils
 
@@ -61,7 +62,9 @@ defmodule Nerves.ArtifactResolver do
     File.read(Path.join(artifact_path, @fingerprint_filename)) == {:ok, fingerprint}
   end
 
-  defp download_file!(package, download) do
+  @doc false
+  @spec download_file!(BuildPlan.package_info(), map()) :: Path.t()
+  def download_file!(package, download) do
     path = download.archive_path
 
     archive? =
@@ -119,7 +122,7 @@ defmodule Nerves.ArtifactResolver do
   defp validate_download!(validators, package, download, archive_path) do
     validators =
       Enum.filter(validators, fn
-        {type, options} when type in [:archive, :skip, :openssl_signature] ->
+        {type, options} when type in [:archive, :skip, :openssl_signature, :checksum] ->
           Keyword.fetch!(options, :filename) == download.filename
       end)
 
@@ -136,7 +139,27 @@ defmodule Nerves.ArtifactResolver do
 
       {:openssl_signature, options} ->
         validate_openssl_signature!(archive_path, package, download, options)
+
+      {:checksum, _options} ->
+        validate_checksum!(archive_path, package, download)
     end)
+  end
+
+  defp validate_checksum!(path, package, download) do
+    MixUtils.info("  Verifying checksum for #{download.filename}")
+
+    manifest_path = Path.join(package.path, "checksum.exs")
+    checksums = Checksum.read!(manifest_path)
+
+    case Map.fetch(checksums, download.filename) do
+      {:ok, expected} ->
+        if Checksum.checksum!(path) != expected do
+          Mix.raise("Checksum mismatch for #{download.filename} in #{manifest_path}")
+        end
+
+      :error ->
+        Mix.raise("No checksum for #{download.filename} in #{manifest_path}")
+    end
   end
 
   defp validate_archive!(archive_path) do
@@ -161,7 +184,7 @@ defmodule Nerves.ArtifactResolver do
     end
 
     signature = decode_signature!(signature_path)
-    digest = sha256_file!(path)
+    digest = Checksum.digest!(path)
 
     if not Enum.any?(public_keys, &verify_signature?(&1, digest, signature)) do
       Mix.raise("Invalid OpenSSL signature for #{path}")
@@ -177,13 +200,6 @@ defmodule Nerves.ArtifactResolver do
       {:ok, signature} -> signature
       :error -> Mix.raise("Could not decode OpenSSL signature #{signature_path}: invalid Base64")
     end
-  end
-
-  defp sha256_file!(path) do
-    path
-    |> File.stream!(64 * 1024, [])
-    |> Enum.reduce(:crypto.hash_init(:sha256), &:crypto.hash_update(&2, &1))
-    |> :crypto.hash_final()
   end
 
   defp verify_signature?(public_key, digest, signature) do

@@ -93,17 +93,26 @@ defmodule Nerves.BuildAction.NervesV1System do
   end
 
   defp download_validators(filename, opts) do
-    case Keyword.fetch(opts, :artifact_public_keys) do
-      :error ->
-        [{:archive, filename: filename}]
+    checksum_validators =
+      if Keyword.get(opts, :artifact_checksum, false) do
+        [{:checksum, filename: filename}]
+      else
+        []
+      end
 
-      {:ok, public_keys} ->
-        [
-          {:openssl_signature, filename: filename, public_keys: public_keys},
-          {:archive, filename: filename},
-          {:skip, filename: "#{filename}.sig"}
-        ]
-    end
+    signature_validators =
+      case Keyword.fetch(opts, :artifact_public_keys) do
+        :error ->
+          []
+
+        {:ok, public_keys} ->
+          [
+            {:openssl_signature, filename: filename, public_keys: public_keys},
+            {:skip, filename: "#{filename}.sig"}
+          ]
+      end
+
+    checksum_validators ++ signature_validators ++ [{:archive, filename: filename}]
   end
 
   defp downloads(download, opts) do

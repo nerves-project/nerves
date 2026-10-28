@@ -8,6 +8,7 @@ defmodule Nerves.Fingerprint do
   # and hashed again.
   #
   # This is NOT a security feature. It helps guard against using stale build artifacts.
+  # Release checksum manifests are outputs, not artifact inputs.
   @moduledoc false
 
   @spec fingerprint([String.t()]) :: String.t()
@@ -24,6 +25,7 @@ defmodule Nerves.Fingerprint do
   def checksum(files) do
     blob =
       files
+      |> Enum.reject(&(Path.basename(&1) == "checksum.exs"))
       |> Enum.map(&File.read!/1)
       |> Enum.map(&:crypto.hash(:sha256, &1))
 
