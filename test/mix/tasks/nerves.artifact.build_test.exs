@@ -14,6 +14,27 @@ defmodule Mix.Tasks.Nerves.ArtifactBuildTest do
     BuildPlanHelpers.reset_plan()
   end
 
+  test "failed setup invalidates the workspace checksum" do
+    package = %{app: :test_system, download_path: "/downloads", downloads: []}
+    build_plan = %BuildPlan{packages: [package]}
+    :persistent_term.put({Nerves, :build_plan}, {build_plan, false})
+
+    Container
+    |> stub(:prepare_artifact_workspace!, fn ^build_plan, ^package ->
+      {"docker", "image", "/downloads", false}
+    end)
+    |> stub(:artifact_run_args, fn _, _, _, _, _, command -> command end)
+    |> stub(:work_dir, fn ^package -> "/work" end)
+    |> expect(:invalidate_source_checksum, fn ^package -> :ok end)
+
+    expect(InteractiveCmd, :cmd, fn "docker", ["setup", "build"] -> {"", 2} end)
+    Mix.Task.reenable("nerves.artifact.build")
+
+    assert_raise Mix.Error, "Container build failed with status 2", fn ->
+      Mix.Task.run("nerves.artifact.build")
+    end
+  end
+
   # Spot check the task. See integration tests for better coverage.
 
   test "nerves.artifact.build raises when no Nerves packages are available" do
