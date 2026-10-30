@@ -26,3 +26,14 @@ path = [
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2018 Nerves Project Authors"
 SPDX-License-Identifier = "LicenseRef-Nerves-Logo"
+
+[[annotations]]
+path = [
+ "lib/nerves/treeshake/**",
+ "test/treeshake/**",
+ "test/fixtures/treeshake/**",
+ "test/fixtures/treeshake_reachability/**"
+]
+precedence = "override"
+SPDX-FileCopyrightText = "2025 Software Mansion"
+SPDX-License-Identifier = "Apache-2.0"

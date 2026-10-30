@@ -67,6 +67,7 @@ defmodule Nerves.BuildAction.NervesV1System do
          shoehorn?: Map.has_key?(Mix.Project.deps_tree(), :shoehorn)},
         {Nerves.BuildAction.SortApps, []},
         {Nerves.BuildAction.AppModes, []},
+        Nerves.BuildAction.Treeshake,
         Nerves.BuildAction.Trimmer,
         Nerves.BuildAction.CheckExecutables,
         Nerves.BuildAction.StripAll,
