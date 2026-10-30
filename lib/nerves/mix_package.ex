@@ -85,7 +85,8 @@ defmodule Nerves.MixPackage do
   end
 
   defp do_transitive_closure(app_tree, app, acc) do
-    unseen_deps = Enum.reject(app_tree[app], &MapSet.member?(acc, &1))
+    deps = app_tree[app] || []
+    unseen_deps = Enum.reject(deps, &MapSet.member?(acc, &1))
     new_acc = Enum.reduce(unseen_deps, acc, &MapSet.put(&2, &1))
 
     Enum.reduce(unseen_deps, new_acc, &do_transitive_closure(app_tree, &1, &2))
