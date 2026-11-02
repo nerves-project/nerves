@@ -21,7 +21,9 @@ clean() {
 
 [ "$#" -gt 0 ] || set -- setup build
 
-for command in "$@"; do
+while [ "$#" -gt 0 ]; do
+  command=$1
+  shift
   case "$command" in
     clean)
       clean
@@ -34,9 +36,10 @@ for command in "$@"; do
     build)
       mkdir -p "$NERVES_ARTIFACT_DIR"
       cd /workspace/build
-      make
+      make "$@"
       make system NERVES_ARTIFACT_NAME="${NERVES_ARTIFACT_APP}-portable-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}"
       cp ./*.tar.* "$NERVES_ARTIFACT_DIR/"
+      break
       ;;
 
     shell)

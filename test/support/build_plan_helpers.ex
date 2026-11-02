@@ -46,6 +46,7 @@ defmodule Nerves.BuildPlanHelpers do
       path: package_path,
       version: "1.0.0",
       artifact_path: artifact_path,
+      artifact_command_args: %{},
       deps: [],
       download_path: "/downloads/#{app}",
       download_validators: [],

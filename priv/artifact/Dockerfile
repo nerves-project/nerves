@@ -27,6 +27,7 @@
 #
 # The image must provide /usr/local/bin/nerves-artifact as its ENTRYPOINT. It
 # receives an ordered list of `clean`, `setup`, `build`, and `shell` commands.
+# `build` consumes any remaining arguments as make arguments.
 # For example, `clean setup build` performs a full rebuild.
 FROM ghcr.io/nerves-project/nerves_system_br:latest
 

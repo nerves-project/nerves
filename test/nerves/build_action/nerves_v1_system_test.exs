@@ -32,6 +32,7 @@ defmodule Nerves.BuildAction.NervesV1SystemTest do
            ]
 
     assert package.dockerfile == Nerves.Container.legacy_system_dockerfile()
+    assert package.artifact_command_args == %{"build" => ["source", "all", "legal-info"]}
 
     assert package.downloads == [
              %{

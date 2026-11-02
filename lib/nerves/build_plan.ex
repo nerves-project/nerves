@@ -159,6 +159,8 @@ defmodule Nerves.BuildPlan do
 
   * `:app` - the name of the package
   * `:artifact_path` - Path to where artifacts can be extracted and custom files added
+  * `:artifact_command_args` - Extra arguments keyed by artifact entrypoint command, e.g.
+    `%{"build" => ["source", "all", "legal-info"]}`; defaults to `%{}`
   * `:dockerfile` - Dockerfile used by `mix nerves.artifact.build` and
     `mix nerves.artifact.shell`
   * `:deps` - List of Nerves-aware packages that this one depends on
@@ -178,6 +180,7 @@ defmodule Nerves.BuildPlan do
           version: String.t(),
           deps: [atom()],
           artifact_path: Path.t(),
+          artifact_command_args: %{String.t() => [String.t()]},
           download_path: Path.t(),
           downloads: [download_spec()],
           download_validators: [download_validator()],

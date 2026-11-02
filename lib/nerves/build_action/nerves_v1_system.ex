@@ -13,9 +13,14 @@ defmodule Nerves.BuildAction.NervesV1System do
   def pre_download(build_plan, opts) do
     app = Keyword.fetch!(opts, :app)
     artifact_sites = Keyword.fetch!(opts, :artifact_sites)
-    _build_runner_opts = Keyword.fetch!(opts, :build_runner_opts)
-    # TODO - Actually support build_runner_opts!!!
-    package = BuildPlan.find_package(build_plan, app)
+    build_runner_opts = Keyword.fetch!(opts, :build_runner_opts)
+    make_args = Keyword.get(build_runner_opts, :make_args, [])
+
+    package =
+      build_plan
+      |> BuildPlan.find_package(app)
+      |> Map.update!(:artifact_command_args, &Map.put(&1, "build", make_args))
+
     rootfs_inputs = build_plan.config[:rootfs_inputs] || []
 
     artifact_path = maybe_override_artifact_path("NERVES_SYSTEM", package.artifact_path)

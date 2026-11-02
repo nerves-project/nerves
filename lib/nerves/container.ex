@@ -86,9 +86,14 @@ defmodule Nerves.Container do
           Path.t(),
           [String.t()]
         ) :: [String.t()]
-  def artifact_run_args(build_plan, package, tool, image, dl_dir, command \\ []) do
+  def artifact_run_args(build_plan, package, tool, image, dl_dir, commands \\ []) do
     artifact_dir = Path.relative_to(package.download_path, dl_dir)
     term = System.get_env("TERM") || "xterm-256color"
+
+    command_args =
+      Enum.flat_map(commands, fn command ->
+        [command | Map.get(package.artifact_command_args, command, [])]
+      end)
 
     [
       "run",
@@ -121,7 +126,7 @@ defmodule Nerves.Container do
         "-w",
         "/workspace/build",
         image
-      ] ++ command
+      ] ++ command_args
   end
 
   @doc """

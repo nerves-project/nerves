@@ -253,6 +253,7 @@ defmodule Nerves do
           version: config[:version],
           deps: dep.deps,
           artifact_path: Nerves.Paths.artifact_dir(dep.app, config[:version]),
+          artifact_command_args: %{},
           download_path: Nerves.Paths.download_dir(dep.app, config[:version]),
           download_validators: [],
           downloads: [],
