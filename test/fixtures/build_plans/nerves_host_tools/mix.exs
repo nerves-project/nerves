@@ -52,7 +52,8 @@ defmodule NervesHostTools.MixProject do
             version: package.version
           }
         ],
-        extractors: [{:untar, source: archive_path, destination: package.artifact_path}]
+        extractors: [{:untar, source: archive_path, destination: package.artifact_path}],
+        artifact_source_excludes: ["./_build", "./deps", "/.git", "./.nerves"]
       })
 
     build_plan

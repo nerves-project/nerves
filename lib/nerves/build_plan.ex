@@ -171,6 +171,8 @@ defmodule Nerves.BuildPlan do
   * `:path` - path to package source under the deps directory
   * `:source_fingerprint` - calculated source fingerprints. The fingerprint catches configs that diverge from artifact inputs.
   * `:artifact_source_files` - List of files required to build the artifact.
+  * `:artifact_source_excludes` - Package-relative `tar --exclude` patterns omitted
+    when copying sources into the artifact workspace; defaults to `[]`.
   * `:validated_files` - a map of download files that have passed validation keyed by package name
   * `:version` - the version of this package
   """
@@ -187,6 +189,7 @@ defmodule Nerves.BuildPlan do
           extractors: [extractor_spec()],
           source_fingerprint: String.t(),
           artifact_source_files: [Path.t()],
+          artifact_source_excludes: [String.t()],
           validated_files: [Path.t()],
           dockerfile: Path.t() | nil
         }

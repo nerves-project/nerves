@@ -137,6 +137,7 @@ defmodule Nerves.ContainerTest do
       dockerfile: dockerfile,
       path: source,
       source_fingerprint: "OLD",
+      artifact_source_excludes: [],
       artifact_source_files: [input]
     }
 
@@ -145,20 +146,43 @@ defmodule Nerves.ContainerTest do
     changed_fingerprint = %{package | source_fingerprint: "NEW"}
 
     assert Container.workspace_checksum(build_plan, changed_fingerprint) == checksum
+
+    changed_excludes = %{package | artifact_source_excludes: ["./cache"]}
+    changed_plan = %{build_plan | packages: [changed_excludes]}
+    assert Container.workspace_checksum(changed_plan, changed_excludes) != checksum
+
+    dependency = %{package | app: :test_dependency}
+    package = %{package | deps: [:test_dependency]}
+    build_plan = %{build_plan | packages: [package, dependency]}
+    checksum = Container.workspace_checksum(build_plan, package)
+    dependency = %{dependency | artifact_source_excludes: ["./cache"]}
+    changed_plan = %{build_plan | packages: [package, dependency]}
+    assert Container.workspace_checksum(changed_plan, package) != checksum
   end
 
   if :os.type() == {:unix, :linux} do
-    test "Linux copies sources without host caches and preserves build output", %{
+    test "Linux uses per-package exclusions and preserves build output", %{
       tmp_dir: tmp_dir
     } do
       source = Path.join(tmp_dir, "source")
       File.mkdir!(source)
       File.write!(Path.join(source, "input"), "contents")
 
-      for directory <- ["buildroot", "buildroot-2026.05.3"] do
+      source_directories = [
+        "buildroot",
+        "buildroot-2026.05.3",
+        "_build",
+        "deps",
+        ".git",
+        ".nerves"
+      ]
+
+      for directory <- source_directories do
         File.mkdir!(Path.join(source, directory))
         File.write!(Path.join([source, directory, "Makefile"]), "package source")
       end
+
+      File.mkdir!(Path.join(source, "cache"))
 
       dep_source = Path.join(tmp_dir, "dep")
       File.mkdir_p!(Path.join(dep_source, "buildroot-2026.05.3"))
@@ -168,27 +192,39 @@ defmodule Nerves.ContainerTest do
       File.mkdir_p!(Path.join(dep_source, "patches/buildroot"))
       File.write!(Path.join(dep_source, "patches/buildroot/fix.patch"), "patch")
 
-      package = %{app: :test_package, deps: [:nerves_system_br], path: source}
-      dep = %{app: :nerves_system_br, path: dep_source}
+      package = %{
+        app: :test_package,
+        deps: [:test_dependency],
+        path: source,
+        artifact_source_excludes: ["./cache"]
+      }
+
+      dep = %{
+        app: :test_dependency,
+        path: dep_source,
+        artifact_source_excludes: ["./buildroot", "./buildroot-[0-9]*", "./.nerves"]
+      }
+
       build_plan = %BuildPlan{packages: [package, dep]}
       workspace = Container.work_dir(package)
       on_exit(fn -> File.rm_rf(workspace) end)
       File.mkdir_p!(Path.join(workspace, "build"))
       File.write!(Path.join(workspace, "build/output"), "keep me")
-      File.mkdir_p!(Path.join(workspace, "nerves_system_br"))
-      File.ln_s!("/old-host/buildroot", Path.join(workspace, "nerves_system_br/buildroot"))
+      File.mkdir_p!(Path.join(workspace, "test_dependency"))
+      File.ln_s!("/old-host/buildroot", Path.join(workspace, "test_dependency/buildroot"))
 
       assert :ok = Container.populate_work_dir(build_plan, "docker", package, "image")
       assert File.read!(Path.join(workspace, "test_package/input")) == "contents"
 
-      for directory <- ["buildroot", "buildroot-2026.05.3"] do
+      for directory <- source_directories do
         assert File.read!(Path.join([workspace, "test_package", directory, "Makefile"])) ==
                  "package source"
       end
 
-      assert File.ls!(Path.join(workspace, "nerves_system_br")) == ["patches"]
+      refute File.exists?(Path.join(workspace, "test_package/cache"))
+      assert File.ls!(Path.join(workspace, "test_dependency")) == ["patches"]
 
-      assert File.read!(Path.join(workspace, "nerves_system_br/patches/buildroot/fix.patch")) ==
+      assert File.read!(Path.join(workspace, "test_dependency/patches/buildroot/fix.patch")) ==
                "patch"
 
       assert File.read!(Path.join(workspace, "build/output")) == "keep me"
@@ -207,6 +243,7 @@ defmodule Nerves.ContainerTest do
         deps: [],
         dockerfile: dockerfile,
         path: source,
+        artifact_source_excludes: [],
         artifact_source_files: [input]
       }
 
@@ -229,7 +266,7 @@ defmodule Nerves.ContainerTest do
       File.mkdir!(source)
       File.write!(Path.join(source, "input"), "contents")
 
-      package = %{app: :test_package, deps: [], path: source}
+      package = %{app: :test_package, deps: [], path: source, artifact_source_excludes: []}
       build_plan = %BuildPlan{packages: [package]}
       test_pid = self()
 
@@ -274,6 +311,7 @@ defmodule Nerves.ContainerTest do
         deps: [],
         dockerfile: dockerfile,
         path: source,
+        artifact_source_excludes: [],
         artifact_source_files: [input]
       }
 

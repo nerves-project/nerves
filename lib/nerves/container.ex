@@ -536,7 +536,8 @@ defmodule Nerves.Container do
       :crypto.hash_update(:crypto.hash_init(:sha256), :erlang.term_to_binary(image_environment)),
       fn app, context ->
         source_package = BuildPlan.find_package(build_plan, app)
-        context = :crypto.hash_update(context, :erlang.term_to_binary({:app, app}))
+        metadata = {:app, app, source_package.artifact_source_excludes}
+        context = :crypto.hash_update(context, :erlang.term_to_binary(metadata))
 
         source_package.artifact_source_files
         |> Enum.map(&{source_package.path, &1})
@@ -611,16 +612,7 @@ defmodule Nerves.Container do
     :ok
   end
 
-  @copy_tree_excludes ["./_build", "./deps", "/.git", "./.nerves"]
-
-  defp package_excludes(:nerves_system_br), do: ["./buildroot", "./buildroot-[0-9]*"]
-  defp package_excludes(_app), do: []
-
-  # Copy the contents of src_dir into dest_dir while skipping generated Mix and
-  # Buildroot directories that can contain broken symlinks or large caches.
-  defp copy_tree!(%{app: app, path: src_dir}, dest_dir) do
-    excludes = @copy_tree_excludes ++ package_excludes(app)
-
+  defp copy_tree!(%{path: src_dir, artifact_source_excludes: excludes}, dest_dir) do
     archive =
       Path.join(staging_dir(), "nerves-copy-#{System.unique_integer([:positive])}.tar")
 

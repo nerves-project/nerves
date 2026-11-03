@@ -9,6 +9,8 @@ defmodule Nerves.BuildAction.NervesV1System do
   alias Nerves.BuildPlan
   alias Nerves.MixUtils
 
+  @artifact_source_excludes ["./_build", "./deps", "/.git", "./.nerves"]
+
   @impl Nerves.BuildAction
   def pre_download(build_plan, opts) do
     app = Keyword.fetch!(opts, :app)
@@ -81,10 +83,31 @@ defmodule Nerves.BuildAction.NervesV1System do
 
     build_plan
     |> BuildPlan.replace_package(package)
+    |> add_source_excludes(package)
     |> BuildPlan.merge_env(system_env())
     |> BuildPlan.merge_env(package_env)
     |> BuildPlan.merge_config(system_config)
     |> Map.put(:actions, actions ++ build_plan.actions)
+  end
+
+  defp add_source_excludes(build_plan, package) do
+    Enum.reduce([package.app | package.deps], build_plan, fn app, plan ->
+      package = BuildPlan.find_package(plan, app)
+
+      excludes =
+        if app == :nerves_system_br do
+          @artifact_source_excludes ++ ["./buildroot", "./buildroot-[0-9]*"]
+        else
+          @artifact_source_excludes
+        end
+
+      package = %{
+        package
+        | artifact_source_excludes: Enum.uniq(package.artifact_source_excludes ++ excludes)
+      }
+
+      BuildPlan.replace_package(plan, package)
+    end)
   end
 
   @impl Nerves.BuildAction

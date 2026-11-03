@@ -260,6 +260,7 @@ defmodule Nerves do
           extractors: [],
           dockerfile: dockerfile_path(config, dep.dest),
           artifact_source_files: source_files,
+          artifact_source_excludes: [],
           source_fingerprint: Nerves.Fingerprint.fingerprint(source_files),
           validated_files: []
         }

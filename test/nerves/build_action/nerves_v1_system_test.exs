@@ -10,6 +10,42 @@ defmodule Nerves.BuildAction.NervesV1SystemTest do
   alias Nerves.EnvHelpers
   alias Nerves.Paths
 
+  test "legacy exclusions apply only to the system and its build dependencies" do
+    package = %{
+      BuildPlanHelpers.package_info(:test_system, "/system", "/artifacts/system")
+      | deps: [:nerves_system_br, :test_dependency]
+    }
+
+    buildroot = %{
+      BuildPlanHelpers.package_info(:nerves_system_br, "/buildroot", "/artifacts/buildroot")
+      | artifact_source_excludes: ["./custom-cache"]
+    }
+
+    dependency =
+      BuildPlanHelpers.package_info(:test_dependency, "/dependency", "/artifacts/dependency")
+
+    unrelated = BuildPlanHelpers.package_info(:unrelated, "/unrelated", "/artifacts/unrelated")
+    plan = %BuildPlan{packages: [package, buildroot, dependency, unrelated]}
+
+    plan =
+      Nerves.BuildAction.NervesV1System.pre_download(plan,
+        app: :test_system,
+        artifact_sites: [],
+        build_runner_opts: []
+      )
+
+    common_excludes = ["./_build", "./deps", "/.git", "./.nerves"]
+    assert BuildPlan.find_package(plan, :test_system).artifact_source_excludes == common_excludes
+
+    assert BuildPlan.find_package(plan, :test_dependency).artifact_source_excludes ==
+             common_excludes
+
+    assert BuildPlan.find_package(plan, :nerves_system_br).artifact_source_excludes ==
+             ["./custom-cache"] ++ common_excludes ++ ["./buildroot", "./buildroot-[0-9]*"]
+
+    assert BuildPlan.find_package(plan, :unrelated).artifact_source_excludes == []
+  end
+
   test "Nerves V1 system creates expected build plan" do
     app = :nerves_system_rpi0
     version = "2.1.1"
