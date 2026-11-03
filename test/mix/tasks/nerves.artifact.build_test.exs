@@ -6,6 +6,8 @@ defmodule Mix.Tasks.Nerves.ArtifactBuildTest do
   use ExUnit.Case, async: false
   use Mimic
 
+  import ExUnit.CaptureIO
+
   alias Nerves.BuildPlan
   alias Nerves.BuildPlanHelpers
   alias Nerves.Container
@@ -56,6 +58,12 @@ defmodule Mix.Tasks.Nerves.ArtifactBuildTest do
     |> expect(:cmd, fn "docker", ["run", "clean", "setup", "build"] -> {"", 0} end)
 
     Mix.Task.reenable("nerves.artifact.build")
-    assert :ok = Mix.Task.run("nerves.artifact.build", ["--full"])
+
+    output =
+      capture_io(fn ->
+        assert :ok = Mix.Task.run("nerves.artifact.build", ["--full"])
+      end)
+
+    assert output =~ "Artifact build succeeded.\nArchive available at: #{archive_path}\n"
   end
 end

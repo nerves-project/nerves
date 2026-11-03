@@ -100,9 +100,14 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
         end
 
         MixUtils.info("Artifact build succeeded.")
+        print_archives(archive_paths)
 
       {_, status} ->
         Mix.raise("Container build failed with status #{status}")
     end
   end
+
+  defp print_archives([]), do: MixUtils.info("No archives generated or missing config")
+  defp print_archives([archive]), do: MixUtils.info("Archive available at: #{archive}")
+  defp print_archives(paths), do: MixUtils.info("Generated archives: #{Enum.join(paths, ", ")}")
 end
