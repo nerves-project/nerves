@@ -977,7 +977,7 @@ defmodule Nerves.Container do
     ' nerves-sync < "$manifest"
     tar -C "$source" --null --verbatim-files-from --files-from="$manifest" \
       -cf /tmp/nerves-sync.tar &&
-      tar -C "$destination" -xf /tmp/nerves-sync.tar
+      tar -C "$destination" --no-same-owner -xf /tmp/nerves-sync.tar
     """
   end
 
