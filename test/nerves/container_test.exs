@@ -12,6 +12,9 @@ defmodule Nerves.ContainerTest do
   @moduletag :tmp_dir
 
   test "artifact arguments follow their respective commands", %{tmp_dir: tmp_dir} do
+    stub(Nerves.MixUtils, :cmd, fn _, _, _ -> {"", 0} end)
+
+    tool = "docker_stub_for_testing"
     build_plan = %BuildPlan{config: %{host_tuple: Nerves.TargetTuple.new()}}
     package = Nerves.BuildPlanHelpers.package_info(:test_package, tmp_dir, tmp_dir)
 
@@ -43,7 +46,7 @@ defmodule Nerves.ContainerTest do
         Container.artifact_run_args(
           build_plan,
           package,
-          "docker",
+          tool,
           "image",
           "/downloads",
           commands
@@ -55,7 +58,7 @@ defmodule Nerves.ContainerTest do
     package = %{package | artifact_command_args: %{}}
 
     args =
-      Container.artifact_run_args(build_plan, package, "docker", "image", "/downloads", ["build"])
+      Container.artifact_run_args(build_plan, package, tool, "image", "/downloads", ["build"])
 
     assert Enum.take(args, -2) == ["image", "build"]
   end
