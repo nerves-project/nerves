@@ -117,7 +117,7 @@ jobs:
         type: string
     macos:
       xcode: << parameters.xcode >>
-    resource_class: macos.m1.medium.gen1
+    resource_class: m4pro.medium
     working_directory: ~/repo
     environment:
       LC_ALL: C.UTF-8
