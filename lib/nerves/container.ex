@@ -1,4 +1,5 @@
 # SPDX-FileCopyrightText: 2026 Frank Hunleth
+# SPDX-FileCopyrightText: 2026 Jannik Becher
 # SPDX-FileCopyrightText: 2026 Thomas Winkler
 #
 # SPDX-License-Identifier: Apache-2.0

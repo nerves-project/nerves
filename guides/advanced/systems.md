@@ -10,6 +10,7 @@
   SPDX-FileCopyrightText: 2019 Peter Kropf
   SPDX-FileCopyrightText: 2021 Rick Carlino
   SPDX-FileCopyrightText: 2022 Masatoshi Nishiguchi
+  SPDX-FileCopyrightText: 2022 SmartRent
   SPDX-License-Identifier: CC-BY-4.0
 -->
 # Systems
