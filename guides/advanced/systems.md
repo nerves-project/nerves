@@ -101,222 +101,192 @@ run `make menuconfig` and look for the Erlang options.
 
 ## Anatomy of a Nerves System
 
-Nerves system dependencies are a collection of configurations to be fed into
-the system build platform. Currently, Nerves systems are all built using the
-Buildroot platform. The project structure of a Nerves system is as follows:
+Nerves system packages provide the configuration and source files needed by a
+build platform to create a firmware artifact. The example below follows
+`nerves_system_trellis`, a Nerves system for the Nerves Starter Kit:
 
 ```plain
-nerves_system_rpi3
-├── LICENSE
-├── README.md
-├── VERSION
-├── cmdline.txt
-├── config.txt
+nerves_system_trellis
+├── busybox.fragment
+├── dts/
 ├── fwup.conf
-├── linux-4.4.defconfig
+├── fwup-ops.conf
+├── fwup_include/
+├── linux/
 ├── mix.exs
 ├── nerves_defconfig
+├── post-build.sh
 ├── post-createfs.sh
-└── rootfs-overlay
-    └── etc
-        └── erlinit.config
-        └── fw_env.config
+├── rootfs_overlay/
+├── trellis.its
+└── uboot/
 ```
 
-The `mix.exs` defines the toolchain and build platform, for example:
+This system uses Buildroot to build the Linux kernel, U-Boot, the Erlang VM and
+the other non-BEAM components. The Buildroot configuration is in
+`nerves_defconfig`. The `linux/`, `dts/`, and `uboot/` directories contain Linux
+kernel and U-Boot configuration, patches, and device-tree sources.
+`rootfs_overlay/` adds files to the target root filesystem. The post-build and
+post-createfs scripts customize the build, and `fwup.conf`, `fwup-ops.conf`, and
+`fwup_include/` describe firmware images and update operations.
+
+The `mix.exs` file describes the package, its build platform, and its
+dependencies. A simplified excerpt based on Trellis looks like this:
 
 ```elixir
 def project do
-  [ # ...
-   nerves_package: nerves_package(),
-   compilers: Mix.compilers ++ [:nerves_package],
-   aliases: [loadconfig: [&bootstrap/1]]]
-end
-# ...
-def nerves_package do
   [
-    type: :system,
-    artifact_sites: [
-      {:github_releases, "nerves-project/#{@app}",
-    ],
-    platform: Nerves.System.BR,
-    platform_config: [
-      defconfig: "nerves_defconfig"
-    ],
-    checksum: [
-      "nerves_defconfig",
-      "rootfs_overlay",
-      "linux-4.4.defconfig",
-      "fwup.conf",
-      "cmdline.txt",
-      "config.txt",
-      "post-createfs.sh",
-      "VERSION"
-    ]
-  ]
-end
-# ...
-defp deps do
-  [
-    {:nerves, "~> 1.0", runtime: false},
-    {:nerves_system_br, "~> 1.0", runtime: false},
-    {:nerves_toolchain_arm_unknown_linux_gnueabihf, "~> 1.0", runtime: false}
-  ]
-end
-# ...
-defp package do
- [ # ...
-  files: ["LICENSE", "mix.exs", "<other files>"],
-  licenses: ["Apache 2.0"],
-  links: %{"Github" => "https://github.com/nerves-project/nerves_system_rpi3"}]
-end
-```
-
-Nerves systems have a few requirements in the mix file:
-
-1. The `compilers` must include `:nerves_package` compiler after `Mix.compilers`.
-2. There must be a dependency for the toolchain and the build platform.
-3. The `package` must specify all the required `files` so they are present when
-   downloading from Hex.
-4. The `nerves_package` key should contain nerves package configuration metadata as
-   described in the next section.
-
-## Nerves Package Configuration
-
-The `mix.exs` project configuration contains a special configuration key `nerves_package`. This key
-contains configuration information that Nerves loads before any application or
-dependency code is compiled. It is used to store metadata about a package. Here
-is an example from the `mix.exs` file for `nerves_system_rpi3`:
-
-```elixir
-# ...
-def project do
-  [ # ...
-   nerves_package: nerves_package(),
     # ...
+    compilers: Mix.compilers() ++ [:nerves_package],
+    nerves_package: nerves_package()
   ]
 end
-# ....
+
 defp nerves_package do
   [
     type: :system,
     artifact_sites: [
-      {:github_releases, "nerves-project/#{@app}"}
+      {:github_releases, "nerves-project/nerves_system_trellis"}
     ],
     platform: Nerves.System.BR,
     platform_config: [
       defconfig: "nerves_defconfig"
     ],
-    checksum: package_files()
+    checksum: source_finger_print_files()
   ]
 end
 ```
 
-The following keys are supported:
+This configuration follows Nerves 1 conventions. Nerves 2 translates it to the
+new Nerves 2 specification. We currently recommend using Nerves 1 conventions if
+you are using Buildroot-based systems, since the Nerves 2 specification could
+still change.
 
-1. `type`: The type of Nerves Package.
+The following sections describe the configurable sections.
 
-    Options are: `system`, `system_compiler`, `system_platform`,
-    `system_package`, `toolchain`, `toolchain_compiler`, `toolchain_platform`.
+## Nerves 2 Package Configuration
 
-2. `artifact_sites` (optional): Artifacts for Nerves systems and toolchains are
-    too large for most package managers and must be stored externally.
-    Artifact sites specify how to download artifacts and are attempted in order
-    until one is successfully downloaded.
+> #### Tip {: .tip}
+>
+> For now, prefer the Nerves 1 package configuration as described in the next
+> section. Nerves 2 translates it automatically and your Nerves systems will
+> work with both major versions.
 
-    Supported artifact sites:
+Nerves 2 reads package configuration from the `:nerves` key in `mix.exs` and
+uses it to assemble a build plan before compiling the application. The build
+plan collects configuration, environment variables, build actions, and
+artifact information from Nerves-aware packages. For example:
 
-    ```elixir
-    {:github_releases, "organization/project"}
-    {:github_api, "organization/project", token: System.get_env("GITHUB_TOKEN"), tag: @version}
-    {:prefix, "http://myserver.com/artifacts"}
-    {:prefix, "file:///my_artifacts/"}
-    {:prefix, "/users/my_user/artifacts/"}
-    {:prefix, "http://myserver.com/artifacts", headers: [{"Authorization", "Basic 12345"}]}
-    {:prefix, "http://myserver.com/artifacts", query_params: %{"id" => "1234"}}
-    ```
-
-    For official Nerves systems and toolchains, we upload the artifacts to
-    GitHub Releases.
-
-    With Nerves 2, system packages can also set `artifact_public_keys` to a list
-    of trusted PEM-encoded public key strings in `nerves_package`. This requires
-    an OpenSSL SHA-256 signature for the archive, Base64-encoded and published
-    as `<archive filename>.sig` at an artifact site. The system adapter adds
-    both files to the download plan. Verification must succeed with at least
-    one configured key before the archive is extracted.
-
-    For an artifact site that uses GitHub Releases in a private repo, [create a
-    personal access token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
-    and use `:github_api` with `token` and `tag` options:
-
-    ```elixir
-    {:github_api, "owner/repo", token: "1234567", tag: "v0.1.0"}
-    ```
-
-    Artifact sites can pass options as a third parameter for adding headers
-    or query string parameters.
-
-    ```elixir
-    {:prefix, "https://my-organization.com",
-      query_params: %{"id" => "1234567", "token" => "abcd"},
-      headers: [{"Content-Type", "application/octet-stream"}]
-    }
-    ```
-
-    You can also use this to add an authorization header for files behind basic auth.
-
-    ```elixir
-    {:prefix, "http://my-organization.com/", headers: [{"Authorization", "Basic " <> System.get_env("BASIC_AUTH")}}]}
-    ```
-
-3. `platform`: The build platform to use for the system or toolchain.
-
-4. `platform_config`: Configuration options for the build platform.
-
-    In this example, the `defconfig` option for the `Nerves.System.BR`
-    platform points to the Buildroot defconfig fragment file used to build the
-    system.
-
-5. `build_runner`: Optional - The build_runner that should be used to build the artifact.
-
-    If this key is not defined, Nerves will choose a default build_runner
-    that should be used to build the artifact based on information about the host
-    computer that you are building on. For example, Mac OS will use
-    `Nerves.Artifact.BuildRunners.Docker` where as Linux will use
-    `Nerves.Artifact.BuildRunners.Local`. Specifying a build_runner module in
-    the package config could be used to force the build_runner.
-
-6. `build_runner_opts`: Optional - A keyword list of options to pass to the build_runner module.
-
-    `make_args:` - Extra arguments to be passed to make.
-
-    For example:
-
-    You can configure the number of parallel jobs that Buildroot
-    can use for execution. This is useful for situations where you may
-    have a machine with a lot of CPUs but not enough ram.
-
-    ```elixir
-    defp nerves_package do
-      [
-        # ...
-        build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]],
+```elixir
+def project do
+  [
+    # ...
+    nerves: [
+      artifact_source_files: [
+        "mix.exs",
+        "nerves_defconfig",
+        "rootfs_overlay",
+        "linux"
+      ],
+      config: [
+        rootfs_type: :squashfs
+      ],
+      env: [
+        {"TARGET_ARCH", "arm"}
+      ],
+      actions: [
+        MySystem.BuildAction
       ]
-    end
-    ```
+    ]
+  ]
+end
+```
 
-7. `checksum`: The list of files for which checksums are calculated and stored
-    in the artifact cache.
+The `:nerves` key supports the following fields:
 
-    This checksum is used to match the cached Nerves artifact on disk with its
-    source files, so that it will be re-compiled instead of using the cache if
-    the source files no longer match.
+1. `artifact_source_files`: Files and directories used to fingerprint the
+   package's artifact inputs. Nerves uses this fingerprint to determine
+   whether a cached artifact is still valid. This is separate from the Hex
+   package's `:files` list, which controls which files are published.
+
+2. `config`: Build configuration to merge into the build plan. Use this for
+   settings consumed by build actions, such as `:rootfs_type`.
+
+3. `env`: Environment variables to make available to build actions and
+   cross-compilation steps. Values from multiple packages are merged into the
+   build plan.
+
+4. `actions`: Build action modules, optionally paired with keyword options as
+   `{Module, options}`. Actions implement `Nerves.BuildAction` callbacks to
+   participate in build stages, including adding artifact downloads and
+   validation.
+
+5. `plan_callback`: An optional one-argument function that receives and
+   returns the build plan. Use it when package-specific planning needs cannot
+   be expressed with the fields above.
+
+Nerves also supports other `:nerves` fields, including `:dockerfile` for
+artifact builds and `:packages` for package-specific build-plan data. The
+build-plan fields are documented in `Nerves.BuildPlan`.
+
+### Nerves 1 Package Compatibility
+
+Nerves 2 continues to support Nerves 1 packages that use `:nerves_package`.
+For `type: :system` and `type: :toolchain`, Nerves converts the legacy
+configuration into build actions. This allows existing systems, including
+systems with a `platform` and `platform_config`, to keep using their v1 build
+setup.
+
+The `:nerves_package` options include:
+
+1. `type`: `:system` or `:toolchain` selects the corresponding compatibility
+   action.
+
+2. `artifact_sites`: Ordered locations for downloading prebuilt artifacts.
+   Common forms include:
+
+   ```elixir
+   {:github_releases, "organization/project"}
+   {:github_api, "organization/project", token: System.get_env("GITHUB_TOKEN"), tag: @version}
+   {:prefix, "https://example.com/artifacts"}
+   ```
+
+   `:github_api` can access private GitHub releases with a token. Prefix sites
+   also accept `headers` and `query_params` options.
+
+3. `platform` and `platform_config`: The legacy build platform and its
+   configuration, such as `Nerves.System.BR` and a Buildroot defconfig path.
+
+4. `env` and `build_runner_opts`: Environment variables and options passed to
+   the legacy artifact build runner. For Buildroot, `build_runner_opts` can
+   include `make_args`, for example:
+
+   ```elixir
+   build_runner_opts: [make_args: ["PARALLEL_JOBS=8"]]
+   ```
+
+5. `checksum`: The legacy source-file list for artifact fingerprinting. This
+   list of files is used in the naming of artifact tarballs to detect when
+   the configuration has changed and the tarball is out-of-date.
+
+6. `artifact_checksum` and `artifact_public_keys`: Optional artifact download
+   validation for legacy system packages. See
+   [Verifying Artifacts with Published Checksums](#verifying-artifacts-with-published-checksums)
+   for checksum manifests. `artifact_public_keys` enables OpenSSL signature
+   verification using trusted PEM-encoded public keys and a Base64-encoded
+   `<archive filename>.sig` sidecar from the artifact site. If both validation
+   methods are configured, both must pass.
 
 ## Verifying Artifacts with Published Checksums
 
-With Nerves 2, Nerves v1 system packages can opt in to SHA256 checksum
-verification instead of, or in addition to, OpenSSL signatures. Add this to
+With Nerves 2, Nerves 1 system packages can opt in to SHA256 checksum
+verification. Assuming the SHA256 checksum is published in a trusted place
+like on hex.pm, then Nerves 2 will detect artifact tampering. See the next
+section for opting into cryptographically signed artifacts if the SHA256 checksum approach doesn't suffice. It's possible
+to opt into both.
+
+To use this
+feature, add this to
 the system's `:nerves_package` configuration before building its artifact:
 
 ```elixir
@@ -327,7 +297,6 @@ Nerves derives the system's single portable archive filename and verifies it
 against the manifest in the package source directory before extraction. It
 does not download the manifest from an artifact site. Missing manifests,
 missing entries, malformed checksums, and mismatches fail verification.
-If `artifact_public_keys` is also configured, both checks must pass.
 Existing systems remain unchanged unless they opt in. This shorthand does
 not apply to toolchains.
 
@@ -370,6 +339,40 @@ The trust anchor for this method is the manifest shipped in the Hex package.
 Checksums do not provide an independent signing identity. As with signature
 verification, existing local-build overrides and extracted-artifact caching
 remain unchanged.
+
+## Verifying Artifacts with Public-Key Signatures
+
+> #### Tip {: .warning}
+>
+> This section describes an experimental feature. It may change as we start
+> signing all Nerves artifacts.
+
+For a Nerves v1 system package, add one or more trusted PEM public keys to its
+`:nerves_package` configuration:
+
+```elixir
+artifact_public_keys: ["""
+-----BEGIN PUBLIC KEY-----
+...
+-----END PUBLIC KEY-----
+"""]
+```
+
+Sign the portable system archive with the corresponding private key using
+OpenSSL SHA-256, then Base64-encode the signature:
+
+```sh
+openssl dgst -sha256 -sign private.pem -out signature.bin system-portable.tar.gz
+openssl base64 -in signature.bin -out system-portable.tar.gz.sig
+```
+
+Publish the `.sig` file beside the archive. Nerves downloads it and verifies the
+signature before extracting the archive. Keep the private key secure; publish
+only the public key in the system package.
+
+Nerves 2 packages that manage their own artifact downloads can use the
+`{:openssl_signature, filename: archive, public_keys: keys}` download validator.
+They must include the signature file in their download plan.
 
 ## Customizing Your Own Nerves System
 
