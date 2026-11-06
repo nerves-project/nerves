@@ -5,6 +5,21 @@
 
 # Changelog
 
+## v2.0.0-pre.6 - 2026-11-06
+
+* Changes
+  * Add optional SHA256 checksum verification for package artifacts. This is a
+    similar mechanism to `elixir_make` that generates a `checksum.exs` file
+    that's published to Hex.pm.
+  * Add optional OpenSSL public-key signature verification for package
+    artifacts. This is currently experimental. It handles use cases where
+    artifact archives aren't all available at the time the package is published
+    (E.g., toolchains on new host platforms) and cases where Hex.pm isn't used.
+  * Support the Nerves v1 `build_runner_opts` parameter when building systems
+  * Improve artifact workspace setup, retries, and source synchronization
+  * Fix build-plan creation for dependencies declared with `app: false`
+  * Update the system documentation for Nerves 2 and artifact verification
+
 ## v2.0.0-pre.5 - 2026-10-24
 
 * Changes
