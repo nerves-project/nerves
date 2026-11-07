@@ -5,7 +5,7 @@
 defmodule Nerves.MixProject do
   use Mix.Project
 
-  @version "2.0.0-pre.6"
+  @version "2.0.0-pre.7"
   @source_url "https://github.com/nerves-project/nerves"
 
   # Fail quickly on OTP 25 and earlier rather than letting them fail at runtime

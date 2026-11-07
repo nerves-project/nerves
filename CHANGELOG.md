@@ -5,6 +5,11 @@
 
 # Changelog
 
+## v2.0.0-pre.7 - 2026-11-06
+
+* Changes
+  * Fix vm.args.eex check for Erlang and Gleam projects
+
 ## v2.0.0-pre.6 - 2026-11-06
 
 * Changes
