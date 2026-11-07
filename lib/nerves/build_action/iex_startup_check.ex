@@ -12,6 +12,8 @@ defmodule Nerves.BuildAction.IExStartupCheck do
   startup flags for the version of Elixir being used. The procedure for
   starting IEx changed across Elixir versions, and using the wrong flags
   results in a device that won't boot to an IEx prompt.
+
+  Templates without any known IEx startup flags are not validated.
   """
 
   use Nerves.BuildAction
@@ -19,6 +21,7 @@ defmodule Nerves.BuildAction.IExStartupCheck do
   @elixir_1_15_opts ["-user elixir", "-run elixir start_iex"]
   @elixir_1_17_opts ["-user elixir", "-run elixir start_cli"]
   @legacy_elixir_opts ["-user Elixir.IEx.CLI"]
+  @iex_opts Enum.uniq(@elixir_1_15_opts ++ @elixir_1_17_opts ++ @legacy_elixir_opts)
 
   @doc """
   Validate that vm.args.eex is compatible with the current Elixir version.
@@ -33,13 +36,18 @@ defmodule Nerves.BuildAction.IExStartupCheck do
       Mix.raise("Missing required #{vm_args_path}")
     end
 
-    {exclusions, inclusions} = version_constraints()
     vm_args = File.read!(vm_args_path)
 
     errors =
-      []
-      |> check_inclusions(vm_args, inclusions, vm_args_path)
-      |> check_exclusions(vm_args, exclusions, vm_args_path)
+      if String.contains?(vm_args, @iex_opts) do
+        {exclusions, inclusions} = version_constraints()
+
+        []
+        |> check_inclusions(vm_args, inclusions, vm_args_path)
+        |> check_exclusions(vm_args, exclusions, vm_args_path)
+      else
+        []
+      end
 
     if Enum.empty?(errors) do
       :ok
