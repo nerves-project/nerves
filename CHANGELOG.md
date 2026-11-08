@@ -5,6 +5,14 @@
 
 # Changelog
 
+## v2.0.0-pre.8 - 2026-11-08
+
+* Changes
+  * Restore ccache support for building Nerves packages. Support is similar to
+    Nerves 1 except that it works for building in containers. Set
+    `NERVES_CCACHE_DIR` to a directory on the host to use (e.g., `~/.nerves/ccache`)
+  * Add section to Nerves docs on speeding up builds
+
 ## v2.0.0-pre.7 - 2026-11-06
 
 * Changes
