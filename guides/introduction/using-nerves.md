@@ -97,3 +97,56 @@ For more info, refer to [Connecting to your Nerves Target](connecting-to-a-nerve
 > Refer to the documentation of `nerves_system_<target>` projects for their
 > supported features. As an example, when your target is `rpi0_2`,
 > visit https://nerves-system-rpi0-2.hexdocs.pm.
+
+## Speeding up builds
+
+There are a few strategies for speeding up Nerves builds:
+
+- Enabling parallel compilation
+- Caching
+- Reducing work for development builds
+
+For parallel compilation of Elixir and native code on multi-core machines, we
+recommend starting with using half of your CPU cores. See
+[`MIX_OS_DEPS_COMPILE_PARTITION_COUNT`](https://mix.hexdocs.pm/Mix.Tasks.Deps.Compile.html#module-compiling-dependencies-across-multiple-os-processes)
+for Elixir documentation. Setting `MAKEFLAGS` has a similar effect for a lot of
+native code. Be aware that some `Makefiles` don't support parallel compilation
+and will need this to be unset.
+
+To enable this, set the following in your shell configuration:
+
+<!-- tabs-open -->
+### macOS
+
+```bash
+export MIX_OS_DEPS_COMPILE_PARTITION_COUNT=$(( $(sysctl -n hw.physicalcpu) / 2 ))
+export MAKEFLAGS="-j$(( $(sysctl -n hw.physicalcpu) / 2 ))"
+```
+
+### Linux
+
+```bash
+export MIX_OS_DEPS_COMPILE_PARTITION_COUNT=$(( $(nproc) / 2 ))
+export MAKEFLAGS="-j$(( $(nproc) / 2 ))"
+```
+<!-- tabs-close -->
+
+If you're building Nerves systems, Nerves supports
+[ccache](https://ccache.dev/). This caches build products between calls to `mix
+nerves.artifact.build` and can significantly speed up clean builds. Add the
+following to specify a directory for the cache.
+
+```bash
+export NERVES_CCACHE_DIR="$HOME/.nerves/ccache"
+```
+
+If you have large firmware images, reducing compression settings in development
+can help. For example, `fwup` defaults to its best compression setting, but can
+be altered in your project's `config.exs`:
+
+```elixir
+if Mix.env() == :dev do
+  # Speed up dev build time at the cost of a little .fw size
+  config :nerves, :firmware, fwup_compression: :fast
+end
+```
