@@ -43,6 +43,17 @@ defmodule Mix.Tasks.Nerves.Artifact.Build do
 
     * `--full` - Remove the existing build output before building
 
+  ## Compiler caching
+
+  Set `NERVES_CCACHE_DIR` to a host directory to persist ccache across builds.
+  Nerves creates and mounts it at `/workspace/ccache` and sets `CCACHE_DIR`
+  inside the container. Buildroot-based packages automatically enable ccache;
+  other packages must install and invoke ccache in their build scripts.
+
+  `NERVES_CCACHE_INITIAL_SETUP` controls Buildroot's initial ccache setup
+  (default: `--max-size=1G`). An unset or empty `NERVES_CCACHE_DIR` leaves
+  package caching configuration unchanged.
+
   """
   use Mix.Task
 

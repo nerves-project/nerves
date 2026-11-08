@@ -103,6 +103,7 @@ defmodule Nerves.Container do
     ] ++
       container_user_args(tool) ++
       resource_args(tool) ++
+      ccache_args(tool) ++
       [
         "--env",
         "NERVES_BR_DL_DIR=/workspace/dl",
@@ -253,6 +254,32 @@ defmodule Nerves.Container do
   end
 
   def download_mount_args(_tool, path), do: ["-v", "#{path}:/workspace/dl"]
+
+  defp ccache_args(tool) do
+    case System.get_env("NERVES_CCACHE_DIR") do
+      path when is_binary(path) and path != "" ->
+        path = Path.expand(path)
+        File.mkdir_p!(path)
+
+        mount =
+          if tool == "container" do
+            ["--mount", "type=bind,source=#{path},target=/workspace/ccache"]
+          else
+            ["-v", "#{path}:/workspace/ccache"]
+          end
+
+        mount ++
+          [
+            "--env",
+            "CCACHE_DIR=/workspace/ccache",
+            "--env",
+            "NERVES_CCACHE_INITIAL_SETUP=#{System.get_env("NERVES_CCACHE_INITIAL_SETUP") || "--max-size=1G"}"
+          ]
+
+      _ ->
+        []
+    end
+  end
 
   @doc """
   Return Apple container VM resource arguments.

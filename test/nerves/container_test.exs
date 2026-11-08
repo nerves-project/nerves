@@ -12,6 +12,53 @@ defmodule Nerves.ContainerTest do
 
   @moduletag :tmp_dir
 
+  test "ccache directory is mounted and configured only when enabled", %{tmp_dir: tmp_dir} do
+    variables = ["NERVES_CCACHE_DIR", "NERVES_CCACHE_INITIAL_SETUP"]
+    original = Enum.map(variables, &{&1, System.get_env(&1)})
+
+    on_exit(fn ->
+      Enum.each(original, fn {key, value} ->
+        if value, do: System.put_env(key, value), else: System.delete_env(key)
+      end)
+    end)
+
+    stub(Nerves.MixUtils, :cmd, fn _, _, _ -> {"", 0} end)
+    package = Nerves.BuildPlanHelpers.package_info(:test_package, tmp_dir, tmp_dir)
+    plan = %BuildPlan{config: %{host_tuple: Nerves.TargetTuple.new()}}
+    cache = Path.join(tmp_dir, "compiler cache")
+    System.put_env("NERVES_CCACHE_DIR", cache)
+    System.put_env("NERVES_CCACHE_INITIAL_SETUP", "--max-size=2G")
+
+    for tool <- ["docker", "podman", "container"] do
+      args = Container.artifact_run_args(plan, package, tool, "image", "/downloads", ["build"])
+      assert "CCACHE_DIR=/workspace/ccache" in args
+      assert "NERVES_CCACHE_INITIAL_SETUP=--max-size=2G" in args
+
+      if tool == "container" do
+        assert "type=bind,source=#{cache},target=/workspace/ccache" in args
+      else
+        assert "#{cache}:/workspace/ccache" in args
+      end
+
+      assert File.dir?(cache)
+    end
+
+    System.delete_env("NERVES_CCACHE_INITIAL_SETUP")
+    args = Container.artifact_run_args(plan, package, "docker", "image", "/downloads", ["build"])
+    assert "NERVES_CCACHE_INITIAL_SETUP=--max-size=1G" in args
+
+    for value <- [nil, ""] do
+      if value,
+        do: System.put_env("NERVES_CCACHE_DIR", value),
+        else: System.delete_env("NERVES_CCACHE_DIR")
+
+      args =
+        Container.artifact_run_args(plan, package, "docker", "image", "/downloads", ["build"])
+
+      refute Enum.any?(args, &String.contains?(&1, "CCACHE"))
+    end
+  end
+
   test "artifact arguments follow their respective commands", %{tmp_dir: tmp_dir} do
     stub(Nerves.MixUtils, :cmd, fn _, _, _ -> {"", 0} end)
 
@@ -113,9 +160,30 @@ defmodule Nerves.ContainerTest do
       {"NERVES_ARTIFACT_DIR", artifact_dir}
     ]
 
-    for args <- [make_args, []] do
+    for {args, cache} <- [
+          {make_args, nil},
+          {[], nil},
+          {make_args, Path.join(tmp_dir, "cache dir")}
+        ] do
       File.write!(log, "")
-      assert {_, 0} = System.cmd("sh", [script, "build" | args], env: env, stderr_to_stdout: true)
+      cache_env = [{"CCACHE_DIR", cache}, {"NERVES_CCACHE_INITIAL_SETUP", "--max-size=2G"}]
+
+      assert {_, 0} =
+               System.cmd("sh", [script, "build" | args],
+                 env: env ++ cache_env,
+                 stderr_to_stdout: true
+               )
+
+      args =
+        if cache,
+          do:
+            args ++
+              [
+                "BR2_CCACHE=y",
+                "BR2_CCACHE_DIR=#{cache}",
+                "BR2_CCACHE_INITIAL_SETUP=--max-size=2G"
+              ],
+          else: args
 
       expected =
         "make\n" <>

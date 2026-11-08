@@ -36,6 +36,10 @@ while [ "$#" -gt 0 ]; do
     build)
       mkdir -p "$NERVES_ARTIFACT_DIR"
       cd /workspace/build
+      if [ -n "$CCACHE_DIR" ]; then
+        set -- "$@" BR2_CCACHE=y "BR2_CCACHE_DIR=$CCACHE_DIR" \
+          "BR2_CCACHE_INITIAL_SETUP=${NERVES_CCACHE_INITIAL_SETUP:---max-size=1G}"
+      fi
       make "$@"
       make system NERVES_ARTIFACT_NAME="${NERVES_ARTIFACT_APP}-portable-${NERVES_ARTIFACT_VERSION}-${NERVES_ARTIFACT_SOURCE_FINGERPRINT}"
       cp ./*.tar.* "$NERVES_ARTIFACT_DIR/"
