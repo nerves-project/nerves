@@ -487,8 +487,19 @@ defmodule Nerves.Container do
   end
 
   defp dockerfile_image_name(dockerfile, package) do
+    entrypoint = Path.join(Path.dirname(dockerfile), "nerves-artifact")
+
+    entrypoint_contents =
+      if File.regular?(entrypoint), do: [File.read!(entrypoint)], else: []
+
     hash =
-      [File.read!(dockerfile), System.version(), System.otp_release(), package.source_fingerprint]
+      ([
+         File.read!(dockerfile),
+         System.version(),
+         System.otp_release(),
+         package.source_fingerprint
+       ] ++
+         entrypoint_contents)
       |> Enum.join(":")
       |> :erlang.md5()
       |> Base.encode16(case: :lower)
