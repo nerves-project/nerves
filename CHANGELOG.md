@@ -5,6 +5,18 @@
 
 # Changelog
 
+## v2.0.0-pre.9 - 2026-11-09
+
+* Changes
+  * Add `mix nerves.artifact.clean --images` to destroy the container. The
+    normal clean calls into the container to clean the build which is useful for
+    most development. If you want to be sure, though, like on CI, this erases
+    the container without erasing downloaded assets. `mix nerves.artifact.purge`
+    erases everything which can be too much.
+  * Include the entrypoint in the container hash which is used to detect when
+    the container needs to be rebuilt. This fixes an issue on CI where old
+    containers were being used with the pre.8 update that added ccache.
+
 ## v2.0.0-pre.8 - 2026-11-08
 
 * Changes
