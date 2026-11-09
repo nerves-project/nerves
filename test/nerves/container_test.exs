@@ -12,6 +12,29 @@ defmodule Nerves.ContainerTest do
 
   @moduletag :tmp_dir
 
+  test "image fingerprint includes the entrypoint when present", %{tmp_dir: tmp_dir} do
+    stub(Nerves.MixUtils, :cmd, fn "docker", ["image", "inspect", _image], _opts ->
+      {"", 0}
+    end)
+
+    dockerfile = Path.join(tmp_dir, "Dockerfile")
+    entrypoint = Path.join(tmp_dir, "nerves-artifact")
+    File.write!(dockerfile, "FROM scratch\n")
+
+    package =
+      Nerves.BuildPlanHelpers.package_info(:test_package, tmp_dir, tmp_dir)
+      |> Map.put(:dockerfile, dockerfile)
+
+    image_without_entrypoint = Container.package_image!("docker", package)
+    File.write!(entrypoint, "#!/bin/sh\nexit 0\n")
+    image = Container.package_image!("docker", package)
+    refute image == image_without_entrypoint
+    assert Container.package_image!("docker", package) == image
+
+    File.write!(entrypoint, "#!/bin/sh\nexit 1\n")
+    refute Container.package_image!("docker", package) == image
+  end
+
   test "ccache directory is mounted and configured only when enabled", %{tmp_dir: tmp_dir} do
     variables = ["NERVES_CCACHE_DIR", "NERVES_CCACHE_INITIAL_SETUP"]
     original = Enum.map(variables, &{&1, System.get_env(&1)})
