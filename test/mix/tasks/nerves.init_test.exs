@@ -14,8 +14,8 @@ defmodule Mix.Tasks.Nerves.InitTest do
     assert output =~ "nerves.init is not intended to be invoked directly"
   end
 
-  test "the precompiled hook is a no-op when the project does not depend on elixir_precompiled" do
-    refute Enum.any?(Mix.Dep.cached(), &(&1.app == :elixir_precompiled))
+  test "the precompiled hook is a no-op when the project does not depend on precompiled" do
+    refute Enum.any?(Mix.Dep.cached(), &(&1.app == :precompiled))
 
     original_argv = System.argv()
     System.argv(["compile"])

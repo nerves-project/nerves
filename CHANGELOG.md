@@ -8,7 +8,7 @@
 ## v2.0.0-pre.5 - unreleased
 
 * New features
-  * Optional integration with `elixir_precompiled`. With the library in the
+  * Optional integration with `precompiled`. With the library in the
     project's dependencies and a `source` configured, `mix firmware` installs
     signed, verified builds from the Nerves compatibility portal for every
     dependency whose target, Elixir minor, OTP major, dependency env,
