@@ -17,10 +17,9 @@ defmodule Mix.Tasks.Nerves.Artifact.Get do
   def run(_opts) do
     MixUtils.info("Checking for prebuilt Nerves artifacts...")
 
-    # Route everything through Nerves.export_env/1 since that's the central
-    # place for the download logic that includes appropriate callbacks
-    # invocations.
-    Nerves.export_env()
+    _ =
+      Nerves.build_plan()
+      |> Nerves.ArtifactResolver.resolve()
 
     :ok
   end
