@@ -5,6 +5,15 @@
 
 # Changelog
 
+## v2.0.0-pre.10 - 2026-11-13
+
+* Changes
+  * Fix issue preventing projects from overriding the fwup.conf or specifying a
+    firmware provisioning file.
+  * Trim `mix nerves.artifact.get` to only download and extract artifacts. This
+    defers error messages that aren't related to the download and turned out to
+    be confusing in this context.
+
 ## v2.0.0-pre.9 - 2026-11-09
 
 * Changes
