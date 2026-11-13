@@ -189,22 +189,26 @@ defmodule Nerves.MixUtils do
     do: "#{Float.round(bytes / (1024 * 1024 * 1024), 1)} GB"
 
   @spec set_provisioning(nil | atom | binary()) :: :ok
-  def set_provisioning(nil), do: :ok
+  def set_provisioning(provisioning) do
+    case provisioning_path(provisioning) do
+      nil -> :ok
+      path -> System.put_env("NERVES_PROVISIONING", path)
+    end
+  end
 
-  def set_provisioning(app) when is_atom(app) do
+  @spec provisioning_path(nil | atom | binary()) :: nil | binary()
+  def provisioning_path(nil), do: nil
+
+  def provisioning_path(app) when is_atom(app) do
     _ = Application.load(app)
 
-    # TODO: This seems wrong. Is it even used???
     Application.get_env(app, :nerves_provisioning)
-    |> set_provisioning()
+    |> provisioning_path()
   end
 
-  def set_provisioning(provisioning) when is_binary(provisioning) do
-    path = Path.expand(provisioning)
-    System.put_env("NERVES_PROVISIONING", path)
-  end
+  def provisioning_path(provisioning) when is_binary(provisioning), do: Path.expand(provisioning)
 
-  def set_provisioning(_) do
+  def provisioning_path(_) do
     Mix.raise("""
       Unexpected Mix config for :nerves, :firmware, :provisioning.
       Provisioning should be a relative string path to a provisioning.conf
