@@ -10,6 +10,76 @@ defmodule Nerves.BuildAction.NervesV1SystemTest do
   alias Nerves.EnvHelpers
   alias Nerves.Paths
 
+  describe "application firmware configuration" do
+    setup do
+      previous_firmware_config = Application.get_env(:nerves, :firmware)
+
+      on_exit(fn ->
+        if previous_firmware_config do
+          Application.put_env(:nerves, :firmware, previous_firmware_config)
+        else
+          Application.delete_env(:nerves, :firmware)
+        end
+      end)
+
+      %{package: BuildPlanHelpers.load_package(:nerves_system_rpi0)}
+    end
+
+    test "overrides the system provisioning configuration", %{package: package} do
+      provisioning = "config/provisioning.conf"
+      Application.put_env(:nerves, :firmware, provisioning: provisioning)
+
+      plan = Nerves.create_build_plan([package])
+
+      assert plan.config[:fwup_provisioning_conf] == Path.expand(provisioning)
+
+      assert plan.config[:fwup_conf] ==
+               Path.join(hd(plan.packages).artifact_path, "images/fwup.conf")
+    end
+
+    test "overrides the system fwup configuration", %{package: package} do
+      fwup_conf = "config/fwup.conf"
+      Application.put_env(:nerves, :firmware, fwup_conf: fwup_conf)
+
+      plan = Nerves.create_build_plan([package])
+
+      assert plan.config[:fwup_conf] == fwup_conf
+
+      assert plan.config[:fwup_provisioning_conf] ==
+               Path.join(hd(plan.packages).artifact_path, "images/fwup_include/provisioning.conf")
+    end
+
+    test "resolves provisioning from an application", %{package: package} do
+      previous_provisioning = Application.get_env(:nerves, :nerves_provisioning)
+
+      on_exit(fn ->
+        if previous_provisioning do
+          Application.put_env(:nerves, :nerves_provisioning, previous_provisioning)
+        else
+          Application.delete_env(:nerves, :nerves_provisioning)
+        end
+      end)
+
+      Application.put_env(:nerves, :nerves_provisioning, "config/app-provisioning.conf")
+      Application.put_env(:nerves, :firmware, provisioning: :nerves)
+
+      plan = Nerves.create_build_plan([package])
+
+      assert plan.config[:fwup_provisioning_conf] == Path.expand("config/app-provisioning.conf")
+    end
+
+    test "uses system provisioning when the application has no provisioning path", %{
+      package: package
+    } do
+      Application.put_env(:nerves, :firmware, provisioning: :logger)
+
+      plan = Nerves.create_build_plan([package])
+
+      assert plan.config[:fwup_provisioning_conf] ==
+               Path.join(hd(plan.packages).artifact_path, "images/fwup_include/provisioning.conf")
+    end
+  end
+
   test "legacy exclusions apply only to the system and its build dependencies" do
     package = %{
       BuildPlanHelpers.package_info(:test_system, "/system", "/artifacts/system")

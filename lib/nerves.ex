@@ -221,7 +221,7 @@ defmodule Nerves do
     |> add_base_configuration(all_packages)
     |> add_per_package_plans(all_packages)
     |> BuildPlan.run_planning_actions(:pre_download)
-    |> BuildPlan.merge_config(user_rootfs_config())
+    |> BuildPlan.merge_config(user_override_config())
   end
 
   defp default_os_env() do
@@ -303,12 +303,14 @@ defmodule Nerves do
     |> Map.new()
   end
 
-  defp user_rootfs_config() do
+  defp user_override_config() do
     firmware_config = Application.get_env(:nerves, :firmware) || []
 
     [
       rootfs_type: firmware_config[:rootfs_type],
-      bootfile: firmware_config[:bootfile]
+      bootfile: firmware_config[:bootfile],
+      fwup_conf: firmware_config[:fwup_conf],
+      fwup_provisioning_conf: MixUtils.provisioning_path(firmware_config[:provisioning])
     ]
     |> Enum.reject(fn {_, v} -> is_nil(v) end)
     |> Map.new()
