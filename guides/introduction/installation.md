@@ -91,6 +91,7 @@ First, install a few packages.
 ### Ubuntu and Debian
 
 ```bash
+sudo apt update
 sudo apt install build-essential automake autoconf git squashfs-tools pkg-config curl libmnl-dev libnl-genl-3-dev libssl-dev libncurses-dev help2man libconfuse-dev libarchive-dev file unzip libgnutls28-dev libcrypt-dev
 ```
 

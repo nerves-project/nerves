@@ -34,7 +34,8 @@ Install the following packages in your Linux environment:
 <!-- tabs-open -->
 #### Apt based distributions (Ubuntu, Debian...)
 ```bash
-sudo apt update && sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses-dev
+sudo apt update
+sudo apt install -y git build-essential bc cmake cvs wget curl mercurial python3 python3-aiohttp python3-flake8 python3-ijson python3-nose2 python3-pexpect python3-pip python3-requests rsync subversion unzip gawk jq squashfs-tools libssl-dev automake autoconf libncurses-dev
 ```
 
 #### Arch linux
