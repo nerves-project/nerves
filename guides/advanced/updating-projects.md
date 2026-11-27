@@ -822,6 +822,12 @@ function to change the `&Nerves.Release.init/1` reference to `&Nerves.init_relea
   end
 ```
 
+Nerves 2.0 removes Mix tasks (`Mix.Tasks.*` modules) from firmware since they
+can't be run on devices. If your firmware includes the `:mix` application and
+calls Mix tasks from libraries at runtime, see [Mix tasks in
+firmware](advanced-configuration.html#mix-tasks-in-firmware) for how to keep
+them.
+
 If you're using a custom Nerves system and don't post pre-built artifacts, Nerves 2 won't automatically build them like Nerves 1 sometimes could. To
 build them, run `MIX_TARGET=<your target> mix nerves.artifact.build`.
 

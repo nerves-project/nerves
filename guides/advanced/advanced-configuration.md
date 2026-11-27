@@ -524,3 +524,30 @@ or put it wherever you prefer. The configuration file is not running with the
 Nerves environment variables. The script will have access to them however. The
 script will receive the filepath of the filesystem as the first argument and
 this allows you to sign it or otherwise amend it.
+
+## Mix tasks in firmware
+
+Many libraries include Mix tasks. Mix isn't available on devices, so Nerves
+removes all `Mix.Tasks.*` modules from the OTP release when building firmware.
+This saves space and shortens boot time since the Erlang VM loads every module
+in the release at boot when it's run in embedded mode. Removed modules are also
+taken out of each application's `.app` file and the release's boot scripts so
+that nothing refers to them.
+
+This is done by the `Nerves.BuildAction.RemoveMixTasks` build action. It's
+enabled by default. To keep Mix tasks in the firmware, add the following to
+your `config/target.exs`:
+
+```elixir
+config :nerves, remove_mix_tasks: false
+```
+
+To only keep the Mix tasks of some OTP applications, list them:
+
+```elixir
+config :nerves, remove_mix_tasks: [exclude: [:mix, :my_library]]
+```
+
+The `:mix` application is excluded by default. It's only in the firmware if
+your project explicitly includes it, and it isn't of much use without its
+tasks.
