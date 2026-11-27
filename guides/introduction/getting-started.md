@@ -77,6 +77,30 @@ mix nerves.new hello_nerves
 
 Nerves will generate the required files and directory structure for your application. We'll give more details about them in the [Anatomy of a Nerves project](#anatomy-of-a-nerves-project) section.
 
+### Using Igniter
+
+If you use [Igniter](https://igniter.hexdocs.pm), `mix nerves.install` turns a
+regular Mix project into a Nerves project. To create a new project for the
+Raspberry Pi 4 with SSH, mDNS and networking support:
+
+```bash
+mix igniter.new hello_nerves --install nerves,nerves_ssh,mdns_lite,vintage_net,vintage_net_direct,vintage_net_ethernet,vintage_net_wifi,nerves_time,nerves_motd --target rpi4
+```
+
+Each library in the list has its own installer. List `nerves` first and leave
+out what you don't need. `mix nerves.new hello_nerves --igniter` runs this for
+you.
+
+To add Nerves to an existing project, run:
+
+```bash
+mix igniter.install nerves --target rpi4
+```
+
+Pass `--target` more than once or separate targets with commas to support more
+than one device. If you leave it off, all of the targets that `mix nerves.new`
+uses are added. See `mix help nerves.install` for details.
+
 As described by the project generator, the next step is to change to the project
 directory, choose a target, and fetch the target-specific dependencies.
 

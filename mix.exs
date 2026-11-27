@@ -54,6 +54,9 @@ defmodule Nerves.MixProject do
       {:jason, "~> 1.2"},
       {:nerves_discovery, "~> 0.1.2"},
       {:tablet, "~> 0.3.1"},
+
+      # Optional: only needed for `mix nerves.install` and `Nerves.Igniter`
+      {:igniter, "~> 0.6", optional: true, runtime: false},
       {:credo, "~> 1.6", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
@@ -66,7 +69,7 @@ defmodule Nerves.MixProject do
   defp dialyzer do
     [
       flags: [:missing_return, :extra_return, :unmatched_returns, :error_handling, :underspecs],
-      plt_add_apps: [:mix]
+      plt_add_apps: [:mix, :igniter, :glob_ex, :rewrite, :sourceror]
     ]
   end
 

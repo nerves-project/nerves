@@ -213,6 +213,30 @@ software dependencies.
 mix nerves.new my_app
 ```
 
+#### Igniter
+
+If you use [Igniter](https://igniter.hexdocs.pm), create a new Nerves project or
+add Nerves to an existing Mix project with:
+
+```bash
+# New project
+mix igniter.new my_app --install nerves --target rpi4
+
+# Existing project
+mix igniter.install nerves --target rpi4
+```
+
+`--target` selects which official Nerves systems to add. Pass it more than once
+or separate targets with commas (`--target rpi4,rpi0`). Without it, the same
+targets that `mix nerves.new` uses are added.
+
+Networking isn't set up by `nerves`. Add the libraries that you want to the
+`--install` list after it. This is what `mix nerves.new` projects have:
+
+```bash
+mix igniter.new my_app --install nerves,nerves_ssh,mdns_lite,vintage_net,vintage_net_direct,vintage_net_ethernet,vintage_net_wifi,nerves_time,nerves_motd --target rpi4
+```
+
 ### Building Firmware
 
 ```bash
